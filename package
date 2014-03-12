@@ -1,0 +1,3 @@
+#!/bin/bash
+
+tar -cf xorns-0.2.tar xorns-0.2/*

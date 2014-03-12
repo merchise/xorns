@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# TODO: This doesn't work in sudo mode
+
+# set proper arguments for emacsclient depending of terminal type
+if [[ -n "$INSIDE_EMACS" || "$TERM" = "eterm-color" || "$TERM" = "dumb" ]]
+then
+    PARAMS="--alternate-editor= -n"
+else
+    PARAMS="--alternate-editor=emacs-nw -t -c"
+fi
+
+emacsclient $PARAMS $*
