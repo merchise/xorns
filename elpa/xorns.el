@@ -72,6 +72,23 @@
 ;;  (require 'xorns-extra nil 'noerror))
 
 
+(defgroup merchise nil
+  "Merchise extensions for Emacs."
+  :prefix "xorns-"
+  :group 'extensions
+  :group 'convenience)
+
+
+
+;; TODO: This code must be removed when Emacs >= 24.3 is used for every one.
+(unless (functionp 'file-name-base)
+  (defun file-name-base (&optional filename)
+     "Return the base name of the FILENAME: no directory, no extension.
+FILENAME defaults to `buffer-file-name'."
+     (file-name-sans-extension
+	(file-name-nondirectory (or filename (buffer-file-name))))))
+
+
 
 ;;;###autoload
 (defun foobar ()

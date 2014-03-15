@@ -34,12 +34,33 @@
 
 ;;; Code:
 
+
+;; Requires, auto-loads and declarations
+
 (require 'smtpmail)
-(require 'message)
 (require 'widget)
-(require 'dash)
 (require 'xorns-widgets)
 
+(autoload
+  'message-narrow-to-headers
+  "message"
+  "Narrow the buffer to the head of the message.")
+
+(autoload
+  'message-fetch-field
+  "message"
+    "The same as `mail-fetch-field', only remove all newlines.
+The buffer is expected to be narrowed to just the header of the message;
+see `message-narrow-to-headers-or-head'.")
+
+(declare-function -first "dash.el"
+  "Returns the first x in LIST where (PRED x) is non-nil, else nil.
+
+To get the first item in the list no questions asked, use `car'.")
+
+
+
+;; Local definitions
 
 (define-widget 'xorns-smtp-account-line 'lazy
    "A custom SMTP address line.
@@ -106,10 +127,11 @@ If BUFFER is not present, use the current buffer."
 		  (stream-type (cadddr account)))
 	       (when (equal "" server)
 		  ;; TODO: find a function for this
-		  (let ((from (xorns-get-from-address)))
-		     (-when-let (pos (string-match "@" from))
-			(setq server
-			   (concat "smtp." (substring from (1+ pos)))))))
+		  (let* ((from (xorns-get-from-address))
+			 (pos (string-match "@" from)))
+		    (when pos
+		      (setq server
+			(concat "smtp." (substring from (1+ pos)))))))
 	       (message "Setting SMTP account %s, with server '%s'"
 		  account server)
 	       (setq
