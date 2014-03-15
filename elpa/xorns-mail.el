@@ -72,7 +72,10 @@ connection.  Other data such as password and port should be placed in the
    :type '(list
 	     (string :tag "Email address"
 		:validate --required)
-	     (string :tag "Login")
+	     (choice :tag "Login"
+		(const :tag "Use email address" full-email-address)
+		(const :tag "User from email address" user-from-email)
+		(string))
 	     (string
 		:tag "Server address"
 		:help-echo
@@ -85,11 +88,24 @@ empty the address defaults to \"smtp.ADDRESS-DOMAIN\".")
 	     ))
 
 
-(defcustom xorns-smtp-accounts nil
+(defgroup xorn-email nil
+   "Xorns Email"
+   :prefix "xorns-email-"
+   :group 'xorns)
+
+
+(defcustom xorns-email-smtp-accounts nil
 "Several SMTP accounts."
-   :group 'xorns
+   :group 'xorns-email
    :risky t
    :type '(repeat xorns-smtp-account-line))
+
+
+(defcustom xorns-email-debug nil
+   "Set to t for adding debuging messages to SMTP."
+   :group 'xorns-email
+   :risky t
+   :type 'boolean)
 
 
 (defun xorns-get-from-address ()
@@ -109,7 +125,7 @@ empty the address defaults to \"smtp.ADDRESS-DOMAIN\".")
 	      (lambda (account)
 		(let ((address (car account)))
 		  (string-match address from)))
-	      xorns-smtp-accounts)))
+	      xorns-email-smtp-accounts)))
     account))
 
 
@@ -121,26 +137,42 @@ If BUFFER is not present, use the current buffer."
       (with-current-buffer buffer
 	 (when account
 	    ;; TODO: (address login server mech) <- account
-	    (let ((address (car account))
-		  (login (cadr account))
-		  (server (string-utils-trim-whitespace (caddr account)))
-		  (stream-type (cadddr account)))
+	    (let* ((address (car account))
+		   (login (cadr account))
+		   (server (string-utils-trim-whitespace (caddr account)))
+		   (stream-type (cadddr account))
+		   (message-from (split-string (xorns-get-from-address) "@"))
+		   (email-login (car message-from))
+		   (email-domain (cadr message-from))
+		   (user
+		      (cond
+			 ((eq login 'full-email-address)
+			    (concat email-login "@" email-domain))
+			 ((eq login 'user-from-email)
+			    email-login)
+			 (t login))))
 	       (when (equal "" server)
 		  ;; TODO: find a function for this
-		  (let* ((from (xorns-get-from-address))
-			 (pos (string-match "@" from)))
-		    (when pos
-		      (setq server
-			(concat "smtp." (substring from (1+ pos)))))))
-	       (message "Setting SMTP account %s, with server '%s'"
-		  account server)
+		  (setq server
+		     (concat "smtp." email-domain)))
+	       (message "Setting SMTP. Server: '%s'. Login: '%s'. Type: '%s'"
+		  server user stream-type)
 	       (setq
 		  smtpmail-smtp-server server
+		  smtpmail-smtp-user user
 		  smtpmail-stream-type stream-type)
-	       (when (string-match ".+" login)
-		  smtpmail-smtp-user login))))
+	       (setq
+		  ;; TODO: configure
+		  smtpmail-smtp-service (if (eq stream-type 'ssl)
+					   465
+					   25))
+	       (when xorns-email-debug
+		  (setq
+		     smtpmail-debug-info t
+		     smtpmail-debug-verb t)))))
       (unless account
-	 (error "No account matches message's from line"))))
+	 (error "No account matches message's from '%s'"
+	    (xorns-get-from-address)))))
 
 
 ;; ---
