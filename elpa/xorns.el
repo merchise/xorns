@@ -72,7 +72,7 @@
 ;;  (require 'xorns-extra nil 'noerror))
 
 
-(defgroup merchise nil
+(defgroup xorns nil
   "Merchise extensions for Emacs."
   :prefix "xorns-"
   :group 'extensions

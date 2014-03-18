@@ -1,12 +1,13 @@
-;;; xorns-server.el --- Merchise Emacs server start
+;;; xorns-init --- Execute all Merchise members common initialization
 
-;; Copyright (c) 2014 Merchise Autrement
+;; Copyright (C) 2014 Merchise Autrement
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
-;; Version: 0.1
-;; TODO: ;; Package-Requires: ((flange "1.0"))
-;; Keywords: merchise, extensions, setup
-;; URL: http://dev.merchise.org/xorns/setup
+;; URL: http://dev.merchise.org/emacs/xorns-init
+;; Keywords: initialization, merchise, convenience
+;; Version: 20140316.1200
+
+;; This file is NOT part of GNU Emacs but I'd like it. ;)
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -20,27 +21,22 @@
 
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>
-;; or type `C-h C-c` in Emacs.
-
-;; This file is NOT part of GNU Emacs but I'd like it. ;)
+;; or type `C-h C-c' in Emacs.
 
 ;;; Commentary:
 
-;; This module activate Emacs server the first time it runs.
+;; Write your commentary here in only one line in this moment...
 
-;; Start the server, so "emacsclient" could automatically communicate.  In
-;; "xorns" project there are several scripts that use internally
-;; `emacsclient'; for example: `emc' and `emacs-nw'.
-
+;; Enjoy!
 
 
 ;;; Code:
 
-
+;; Start server
 (require 'server)
 (unless (server-running-p)
   (server-start))
 
 
-(provide 'xorns-server)
-;;; xorns-server.el ends here
+(provide 'xorns-init)
+;;; xorns-init.el ends here
