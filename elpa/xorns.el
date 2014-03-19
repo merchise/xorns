@@ -79,7 +79,6 @@
   :group 'convenience)
 
 
-
 ;; TODO: This code must be removed when Emacs >= 24.3 is used for every one.
 (unless (functionp 'file-name-base)
   (defun file-name-base (&optional filename)
@@ -89,17 +88,16 @@ FILENAME defaults to `buffer-file-name'."
 	(file-name-nondirectory (or filename (buffer-file-name))))))
 
 
+
+;;; Some simple string utilities
+
 
 ;;;###autoload
-(defun foobar ()
-  "Switch to `*scratch*` buffer, creating a new one if needed."
-  (interactive)
-  (let ((buf (get-buffer-create "*scratch*")))
-    (set-buffer-major-mode buf)
-    (switch-to-buffer buf)
-    (delete-other-windows)
-    ))
-
+(defun xorns-str-trim (s)
+  "Remove white-spaces at start and end of the string S."
+  (let ((blanks split-string-default-separators))
+    (replace-regexp-in-string
+      (format "\\`%s\\|%s\\'" blanks blanks) "" s)))
 
 
 (provide 'xorns)
