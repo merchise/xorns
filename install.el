@@ -25,7 +25,9 @@
 
 ;;; Commentary:
 
-;; Write your commentary here in only one line in this moment...
+;; To run this installation program, from the shell:
+;;   `$ emacs --load=install.el --batch --debug'
+
 
 ;; Enjoy!
 
