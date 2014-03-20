@@ -80,6 +80,9 @@ command buffer, in which case returns the buffer directly."
 	    ;; else (no buffer or a single one)
 	(car cmdbuffers))))
 
+  ;; TODO: [manu] Remove warning "the function `xorns-grizzl-select-cmdbuf'
+  ;; is not known to be defined.
+
   (defun xorns-attach-to-cmdbuf ()
     "Attaches current buffer to a debugging session."
     (interactive)
