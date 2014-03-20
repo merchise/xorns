@@ -35,22 +35,71 @@
 ;;; Code:
 
 (require 'package)
+(require 'cl)
 
 (package-initialize)
 
-(when (package-installed-p 'xorns)
-  (let* ((pkg-desc (assq 'xorns package-alist))
-	 (version (package-version-join (package-desc-vers (cdr pkg-desc)))))
-    (package-delete "xorns" version)))
 
-(let ((filename "xorns-0.2.tar"))
-  (if (file-exists-p filename)
-    (delete-file filename)))
+(defconst pkg-name "xorns"
+  "The current package name")
 
-(shell-command "tar -cf xorns-0.2.tar xorns-0.2/*")
 
-(package-install-file "./xorns-0.2.tar")
+(defconst pkg (eval (read (format "'%s" pkg-name)))
+  "Quoted package name as symbol")
 
+
+(defun file-read-text (file-name)
+  "Read text from FILE-NAME."
+  (decode-coding-string
+    (with-temp-buffer
+      (set-buffer-multibyte nil)
+      (setq buffer-file-coding-system 'binary)
+      (insert-file-contents-literally file-name)
+      (buffer-substring-no-properties (point-min) (point-max)))
+    'utf-8))
+
+
+(defconst pkg-new-version
+  (let* ((pkg-info (file-read-text (format "./elpa/%s-pkg.el" pkg)))
+	 (version (caddr (read pkg-info))))
+    version)
+  "Configured new version for the package.")
+
+
+(defun delete-old-package ()
+  "Remove old package if already installed."
+  (when (package-installed-p pkg)
+    (let* ((pkg-desc
+	     (assq pkg package-alist))
+	   (version
+	     (package-version-join (package-desc-vers (cdr pkg-desc)))))
+      (message "Deleting old package: `%s', version: %s" pkg version)
+      (package-delete pkg-name version))))
+
+
+(defun main ()
+  "Execute all installation process."
+  (delete-old-package)
+  (let* ((name-with-version (format "%s-%s" pkg pkg-new-version))
+	 (tar-file-name (format "./%s.tar" name-with-version))
+	  )
+    (message "Create symbolic link from `elpa' to `%s'." name-with-version)
+    (make-symbolic-link "./elpa/" name-with-version 'ok-if-exists)
+    (message "Create tar file `%s'." tar-file-name)
+    (shell-command
+      (format "tar -cf %s %s/*" tar-file-name name-with-version))
+    (message "Installing package: %s" pkg)
+    (package-install-file tar-file-name)
+    (message "Deleting tar file: %s" tar-file-name)
+    (delete-file tar-file-name)
+    (message "Deleting symbolic link: %s" name-with-version)
+    (delete-file name-with-version)
+    )
+  )
+
+;;; Execute main body
+
+(main)
 
 
 (provide 'install)
