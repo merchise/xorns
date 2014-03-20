@@ -72,6 +72,10 @@
   ; else
   (add-hook 'dired-load-hook 'xorns-setup-dired-single))
 
+(require 'xorns-buffers nil 'noerror)
+(when (functionp 'xorns-setup-find-file-hook)
+  (xorns-setup-find-file-hook))
+
 
 
 ;;; Hooks
