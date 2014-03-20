@@ -82,6 +82,14 @@
    "Home directory full name.")
 
 
+;; The LOCAL arg to `add-hook' is interpreted differently in Emacs and
+;; XEmacs.  In Emacs we don't need to call `make-local-hook' first.
+;; It's harmless, though, so the main purpose of this alias is to shut
+;; up the byte compiler.
+;; This is for "apt-utils" to work.
+(defalias 'make-local-hook 'ignore)
+
+
 ;; TODO: This code must be removed when Emacs >= 24.3 is used for every one.
 (unless (functionp 'file-name-base)
   (defun file-name-base (&optional filename)
