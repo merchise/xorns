@@ -27,6 +27,8 @@
 
 ;; Write your commentary here in only one line in this moment...
 
+;; TODO: Include all used ELPA packages as dependencies
+
 ;; Enjoy!
 
 
@@ -40,17 +42,21 @@
 
 ;;; Requires and theirs configuration
 
-;; TODO: Include all ELPA from next packages as dependencies
-
 (require 'outline nil 'noerror)
 (require 'ispell nil 'noerror)
 (require 'ibuffer nil 'noerror)
 (require 'rst nil 'noerror)
 (require 'python nil 'noerror)
 (require 'auto-complete nil 'noerror)
+(require 'magit nil 'noerror)
+(require 'dictionary nil 'noerror)
+
 (require 'xorns nil 'noerror)
+(require 'xorns-simple nil 'noerror)
 (require 'xorns-prog nil 'noerror)
 (require 'xorns-frames nil 'noerror)
+
+;; TODO: Movel all use or configuration for a different place below
 
 (require 'ido nil 'noerror)                 ; Interactively Do Things
 (when (functionp 'ido-mode)
@@ -94,6 +100,11 @@
       (error (message "error@after-init-hook: %s" err)))))
 
 
+;; Maximize frame for new created frames
+(when (functionp 'xorns-frame-maximize)
+  (add-hook 'after-make-frame-functions 'xorns-frame-maximize))
+
+
 (add-hook 'ibuffer-mode-hook       ; run upon entry into `ibuffer-mode'
   (lambda ()
     (condition-case err
@@ -120,6 +131,22 @@
 	(fci-mode t))
       (error (message "error@rst-mode-hook: %s" err)))))
 
+
+(add-hook 'gnus-load-hook               ; load gnus settings
+  (lambda ()
+    (condition-case err
+      (let* ((user-gnus-file
+	       (locate-user-emacs-file
+		 (concat "gnus-" user-real-login-name ".el")))
+	     (user-gnus-file
+	       (if (file-exists-p user-gnus-file)
+		 user-gnus-file
+		 ; else
+		 (locate-user-emacs-file "gnus.el"))))
+	(when (file-exists-p user-gnus-file)
+	  (message "Loading gnus configuration file %s" user-gnus-file)
+	  (load-file user-gnus-file)))
+      (error (message "error@gnus-load-hook: %s" err)))))
 
 
 ;;; Programming Mode Hooks
@@ -157,7 +184,8 @@
 
 ;;; Git
 
-(unless (require 'magit-install nil 'noerror)
+(when (functionp 'magit-mode)
+  (global-set-key "\C-xg" 'magit-status)
   (add-hook 'git-commit-mode-hook  ; run when in `magit' mode
     (lambda ()
       (condition-case err
@@ -166,15 +194,34 @@
 	  (flyspell-mode)
 	  ;; TODO: Use .dir-locals.el
 	  (ispell-change-dictionary "english"))
-      (error (message "error@git-commit-mode-hook: %s" err))))))
+	(error (message "error@git-commit-mode-hook: %s" err)))))
+  )
 
 
 
-;;; General miscellanies
+;;; Custom key-bindings
 
-;; Maximize frame
-(when (functionp 'xorns-frame-maximize)
-  (add-hook 'after-make-frame-functions 'xorns-frame-maximize))
+(global-set-key (kbd "C-x <f2>") 'rename-buffer)
+(global-set-key (kbd "C-x <f5>") 'revert-buffer)
+(global-set-key (kbd "C-c r") 'rgrep)
+
+(when (functionp 'dictionary-search)
+  (global-set-key (kbd "C-c w") 'dictionary-search))
+
+(when (functionp 'xorns-next-grep-result)
+  (global-set-key (kbd "C-M-g") 'xorns-next-grep-result))
+
+(global-set-key (kbd "C-c C-t")    ; Bash Terminal
+  (lambda ()
+    (interactive)
+    (ansi-term
+      (or (getenv "SHELL") (executable-find "bash")) "*shell*")))
+
+(global-set-key (kbd "C-c C-p")    ; IPython Terminal
+  (lambda ()
+    (interactive)
+    (ansi-term
+      (executable-find "ipython") "*ipyhon*")))
 
 
 (provide 'xorns-init)
