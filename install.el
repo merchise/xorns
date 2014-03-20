@@ -41,9 +41,14 @@
 	 (version (package-version-join (package-desc-vers (cdr pkg-desc)))))
     (package-delete "xorns" version)))
 
-(print default-directory)
+(let ((filename "xorns-0.2.tar"))
+  (if (file-exists-p filename)
+    (delete-file filename)))
+
+(shell-command "tar -cf xorns-0.2.tar xorns-0.2/*")
 
 (package-install-file "./xorns-0.2.tar")
+
 
 
 (provide 'install)

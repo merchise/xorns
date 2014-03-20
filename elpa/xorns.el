@@ -66,7 +66,6 @@
 
 ;;; Code:
 
-;; try-except: (condition-case VAR BODYFORM &rest HANDLERS)
 ;; TODO: (unless (featurep 'git-commit-mode) (require 'magit-log-edit nil t))
 ;;(eval-when-compile
 ;;  (require 'xorns-extra nil 'noerror))
@@ -77,6 +76,10 @@
   :prefix "xorns-"
   :group 'extensions
   :group 'convenience)
+
+
+(defconst xorns-home-dir (purecopy (file-truename "~"))
+   "Home directory full name.")
 
 
 ;; TODO: This code must be removed when Emacs >= 24.3 is used for every one.
