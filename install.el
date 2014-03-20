@@ -61,7 +61,7 @@
 
 (defconst pkg-new-version
   (let* ((pkg-info (file-read-text (format "./elpa/%s-pkg.el" pkg)))
-	 (version (caddr (read pkg-info))))
+	 (version (nth 2 (read pkg-info))))
     version)
   "Configured new version for the package.")
 
