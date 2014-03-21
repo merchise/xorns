@@ -54,6 +54,7 @@
 (require 'auto-complete nil 'noerror)
 (require 'magit nil 'noerror)
 (require 'dictionary nil 'noerror)
+(require 'rfcview nil 'noerror)
 
 (require 'xorns nil 'noerror)
 (require 'xorns-simple nil 'noerror)
@@ -178,6 +179,15 @@
 	(define-key outline-minor-mode-map (kbd "C-=") 'show-subtree)
 	(define-key outline-minor-mode-map (kbd "M-=") 'hide-subtree))
       (error (message "error@python-mode-hook: %s" err)))))
+
+
+(when (featurep 'rfcview)
+   (add-hook 'rfcview-mode-hook
+      (lambda ()
+	 (condition-case err
+	    (progn
+	       (define-key rfcview-mode-map (kbd "l") 'pop-to-mark-command))
+	    (error (message "error@rfcview-mode-hook: %s" err))))))
 
 
 ;; 'emacs-lisp-mode-hook 'coffee-mode-hook
