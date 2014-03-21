@@ -42,6 +42,11 @@
 (require 'projectile nil 'noerror)
 
 
+(when (featurep 'projectile)
+  (projectile-global-mode t)
+  (add-to-list 'projectile-project-root-files "setup.py"))
+
+
 ;;;###autoload
 (defun xorns-force-switch-to-scratch ()
   "Switch to `*scratch*` buffer, creating a new one if needed."
@@ -115,6 +120,7 @@ since it's deemed already tried and not unique."
 	  (or filename buffer-file-name) 'abbrev)))))
 
 
+;;;###autoload
 (defun xorns-find-better-unique-buffer-name ()
   "Hook for `find-file-hook' to find a better buffer name."
   (let ((unique nil)
@@ -160,14 +166,6 @@ since it's deemed already tried and not unique."
       (when unique
 	(message "Found name '%s'" name)
 	(rename-buffer name)))))
-
-
-(defun xorns-setup-find-file-hook ()
-  "Configure `find-file-hook'.
-Renames the buffer to project-name:.../file.py if needed/possible."
-  (add-hook 'find-file-hook
-    ;; TODO: use `(condition-case err ...'
-    'xorns-find-better-unique-buffer-name))
 
 
 (provide 'xorns-buffers)

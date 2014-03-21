@@ -42,8 +42,12 @@
 
 ;;; Requires and theirs configuration
 
+(require 'xorns-config nil 'noerror)
+
+(require 'ido nil 'noerror)
 (require 'outline nil 'noerror)
 (require 'ispell nil 'noerror)
+(require 'xorns-dired nil 'noerror)
 (require 'ibuffer nil 'noerror)
 (require 'rst nil 'noerror)
 (require 'python nil 'noerror)
@@ -55,32 +59,25 @@
 (require 'xorns-simple nil 'noerror)
 (require 'xorns-prog nil 'noerror)
 (require 'xorns-frames nil 'noerror)
+(require 'xorns-buffers nil 'noerror)
 
-;; TODO: Movel all use or configuration for a different place below
 
-(require 'ido nil 'noerror)                 ; Interactively Do Things
-(when (functionp 'ido-mode)
+;; TODO: Move all use or configuration for a different place below
+
+
+(when (featurep 'ido)
   (ido-mode t))
-
-(require 'projectile nil 'noerror)          ; Project support
-(when (functionp 'projectile-global-mode)
-  (projectile-global-mode t)
-  (add-to-list 'projectile-project-root-files "setup.py"))
 
 (when (not (version< emacs-version "24.3"))   ; Discover more of Emacs
   (require 'discover nil 'noerror)            ; See http://t.co/IwZnrqQBRO
   (when (functionp 'global-discover-mode)
     (global-discover-mode)))
 
-(require 'xorns-dired nil 'noerror)         ; Directory-browsing commands
+
 (if (boundp 'dired-mode-map)
   (xorns-setup-dired-single)
   ; else
   (add-hook 'dired-load-hook 'xorns-setup-dired-single))
-
-(require 'xorns-buffers nil 'noerror)
-(when (functionp 'xorns-setup-find-file-hook)
-  (xorns-setup-find-file-hook))
 
 
 
@@ -103,6 +100,10 @@
 ;; Maximize frame for new created frames
 (when (functionp 'xorns-frame-maximize)
   (add-hook 'after-make-frame-functions 'xorns-frame-maximize))
+
+
+(add-hook 'find-file-hook          ; after a buffer is loaded from a file
+  'xorns-find-better-unique-buffer-name)
 
 
 (add-hook 'ibuffer-mode-hook       ; run upon entry into `ibuffer-mode'
@@ -204,6 +205,15 @@
 (global-set-key (kbd "C-x <f2>") 'rename-buffer)
 (global-set-key (kbd "C-x <f5>") 'revert-buffer)
 (global-set-key (kbd "C-c r") 'rgrep)
+
+(global-set-key (kbd "C-x C-b")
+  (lambda ()
+    (interactive)
+    (cond
+    ((and helm-mode xorns-prefer-helm-buffer-list)
+      (helm-buffers-list))
+    ((functionp 'ibuffer)
+      (ibuffer)))))
 
 (when (functionp 'dictionary-search)
   (global-set-key (kbd "C-c w") 'dictionary-search))

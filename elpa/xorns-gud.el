@@ -63,7 +63,7 @@ buffer."
 
 
 (when xorns-realgud-enabled
-
+  ; TODO: Generalize this to use `gud' if `realgud' is not present.
   (defun xorns-grizzl-select-cmdbuf()
     "Lets the user select a `realgud' command buffer, unless there's a single
 command buffer, in which case returns the buffer directly."
