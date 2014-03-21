@@ -30,7 +30,9 @@
 ;;
 ;; Features:
 ;;
-;; - Improved ...
+;; - Resurrects a «*scratch*» buffer is none is present.
+;; - Better renaming of buffers; i.e differentiate buffers via project's name
+;;   and containing directory hierarchy.
 ;;
 ;; Enjoy!
 
