@@ -33,8 +33,7 @@
 ;;; Code:
 
 (require 'widget)
-
-(declare-function widget-value "wid-edit.el")
+(require 'wid-edit)
 
 
 (defun --required (widget)

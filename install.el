@@ -26,8 +26,10 @@
 ;;; Commentary:
 
 ;; To run this installation program, from the shell:
-;;   `$ emacs --load=install.el --batch --debug'
-
+;;     `$ emacs --load=install.el --batch --debug'
+;;
+;; See `xorns-init.el' for more info to configure `xorns' in your
+;; Emacs initialization file.
 
 ;; Enjoy!
 
@@ -35,17 +37,14 @@
 ;;; Code:
 
 (require 'package)
-(require 'cl)
+(eval-when-compile
+  (require 'cl))
+
 
 (package-initialize)
 
-
-(defconst pkg-name "xorns"
-  "The current package name")
-
-
-(defconst pkg (eval (read (format "'%s" pkg-name)))
-  "Quoted package name as symbol")
+(defconst pkg 'xorns
+  "Symbol for package identifier.")
 
 
 (defun file-read-text (file-name)
@@ -74,7 +73,7 @@
 	   (version
 	     (package-version-join (package-desc-vers (cdr pkg-desc)))))
       (message "Deleting old package: `%s', version: %s" pkg version)
-      (package-delete pkg-name version))))
+      (package-delete (symbol-name pkg) version))))
 
 
 (defun main ()

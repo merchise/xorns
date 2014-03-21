@@ -31,6 +31,10 @@
 ;;  - marmalade: User-contributed repository
 ;;  - melpa: ?
 
+;; This module is automatically used when::
+;;
+;;     (require 'xorns)
+
 ;; Enjoy!
 
 
@@ -50,6 +54,15 @@
 (add-to-list
   'package-archives
   '("melpa" . "http://melpa.milkbox.net/packages/"))
+
+
+;;;###autoload
+(defun xorns-dependency-install (feature)
+  "Install a dependency FEATURE if not installed."
+  (condition-case err
+    (when (not (package-installed-p feature))
+      (package-install feature))
+    (error (message "error@dependency-install: %s" err))))
 
 
 (provide 'xorns-package)

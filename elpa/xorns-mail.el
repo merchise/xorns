@@ -29,6 +29,11 @@
 ;; sending mail) and `pop3.el' (Post Office Protocol interface for receiving
 ;; mails).
 
+;; This module is not automatically used when require plain `xorns',
+;; to use it::
+;;
+;;     (require 'xorns-extra)
+
 ;; Enjoy!
 
 
@@ -38,29 +43,16 @@
 ;; Requires, auto-loads and declarations
 
 (require 'smtpmail)
+(require 'message)
+
+(require 'dash nil 'noerror)
+
+(require 'xorns-utils)
 (require 'xorns-widgets)
-
-(autoload
-  'message-narrow-to-headers
-  "message"
-  "Narrow the buffer to the head of the message.")
-
-(autoload
-  'message-fetch-field
-  "message"
-    "The same as `mail-fetch-field', only remove all newlines.
-The buffer is expected to be narrowed to just the header of the message;
-see `message-narrow-to-headers-or-head'.")
-
-(declare-function -first "dash.el"
-  "Returns the first x in LIST where (PRED x) is non-nil, else nil.
-
-To get the first item in the list no questions asked, use `car'.")
 
 
 
 ;; Local definitions
-
 
 
 (defgroup xorns-email nil
@@ -162,6 +154,26 @@ meaning."
    (xorns-use-appropriate-smtp-server smtpmail-text-buffer)
    (funcall (symbol-value '%xorns-super-smtpmail-via-smtp)
       recipient smtpmail-text-buffer ask-for-password))
+
+
+
+;;; Hooks
+
+(add-hook 'gnus-load-hook               ; load gnus settings
+  (lambda ()
+    (condition-case err
+      (let* ((user-gnus-file
+	       (locate-user-emacs-file
+		 (concat "gnus-" user-real-login-name ".el")))
+	     (user-gnus-file
+	       (if (file-exists-p user-gnus-file)
+		 user-gnus-file
+		 ; else
+		 (locate-user-emacs-file "gnus.el"))))
+	(when (file-exists-p user-gnus-file)
+	  (message "Loading gnus configuration file %s" user-gnus-file)
+	  (load-file user-gnus-file)))
+      (error (message "error@gnus-load-hook: %s" err)))))
 
 
 
