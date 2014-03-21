@@ -195,7 +195,7 @@
 
 ;;; Git
 
-(when (functionp 'magit-mode)
+(when (featurep 'magit)
   (global-set-key "\C-xg" 'magit-status)
   (add-hook 'git-commit-mode-hook  ; run when in `magit' mode
     (lambda ()
@@ -216,20 +216,26 @@
 (global-set-key (kbd "C-x <f5>") 'revert-buffer)
 (global-set-key (kbd "C-c r") 'rgrep)
 
+
+;; XXX In these cases I prefer testing for both the feature and the functionp
+;; cause it seems more robust: The feature may exists but the function might
+;; be dropped.
+
 (global-set-key (kbd "C-x C-b")
   (lambda ()
     (interactive)
     (cond
-    ((and helm-mode xorns-prefer-helm-buffer-list)
-      (helm-buffers-list))
-    ((functionp 'ibuffer)
-      (ibuffer)))))
+       ((and (featurep 'heml) helm-mode xorns-prefer-helm-buffer-list)
+	  (helm-buffers-list))
+       ((and (featurep 'ibuffer) (functionp 'ibuffer))
+	  (ibuffer)))))
 
-(when (functionp 'dictionary-search)
+(when (and (featurep 'dictionary) (functionp 'dictionary-search))
   (global-set-key (kbd "C-c w") 'dictionary-search))
 
-(when (functionp 'xorns-next-grep-result)
+(when (and (featurep 'xorns-simple) (functionp 'xorns-next-grep-result))
   (global-set-key (kbd "C-M-g") 'xorns-next-grep-result))
+
 
 (global-set-key (kbd "C-c C-t")    ; Bash Terminal
   (lambda ()
