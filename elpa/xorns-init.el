@@ -247,7 +247,7 @@
   (lambda ()
     (interactive)
     (ansi-term
-      (executable-find "ipython") "*ipyhon*")))
+      (executable-find "ipython") "*ipython*")))
 
 
 (provide 'xorns-init)
