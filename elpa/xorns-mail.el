@@ -150,19 +150,12 @@ If BUFFER is not present, use the current buffer."
 	    (xorns-get-from-address)))))
 
 
-;; ---
-;; TODO: Try to derive an alias-chain like rails'.
-(defvar %xorns-super-smtpmail-via-smtp (symbol-function 'smtpmail-via-smtp))
-(defun smtpmail-via-smtp (recipient smtpmail-text-buffer
-			    &optional ask-for-password)
-   "Wrap `smtpmail-via-smtp' to choose among `xorns-smtp-accounts'.
-
-RECIPIENT, SMTPMAIL-TEXT-BUFFER and ASK-FOR-PASSWORD keep their original
-meaning."
-   (xorns-use-appropriate-smtp-server smtpmail-text-buffer)
-   (funcall (symbol-value '%xorns-super-smtpmail-via-smtp)
-      recipient smtpmail-text-buffer ask-for-password))
-
+(defadvice smtpmail-via-smtp (before xorns-choose-smtp-account
+				(recipient smtpmail-text-buffer
+				   &optional ask-for-password)
+				activate compile)
+   "Choose the SMTP account from `xorns-smtp-accounts'."
+   (xorns-use-appropriate-smtp-server smtpmail-text-buffer))
 
 
 (provide 'xorns-mail)
