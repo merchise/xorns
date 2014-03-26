@@ -90,30 +90,6 @@
 
 ;;; Python
 
-(defun python-check-version (cmd)
-  "Check that CMD runs a suitable version of Python.
-
-This is a fixed clone of the original in `python.el' Emacs module in
-order to function with IPython when use print as a function like in
-Python-3.
-
-I would like Emacs' `python.el' module soon also works with Python-3.
-
-TODO: Check this function in each new version of Emacs."
-  (unless
-    (or python-version-checked
-      (equal 0 (string-match (regexp-quote python-python-command) cmd)))
-    (unless (shell-command-to-string cmd)
-      (error "Can't run Python command `%s'" cmd))
-    (let* ((res (shell-command-to-string
-		  (concat cmd
-		    " -c 'from sys import version_info as ver;"
-		    "print(ver >= (2, 2) and ver < (3, 0))'"))))
-      (unless (string-match "True" res)
-	(error "Only Python versions >= 2.2 and < 3.0 are supported")))
-    (setq python-version-checked t)))
-
-
 ;;;###autoload
 (defun xorns-jedi-setup ()
   "Setup `jedi' for current buffer."

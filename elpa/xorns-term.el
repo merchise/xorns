@@ -81,12 +81,11 @@ environment variables `ESHELL' and `SHELL', custom Emacs variable
 `shell-file-name', any of [`bash' `sh' `ksh' `zsh' `tclsh' `csh'
 `tcsh']."
   (let ((variants
-	  (append
-	    (list
-	      (getenv "ESHELL")
-	      (getenv "SHELL")
-	      shell-file-name)
-	    '("bash" "sh" "ksh" "zsh" "tclsh" "csh" "tcsh"))))
+	  (list
+	    (getenv "ESHELL")
+	    (getenv "SHELL")
+	    (if (boundp 'shell-file-name) shell-file-name)
+	    "bash" "sh" "ksh" "zsh" "tclsh" "csh" "tcsh"))))
     (apply 'xorns-executable-find xorns-system-shell variants)))
 
 
@@ -101,10 +100,8 @@ variable `PYTHON' and custom variables `python-python-command' and
   (let ((variants
 	  (list
 	    "ipython"
-	    python-command
-	    (getenv "PYTHON")
-	    python-python-command
-	    python-jython-command)))
+	    "python"
+	    (getenv "PYTHON"))))
     (apply 'xorns-executable-find xorns-python-shell variants)))
 
 
