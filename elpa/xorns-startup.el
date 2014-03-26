@@ -103,7 +103,7 @@
 (global-set-key (kbd "C-x <f5>") 'revert-buffer)
 (global-set-key (kbd "C-c r") 'rgrep)
 (global-set-key (kbd "C-c d") 'xorns-pwd)
-
+(global-set-key (kbd "C-c m") 'man)
 
 (require 'dictionary nil 'noerror)
 (if (featurep 'dictionary)
