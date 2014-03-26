@@ -47,8 +47,8 @@
 (require 'xorns-startup)
 (require 'xorns-buffers)
 (require 'xorns-dired)
-
 (require 'xorns-simple)
+(require 'xorns-term)
 (require 'xorns-prog)        ;; This requires `xorns-text'
 (require 'xorns-project)
 (require 'xorns-git)

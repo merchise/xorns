@@ -79,7 +79,7 @@
     (abbreviate-file-name (if relative (file-relative-name path) path))))
 
 
-(defconst xorns-merchise-prefered-directory
+(defconst xorns-prefered-default-directory
   (eval-when-compile
     (purecopy
       (file-name-as-directory
@@ -103,9 +103,9 @@
 
 
 ;;;###autoload
-(defun xorns-merchise-prefered-directory ()
+(defun xorns-prefered-default-directory ()
   "Return name of preferred default directory when start a new session."
-  xorns-merchise-prefered-directory)
+  xorns-prefered-default-directory)
 
 
 ;;;###autoload
@@ -114,11 +114,12 @@
 
 If COMMAND is not found, looks for alternatives given in OTHER-COMMANDS.
 
-If none is found, nil is returned."
-  (or (executable-find command)
+This function is safe avoiding nil commands.  If none is found, nil
+is returned."
+  (or (unless (null command) (executable-find command))
     (loop
       for current in other-commands
-      for exe = (executable-find current)
+        for exe = (unless (null current) (executable-find current))
       until exe
       finally return exe)))
 

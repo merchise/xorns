@@ -74,26 +74,6 @@
 (mouse-wheel-mode t)
 
 
-;; Terminals
-
-(global-set-key (kbd "C-c C-t")    ; Bash Terminal
-  (lambda ()
-    (interactive)
-    (ansi-term
-      (or
-	(getenv "SHELL")
-	(xorns-executable-find "bash" "sh" "ksh"))
-      "*shell*")))
-
-
-(global-set-key (kbd "C-c C-p")    ; IPython Terminal
-  (lambda ()
-    (interactive)
-    (ansi-term
-      (xorns-executable-find "ipython" "python")
-      "*ipyhon*")))
-
-
 
 ;;; Other standard or ELPA packages initialization
 

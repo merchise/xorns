@@ -57,7 +57,7 @@
 
 ;; Externals to avoid warnings
 (defvar xorns-home-dir)
-(defvar xorns-merchise-prefered-directory)
+(defvar xorns-prefered-default-directory)
 (declare-function xorns-default-directory "xorns-utils.el")
 
 
@@ -99,9 +99,8 @@
 (defun xorns-force-scratch (&optional arg)
   "Switch to `*scratch*` buffer, creating a new one if needed.
 
-An optional argument ARG could be given to delete other windows if
-positive or zero; if zero or `'also reset `default-directory' to a smart
-position."
+An optional argument ARG could be given to delete other windows; if
+`0' also reset `default-directory' to `xorns' default."
   (interactive "P")
   (let ((buf (get-buffer-create "*scratch*")))
     (set-buffer-major-mode buf)
@@ -109,7 +108,7 @@ position."
     (if (or
 	  (= (prefix-numeric-value arg) 0)
 	  (equal (xorns-default-directory) xorns-home-dir))
-      (setq default-directory xorns-merchise-prefered-directory))
+      (setq default-directory xorns-prefered-default-directory))
     (if arg (delete-other-windows))))
 
 
@@ -124,7 +123,7 @@ position."
     (condition-case err
       ;; Set initial default directory for `*scratch*' buffer
       (if (equal (xorns-default-directory) xorns-home-dir)
-	(setq default-directory xorns-merchise-prefered-directory))
+	(setq default-directory xorns-prefered-default-directory))
       (error (message "error@after-init-hook: %s" err)))))
 
 
