@@ -49,6 +49,16 @@
 
 
 
+;;; Symbols and variables
+
+;;;###autoload
+(defun xorns-get-value (symbol)
+  "Return SYMBOL's value or  nil if that is void."
+  (if (boundp symbol)
+    (symbol-value symbol)))
+
+
+
 ;;; Strings
 
 ;;;###autoload
