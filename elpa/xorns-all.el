@@ -1,11 +1,11 @@
-;;; xorns-config --- Merchise variables
+;;; xorns-all --- Related to all `xorns' sub-modules
 
 ;; Copyright (C) 2014 Merchise Autrement
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
-;; URL: http://dev.merchise.org/emacs/xorns-config
+;; URL: http://dev.merchise.org/emacs/xorns-all
 ;; Keywords: initialization, merchise, convenience
-;; Version: 20140320.2216
+;; Version: 20140324.1117
 
 ;; This file is NOT part of GNU Emacs but I'd like it. ;)
 
@@ -25,8 +25,7 @@
 
 ;;; Commentary:
 
-;; Customization for the Merchise `xorns' library.  Define some variables
-;; that change the behaviour of configurable features.
+;; Definitions that depends of all `xorns' sub-modules.
 
 ;; Enjoy!
 
@@ -35,20 +34,11 @@
 
 
 ;;;###autoload
-(defcustom xorns-prefer-helm-buffer-list nil
-   "Indicates if prefer helm buffer list over ibuffer.
-
-Use the `helm-buffer-list' if `helm-mode' is active and
-this variable is non nil; elsewhere use standard `ibuffer'."
-   :group 'xorns
-   :type 'boolean)
-
-(defvar helm-mode nil
-  "Non-nil if Helm mode is enabled.
-This is a fake variable that is overwritten by `helm-config'.  This
-definition is just in case `helm' is not installed.")
+(defun xorns-all-dependencies-install ()
+  "Install all dependencies of text modes."
+  (xorns-text-dependencies-install)
+  (xorns-git-dependencies-install))
 
 
-
-(provide 'xorns-config)
-;;; xorns-config.el ends here
+(provide 'xorns-all)
+;;; xorns-all.el ends here

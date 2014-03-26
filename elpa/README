@@ -1,26 +1,45 @@
-Merchise extensions for Emacs
-=============================
+Merchise Xorns
+==============
 
 "Xorns" provides routines and variables to use Emacs in a better way,
 according to "Merchise Group" best practices and rules.
 
-The name "Xorns" comes from "horns" as a metaphor because "Emacs" is the head
-of the "Gnu" and "Xorns" the horns of that head.  The "X" is due to Merchise's
-projects start with that letter looking for words in Nahuatl or those in
-English sometimes replacing the "H" for the "X" like in this case.
+The name "xorns" comes from "horns" as a metaphor in the sense that
+"Emacs" is the head of the "GNU" and our framework would be "horns"
+of that head.  The *X* instead the *H* is due to the name of all
+Merchise projects start with that letter looking for words in Nahuatl
+or sometimes in English replacing *H* by *X*.
 
 
-Features
---------
+Installation
+------------
 
-- ...
+To install this package from `xorns-<version>.tar` follow standard
+Emacs package installation.
 
-Usage
------
+If you have the *GIT repository*, then execute from the shell command
+line::
 
-- Type `M-x ack' ...
+    $ emacs --load=install.el --batch --debug
 
-- Type `C-u M-x ack' to ...
+After the package is fully installed (with its all dependencies), just
+configure one of the standard initialization files (`~/.emacs` or
+`~/.emacs.d/init.el`) with the following body::
 
-"xorns.el" ans submodules was written by Medardo Rodríguez (med), with big
-contributions from Manuel Vázquez (manu).
+    (package-initialize)
+    (require 'xorns nil 'noerror)
+
+If you want to configure our preferred `package-archives`, include
+also::
+
+    (require 'xorns-package nil 'noerror)
+
+
+Documentation
+-------------
+
+Right now, only is available the inner modules header commentaries.  But
+we think that if you are installing this package, you are an advanced
+Emacs user and probably (but not necessary) a nice programmer.  Then
+will be enough to review our source code and hit sometimes `C-h f` or
+`C-h v` to see Emacs documentation for functions and variables.

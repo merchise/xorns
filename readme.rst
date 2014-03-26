@@ -1,7 +1,1 @@
-"Xorns" provides routines and variables to use Emacs in a better way,
-according to "Merchise Group" best practices and rules.
-
-The name "Xorns" comes from "horns" as a metaphor because "Emacs" is the
-head of the "Gnu" and "Xorns" the horns of that head.  The "X" is due to
-Merchise's projects start with that letter looking for words in Nahuatl or
-those in English sometimes replacing the "H" for the "X" like in this case.
+/home/med/work/merchise/xorns/elpa/README

@@ -26,28 +26,44 @@
 ;;; Commentary:
 
 ;; Include functions to change frame parameters and with the purpose of be
-;; used easily in Emacs initialization processes.  See `xorns-init.el'.
+;; used easily in Emacs initialization processes.
 ;;
+;; This module is not being used because is a better way to maximize
+;; frames at its initialization (See `default-frame-alist' at
+;; `xorns-startup.el').
+
 ;; Enjoy!
 
 
 ;;; Code:
 
 
-(defun xorns-frame-maximize ()
-  "Maximize current FRAME."
+(defun xorns-frame-maximize (&optional frame delay)
+  "Maximize the specified FRAME.
+
+If no frame is specified, current frame is assumed.  This functionality
+can be executed with a DELAY specified in seconds; if none is given, `0.1'
+is assumed."
+  (interactive)
   (when (not (null window-system))
-    (run-with-idle-timer 0.1 nil
-      (lambda ()
-	(modify-frame-parameters nil '((fullscreen . maximized)))))))
+    (run-with-idle-timer (or delay 0.1) nil
+      (lambda (frame)
+	  (modify-frame-parameters frame '((fullscreen . maximized))))
+      frame)))
 
 
+(defun xorns-frame-fullscreen (&optional frame delay)
+  "Put specified FRAME in full-screen if in a X display.
 
-(defun xorns-frame-fullscreen (&optional frame)
-  "Put specified FRAME in full-screen if in a X display."
+If no frame is specified, current frame is assumed.  This functionality
+can be executed with a DELAY specified in seconds; if none is given, `0.1'
+is assumed."
+  (interactive)
   (when (not (null window-system))
-    (modify-frame-parameters frame
-      '((fullscreen . fullboth)))))
+    (run-with-idle-timer (or delay 0.1) nil
+      (lambda (frame)
+	(modify-frame-parameters frame '((fullscreen . fullboth))))
+      frame)))
 
 
 (provide 'xorns-frames)

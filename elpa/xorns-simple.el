@@ -28,10 +28,17 @@
 ;; Basic Emacs commands not specifically related to any specific major mode
 ;; or to file-handling.
 
+;; This module is automatically used when::
+;;
+;;     (require 'xorns)
+
 ;; Enjoy!
 
 
 ;;; Code:
+
+
+(require 'ido)
 
 
 (defun -set-buffer-read-only ()
@@ -39,7 +46,6 @@
    (setq buffer-read-only t))
 
 
-;;;###autoload
 (defun xorns-next-grep-result (&optional arg reset)
    "Visit next grep result.
 
@@ -65,6 +71,9 @@ In the case of grep results, each visited buffer is marked read-only."
       (delete-other-windows)
       (remove-hook 'next-error-hook '-set-buffer-read-only))
     (next-error arg reset)))
+
+
+(global-set-key (kbd "C-M-g") 'xorns-next-grep-result)
 
 
 (provide 'xorns-simple)

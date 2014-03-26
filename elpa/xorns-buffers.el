@@ -1,16 +1,15 @@
-;;; xorns-buffers.el --- Merchise extensions for Emacs (buffers)
+;;; xorns-buffers --- Buffers management
 
-;; Copyright (C) 2014  Merchise Autrement
-;; All rights reserved.
+;; Copyright (C) 2014 Merchise Autrement
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
-;; Created: 2014-03-10
-;; Keywords: merchise, extensions, tools
-;; URL: http://dev.merchise.org/xorns/xorns-buffers
+;; URL: http://dev.merchise.org/emacs/xorns-buffers
+;; Keywords: initialization, merchise, convenience
+;; Version: 20140324.1244
 
-;; This file is NOT part of GNU Emacs.
+;; This file is NOT part of GNU Emacs but I'd like it. ;)
 
-;; This program is free software; you can redistribute it and/or modify
+;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
@@ -21,153 +20,111 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>
+;; or type `C-h C-c' in Emacs.
 
 ;;; Commentary:
 
-;; "xorns-buffers" provides routines and variables to manipulate Emacs
-;; buffers.
+;; This module main features are:
 ;;
-;; Features:
+;; - Inhibits the start-up screen and initial message for `*scratch*'
+;;   buffer.
 ;;
-;; - Resurrects a «*scratch*» buffer is none is present.
-;; - Better renaming of buffers; i.e differentiate buffers via project's name
-;;   and containing directory hierarchy.
+;; - Configure `C-x C-b' to list buffers using `ibuffer' instead
+;;   standard `list-buffers'.  This can be change in `xorns' by
+;;   requiring `xorns-helm' and set `xorns-prefer-helm-buffer-list'.
 ;;
+;; - Set `ibuffer' groups.
+;;
+;; - Functionality to force `*scratch*' buffer.
+
+;; This module is automatically used when::
+;;
+;;     (require 'xorns)
+
 ;; Enjoy!
 
 
 ;;; Code:
 
+(eval-when-compile
+  (require 'cl))
 
-(require 'dash nil 'noerror)
-(require 'projectile nil 'noerror)
+(require 'ibuf-ext nil 'noerror)
+
+(eval-when-compile
+  (require 'xorns-utils))
+
+;; Externals to avoid warnings
+(defvar xorns-home-dir)
+(defvar xorns-prefered-default-directory)
+(declare-function xorns-default-directory "xorns-utils.el")
 
 
-(when (featurep 'projectile)
-  (projectile-global-mode t)
-  (add-to-list 'projectile-project-root-files "setup.py"))
-
-
-;;;###autoload
-(defun xorns-force-switch-to-scratch ()
-  "Switch to `*scratch*` buffer, creating a new one if needed."
-  (interactive)
-  (let ((buf (get-buffer-create "*scratch*")))
-    (set-buffer-major-mode buf)
-    (switch-to-buffer buf)
-    (delete-other-windows)))
+;; Get rid of the startup screen and `*scratch*' buffer message
+(setq inhibit-startup-screen t)
+(setq initial-scratch-message nil)
 
 
 
-;;; Unique nice buffer names
+;;; IBuffer
 
-;; TODO: Maybe this must be moved to `xorns.el'
-(defmacro --collecting-reduce (form l)
-   "Perform a collecting reducing using FORM over the list L.
-
-A collecting reduce is a reduce that does not returns a single value (the
-result of the last computation) but that returns a list of all computations
-made.
-
-The FORM should use 'FIRST' and 'SECOND' as the current items to be processed.
-The first time FORM is executed FIRST takes nil."
-   `(-flatten
-       (-reduce-from
-	  (lambda (previous second)
-	     (let ((first (car (last previous))))
-		(list previous ,form)))
-	  ()
-	  ,l)))
+(global-set-key (kbd "C-x C-b") 'ibuffer)
 
 
-(defun xorns-collecting-reduce(func l)
-   "Functional form for `--collecting-reduce'.
-
-FUNC must be a function object and L must a sequence."
-   (--collecting-reduce (funcall func first second) l))
-
-
-(defun xorns-find-file-name-components (filename &optional abbreviate)
-  "Return a list of FILENAME path components.
-
-If ABBREVIATE is not nil, abbreviates the FILENAME before splitting."
-  (when abbreviate
-    (setq filename (abbreviate-file-name filename)))
-  ;; TODO: Handle "/" in filenames properly
-  (let ((result (split-string filename "/")))
-    result))
+;; Set `ibuffer' to loads some preferred groups.
+(custom-set-variables
+  '(ibuffer-saved-filter-groups
+     '(("xorns-ibuffer-groups"
+	 ("Dired" (or (mode . dired-omit-mode) (mode . dired-mode)))
+	 ("RST" (mode . rst-mode))
+	 ("XML" (mode . nxml-mode))
+	 ("Emacs Lisp"
+	   (or
+	     (mode . emacs-lisp-mode)
+	     (mode . lisp-interaction-mode)
+	     (mode . lisp-mode)))
+	 ("Python" (mode . python-mode))))))
 
 
-(defsubst -buffer-name-candidates (&optional filename)
-  "Local function to get the better buffer names candidates for a FILENAME.
-
-If FILENAME is nil the `buffer-file-name' is used.
-
-The candidates are simply the right-to-left path components concatenated.  For
-instance if FILENAME is \"~/.emacs.d/init.el\", then this function returns:
-
-  (\"emacs.d/init.el\", \"~/emacs.d/init.el\")
-
-Notice that the `file-name-nondirectory' candidate \"init.el\" is omitted,
-since it's deemed already tried and not unique."
-  (cdr
-    (--collecting-reduce
-      (if first
-	(concat second "/" first)
-	; else
-	second)
-      (nreverse
-	(xorns-find-file-name-components
-	  (or filename buffer-file-name) 'abbrev)))))
+(add-hook 'ibuffer-mode-hook
+  (lambda ()
+    (condition-case err
+      (ibuffer-switch-to-saved-filter-groups "xorns-ibuffer-groups")
+      (error (message "error@ibuffer-mode-hook: %s" err)))))
 
 
-;;;###autoload
-(defun xorns-find-better-unique-buffer-name ()
-  "Hook for `find-file-hook' to find a better buffer name."
-  (let ((unique nil)
-	(passes 0)
-	(max-passes 10)
-	(name (buffer-name))
-	(project-p (when (functionp 'projectile-project-p)
-		     (projectile-project-p)))
-	(project-name (when (functionp 'projectile-project-name)
-			(projectile-project-name))))
-      ;; TODO: This __init__.py hack must be properly checked only for python
-      ;; projects, see xorns.el (Which module?).  But since I'm in a hurry,
-      ;; and having __init__.py buffer names bugs me, this helps a lot.
-    (unless (or project-p (string-match "<[0-9]+>$" name)
-	      (eq "__init__.py" name))
-      (message "No better name for buffer. It will be called '%s'" name))
-    (when (or project-p (string-match "<[0-9]+>$" name)
-	    (eq "__init__.py" name))
-      (message "Should find a better name for '%s'" name)
-      ;;; First just try to add the project-name
-      (when project-name
-	(setq name (concat project-name ":"
-		     (file-name-nondirectory buffer-file-name)))
-	;; TODO: See the __init__.py above.  Probably uniqueness is not the
-	;; only thing to check, but also goodness.
-	(setq unique (and (null (get-buffer name))
-		       (not (string-match "__init__.py$" name)))))
-      ;;; Then if not unique try prepending path components to buffer name
-      (when (not unique)
-	(let ((path-components (-buffer-name-candidates)))
-	  (--take-while
-	    (let ((stop nil)
-		   (current-path-component it))
-	      (setq name (if project-name
-			   (concat project-name
-			     ":" current-path-component)
-			   current-path-component))
-	      (setq unique (null (get-buffer name)))
-	      (setq passes (1+ passes))
-	      (setq stop (or unique (> passes max-passes)))
-	      (not stop))
-	    path-components)))
-      (when unique
-	(message "Found name '%s'" name)
-	(rename-buffer name)))))
+;;; Buffers
+
+(defun xorns-force-scratch (&optional arg)
+  "Switch to `*scratch*` buffer, creating a new one if needed.
+
+An optional argument ARG could be given to delete other windows; if
+`0' also reset `default-directory' to `xorns' default."
+  (interactive "P")
+  (let ((buf (get-buffer-create "*scratch*")))
+    (set-buffer-major-mode buf)
+    (switch-to-buffer-other-window buf)
+    (if (or
+	  (= (prefix-numeric-value arg) 0)
+	  (equal (xorns-default-directory) xorns-home-dir))
+      (setq default-directory xorns-prefered-default-directory))
+    (if arg (delete-other-windows))))
+
+
+(global-set-key (kbd "C-c s") 'xorns-force-scratch)
+
+
+
+;;; Hooks
+
+(add-hook 'after-init-hook
+  (lambda ()
+    (condition-case err
+      ;; Set initial default directory for `*scratch*' buffer
+      (if (equal (xorns-default-directory) xorns-home-dir)
+	(setq default-directory xorns-prefered-default-directory))
+      (error (message "error@after-init-hook: %s" err)))))
 
 
 (provide 'xorns-buffers)

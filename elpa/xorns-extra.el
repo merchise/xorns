@@ -1,11 +1,11 @@
-;;; xorns --- Execute all Merchise preferred initialization
+;;; xorns-extra --- Some extra features
 
 ;; Copyright (C) 2014 Merchise Autrement
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
-;; URL: http://dev.merchise.org/emacs/xorns
+;; URL: http://dev.merchise.org/emacs/xorns-extra
 ;; Keywords: initialization, merchise, convenience
-;; Version: 20140316.1200
+;; Version: 20140324.1132
 
 ;; This file is NOT part of GNU Emacs but I'd like it. ;)
 
@@ -25,6 +25,12 @@
 
 ;;; Commentary:
 
+;; Define features that could be not desired from most members, but
+;; do needed for particular ones.  These features are not include when
+;; require `xorns', so this one feature (`xorns-extra') must be
+;; explicitly required in one of `~/.emacs' or `~/.emacs.d/init.el'
+;; files.
+;;
 ;; To use `xorns', and automatically include all its basic features,
 ;; just configure one of the standard initialization files (`~/.emacs'
 ;; or `~/.emacs.d/init.el') with the following body::
@@ -32,9 +38,8 @@
 ;;     (package-initialize)
 ;;     (require 'xorns)
 ;;
-;; There are some extra features that are not included in basic
-;; `xorns'; if required, configure in the selected initialization
-;; file::
+;; These extra features that are not included in basic `xorns'; to
+;; configure in the selected initialization file::
 ;;
 ;;     (require 'xorns-extra)
 
@@ -43,36 +48,10 @@
 
 ;;; Code:
 
-;; Basic initialization
-(require 'xorns-startup)
-(require 'xorns-buffers)
-(require 'xorns-dired)
-(require 'xorns-simple)
-(require 'xorns-term)
-(require 'xorns-prog)        ;; This requires `xorns-text'
-(require 'xorns-project)
-(require 'xorns-git)
-
-;; Configure preferred package repositories
-(require 'xorns-package)
+(require 'xorns-mail)
+(require 'xorns-helm)
+(require 'xorns-gud)
 
 
-
-;;; Finally, load all customized variables
-;; TODO: Extend for MacOS
-(let* ((user-custom-file
-	 (locate-user-emacs-file
-	   (concat "custom-" user-real-login-name ".el")))
-       (user-custom-file
-	 (if (file-exists-p user-custom-file)
-	   user-custom-file
-	   ; else
-	   (locate-user-emacs-file "custom.el"))))
-  (message "custom-file: %s" user-custom-file)
-  (when (file-exists-p user-custom-file)
-    (setq custom-file user-custom-file)
-    (load custom-file 'noerror)))
-
-
-(provide 'xorns)
-;;; xorns.el ends here
+(provide 'xorns-extra)
+;;; xorns-extra.el ends here

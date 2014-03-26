@@ -27,9 +27,15 @@
 
 ;; Merchise extensions for "Grand Unified Debugger mode" for running GDB and
 ;; other debuggers.  Also uses `realgud' if installed.
-
+;;
 ;; TODO: This module debugging stuff with `realgud' can be removed when
-;; `realgud' has this stuff natively.
+;; `realgud' has this stuff natively.  By now, require it in `xorns-extra'
+;; when ready.
+;;
+;; This module is not automatically used when require plain `xorns',
+;; to use it::
+;;
+;;     (require 'xorns-extra)
 
 ;; Enjoy!
 
@@ -62,12 +68,12 @@ buffer."
   "If really `realgud' can be used.")
 
 
-(when xorns-realgud-enabled
-  ; TODO: Generalize this to use `gud' if `realgud' is not present.
-  (defun xorns-grizzl-select-cmdbuf()
-    "Lets the user select a `realgud' command buffer, unless there's a single
+(defun xorns-grizzl-select-cmdbuf()
+  "Lets the user select a `realgud' command buffer, unless there's a single
 command buffer, in which case returns the buffer directly."
-    (interactive)
+  (interactive)
+  (when xorns-realgud-enabled
+    ; TODO: Generalize this to use `gud' if `realgud' is not present.
     (let ((cmdbuffers (-select #'realgud-cmdbuf? (buffer-list))))
       (if (> (length cmdbuffers) 1)
 	(let* ((cmdbuffers-names (-map #'buffer-name cmdbuffers))
@@ -78,19 +84,16 @@ command buffer, in which case returns the buffer directly."
 	    (message "Selected debugger %s" selection)
 	    (get-buffer selection)))
 	    ;; else (no buffer or a single one)
-	(car cmdbuffers))))
+	(car cmdbuffers)))))
 
-  ;; TODO: [manu] Remove warning "the function `xorns-grizzl-select-cmdbuf'
-  ;; is not known to be defined.
-
-  (defun xorns-attach-to-cmdbuf ()
-    "Attaches current buffer to a debugging session."
-    (interactive)
+(defun xorns-attach-to-cmdbuf ()
+  "Attaches current buffer to a debugging session."
+  (interactive)
+  (when xorns-realgud-enabled
     (-when-let (cmdbuf (xorns-grizzl-select-cmdbuf))
       (message "Attaching current buffer %s to command buffer %s"
 	(current-buffer) cmdbuf)
-      (realgud-srcbuf-init-or-update (current-buffer) cmdbuf)))
-  )
+      (realgud-srcbuf-init-or-update (current-buffer) cmdbuf))))
 
 
 (provide 'xorns-gud)

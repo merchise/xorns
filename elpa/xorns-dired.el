@@ -25,10 +25,14 @@
 
 ;;; Commentary:
 
-;; Configure all `dired' dependencies in the way of Merchise.
-
+;; Configure and extend all `dired' dependencies in the way of Merchise.
+;;
 ;; Improve `dired-single' by remembering parent position for recovering it
 ;; when navigating up.
+;;
+;; This module is automatically used when::
+;;
+;;     (require 'xorns)
 
 ;; Enjoy!
 
@@ -36,30 +40,39 @@
 ;;; Code:
 
 (require 'dired)
-(require 'dired-single)
+(require 'dired-single nil 'noerror)
 
-;;; Modules customization
-
-;; Use "dired-single"
-;; TODO: Why ``(require 'dired-single)`` doesn't function?
-
-;; (load-file "~/.emacs.d/el-get/dired-single/dired-single.el")
-
-;; Use (set-register "/home/med/work/merchise" (dired-save-positions)) and
-;; ````
 
 (defun xorns-setup-dired-single ()
   "Customize `dired-single' key-bindings.
 
 After this function is called;  Enter, Click and ^ reuse the buffer
-instead of creating a new one."
-  (define-key dired-mode-map [return] 'dired-single-buffer)
-  (define-key dired-mode-map [M-S-down] 'dired-single-buffer)
-  (define-key dired-mode-map [mouse-1] 'dired-single-buffer-mouse)
-  (define-key dired-mode-map [M-S-up]
-    #'(lambda nil (interactive) (dired-single-buffer "..")))
-  (define-key dired-mode-map "^"
-    #'(lambda nil (interactive) (dired-single-buffer ".."))))
+instead of creating a new one.
+
+If `dired-single' is not installed, does nothing."
+  (when (featurep 'dired-single)
+    (declare-function dired-single-buffer 'dired-single)
+    (define-key dired-mode-map [return] 'dired-single-buffer)
+    (define-key dired-mode-map [M-S-down] 'dired-single-buffer)
+    (define-key dired-mode-map [mouse-1] 'dired-single-buffer-mouse)
+    (define-key dired-mode-map [M-S-up]
+      #'(lambda () (interactive) (dired-single-buffer "..")))
+    (define-key dired-mode-map "^"
+      #'(lambda () (interactive) (dired-single-buffer "..")))))
+
+
+;; Local configurations
+(if (boundp 'dired-mode-map)
+  (xorns-setup-dired-single)
+  ; else
+  (add-hook 'dired-load-hook 'xorns-setup-dired-single))
+
+
+;; ;; TODO: To preserve positions, use::
+;; (set-register
+;;   (intern
+;;     (xorns-default-directory))
+;;   (dired-save-positions))
 
 
 (provide 'xorns-dired)
