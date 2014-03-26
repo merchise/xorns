@@ -49,6 +49,11 @@
 
 ;;; Hooks
 
+(add-hook 'before-save-hook 'copyright-update)
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+;; TODO: (add-hook 'before-save-hook 'time-stamp)
+
+
 (if (featurep 'flycheck)
   (add-hook 'after-init-hook         ; run after loading the init files
     (lambda ()
