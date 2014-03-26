@@ -153,7 +153,7 @@ format for the message is: The first position is used as `<0>' for the
 first time this command is executed for each directory, and `<+>' when
 repeated; next is printed `$' for an ordinary user or `#' for `root';
 then a space and the value of `default-directory'."
-    (interactive)
+    (interactive "P")
     (let* ((pwd (xorns-default-directory))
 	   (last (if kill-ring (car kill-ring)))
 	   (new (not (equal last pwd)))
@@ -161,7 +161,7 @@ then a space and the value of `default-directory'."
 	   (prompt (format "%s%s" (if new "<0>" "<+>") (if sudo "#" "$"))))
       (if new
 	(kill-new pwd))
-      (if (not no-show)
+      (unless no-show
 	(message "%s %s" prompt pwd))))
 
 
