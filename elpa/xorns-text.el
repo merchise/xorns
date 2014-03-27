@@ -48,26 +48,30 @@
 
 
 
-;;; Variables
+;;; Custom Variables and Settings
 
-;; Whether to add a newline automatically at the end of the file
-(setq require-final-newline t)
+;; Turn ON parenthesis matching
+(show-paren-mode t)
+
+(custom-set-variables
+  ; Consecutive years replaced with range
+  '(copyright-year-ranges t)
+  ; Add a newline automatically at the end of the file
+  '(require-final-newline t)
+  ; Parenthesis matching style
+  '(show-paren-style 'mixed)
+  )
 
 
 ;; Typed text replaces the selection
 (delete-selection-mode 1)
 
 
-;; Turn ON parenthesis matching
-(require 'paren nil 'noerror)
-(show-paren-mode t)
-(setq show-paren-style 'mixed)
-
-
 ;; Fill Column Indicator parameters
 (when (featurep 'fill-column-indicator)
-  (setq fci-rule-width 1)
-  (setq fci-rule-color "darkblue"))
+  (custom-set-variables
+    '(fci-rule-width 1)
+    '(fci-rule-color "#cccccc")))
 
 
 (defun xorns-fci-mode-on ()
@@ -82,6 +86,11 @@ Don't fail if `'fill-column-indicator' is not available."
 
 
 ;;; Hooks
+
+(add-hook 'before-save-hook 'copyright-update)
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+;; TODO: (add-hook 'before-save-hook 'time-stamp)
+
 
 (add-hook 'tex-mode-hook           ; run when entering generic-TeX mode
   (lambda ()
@@ -113,14 +122,12 @@ If this feature is not installed don't fail and just report a message."
     (xorns-missing-feature 'auto-complete)))
 
 
-
 
 ;;; Key-bindings
 
 ;; It only function in RST major mode and if `ispell' is enabled.
 ;; TODO: Check which other modes needs this definition.
 (define-key rst-mode-map "\C-cil" 'ispell-change-dictionary)
-
 
 
 ;; For outline minor modes
@@ -135,7 +142,9 @@ If this feature is not installed don't fail and just report a message."
 ;;;###autoload
 (defun xorns-text-dependencies-install ()
   "Install all dependencies of text modes."
-  (xorns-dependency-install 'fill-column-indicator))
+  (xorns-dependency-install 'fill-column-indicator)
+  (xorns-dependency-install 'auto-complete)
+  )
 
 
 (provide 'xorns-text)
