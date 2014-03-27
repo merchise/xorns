@@ -339,42 +339,6 @@ exists, the funtion returns nil."
       (if (file-directory-p virtualenv-dir) virtualenv-dir))))
 
 
-(defun xorns-find-buildout-paths (&optional sentinel buffer)
-   "Find the buildout paths for the project.
-
-This *may* not work properly with multiversion eggs, cause we simply search for
-a 'bin/buildout' file and then use the eggs (all of them).
-
-The SENTINEL and BUFFER parameters have the same meaning that in
-xorns-find-project-virtualenv-dir."
-   (-when-let (eggs-dir (xorns-find-project-def-file
-			   "buildout-cache/eggs/" sentinel buffer))
-      (directory-files eggs-dir 'full-name
-	 "[^\.]$" 'nosort)))
-
-
-(defun xorns-buildout-mrdev-paths (&optional sentinel buffer)
-   "Find the src/* path for a buildout project.
-
-The project is detected by having a 'bin/buildout' file.  At that level the
-'src' directory is searched and all of it's directories are returned as
-mr.developer paths.
-
-This *may* not work properly with multiversion eggs, cause we simply search for
-a 'bin/buildout' file and then use the eggs (all of them).
-
-The SENTINEL and BUFFER parameters have the same meaning that in
-xorns-find-project-virtualenv-dir."
-  (-when-let (project-dir (xorns-find-project-def-file
-			    "bin/buildout" sentinel buffer))
-    (let* ((src-dir (concat (file-name-directory    ; TODO: See `f-join'
-			      (directory-file-name
-				(file-name-directory project-dir))) "src"))
-	    (src-dir-exists (file-directory-p src-dir)))
-      (when src-dir-exists
-	(directory-files src-dir 'full "[^\.]$" 'nosort)))))
-
-
 (defun xorns-omelette-dirs  (&optional sentinel buffer)
    "Find the parts/omelette in a buildout setup.
 
@@ -417,29 +381,18 @@ xorns-find-project-virtualenv-dir."
 The PROJECT-FILE-NAME, SENTINEL and BUFFER parameters have the same meaning
 that in `xorns-find-project-virtualenv-dir'."
   (if (featurep 'jedi)
-    (let* ((virtualenv-dir
-	     (xorns-find-project-virtualenv-dir project-file-name sentinel buffer))
-	   (buildout-eggs-paths
-	     (xorns-find-buildout-paths sentinel buffer))
-	   (mr.developer-paths
-	     (xorns-buildout-mrdev-paths sentinel buffer))
-	   (omelette-path
-	     (xorns-omelette-dirs sentinel buffer))
-	   (jedi-server-args
-	     (append
+      (let* ((virtualenv-dir
+	      (xorns-find-project-virtualenv-dir project-file-name sentinel buffer))
+	     (omelette-path
+	      (xorns-omelette-dirs sentinel buffer))
+	     (jedi-server-args
+	      (append
 	       (when virtualenv-dir (list "-v" virtualenv-dir))
-	       (-mapcat
-		 (lambda (item) (list "-p" item))
-		 buildout-eggs-paths)
-	       (when omelette-path (list "-p" omelette-path))
-	       (when (and mr.developer-paths (null omelette-path))
-		 (-mapcat
-		   (lambda (item) (list "-p" item))
-		   mr.developer-paths)))))
-      (when jedi-server-args
-	(message "Jedi arguments are: '%s' for buffer '%s'"
-	  jedi-server-args (or buffer (current-buffer)))
-	(set (make-local-variable 'jedi:server-args) jedi-server-args)))
+	       (when omelette-path (list "-p" omelette-path)))))
+	(when jedi-server-args
+	  (message "Jedi arguments are: '%s' for buffer '%s'"
+		   jedi-server-args (or buffer (current-buffer)))
+	  (set (make-local-variable 'jedi:server-args) jedi-server-args)))
     ;else
     (xorns-missing-feature 'jedi)))
 
