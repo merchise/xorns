@@ -72,43 +72,47 @@
 
 ;;; Files
 
-
 (defconst xorns-home-dir
   (eval-when-compile
     (purecopy (file-name-as-directory "~")))
   "Home directory.")
 
 
+(defconst xorns-directory-separator
+  (eval-when-compile
+    (purecopy
+      (char-to-string (elt (file-name-as-directory "x") 1))))
+  "Director separator.")
+
+
 ;;;###autoload
 (defun xorns-path-join (base &rest args)
-  "Join BASE and ARGS to a single path."
-  (let* ((path base)
-	 (relative (not (file-name-absolute-p base))))
-    (dolist (arg args path)
-      (setq path (expand-file-name arg path)))
-    (abbreviate-file-name (if relative (file-relative-name path) path))))
+  "Join BASE and ARGS to a single path.
+The empty string or nil could be used as BASE in order to define root
+directory.  At the end make the returned value to have the final separator."
+  (let ((res base))
+    (if (or (null res) (equal res ""))
+      (setq res xorns-directory-separator))
+    (mapc
+      (lambda (arg)
+	(setq res (concat (file-name-as-directory res) (or arg ""))))
+      args)
+    res))
 
 
 (defconst xorns-prefered-default-directory
   (eval-when-compile
     (purecopy
       (file-name-as-directory
-	(or
-	  (let ((env-dir (getenv "WORKSPACE")))
-	    (if (and env-dir (file-directory-p env-dir))
-	      (file-name-as-directory env-dir)))
-	  (let ((pref-dirs
-		  (list
-		    (xorns-path-join "~" "work" "merchise")
-		    (xorns-path-join "~" "work")
-		    (xorns-path-join "~" "src" "merchise")
-		    (xorns-path-join "~" "src"))))
-	    (loop
-	      for dir in pref-dirs
-	        for res = (if (file-directory-p dir) dir)
-	      until res
-	      finally return res))
-	  "~"))))
+	(cl-some
+	  (lambda (dir) (if (and dir (file-directory-p dir)) dir))
+	  (list
+	    (getenv "WORKSPACE")
+	    (xorns-path-join "~" "work" "merchise")
+	    (xorns-path-join "~" "work")
+	    (xorns-path-join "~" "src" "merchise")
+	    (xorns-path-join "~" "src")
+	    "~")))))
   "Name of preferred default directory when start a new session.")
 
 
@@ -126,12 +130,9 @@ If COMMAND is not found, looks for alternatives given in OTHER-COMMANDS.
 
 This function is safe avoiding nil commands.  If none is found, nil
 is returned."
-  (or (unless (null command) (executable-find command))
-    (loop
-      for current in other-commands
-        for exe = (unless (null current) (executable-find current))
-      until exe
-      finally return exe)))
+  (cl-some
+    #'(lambda (cmd) (if cmd (executable-find cmd)))
+    (push command other-commands)))
 
 
 ;;;###autoload
