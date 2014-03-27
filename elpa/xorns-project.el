@@ -243,28 +243,6 @@ if PROJECT-FILE-NAME is not provided it defaults to \".project.el\"."
       project-file)))
 
 
-(defun xorns-project-dir (&optional mode)
-   "Return the project directory.
-Optionally a programming MODE can be given.  If no MODE is given,
-`generic-mode` definition is assumed."
-   (let* ((res nil)
-	  (top xorns-home-dir)
-	  (selector (xorns-get-mode-tag :selector mode))
-	  (selectors (if (stringp selector) (list selector) selector))
-	  (current (buffer-file-name))
-	  (preds (mapcar
-		   #'(lambda (selector)
-		       (or
-			 (when (stringp selector)
-			   (lambda (directory)
-			     (directory-files directory t selector t)))
-			 ;; otherwise return the selector it should be a function
-			 selector))
-		   selectors)))
-      (while (and (not res) preds)
-	 (let ((pred (car preds)))
-	    (setq preds (cdr preds))))
-      res))
 
 
 
