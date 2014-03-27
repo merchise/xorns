@@ -41,6 +41,16 @@
 (require 'ido)
 
 
+;;; Custom Variables and Settings
+
+(custom-set-variables
+  '(column-number-mode t)     ; Visualize current column number
+  )
+
+
+
+;;; Some simple functions
+
 (defun -set-buffer-read-only ()
    "Private function to be used in `xorns-next-grep-result'."
    (setq buffer-read-only t))

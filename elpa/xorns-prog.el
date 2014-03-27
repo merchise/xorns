@@ -36,7 +36,6 @@
 
 ;;; Code:
 
-
 (require 'outline)
 (require 'dash nil 'noerror)   ; facilities like -when-let and -mapcat
 (require 'flycheck nil 'noerror)
@@ -48,11 +47,6 @@
 
 
 ;;; Hooks
-
-(add-hook 'before-save-hook 'copyright-update)
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
-;; TODO: (add-hook 'before-save-hook 'time-stamp)
-
 
 (if (featurep 'flycheck)
   (add-hook 'after-init-hook         ; run after loading the init files
@@ -91,6 +85,7 @@
 	(xorns-jedi-setup)
 	(outline-minor-mode))
       (error (message "error@python-mode-hook: %s" err)))))
+
 
 
 ;;; Python

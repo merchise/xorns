@@ -125,6 +125,10 @@
 
 (require 'deft nil 'noerror)
 (when (featurep 'deft)
+  (custom-set-variables
+    '(deft-auto-save-interval 60.0)
+    ; TODO: Remove all deft `.emacs.d' custom files
+    )
   (global-set-key (kbd "<f12>") 'deft))
 
 
@@ -136,6 +140,13 @@
 (put 'dired-find-alternate-file 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
 (put 'set-goal-column 'disabled nil)
+
+
+;;; Some generic custom values
+
+(custom-set-variables
+  '(calendar-date-style 'iso)
+  )
 
 
 
