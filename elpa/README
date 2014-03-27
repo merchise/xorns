@@ -27,12 +27,11 @@ configure one of the standard initialization files (`~/.emacs` or
 `~/.emacs.d/init.el`) with the following body::
 
     (package-initialize)
-    (require 'xorns-init nil 'noerror)
+    (require 'xorns)
 
-If you want to configure our preferred `package-archives`, include
-also::
+If you want to configure extra features, include also::
 
-    (require 'xorns-package nil 'noerror)
+    (require 'xorns-extra)
 
 
 Documentation

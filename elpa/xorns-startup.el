@@ -112,6 +112,17 @@
   )
 
 
+(require 'rfcview nil 'noerror)
+(when (featurep 'rfcview)
+  (add-hook 'rfcview-mode-hook
+    (lambda ()
+      (condition-case err
+	(progn
+	  (define-key rfcview-mode-map (kbd "l") 'pop-to-mark-command))
+	(error (message "error@rfcview-mode-hook: %s" err))))))
+
+
+
 (require 'deft nil 'noerror)
 (when (featurep 'deft)
   (global-set-key (kbd "<f12>") 'deft))
