@@ -51,7 +51,7 @@
   (file-name-as-directory
     (or
       (getenv "WORKON_HOME")
-      (concat (file-name-as-directory xorns-home-dir) ".virtualenvs")))
+      (xorns-path-join xorns-home-dir ".virtualenvs")))
    "The directory where all the virtualenvs reside."
    :group 'xorns
    :type 'directory)
@@ -340,21 +340,21 @@ exists, the funtion returns nil."
 
 
 (defun xorns-omelette-dirs  (&optional sentinel buffer)
-   "Find the parts/omelette in a buildout setup.
+  "Find the parts/omelette in a buildout setup.
 
 The SENTINEL and BUFFER parameters have the same meaning that in
 xorns-find-project-virtualenv-dir."
-   (-when-let (project-dir (xorns-find-project-def-file
-			      "bin/buildout" sentinel buffer))
-      (let* ((parts-dir (file-name-as-directory
-			   (concat (file-name-directory
-				      (directory-file-name
-					 (file-name-directory project-dir)))
-			      "parts")))
-	       (omelette-dir (concat parts-dir "omelette"))
-	       (omelette-dir-exists (file-directory-p omelette-dir)))
-	 (when omelette-dir-exists
-	    omelette-dir))))
+  (-when-let (project-def-file
+	      (xorns-find-project-def-file
+	       "bin/buildout" sentinel buffer))
+    (let* ((project-dir
+	    (xorns-path-join (file-name-directory project-def-file) ".."))
+	   (omelette-dir
+	    (xorns-path-join project-dir "parts" "omelette"))
+	   (omelette-dir-exists
+	    (file-directory-p omelette-dir)))
+      (when omelette-dir-exists
+	omelette-dir))))
 
 
 (defun xorns-exec-path-setup (&optional sentinel buffer)
