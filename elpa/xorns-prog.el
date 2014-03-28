@@ -96,7 +96,9 @@
   ;; with autocompletion.
   (lambda ()
     (condition-case err
-      (setq indent-tabs-mode nil)
+      (progn
+	(setq indent-tabs-mode nil)
+	(linum-mode 0))
       (error (message "error@inferior-python-mode-hook: %s" err)))))
 
 
@@ -108,9 +110,9 @@
   '(python-shell-interpreter "ipython")
   ;; Next is essentially configured in `ipython_config.py` as:
   ;; c.PromptManager.in_template = r'\#> \u:\w \$\n>>> '
-  '(python-shell-prompt-regexp ">>> ")
+  '(python-shell-prompt-regexp "\\(^[0-9]+> .* [$]\\|>>> \\)")
   '(python-shell-prompt-pdb-regexp "i?pdb> ")
-  '(python-shell-prompt-output-regexp "\\s-{0,4}")
+  '(python-shell-prompt-output-regexp "\\s-{0,4}\\|    \\)")
   '(python-shell-completion-setup-code
      "from IPython.core.completerlib import module_completion")
   '(python-shell-completion-module-string-code
