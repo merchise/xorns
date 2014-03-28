@@ -51,7 +51,7 @@
   (file-name-as-directory
     (or
       (getenv "WORKON_HOME")
-      (concat (file-name-as-directory xorns-home-dir) ".virtualenvs")))
+      (xorns-path-join xorns-home-dir ".virtualenvs")))
    "The directory where all the virtualenvs reside."
    :group 'xorns
    :type 'directory)
@@ -186,28 +186,28 @@ Currently evaluated folder is considered a package base if the parent folder:
 
 
 (defun xorns-get-mode-tag (tag &optional mode)
-   "Return a named TAG for a given a MODE.
+  "Return a named TAG for a given a MODE.
 
 If no mode is given, `generic-mode` is assumed.
 
 Modes are iterated using the inheritance path until the TAG is found."
-   (setq mode
-      (or
+  (setq mode
+	(or
 	 ;; manu: If the provided mode is not in the alist use the major-mode
 	 ;; or the generic-mode
 	 (car (assoc (or mode major-mode) xorns-programming-project-alist))
 	 'generic-mode))
-   (let (res done)
-      (while (not done)
-	 (-when-let (mode-tags (assoc mode xorns-programming-project-alist))
-	    (-when-let (aux (cadr (memq tag mode-tags)))
-	       (setq res aux done t)
-	       (progn
-		  (setq mode (cadr (memq :inherits mode-tags)))
-		  (if (not mode)
-		     (setq done t))))
-	    (setq done t)))
-      res))
+  (let (res done)
+    (while (not done)
+      (-when-let (mode-tags (assoc mode xorns-programming-project-alist))
+	(-when-let (aux (cadr (memq tag mode-tags)))
+	  (setq res aux done t)
+	  (progn
+	    (setq mode (cadr (memq :inherits mode-tags)))
+	    (if (not mode)
+		(setq done t))))
+	(setq done t)))
+    res))
 
 
 (defun xorns-find-project-def-file
@@ -221,58 +221,33 @@ If BUFFER is not provided, the current buffer is used.  the buffer's file name
 is used to start the search.
 
 if PROJECT-FILE-NAME is not provided it defaults to \".project.el\"."
-  (let* (
-	  (project-file-name (or project-file-name ".project.el"))
-	  (current (file-name-directory (buffer-file-name buffer)))
-	  (last "")
-	  (sentinel (if sentinel (file-name-as-directory sentinel) nil))
-	  (stop (string= current sentinel))
-	  (project-file (concat (file-name-as-directory current)
-			  project-file-name)))
+  (let* ((project-file-name (or project-file-name ".project.el"))
+	 (current (file-name-directory (buffer-file-name buffer)))
+	 (last "")
+	 (sentinel (if sentinel (file-name-as-directory sentinel) nil))
+	 (stop (string= current sentinel))
+	 (project-file (concat (file-name-as-directory current)
+			       project-file-name)))
     (while (and
-	     (not stop)
-	     (not (file-exists-p project-file))
-	     (not (string= last current)))
+	    (not stop)
+	    (not (file-exists-p project-file))
+	    (not (string= last current)))
       (progn
 	(setq last current
-	  current (file-name-directory (directory-file-name current))
-	  stop (string= current sentinel)
-	  project-file (concat (file-name-as-directory current)
-			 project-file-name))))
+	      current (file-name-directory (directory-file-name current))
+	      stop (string= current sentinel)
+	      project-file (concat (file-name-as-directory current)
+				   project-file-name))))
     (if (file-exists-p project-file)
-      project-file)))
-
-
-(defun xorns-project-dir (&optional mode)
-   "Return the project directory.
-Optionally a programming MODE can be given.  If no MODE is given,
-`generic-mode` definition is assumed."
-   (let* ((res nil)
-	  (top xorns-home-dir)
-	  (selector (xorns-get-mode-tag :selector mode))
-	  (selectors (if (stringp selector) (list selector) selector))
-	  (current (buffer-file-name))
-	  (preds (mapcar
-		   #'(lambda (selector)
-		       (or
-			 (when (stringp selector)
-			   (lambda (directory)
-			     (directory-files directory t selector t)))
-			 ;; otherwise return the selector it should be a function
-			 selector))
-		   selectors)))
-      (while (and (not res) preds)
-	 (let ((pred (car preds)))
-	    (setq preds (cdr preds))))
-      res))
+	project-file)))
 
 
 
 ;; Python Specific
 
 (defun xorns-find-project-virtualenv-name (&optional project-file-name sentinel
-					    buffer)
-   "Find the project's virtualenv name.
+						     buffer)
+  "Find the project's virtualenv name.
 
 The PROJECT-FILE-NAME is the name of the file where the project definitions
 are.  If it is not provided or is nil, it defaults to \".project.el\".
@@ -292,26 +267,25 @@ provided defaults to the current buffer.
 By convention, if the 'project-virtualenv-name is not present or is nil, the
 virtualenv name will be the name of the directory where the project definition
 file resides, or when any of the project file markers reside."
-   (or
-      (-when-let (project-file-name (xorns-find-project-def-file
-				       project-file-name sentinel buffer))
-	 (let* ((project-locals-class (dir-locals-read-from-file
-					 project-file-name))
-		  (project-locals-alist (dir-locals-get-class-variables
-					   project-locals-class)))
-	    (cdr (assoc 'project-virtualenv-name project-locals-alist))))
-      ;; If the project-virtualenv-name
-      (let ((res nil))
-	 ;; TODO: Finish xorns-project-dir and use that
-	 (-when-let (project-file-name (xorns-find-project-def-file
-					  "setup.py" sentinel buffer))
-	    (file-name-base (directory-file-name
-			       (file-name-directory project-file-name)))))))
+  (or
+   (-when-let (project-file-name (xorns-find-project-def-file
+				  project-file-name sentinel buffer))
+     (let* ((project-locals-class (dir-locals-read-from-file
+				   project-file-name))
+	    (project-locals-alist (dir-locals-get-class-variables
+				   project-locals-class)))
+       (cdr (assoc 'project-virtualenv-name project-locals-alist))))
+   (let ((res nil))
+     ;; TODO: Finish xorns-project-dir and use that
+     (-when-let (project-file-name (xorns-find-project-def-file
+				    "setup.py" sentinel buffer))
+       (file-name-base (directory-file-name
+			(file-name-directory project-file-name)))))))
 
 
 (defun xorns-find-project-virtualenv-dir (&optional project-file-name sentinel
-					   buffer)
-   "Find the project's virtualenv directory.
+						    buffer)
+  "Find the project's virtualenv directory.
 
 This function will find the project definitions file and find the configured
 virtual environment name.
@@ -330,67 +304,32 @@ If either there's no project definition file, or the file does not contains a
 project-virtualenv-name definition, or the virtualenv directory does not
 exists, the funtion returns nil."
   (-when-let (virtualenv-name (xorns-find-project-virtualenv-name
-				project-file-name sentinel buffer))
+			       project-file-name sentinel buffer))
     (let ((virtualenv-dir
-	    (file-truename
-	      (concat (file-name-as-directory xorns-virtualenvs-dir)
-		(xorns-find-project-virtualenv-name
-		  project-file-name sentinel buffer)))))
+	   (file-truename
+	    (concat (file-name-as-directory xorns-virtualenvs-dir)
+		    (xorns-find-project-virtualenv-name project-file-name
+							sentinel
+							buffer)))))
       (if (file-directory-p virtualenv-dir) virtualenv-dir))))
 
 
-(defun xorns-find-buildout-paths (&optional sentinel buffer)
-   "Find the buildout paths for the project.
-
-This *may* not work properly with multiversion eggs, cause we simply search for
-a 'bin/buildout' file and then use the eggs (all of them).
-
-The SENTINEL and BUFFER parameters have the same meaning that in
-xorns-find-project-virtualenv-dir."
-   (-when-let (eggs-dir (xorns-find-project-def-file
-			   "buildout-cache/eggs/" sentinel buffer))
-      (directory-files eggs-dir 'full-name
-	 "[^\.]$" 'nosort)))
-
-
-(defun xorns-buildout-mrdev-paths (&optional sentinel buffer)
-   "Find the src/* path for a buildout project.
-
-The project is detected by having a 'bin/buildout' file.  At that level the
-'src' directory is searched and all of it's directories are returned as
-mr.developer paths.
-
-This *may* not work properly with multiversion eggs, cause we simply search for
-a 'bin/buildout' file and then use the eggs (all of them).
-
-The SENTINEL and BUFFER parameters have the same meaning that in
-xorns-find-project-virtualenv-dir."
-  (-when-let (project-dir (xorns-find-project-def-file
-			    "bin/buildout" sentinel buffer))
-    (let* ((src-dir (concat (file-name-directory    ; TODO: See `f-join'
-			      (directory-file-name
-				(file-name-directory project-dir))) "src"))
-	    (src-dir-exists (file-directory-p src-dir)))
-      (when src-dir-exists
-	(directory-files src-dir 'full "[^\.]$" 'nosort)))))
-
-
 (defun xorns-omelette-dirs  (&optional sentinel buffer)
-   "Find the parts/omelette in a buildout setup.
+  "Find the parts/omelette in a buildout setup.
 
 The SENTINEL and BUFFER parameters have the same meaning that in
 xorns-find-project-virtualenv-dir."
-   (-when-let (project-dir (xorns-find-project-def-file
-			      "bin/buildout" sentinel buffer))
-      (let* ((parts-dir (file-name-as-directory
-			   (concat (file-name-directory
-				      (directory-file-name
-					 (file-name-directory project-dir)))
-			      "parts")))
-	       (omelette-dir (concat parts-dir "omelette"))
-	       (omelette-dir-exists (file-directory-p omelette-dir)))
-	 (when omelette-dir-exists
-	    omelette-dir))))
+  (-when-let (project-def-file
+	      (xorns-find-project-def-file
+	       "bin/buildout" sentinel buffer))
+    (let* ((project-dir
+	    (xorns-path-join (file-name-directory project-def-file) ".."))
+	   (omelette-dir
+	    (xorns-path-join project-dir "parts" "omelette"))
+	   (omelette-dir-exists
+	    (file-directory-p omelette-dir)))
+      (when omelette-dir-exists
+	omelette-dir))))
 
 
 (defun xorns-exec-path-setup (&optional sentinel buffer)
@@ -399,16 +338,17 @@ xorns-find-project-virtualenv-dir."
 The SENTINEL and BUFFER parameters have the same meaning that in
 xorns-find-project-virtualenv-dir."
   (let* ((virtualenv-dir
-	   (xorns-find-project-virtualenv-dir nil sentinel buffer))
+	  (xorns-find-project-virtualenv-dir nil sentinel buffer))
 	 (buildout-executable
-	   (xorns-find-project-def-file "bin/buildout" sentinel buffer))
+	  (xorns-find-project-def-file "bin/buildout" sentinel buffer))
 	 (buildout-exec-path
-	   (if buildout-executable
-	     (file-name-directory buildout-executable))))
-    (when virtualenv-dir
-      (add-to-list 'exec-path virtualenv-dir))
-    (when buildout-exec-path
-      (add-to-list 'exec-path buildout-exec-path))))
+	  (when buildout-executable (file-name-directory
+				     buildout-executable))))
+    (let ((local-exec-path (make-local-variable 'exec-path)))
+      (when virtualenv-dir
+	(add-to-list local-exec-path virtualenv-dir))
+      (when buildout-exec-path
+	(add-to-list local-exec-path buildout-exec-path)))))
 
 
 (defun xorns-project-jedi-setup (&optional project-file-name sentinel buffer)
@@ -417,30 +357,19 @@ xorns-find-project-virtualenv-dir."
 The PROJECT-FILE-NAME, SENTINEL and BUFFER parameters have the same meaning
 that in `xorns-find-project-virtualenv-dir'."
   (if (featurep 'jedi)
-    (let* ((virtualenv-dir
-	     (xorns-find-project-virtualenv-dir project-file-name sentinel buffer))
-	   (buildout-eggs-paths
-	     (xorns-find-buildout-paths sentinel buffer))
-	   (mr.developer-paths
-	     (xorns-buildout-mrdev-paths sentinel buffer))
-	   (omelette-path
-	     (xorns-omelette-dirs sentinel buffer))
-	   (jedi-server-args
-	     (append
+      (let* ((virtualenv-dir
+	      (xorns-find-project-virtualenv-dir project-file-name sentinel buffer))
+	     (omelette-path
+	      (xorns-omelette-dirs sentinel buffer))
+	     (jedi-server-args
+	      (append
 	       (when virtualenv-dir (list "-v" virtualenv-dir))
-	       (-mapcat
-		 (lambda (item) (list "-p" item))
-		 buildout-eggs-paths)
-	       (when omelette-path (list "-p" omelette-path))
-	       (when (and mr.developer-paths (null omelette-path))
-		 (-mapcat
-		   (lambda (item) (list "-p" item))
-		   mr.developer-paths)))))
-      (when jedi-server-args
-	(message "Jedi arguments are: '%s' for buffer '%s'"
-	  jedi-server-args (or buffer (current-buffer)))
-	(set (make-local-variable 'jedi:server-args) jedi-server-args)))
-    ;else
+	       (when omelette-path (list "-p" omelette-path)))))
+	(when jedi-server-args
+	  (message "Jedi arguments are: '%s' for buffer '%s'"
+		   jedi-server-args (or buffer (current-buffer)))
+	  (set (make-local-variable 'jedi:server-args) jedi-server-args)))
+    ;; else
     (xorns-missing-feature 'jedi)))
 
 
@@ -454,38 +383,37 @@ that in `xorns-find-project-virtualenv-dir'."
 		     (projectile-project-p)))
 	(project-name (when (functionp 'projectile-project-name)
 			(projectile-project-name))))
-      ;; TODO: This __init__.py hack must be properly checked only for python
-      ;; projects, see xorns.el (Which module?).  But since I'm in a hurry,
-      ;; and having __init__.py buffer names bugs me, this helps a lot.
+    ;; TODO: This __init__.py hack must be properly checked only for python
+    ;; projects, see xorns.el (Which module?).  But since I'm in a hurry,
+    ;; and having __init__.py buffer names bugs me, this helps a lot.
     (unless (or project-p (string-match "<[0-9]+>$" name)
-	      (eq "__init__.py" name))
+		(eq "__init__.py" name))
       (message "No better name for buffer. It will be called '%s'" name))
     (when (or project-p (string-match "<[0-9]+>$" name)
-	    (eq "__init__.py" name))
+	      (eq "__init__.py" name))
       (message "Should find a better name for '%s'" name)
       ;;; First just try to add the project-name
       (when project-name
 	(setq name (concat project-name ":"
-		     (file-name-nondirectory buffer-file-name)))
+			   (file-name-nondirectory buffer-file-name)))
 	;; TODO: See the __init__.py above.  Probably uniqueness is not the
 	;; only thing to check, but also goodness.
 	(setq unique (and (null (get-buffer name))
-		       (not (string-match "__init__.py$" name)))))
+			  (not (string-match "__init__.py$" name)))))
       ;;; Then if not unique try prepending path components to buffer name
       (when (not unique)
 	(let ((path-components (-buffer-name-candidates)))
 	  (--take-while
-	    (let ((stop nil)
-		   (current-path-component it))
-	      (setq name (if project-name
-			   (concat project-name
-			     ":" current-path-component)
-			   current-path-component))
-	      (setq unique (null (get-buffer name)))
-	      (setq passes (1+ passes))
-	      (setq stop (or unique (> passes max-passes)))
-	      (not stop))
-	    path-components)))
+	   (let ((stop nil)
+		 (current-path-component it))
+	     (setq name (if project-name
+			    (concat project-name ":" current-path-component)
+			  current-path-component))
+	     (setq unique (null (get-buffer name)))
+	     (setq passes (1+ passes))
+	     (setq stop (or unique (> passes max-passes)))
+	     (not stop))
+	   path-components)))
       (when unique
 	(message "Found name '%s'" name)
 	(rename-buffer name)))))
@@ -493,15 +421,15 @@ that in `xorns-find-project-virtualenv-dir'."
 
 
 (add-hook 'find-file-hook          ; after a buffer is loaded from a file
-  'xorns-find-better-unique-buffer-name)
+	  'xorns-find-better-unique-buffer-name)
 
 
 (add-hook 'python-mode-hook        ; run when editing python source code
   (lambda ()
     (condition-case err
-      (progn
-	(xorns-exec-path-setup)
-	(xorns-project-jedi-setup))
+	(progn
+	  (xorns-exec-path-setup)
+	  (xorns-project-jedi-setup))
       (error (message "error@python-mode-hook: %s" err)))))
 
 
