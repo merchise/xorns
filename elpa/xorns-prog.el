@@ -77,6 +77,10 @@
       (error (message "error@prog-mode-hook: %s" err)))))
 
 
+
+
+;;; Python
+
 (add-hook 'python-mode-hook        ; run when editing python source code
   (lambda ()
     (condition-case err
@@ -87,8 +91,28 @@
       (error (message "error@python-mode-hook: %s" err)))))
 
 
-
-;;; Python
+(custom-set-variables
+  ;; Configure `ipython` as shell when use function `run-python` and other
+  ;; related commands.
+  ;; This configuration is based in the way we, in Merchise, configure
+  ;; IPython.  See README documentation for more information.
+  '(python-shell-interpreter "ipython")
+  ;; Next is essentially configured in `ipython_config.py` as:
+  ;; c.PromptManager.in_template = r'\#> \u:\w \$\n>>> '
+  '(python-shell-prompt-regexp ">>> ")
+  '(python-shell-prompt-pdb-regexp "i?pdb> ")
+  '(python-shell-prompt-output-regexp "\\s-{0,4}")
+  '(python-shell-completion-setup-code
+     "from IPython.core.completerlib import module_completion")
+  '(python-shell-completion-module-string-code
+     (concat
+       "print(repr(str(';').join(str(ac) "
+       "for ac in module_completion('''%s''')).strip()))\n") 'now)
+  '(python-shell-completion-string-code
+     (concat
+       "print(repr(str(';').join(str(ac) for ac in get_ipython()."
+       "Completer.all_completions('''%s''')).strip()))\n") 'now))
+
 
 ;;;###autoload
 (defun xorns-jedi-setup ()
