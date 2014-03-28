@@ -52,7 +52,7 @@
   (add-hook 'after-init-hook         ; run after loading the init files
     (lambda ()
       (global-flycheck-mode)))
-  ;else
+  ;; else
   (xorns-missing-feature 'flycheck))
 
 
@@ -60,7 +60,7 @@
   (add-hook 'after-init-hook         ; run after loading the init files
     (lambda ()
       (yas-global-mode 1)))
-  ;else
+  ;; else
   (xorns-missing-feature 'yasnippet))
 
 
@@ -89,6 +89,15 @@
 	(xorns-jedi-setup)
 	(outline-minor-mode))
       (error (message "error@python-mode-hook: %s" err)))))
+
+
+(add-hook 'inferior-python-mode-hook
+  ;; Avoid sending TABs to ipython process, otherwise the ipython will respond
+  ;; with autocompletion.
+  (lambda ()
+    (condition-case err
+      (setq indent-tabs-mode nil)
+      (error (message "error@inferior-python-mode-hook: %s" err)))))
 
 
 (custom-set-variables
@@ -121,11 +130,9 @@
     (progn
       (jedi:setup)
       (define-key python-mode-map "\C-ch" 'jedi:show-doc))
-    ;else
+    ;; else
     (xorns-missing-feature 'jedi)))
 
-
-
 
 ;;;###autoload
 (defun xorns-prog-dependencies-install ()
