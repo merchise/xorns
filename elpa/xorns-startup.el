@@ -56,6 +56,18 @@
 ;; Get back font anti-aliasing
 (push '(font-backend xft x) default-frame-alist)
 
+
+;; Show current directory in title bar
+(setq frame-title-format
+  ; Original value was::
+  ;    '(multiple-frames "%b" ("" invocation-name "@" system-name))
+  '(multiple-frames "%b"
+     (""
+       invocation-name
+       " -- "
+       (:eval (abbreviate-file-name default-directory)))))
+
+
 ;; Maximum decoration level for fontification
 ;; (different font for each structure).
 (setq font-lock-maximum-decoration t)
@@ -147,6 +159,7 @@
 (custom-set-variables
   '(calendar-date-style 'iso)
   )
+
 
 
 

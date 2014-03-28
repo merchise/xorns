@@ -77,6 +77,10 @@
       (error (message "error@prog-mode-hook: %s" err)))))
 
 
+
+
+;;; Python
+
 (add-hook 'python-mode-hook        ; run when editing python source code
   (lambda ()
     (condition-case err
@@ -88,14 +92,36 @@
 
 
 (add-hook 'inferior-python-mode-hook
+  ;; Avoid sending TABs to ipython process, otherwise the ipython will respond
+  ;; with autocompletion.
   (lambda ()
     (condition-case err
       (setq indent-tabs-mode nil)
       (error (message "error@inferior-python-mode-hook: %s" err)))))
 
 
-
-;;; Python
+(custom-set-variables
+  ;; Configure `ipython` as shell when use function `run-python` and other
+  ;; related commands.
+  ;; This configuration is based in the way we, in Merchise, configure
+  ;; IPython.  See README documentation for more information.
+  '(python-shell-interpreter "ipython")
+  ;; Next is essentially configured in `ipython_config.py` as:
+  ;; c.PromptManager.in_template = r'\#> \u:\w \$\n>>> '
+  '(python-shell-prompt-regexp ">>> ")
+  '(python-shell-prompt-pdb-regexp "i?pdb> ")
+  '(python-shell-prompt-output-regexp "\\s-{0,4}")
+  '(python-shell-completion-setup-code
+     "from IPython.core.completerlib import module_completion")
+  '(python-shell-completion-module-string-code
+     (concat
+       "print(repr(str(';').join(str(ac) "
+       "for ac in module_completion('''%s''')).strip()))\n") 'now)
+  '(python-shell-completion-string-code
+     (concat
+       "print(repr(str(';').join(str(ac) for ac in get_ipython()."
+       "Completer.all_completions('''%s''')).strip()))\n") 'now))
+
 
 ;;;###autoload
 (defun xorns-jedi-setup ()
@@ -107,23 +133,6 @@
     ;; else
     (xorns-missing-feature 'jedi)))
 
-
-(custom-set-variables
-  '(python-shell-interpreter "ipython")
-  '(python-shell-prompt-regexp ">>> ")
-  '(python-shell-prompt-pdb-regexp "\((Pdb)\|ipdb>\) ")
-  '(python-shell-prompt-output-regexp "\\s-{0,4")
-  '(python-shell-prompt-block-regexp "\.\.\. ")
-  '(python-shell-completion-setup-code
-     "from IPython.core.completerlib import module_completion")
-  '(python-shell-completion-module-string-code
-     "print(repr(str(';').join(str(ac)\
-for ac in module_completion('''%s''')).strip()))\n")
-  '(python-shell-completion-string-code
-     "print(repr(str(';').join(str(ac)\
-for ac in get_ipython().Completer.all_completions('''%s''')).strip()))\n"))
-
-
 
 ;;;###autoload
 (defun xorns-prog-dependencies-install ()
