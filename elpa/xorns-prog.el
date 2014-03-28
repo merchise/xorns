@@ -81,7 +81,7 @@
 
 ;;; Python
 
-(add-hook 'python-mode-hook        ; run when editing python source code
+(add-hook 'python-mode-hook
   (lambda ()
     (condition-case err
       (progn
