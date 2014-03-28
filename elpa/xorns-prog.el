@@ -52,7 +52,7 @@
   (add-hook 'after-init-hook         ; run after loading the init files
     (lambda ()
       (global-flycheck-mode)))
-  ;else
+  ;; else
   (xorns-missing-feature 'flycheck))
 
 
@@ -60,7 +60,7 @@
   (add-hook 'after-init-hook         ; run after loading the init files
     (lambda ()
       (yas-global-mode 1)))
-  ;else
+  ;; else
   (xorns-missing-feature 'yasnippet))
 
 
@@ -87,6 +87,13 @@
       (error (message "error@python-mode-hook: %s" err)))))
 
 
+(add-hook 'inferior-python-mode-hook
+  (lambda ()
+    (condition-case err
+      (setq indent-tabs-mode nil)
+      (error (message "error@inferior-python-mode-hook: %s" err)))))
+
+
 
 ;;; Python
 
@@ -97,9 +104,24 @@
     (progn
       (jedi:setup)
       (define-key python-mode-map "\C-ch" 'jedi:show-doc))
-    ;else
+    ;; else
     (xorns-missing-feature 'jedi)))
 
+
+(custom-set-variables
+  '(python-shell-interpreter "ipython")
+  '(python-shell-prompt-regexp ">>> ")
+  '(python-shell-prompt-pdb-regexp "\((Pdb)\|ipdb>\) ")
+  '(python-shell-prompt-output-regexp "\\s-{0,4")
+  '(python-shell-prompt-block-regexp "\.\.\. ")
+  '(python-shell-completion-setup-code
+     "from IPython.core.completerlib import module_completion")
+  '(python-shell-completion-module-string-code
+     "print(repr(str(';').join(str(ac)\
+for ac in module_completion('''%s''')).strip()))\n")
+  '(python-shell-completion-string-code
+     "print(repr(str(';').join(str(ac)\
+for ac in get_ipython().Completer.all_completions('''%s''')).strip()))\n"))
 
 
 
