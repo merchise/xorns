@@ -42,7 +42,6 @@
 (require 'font-lock)
 (require 'mule)
 
-(require 'xorns-utils)
 
 ;; Allow this Emacs process to be a server for client processes
 (if (not (server-running-p))

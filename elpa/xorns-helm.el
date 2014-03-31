@@ -63,7 +63,8 @@ this variable is non nil; elsewhere use standard `ibuffer'."
       (ibuffer))))
 
 
-(global-set-key (kbd "C-x C-b") 'xorns-helm-buffers-list)
+(when (xorns-configure-p 'maximum)
+  (global-set-key (kbd "C-x C-b") 'xorns-helm-buffers-list))
 
 
 (provide 'xorns-helm)

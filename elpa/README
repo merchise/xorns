@@ -1,30 +1,72 @@
-Merchise Xorns
-==============
+.. -*- mode: rst -*-
+.. -*- coding: utf-8 -*-
+
+================
+ Merchise Xorns
+================
+
+
+------------------------------
+ An improved way to use Emacs
+------------------------------
+
+.. Some local roles:
+
+.. role:: name(emphasis)
+   :class: name
+
+.. role:: fr(emphasis)
+   :class: lang-fr
+
+.. To convert this file to PDF::
+
+   $ rst2pdf --lang=en <THIS-FILE-NAME> -o <DESTINATION-FILE-NAME>
+
+
+:Autor: :name:`Medardo Rodríguez` <med@merchise.org>
 
 "Xorns" provides routines and variables to use Emacs in a better way,
 according to "Merchise Group" best practices and rules.
 
-The name "xorns" comes from "horns" as a metaphor in the sense that
-"Emacs" is the head of the "GNU" and our framework would be "horns"
-of that head.  The *X* instead the *H* is due to the name of all
-Merchise projects start with that letter looking for words in Nahuatl
-or sometimes in English replacing *H* by *X*.
+The name "xorns" comes from "horns" as a metaphor in the sense that "Emacs" is
+the head of the "GNU" and our framework would be "horns" of that head.  The
+*X* instead the *H* is due to the name of all Merchise projects start with
+that letter looking for words in Nahuatl or sometimes in English replacing *H*
+by *X*.
+
+To me, it takes several years since I talked face to face to :name:`Stallman`
+(RMS) and -among other themes- Emacs was in the plate.  I started programming
+when I was very young by the time :name:`RMS` was migrating ideologically to
+*free software movement*.  In that moment it was very far the first time the
+names of that movement and :name:`RMS` comes to me, but always I defended the
+same principles until today.  I discovered that the best way to learn a lot of
+programming will be collaborating the most freely possible.  I founded in
+\ :name:`Central University of Las Villa` (at :name:`Santa Clara`, Cuba) the
+Group of Programmers named :name:`Merchise`, *the only fault will be not to
+share all learned knowledge*.
+
+I while ago I started using Emacs, today I think that nobody can really
+understand what is its strength: for a hacker (in the meaning of *real
+programmer*) there is no option, all we need is Emacs nicely configured.
+
+Enjoy Emacs and this package as our first and small gift!
+
 
 
 Installation
-------------
+============
 
 To install this package from `xorns-<version>.tar` follow standard
 Emacs package installation.
 
-If you have the *GIT repository*, then execute from the shell command
-line::
+Above if not the best way, if you have the *GIT repository*, then execute from
+the shell command line::
 
     $ emacs --load=install.el --batch --debug
 
 After the package is fully installed (with its all dependencies), just
 configure one of the standard initialization files (`~/.emacs` or
-`~/.emacs.d/init.el`) with the following body::
+`~/.emacs.d/init.el`)\ [#inif]_ with the following body::
 
     (package-initialize)
     (require 'xorns)
@@ -33,12 +75,84 @@ If you want to configure extra features, include also::
 
     (require 'xorns-extra)
 
+The variable `xorns-config-level` can be set in order to `xorns` configure
+several settings in the manner Merchise members prefers:
+
+- `'basic` or `0`:  Only basic configurations are performed.
+
+- `'general` or `1`: More general configurations are set.
+
+- `'maximum` or any other true value: All Merchise specific configurations are
+  executed.
+
+If this variable is not configured or nil, no specific configuration are
+executed (see `Specific Merchise Settings`_ for more info).
+
+A final initialization file could be::
+
+    ;; Activate ELPA packages.
+    (package-initialize)
+
+    (let ((xorns-config-level 'maximum))
+      ;; Start the server and initialize all common Merchise settings.
+      (require 'xorns)
+      ;; Require extra features
+      (require 'xorns-extra))
+
 
 Documentation
--------------
+=============
 
-Right now, only is available the inner modules header commentaries.  But
+Most documentation can be found in each module header commentaries.  But
 we think that if you are installing this package, you are an advanced
 Emacs user and probably (but not necessary) a nice programmer.  Then
 will be enough to review our source code and hit sometimes `C-h f` or
-`C-h v` to see Emacs documentation for functions and variables.
+`C-h v` to see Emacs documentation for `xorns` functions and variables.
+
+
+Specific Merchise Settings
+--------------------------
+
+- Function `xorns-manage-custom-file` is executed in the `'basic` level.
+
+- Key-binding `C-x C-b` is configured for launch `ibuffer` in `'basic` level.
+
+- Configure some preferred groups for `ibuffer` in `'general` level.
+
+- Key-binding `C-c s` is configured for launch `xorns-force-scratch` in
+  `'basic` level.
+
+- Set `(xorns-prefered-default-directory)` as initial directory for
+  `*scratch*` buffer in `'general` level.
+
+- If `dired-single` is installed, configure recommended key-bindings in
+  `'basic` level (See `xorns-setup-dired-single` function).
+
+- Configure three additional package repositories ("http://tromey.com/elpa/",
+  "http://marmalade-repo.org/packages/" and
+  "http://melpa.milkbox.net/packages/") in `'general` level.
+
+- Configure `global-flycheck-mode` if feature `flycheck` is installed in
+  `'basic` level.
+
+- Set `yas-global-mode` if feature `yasnippet` is installed in `'basic` level.
+
+- Setup `jedi` for Python if installed in `'basic` level.  Also define
+  key-binding `C-c h` for run function `jedi:show-doc`.
+
+- Setup `inferior-python-mode` in `'general` level.
+
+- If `magit` is installed, configure key binding `C-x g` and spell checking in
+  related modes for `'basic` level.
+
+- Re-configure in `'maximum` level, key-binding `C-x C-b` to use
+  `xorns-helm-buffers-list` that uses `helm` to open buffer list if installed
+  and preferred.  Feature `helm` is required with `xorns-extra`.
+
+- Configure hook to load `gnus` configuration file in `'maximum` level.
+
+
+
+.. Footnotes
+
+.. [#inif] We encourage `~/.emacs.d/init.el`.
