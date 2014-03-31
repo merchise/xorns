@@ -57,6 +57,21 @@
    :type 'directory)
 
 
+(defcustom xorns-use-workspace-for-jedi 'subdirs
+  "Have jedi include your `xorns-prefered-default-directory'.
+
+Possible values are: nil, t or the symbol `subdirs'.  If t your preferred
+default directory will be included alone.  If `subdirs` each of the
+sub-directories in your preferred default directory will be included.  If nil,
+then the preferred directory will not be included (unless other customizations
+do it)."
+  :group 'xorns
+  :type '(choice
+	   (const :tag "Don't include any thing" nil)
+	   (const :tag "Include subdirs" subdirs)
+	   (const :tag "Include top-directory" t)))
+
+
 
 ;;; Nice buffer names
 
@@ -357,18 +372,36 @@ xorns-find-project-virtualenv-dir."
 The PROJECT-FILE-NAME, SENTINEL and BUFFER parameters have the same meaning
 that in `xorns-find-project-virtualenv-dir'."
   (if (featurep 'jedi)
-      (let* ((virtualenv-dir
-	      (xorns-find-project-virtualenv-dir project-file-name sentinel buffer))
-	     (omelette-path
+    (let* ((virtualenv-dir
+	     (xorns-find-project-virtualenv-dir project-file-name sentinel buffer))
+	    (omelette-path
 	      (xorns-omelette-dirs sentinel buffer))
-	     (jedi-server-args
+	    (preferred-dirs
+	      (cond
+		((eq xorns-use-workspace-for-jedi t)
+		  xorns-prefered-default-directory)
+		((eq xorns-use-workspace-for-jedi 'subdirs)
+		  (cl-remove-if-not
+		    (lambda (d) (if (file-directory-p d) d))
+		    (cl-subseq
+		      (directory-files
+			xorns-prefered-default-directory
+			'fullname)
+		      2)))))
+	    (jedi-server-args
 	      (append
-	       (when virtualenv-dir (list "-v" virtualenv-dir))
-	       (when omelette-path (list "-p" omelette-path)))))
-	(when jedi-server-args
-	  (message "Jedi arguments are: '%s' for buffer '%s'"
-		   jedi-server-args (or buffer (current-buffer)))
-	  (set (make-local-variable 'jedi:server-args) jedi-server-args)))
+		(when preferred-dirs
+		  (-mapcat
+		    (lambda (dir) (list "-p" dir))
+		    preferred-dirs))
+		(when virtualenv-dir
+		  (list "-v" virtualenv-dir))
+		(when omelette-path
+		  (list "-p" omelette-path)))))
+      (when jedi-server-args
+	(message "Jedi arguments are: '%s' for buffer '%s'"
+	  jedi-server-args (or buffer (current-buffer)))
+	(set (make-local-variable 'jedi:server-args) jedi-server-args)))
     ;; else
     (xorns-missing-feature 'jedi)))
 
