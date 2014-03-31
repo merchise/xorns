@@ -52,14 +52,7 @@
 
 (require 'ibuf-ext nil 'noerror)
 
-(eval-when-compile
-  (require 'xorns-utils))
-
-;; Externals to avoid warnings
-(defvar xorns-home-dir)
-(defvar xorns-prefered-default-directory)
-(declare-function xorns-default-directory "xorns-utils.el")
-
+(require 'xorns-utils)
 
 ;; Get rid of the startup screen and `*scratch*' buffer message
 (setq inhibit-startup-screen t)
@@ -69,33 +62,34 @@
 
 ;;; IBuffer
 
-(global-set-key (kbd "C-x C-b") 'ibuffer)
+(when (xorns-configure-p 'basic)
+  (global-set-key (kbd "C-x C-b") 'ibuffer))
 
 
-;; Set `ibuffer' to loads some preferred groups.
-(custom-set-variables
-  '(ibuffer-saved-filter-groups
-     '(("xorns-ibuffer-groups"
-	 ("Dired" (or (mode . dired-omit-mode) (mode . dired-mode)))
-	 ("RST" (mode . rst-mode))
-	 ("XML" (mode . nxml-mode))
-	 ("Emacs Lisp"
-	   (or
-	     (mode . emacs-lisp-mode)
-	     (mode . lisp-interaction-mode)
-	     (mode . lisp-mode)))
-	 ("Python" (mode . python-mode))))))
-
-
-(add-hook 'ibuffer-mode-hook
-  (lambda ()
-    (condition-case err
-      (ibuffer-switch-to-saved-filter-groups "xorns-ibuffer-groups")
-      (error (message "error@ibuffer-mode-hook: %s" err)))))
+(when (xorns-configure-p 'general)
+  ;; Set `ibuffer' to loads some preferred groups.
+  (custom-set-variables
+    '(ibuffer-saved-filter-groups
+       '(("xorns-ibuffer-groups"
+	   ("Dired" (or (mode . dired-omit-mode) (mode . dired-mode)))
+	   ("RST" (mode . rst-mode))
+	   ("XML" (mode . nxml-mode))
+	   ("Emacs Lisp"
+	     (or
+	       (mode . emacs-lisp-mode)
+	       (mode . lisp-interaction-mode)
+	       (mode . lisp-mode)))
+	   ("Python" (mode . python-mode))))))
+  (add-hook 'ibuffer-mode-hook
+    (lambda ()
+      (condition-case err
+	(ibuffer-switch-to-saved-filter-groups "xorns-ibuffer-groups")
+	(error (message "error@ibuffer-mode-hook: %s" err))))))
 
 
 ;;; Buffers
 
+;;;###autoload
 (defun xorns-force-scratch (&optional arg)
   "Switch to `*scratch*` buffer, creating a new one if needed.
 
@@ -108,23 +102,25 @@ An optional argument ARG could be given to delete other windows; if
     (if (or
 	  (= (prefix-numeric-value arg) 0)
 	  (equal (xorns-default-directory) xorns-home-dir))
-      (setq default-directory xorns-prefered-default-directory))
+      (setq default-directory (xorns-prefered-default-directory)))
     (if arg (delete-other-windows))))
 
 
-(global-set-key (kbd "C-c s") 'xorns-force-scratch)
+(when (xorns-configure-p 'basic)
+  (global-set-key (kbd "C-c s") 'xorns-force-scratch))
 
 
 
 ;;; Hooks
 
-(add-hook 'after-init-hook
-  (lambda ()
-    (condition-case err
-      ;; Set initial default directory for `*scratch*' buffer
-      (if (equal (xorns-default-directory) xorns-home-dir)
-	(setq default-directory xorns-prefered-default-directory))
-      (error (message "error@after-init-hook: %s" err)))))
+(when (xorns-configure-p 'general)
+ (add-hook 'after-init-hook
+   (lambda ()
+     (condition-case err
+       ;; Set initial default directory for `*scratch*' buffer
+       (if (equal (xorns-default-directory) xorns-home-dir)
+	 (setq default-directory (xorns-prefered-default-directory)))
+       (error (message "error@after-init-hook: %s" err))))))
 
 
 (provide 'xorns-buffers)

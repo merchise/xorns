@@ -153,21 +153,22 @@ If BUFFER is not present, use the current buffer."
 
 ;;; Hooks
 
-(add-hook 'gnus-load-hook               ; load gnus settings
-  (lambda ()
-    (condition-case err
-      (let* ((user-gnus-file
-	       (locate-user-emacs-file
-		 (concat "gnus-" user-real-login-name ".el")))
-	     (user-gnus-file
-	       (if (file-exists-p user-gnus-file)
-		 user-gnus-file
-		 ; else
-		 (locate-user-emacs-file "gnus.el"))))
-	(when (file-exists-p user-gnus-file)
-	  (message "Loading gnus configuration file %s" user-gnus-file)
-	  (load-file user-gnus-file)))
-      (error (message "error@gnus-load-hook: %s" err)))))
+(when (xorns-configure-p 'maximum)
+  (add-hook 'gnus-load-hook
+    (lambda ()
+      (condition-case err
+	(let* ((user-gnus-file
+		 (locate-user-emacs-file
+		   (concat "gnus-" user-real-login-name ".el")))
+	       (user-gnus-file
+		 (if (file-exists-p user-gnus-file)
+		   user-gnus-file
+		   ;else
+		   (locate-user-emacs-file "gnus.el"))))
+	  (when (file-exists-p user-gnus-file)
+	    (message "Loading gnus configuration file %s" user-gnus-file)
+	    (load-file user-gnus-file)))
+	(error (message "error@gnus-load-hook: %s" err))))))
 
 
 

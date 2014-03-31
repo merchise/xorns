@@ -43,6 +43,7 @@
 
 ;;; Code:
 
+
 ;; Basic initialization
 (require 'xorns-startup)
 (require 'xorns-buffers)
@@ -58,20 +59,44 @@
 
 
 
-;;; Finally, load all customized variables
-;; TODO: Extend for MacOS
-(let* ((user-custom-file
-	 (locate-user-emacs-file
-	   (concat "custom-" user-real-login-name ".el")))
-       (user-custom-file
-	 (if (file-exists-p user-custom-file)
-	   user-custom-file
-	   ; else
-	   (locate-user-emacs-file "custom.el"))))
-  (message "custom-file: %s" user-custom-file)
-  (when (file-exists-p user-custom-file)
-    (setq custom-file user-custom-file)
-    (load custom-file 'noerror)))
+
+;;;###autoload
+(defun xorns-manage-custom-file (&optional force)
+  "Configure and load custom configuration variables.
+
+This is useful when a GIT repository for `~/.emacs.d/' folder is shared to be
+used for several team members in order to each one could have his/her own
+`custom-file' using as name the pattern `custom-<USER>.el'.
+
+If `custom-file' variable is configured when this function runs, a proper
+warning is issued and no file is configured unless optional argument FORCE
+is given."
+  (let* ((configured custom-file)
+	 (do-config (or (not configured) force)))
+    (if configured
+      (message
+	"Warning: A `custom-file' \"%s\" is already configured!"
+	custom-file))
+    (if do-config
+      (let* ((proposed
+	  (locate-user-emacs-file
+	    (concat "custom-" user-real-login-name ".el")))
+	   (file-name
+	     (if (file-exists-p proposed)
+	       proposed
+               ; else
+	       (locate-user-emacs-file "custom.el"))))
+      (setq custom-file file-name)
+      (if (file-exists-p custom-file)
+	(progn
+	  (load custom-file 'noerror)
+	  (message "Loading `custom-file': %s" file-name))
+	;else
+	(message "Using `custom-file': %s" file-name))))))
+
+
+(when (xorns-configure-p 'basic)
+  (xorns-manage-custom-file))
 
 
 (provide 'xorns)

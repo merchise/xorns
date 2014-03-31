@@ -60,6 +60,8 @@
   '(require-final-newline t)
   ; Parenthesis matching style
   '(show-paren-style 'mixed)
+  ; Show line-numbers in all buffers.
+  '(global-linum-mode t)
   )
 
 

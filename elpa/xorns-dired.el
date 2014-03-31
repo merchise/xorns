@@ -61,11 +61,11 @@ If `dired-single' is not installed, does nothing."
       #'(lambda () (interactive) (dired-single-buffer "..")))))
 
 
-;; Local configurations
-(if (boundp 'dired-mode-map)
-  (xorns-setup-dired-single)
-  ; else
-  (add-hook 'dired-load-hook 'xorns-setup-dired-single))
+(when (xorns-configure-p 'basic)
+  (if (boundp 'dired-mode-map)
+    (xorns-setup-dired-single)
+    ; else
+    (add-hook 'dired-load-hook 'xorns-setup-dired-single)))
 
 
 ;; ;; TODO: To preserve positions, use::

@@ -73,8 +73,7 @@
 ;;; Files
 
 (defconst xorns-home-dir
-  (eval-when-compile
-    (purecopy (file-name-as-directory "~")))
+  (purecopy (file-name-as-directory "~"))
   "Home directory.")
 
 
@@ -100,26 +99,19 @@ directory.  At the end make the returned value to have the final separator."
     res))
 
 
-(defconst xorns-prefered-default-directory
-  (eval-when-compile
-    (purecopy
-      (file-name-as-directory
-	(cl-some
-	  (lambda (dir) (if (and dir (file-directory-p dir)) dir))
-	  (list
-	    (getenv "WORKSPACE")
-	    (xorns-path-join "~" "work" "merchise")
-	    (xorns-path-join "~" "work")
-	    (xorns-path-join "~" "src" "merchise")
-	    (xorns-path-join "~" "src")
-	    "~")))))
-  "Name of preferred default directory when start a new session.")
-
-
 ;;;###autoload
 (defun xorns-prefered-default-directory ()
   "Return name of preferred default directory when start a new session."
-  xorns-prefered-default-directory)
+  (file-name-as-directory
+    (cl-some
+      (lambda (dir) (if (and dir (file-directory-p dir)) dir))
+      (list
+	(getenv "WORKSPACE")
+	(xorns-path-join "~" "work" "merchise")
+	(xorns-path-join "~" "work")
+	(xorns-path-join "~" "src" "merchise")
+	(xorns-path-join "~" "src")
+	"~"))))
 
 
 ;;;###autoload
@@ -173,6 +165,55 @@ then a space and the value of `default-directory'."
 FILENAME defaults to `buffer-file-name'."
      (file-name-sans-extension
 	(file-name-nondirectory (or filename (buffer-file-name))))))
+
+
+
+;;; Configuration levels
+
+(defun xorns-get-config-level (arg &optional strict)
+  "Transform argument ARG in a valid configuration level.
+
+Value semantics for ARG when STRICT is true are::
+- `0' or `\'basic': execute configurations defined as basic.
+- `1' or `\'general': execute general configurations (including `basic').
+- `2' or `\'maximum': execute all specific configurations.
+
+If STRICT is nil::
+- not configured or nil: don't execute specific configurations.
+- any other value is synonym of `'maximum'."
+  (let ((res
+	  (when arg
+	    (let ((options
+		    '((maximum . 2) (2 . 2)
+		      (general . 1) (1 . 1)
+		      (basic . 0)   (0 . 0)))
+		   (default '(t . t)))
+	      (cdr (or (assq arg options) default))))))
+    (if strict
+      (if (not (or (null res) (eq res t)))
+	res
+	;else
+	(error "Invalid argument `%s' in strict mode!" arg))
+      ;else
+      (if (eq res t) 2 res))))
+
+
+;;;###autoload
+(defun xorns-configure-p (&optional arg)
+  "Return if a configuration level could be executed.
+
+Optional argument ARG specifies the level to match with the value of
+`xorns-config-level' variable; if nil `maximum' is assumed.
+
+Variable `xorns-config-level' only must be defined in the scope of
+initialization process (See README file and documentation of
+`xorns-get-config-level' function)."
+  (let ((conf
+	  (xorns-get-config-level
+	    (if (boundp 'xorns-config-level)
+	      (symbol-value 'xorns-config-level))))
+	(level (xorns-get-config-level arg 'strict)))
+    (if conf (<= level conf))))
 
 
 
