@@ -1,1 +1,1 @@
-/home/med/work/merchise/xorns/elpa/README
+elpa/README
