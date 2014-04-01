@@ -32,6 +32,13 @@
 ;;     (package-initialize)
 ;;     (require 'xorns)
 ;;
+;; You may configure how much does xorns mess with your Emacs configuration.
+;; By requiring `xorns' (or any `xorns' package) enclosed with a bind to
+;; `xorns-config-level' to upper levels::
+;;
+;;     (let ((xorns-config-level 'maximum))
+;;       (require 'xorns))
+;;
 ;; There are some extra features that are not included in basic
 ;; `xorns'; if required, configure in the selected initialization
 ;; file::

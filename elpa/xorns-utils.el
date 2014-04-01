@@ -174,21 +174,32 @@ FILENAME defaults to `buffer-file-name'."
   "Transform argument ARG in a valid configuration level.
 
 Value semantics for ARG when STRICT is true are::
-- `0' or `\'basic': execute configurations defined as basic.
-- `1' or `\'general': execute general configurations (including `basic').
-- `2' or `\'maximum': execute all specific configurations.
+
+- `0', nil or `\'minimum': execute configurations defined as basic or
+  implicit.
+
+- `1` or `\'basic': execute minimum extra configurations (including lower
+  levels).  These include project management and text modes.
+
+- `1' or `\'general': execute general configurations (including lower
+  levels).  These include programming modes.
+
+- `2' or `\'maximum': execute all specific configurations (including lower
+  levels).  These include email configuration, and other esoteric stuff.
 
 If STRICT is nil::
+
 - not configured or nil: don't execute specific configurations.
+
 - any other value is synonym of `'maximum'."
   (let ((res
-	  (when arg
-	    (let ((options
-		    '((maximum . 2) (2 . 2)
-		      (general . 1) (1 . 1)
-		      (basic . 0)   (0 . 0)))
-		   (default '(t . t)))
-	      (cdr (or (assq arg options) default))))))
+	  (let ((options
+		  '((maximum . 100) (100 . 100)
+		    (general . 70) (70 . 70)
+		    (basic . 10) (10 . 10)
+		    (minimum . 0) (nil . 0) (0 . 0)))
+		 (default '(t . t)))
+	    (cdr (or (assq arg options) default)))))
     (if strict
       (if (not (or (null res) (eq res t)))
 	res
