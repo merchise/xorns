@@ -60,8 +60,6 @@
   '(require-final-newline t)
   ; Parenthesis matching style
   '(show-paren-style 'mixed)
-  ; Show line-numbers in all buffers.
-  '(global-linum-mode t)
   )
 
 
@@ -92,6 +90,13 @@ Don't fail if `'fill-column-indicator' is not available."
 (add-hook 'before-save-hook 'copyright-update)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 ;; TODO: (add-hook 'before-save-hook 'time-stamp)
+
+
+(add-hook 'text-mode-hook
+  (lambda ()
+    (condition-case err
+      (linum-mode 1)
+      (error (message "error@text-mode-hook: %s" err)))))
 
 
 (add-hook 'tex-mode-hook           ; run when entering generic-TeX mode

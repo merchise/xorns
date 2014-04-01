@@ -75,7 +75,8 @@
 	(flyspell-prog-mode)
 	(turn-on-auto-fill)
 	(ispell-change-dictionary "english")
-	(subword-mode nil))
+	(subword-mode nil)
+	(linum-mode 1))
       (error (message "error@prog-mode-hook: %s" err)))))
 
 
