@@ -42,7 +42,7 @@
 (require 'xorns-utils)
 
 
-(when (featurep 'projectile)
+(when (and (featurep 'projectile) (xorns-configure-p 'general))
   (projectile-global-mode t)
   (add-to-list 'projectile-project-root-files "setup.py"))
 
@@ -455,17 +455,26 @@ that in `xorns-find-project-virtualenv-dir'."
 
 
 
-(add-hook 'find-file-hook          ; after a buffer is loaded from a file
-  'xorns-find-better-unique-buffer-name)
+;;  Standard hooks for project integration
+
+(when (xorns-configure-p 'minimum)
+  (add-hook 'find-file-hook          ; after a buffer is loaded from a file
+    'xorns-find-better-unique-buffer-name))
 
 
-(add-hook 'python-mode-hook        ; run when editing python source code
-  (lambda ()
-    (condition-case err
+
+;; Project configuration stuff is basic-level by definition, but since these
+;; are project configuration for programming in python the belong to the
+;; general level.
+
+(when (xorns-configure-p 'general)
+  (add-hook 'python-mode-hook        ; run when editing python source code
+    (lambda ()
+      (condition-case err
 	(progn
 	  (xorns-exec-path-setup)
 	  (xorns-project-jedi-setup))
-      (error (message "error@python-mode-hook: %s" err)))))
+	(error (message "error@python-mode-hook: %s" err))))))
 
 
 (provide 'xorns-project)
