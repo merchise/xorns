@@ -379,13 +379,13 @@ that in `xorns-find-project-virtualenv-dir'."
 	    (preferred-dirs
 	      (cond
 		((eq xorns-use-workspace-for-jedi t)
-		  xorns-prefered-default-directory)
+		  (xorns-prefered-default-directory))
 		((eq xorns-use-workspace-for-jedi 'subdirs)
 		  (cl-remove-if-not
 		    (lambda (d) (if (file-directory-p d) d))
 		    (cl-subseq
 		      (directory-files
-			xorns-prefered-default-directory
+			(xorns-prefered-default-directory)
 			'fullname)
 		      2)))))
 	    (jedi-server-args
