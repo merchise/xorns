@@ -192,9 +192,9 @@ If STRICT is nil::
     (if strict
       (if (not (or (null res) (eq res t)))
 	res
-	;else
+	;; else
 	(error "Invalid argument `%s' in strict mode!" arg))
-      ;else
+      ;; else
       (if (eq res t) 2 res))))
 
 
@@ -212,7 +212,7 @@ initialization process (See README file and documentation of
 	  (xorns-get-config-level
 	    (if (boundp 'xorns-config-level)
 	      (symbol-value 'xorns-config-level))))
-	(level (xorns-get-config-level arg 'strict)))
+	 (level (xorns-get-config-level arg 'strict)))
     (if conf (<= level conf))))
 
 
