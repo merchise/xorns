@@ -58,7 +58,7 @@
 
 
 (defcustom xorns-use-workspace-for-jedi 'subdirs
-  "Have jedi include your `xorns-prefered-default-directory'.
+  "Have jedi include your `xorns-preferred-default-directory'.
 
 Possible values are: nil, t or the symbol `subdirs'.  If t your preferred
 default directory will be included alone.  If `subdirs` each of the
@@ -379,13 +379,13 @@ that in `xorns-find-project-virtualenv-dir'."
 	    (preferred-dirs
 	      (cond
 		((eq xorns-use-workspace-for-jedi t)
-		  xorns-prefered-default-directory)
+		  (xorns-preferred-default-directory))
 		((eq xorns-use-workspace-for-jedi 'subdirs)
 		  (cl-remove-if-not
 		    (lambda (d) (if (file-directory-p d) d))
 		    (cl-subseq
 		      (directory-files
-			xorns-prefered-default-directory
+			(xorns-preferred-default-directory)
 			'fullname)
 		      2)))))
 	    (jedi-server-args
@@ -454,6 +454,26 @@ that in `xorns-find-project-virtualenv-dir'."
 	(rename-buffer name)))))
 
 
+(defun xorns-python-shell-setup-completion ()
+  "Setup the `python-shell-completion-setup-code' variable.
+
+This adds the current's project directory to the \"sys.path\" when starting
+the python shell."
+  (if (and (featurep 'projectile)
+	(functionp 'projectile-project-root))
+    (let ((project-dir (projectile-project-root)))
+      ;; Using python-shell-extra-pythonpaths is not working so
+      ;; let's messup with python-shell-completion-setup-code.
+      (make-local-variable 'python-shell-completion-setup-code)
+      (setq
+	python-shell-completion-setup-code
+	(concat
+	  python-shell-completion-setup-code
+	  "\n"
+	  (format "sys.path.append('''%s''')" project-dir)
+	  "\n")))))
+
+
 
 ;;  Standard hooks for project integration
 
@@ -468,12 +488,14 @@ that in `xorns-find-project-virtualenv-dir'."
 ;; general level.
 
 (when (xorns-configure-p 'general)
-  (add-hook 'python-mode-hook        ; run when editing python source code
+  (add-hook
+    'python-mode-hook        ; run when editing python source code
     (lambda ()
       (condition-case err
 	(progn
 	  (xorns-exec-path-setup)
-	  (xorns-project-jedi-setup))
+	  (xorns-project-jedi-setup)
+	  (xorns-python-shell-setup-completion))
 	(error (message "error@python-mode-hook: %s" err))))))
 
 

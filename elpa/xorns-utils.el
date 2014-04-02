@@ -100,7 +100,7 @@ directory.  At the end make the returned value to have the final separator."
 
 
 ;;;###autoload
-(defun xorns-prefered-default-directory ()
+(defun xorns-preferred-default-directory ()
   "Return name of preferred default directory when start a new session."
   (file-name-as-directory
     (cl-some
