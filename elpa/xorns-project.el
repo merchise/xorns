@@ -58,7 +58,7 @@
 
 
 (defcustom xorns-use-workspace-for-jedi 'subdirs
-  "Have jedi include your `xorns-prefered-default-directory'.
+  "Have jedi include your `xorns-preferred-default-directory'.
 
 Possible values are: nil, t or the symbol `subdirs'.  If t your preferred
 default directory will be included alone.  If `subdirs` each of the
@@ -379,13 +379,13 @@ that in `xorns-find-project-virtualenv-dir'."
 	    (preferred-dirs
 	      (cond
 		((eq xorns-use-workspace-for-jedi t)
-		  (xorns-prefered-default-directory))
+		  (xorns-preferred-default-directory))
 		((eq xorns-use-workspace-for-jedi 'subdirs)
 		  (cl-remove-if-not
 		    (lambda (d) (if (file-directory-p d) d))
 		    (cl-subseq
 		      (directory-files
-			(xorns-prefered-default-directory)
+			(xorns-preferred-default-directory)
 			'fullname)
 		      2)))))
 	    (jedi-server-args
