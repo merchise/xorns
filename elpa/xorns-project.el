@@ -57,7 +57,7 @@
    :type 'directory)
 
 
-(defcustom xorns-use-workspace-for-jedi 'subdirs
+(defcustom xorns-use-workspace-for-jedi nil
   "Have jedi include your `xorns-preferred-default-directory'.
 
 Possible values are: nil, t or the symbol `subdirs'.  If t your preferred
