@@ -159,12 +159,32 @@ then a space and the value of `default-directory'."
 
 
 ;; TODO: This code must be removed when every body uses Emacs >= 24.3
-(unless (eval-when-compile (functionp 'file-name-base))
+(unless (functionp 'file-name-base)
   (defun file-name-base (&optional filename)
      "Return the base name of the FILENAME: no directory, no extension.
 FILENAME defaults to `buffer-file-name'."
      (file-name-sans-extension
 	(file-name-nondirectory (or filename (buffer-file-name))))))
+
+
+;; The LOCAL arg to `add-hook' is interpreted differently in Emacs and
+;; XEmacs.  In Emacs we don't need to call `make-local-hook' first.
+;; It's harmless, though, so the main purpose of this alias is to shut
+;; up the byte compiler.
+;; This is for "apt-utils" to work.
+(unless (functionp 'make-local-hook)
+  (defun make-local-hook (hook)
+    "Make the hook HOOK local to the current buffer.
+The return value is HOOK.
+
+This function is obsolete since 21.1; not necessary any more.
+
+You never need to call this function now that `add-hook' does it for you
+if its LOCAL argument is non-nil.
+
+Do not use `make-local-variable' to make a hook variable buffer-local."
+    (add-hook hook 'ignore nil 'local)
+    hook))
 
 
 
