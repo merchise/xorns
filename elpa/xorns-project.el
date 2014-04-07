@@ -491,12 +491,17 @@ the python shell."
 ;; general level.
 
 (when (xorns-configure-p 'general)
+  (dolist
+    (hook '(prog-mode-hook text-mode-hook))
+    (add-hook hook
+      #'xorns-exec-path-setup)))
+
+(when (xorns-configure-p 'general)
   (add-hook
     'python-mode-hook        ; run when editing python source code
     (lambda ()
       (condition-case err
 	(progn
-	  (xorns-exec-path-setup)
 	  (xorns-project-jedi-setup)
 	  (xorns-python-shell-setup-completion))
 	(error (message "error@python-mode-hook: %s" err))))))
