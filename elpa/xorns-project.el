@@ -237,24 +237,27 @@ is used to start the search.
 
 if PROJECT-FILE-NAME is not provided it defaults to \".project.el\"."
   (let* ((project-file-name (or project-file-name ".project.el"))
-	 (current (file-name-directory (buffer-file-name buffer)))
-	 (last "")
-	 (sentinel (if sentinel (file-name-as-directory sentinel) nil))
-	 (stop (string= current sentinel))
-	 (project-file (concat (file-name-as-directory current)
-			       project-file-name)))
+	  (buffer (or buffer (current-buffer)))
+	  (buffer-fname (buffer-file-name buffer))
+	  (current (if buffer-fname (file-name-directory buffer-fname) (pwd)))
+	  (current (expand-file-name current))
+	  (last "")
+	  (sentinel (if sentinel (file-name-as-directory sentinel) nil))
+	  (stop (string= current sentinel))
+	  (project-file (concat (file-name-as-directory current)
+			  project-file-name)))
     (while (and
-	    (not stop)
-	    (not (file-exists-p project-file))
-	    (not (string= last current)))
-      (progn
-	(setq last current
-	      current (file-name-directory (directory-file-name current))
-	      stop (string= current sentinel)
-	      project-file (concat (file-name-as-directory current)
-				   project-file-name))))
+	     current
+	     (not stop)
+	     (not (file-exists-p project-file))
+	     (not (string= last current)))
+      (setq last current
+	current (file-name-directory (directory-file-name current))
+	stop (string= current sentinel)
+	project-file (concat (file-name-as-directory current)
+		       project-file-name)))
     (if (file-exists-p project-file)
-	project-file)))
+      project-file)))
 
 
 
