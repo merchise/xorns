@@ -302,7 +302,7 @@ file resides, or when any of the project file markers reside."
 
 
 (defun xorns-find-project-virtualenv-dir (&optional project-file-name sentinel
-						    buffer)
+					   buffer)
   "Find the project's virtualenv directory.
 
 This function will find the project definitions file and find the configured
@@ -322,14 +322,16 @@ If either there's no project definition file, or the file does not contains a
 project-virtualenv-name definition, or the virtualenv directory does not
 exists, the funtion returns nil."
   (-when-let (virtualenv-name (xorns-find-project-virtualenv-name
-			       project-file-name sentinel buffer))
+				project-file-name sentinel buffer))
     (let ((virtualenv-dir
-	   (file-truename
-	    (concat (file-name-as-directory xorns-virtualenvs-dir)
-		    (xorns-find-project-virtualenv-name project-file-name
-							sentinel
-							buffer)))))
-      (if (file-directory-p virtualenv-dir) virtualenv-dir))))
+	    (file-truename
+	      (concat (file-name-as-directory xorns-virtualenvs-dir)
+		(xorns-find-project-virtualenv-name
+		  project-file-name
+		  sentinel
+		  buffer)))))
+      (if (file-directory-p virtualenv-dir)
+	(expand-file-name virtualenv-dir)))))
 
 
 (defun xorns-omelette-dirs  (&optional sentinel buffer)
@@ -347,7 +349,7 @@ xorns-find-project-virtualenv-dir."
 	   (omelette-dir-exists
 	    (file-directory-p omelette-dir)))
       (when omelette-dir-exists
-	omelette-dir))))
+	(expand-file-name omelette-dir)))))
 
 
 (defun xorns-exec-path-setup (&optional sentinel buffer)
