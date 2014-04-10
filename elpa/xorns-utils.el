@@ -107,7 +107,7 @@ directory.  At the end make the returned value to have the final separator."
       (lambda (dir) (if (and dir (file-directory-p dir)) dir))
       (list
 	(getenv "WORKSPACE")
-	(xorns-path-join "~" "work" "merchise")
+	(xorns-path-join "~" "work" "src")
 	(xorns-path-join "~" "work")
 	(xorns-path-join "~" "src" "merchise")
 	(xorns-path-join "~" "src")
