@@ -1,3 +1,3 @@
 #!/bin/sh
 
-emacs --batch --load=install.el
+emacs --batch --debug --load=install.el
