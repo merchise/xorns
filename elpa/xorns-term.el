@@ -47,6 +47,13 @@
    :group 'shell)
 
 
+(setenv "PATH" (concat (getenv "PATH") ":/home/med/.local/bin"))
+;; TODO: (setq eshell-path-env (concat eshell-path-env ":/home/med/.local/bin"))
+
+;; eshell-load-hook
+;; (eshell/addpath "/home/med/.local/bin")
+
+
 (defun -safe-cmd (cmd)
   "Private function to test if CMD is a valid executable or nil."
   (or (null cmd) (executable-find cmd)))
