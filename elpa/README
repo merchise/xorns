@@ -100,6 +100,25 @@ A final initialization file could be::
       (require 'xorns-extra))
 
 
+Auxiliary Commands
+------------------
+
+In `Xorns ELPA package` there is a folder named `bin` with several shell
+executable files in order to use them to open `emacsclient` in any context,
+inside or outside Emacs, when server is running or not:
+
+- emc
+
+- emacs-c
+
+- emacs-nw
+
+
+
+
+
+
+
 Documentation
 =============
 
@@ -150,6 +169,51 @@ Specific Merchise Settings
   and preferred.  Feature `helm` is required with `xorns-extra`.
 
 - Configure hook to load `gnus` configuration file in `'maximum` level.
+
+
+TODO List
+=========
+
+
+Install
+-------
+
+- Create links, copy, or make available in PATH all shell commands in `bin`
+  directory.
+
+
+`dired-single`
+--------------
+
+- The buffer must be re-used only when there is no another window showing the
+  same directory.
+
+- When exit one level up (like `cd ..`) position the cursor over the last
+  folder.
+
+- When multiple directories are going to be deleted, ask just once for *"Delete
+  * [n files] (y or n)"* and *"Recursively delete <FOLDER NAME> (y or n)"*.
+
+
+Shell Terminals
+---------------
+
+- Execute all :name:`Emacs Lisp` commands in order to have `eshell` like
+  `bash` in normal terminals.  For example, use `setenv`.
+
+  When updating the environment variable `PATH`, also set the Emacs Lips
+  `exec-path`.  See in Emacs manual "36 Running Shell Commands from Emacs".
+
+- `Auxiliary commands`_ (in `bin` directory) must work in `sudo` modes.
+
+
+
+
+Buffers
+-------
+
+- Create function `xorns-clean-buffer-list`.
+
 
 
 
