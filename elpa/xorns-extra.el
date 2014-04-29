@@ -49,7 +49,6 @@
 ;;; Code:
 
 (require 'xorns-mail)
-(require 'xorns-helm)
 (require 'xorns-gud)
 
 

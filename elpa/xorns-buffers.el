@@ -31,8 +31,7 @@
 ;;   buffer.
 ;;
 ;; - Configure `C-x C-b' to list buffers using `ibuffer' instead
-;;   standard `list-buffers'.  This can be change in `xorns' by
-;;   requiring `xorns-helm' and set `xorns-prefer-helm-buffer-list'.
+;;   standard `list-buffers'.
 ;;
 ;; - Set `ibuffer' groups.
 ;;
