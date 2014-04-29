@@ -45,6 +45,28 @@
 
 (require 'xorns-text)
 
+;;;###autoload
+(defun xorns-python-shell-send-cpaste (start end)
+  "Send the region delimited by START and END wrapped with a %cpaste magic."
+  (interactive "r")
+  (unless (region-active-p)
+    ;; If the region is not active, use the current line
+    (save-excursion
+      (end-of-line)
+      (setq end (point))
+      (beginning-of-line)
+      (search-forward-regexp "[^\\s \t\n]" end 'noerror)
+      (backward-char)  ;; search-forward ends after that
+      (setq start (point))))
+  ;;  `python-shell-send-string' does too much magic trying to detect the
+  ;;  beginning of the output; using `comint-send-string' seems to be more
+  ;;  reliable.
+  (comint-send-string (python-shell-get-or-create-process)
+    (concat
+      "%cpaste\n"
+      (buffer-substring start end)
+      "\n")))
+
 
 ;;; Hooks
 
@@ -132,6 +154,18 @@
        (concat
 	 "print(repr(str(';').join(str(ac) for ac in get_ipython()."
 	 "Completer.all_completions('''%s''')).strip()))\n") 'now)))
+
+
+
+;; Python for reST
+
+(when (xorns-configure-p 'maximum)
+  (add-hook 'text-mode-hook
+    (lambda ()
+      (define-key rst-mode-map (kbd "C-c C-r !")
+	'xorns-python-shell-send-cpaste)
+      (define-key rst-mode-map (kbd "C-c C-r C-r")
+	'xorns-python-shell-send-cpaste))))
 
 
 ;;;###autoload
