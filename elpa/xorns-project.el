@@ -51,7 +51,7 @@
   (file-name-as-directory
     (or
       (getenv "WORKON_HOME")
-      (xorns-path-join xorns-home-dir ".virtualenvs")))
+      (xorns-file-path-join xorns-home-dir ".virtualenvs")))
    "The directory where all the virtualenvs reside."
    :group 'xorns
    :type 'directory)
@@ -338,9 +338,9 @@ xorns-find-project-virtualenv-dir."
 	      (xorns-find-project-def-file
 	       "bin/buildout" sentinel buffer))
     (let* ((project-dir
-	    (xorns-path-join (file-name-directory project-def-file) ".."))
+	    (xorns-file-path-join (file-name-directory project-def-file) ".."))
 	   (omelette-dir
-	    (xorns-path-join project-dir "parts" "omelette"))
+	    (xorns-file-path-join project-dir "parts" "omelette"))
 	   (omelette-dir-exists
 	    (file-directory-p omelette-dir)))
       (when omelette-dir-exists

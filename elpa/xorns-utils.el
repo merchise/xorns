@@ -85,10 +85,11 @@
 
 
 ;;;###autoload
-(defun xorns-path-join (base &rest args)
-  "Join BASE and ARGS to a single path.
+(defun xorns-file-path-join (base &rest args)
+  "Join BASE and ARGS to a single file path.
 The empty string or nil could be used as BASE in order to define root
-directory.  At the end make the returned value to have the final separator."
+directory, one of these values at the end make the returned value to have the
+final separator."
   (let ((res base))
     (if (or (null res) (equal res ""))
       (setq res xorns-directory-separator))
@@ -107,10 +108,10 @@ directory.  At the end make the returned value to have the final separator."
       (lambda (dir) (if (and dir (file-directory-p dir)) dir))
       (list
 	(getenv "WORKSPACE")
-	(xorns-path-join "~" "work" "src")
-	(xorns-path-join "~" "work")
-	(xorns-path-join "~" "src" "merchise")
-	(xorns-path-join "~" "src")
+	(xorns-file-path-join "~" "work" "src")
+	(xorns-file-path-join "~" "work")
+	(xorns-file-path-join "~" "src" "merchise")
+	(xorns-file-path-join "~" "src")
 	"~"))))
 
 
