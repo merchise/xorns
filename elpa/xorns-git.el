@@ -50,7 +50,7 @@
 	  (condition-case err
 	    (progn
 	      (turn-on-auto-fill)
-	      (flyspell-mode)
+	      (flyspell-mode nil)
 	      ;; TODO: Use .dir-locals.el
 	      (ispell-change-dictionary "english"))
 	    (error (message "error@git-commit-mode-hook: %s" err))))))

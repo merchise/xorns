@@ -112,7 +112,7 @@ Don't fail if `'fill-column-indicator' is not available."
     (condition-case err
       (progn
 	(turn-on-auto-fill)
-	(flyspell-mode)			; When used flyspell-prog-mode I
+	(flyspell-mode nil)		; When used flyspell-prog-mode I
 					; can't see the errors while typing
 	(setq ispell-parser 'tex)
 	(xorns-fci-mode-on))
