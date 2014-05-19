@@ -42,6 +42,9 @@
 (require 'yasnippet nil 'noerror)
 (require 'python nil 'noerror)
 (require 'jedi nil 'noerror)
+(require 'cc-mode nil 'noerror)
+(require 'scala-mode nil 'noerror)
+(require 'javadoc-lookup nil 'noerror)
 
 (require 'xorns-text)
 
@@ -58,9 +61,9 @@
       (search-forward-regexp "[^\\s \t\n]" end 'noerror)
       (backward-char)  ;; search-forward ends after that
       (setq start (point))))
-  ;;  `python-shell-send-string' does too much magic trying to detect the
-  ;;  beginning of the output; using `comint-send-string' seems to be more
-  ;;  reliable.
+  ;; `python-shell-send-string' does too much magic trying to detect the
+  ;; beginning of the output; using `comint-send-string' seems to be more
+  ;; reliable.
   (comint-send-string (python-shell-get-or-create-process)
     (concat
       "%cpaste\n"
@@ -95,6 +98,19 @@
 	(xorns-fci-mode-on)
 	(xorns-auto-complete-mode)
 	(flyspell-prog-mode)
+	(turn-on-auto-fill)
+	(ispell-change-dictionary "english")
+	(subword-mode nil)
+	(linum-mode 1))
+      (error (message "error@prog-mode-hook: %s" err)))))
+
+
+(add-hook 'conf-unix-mode-hook          ; For configuration files
+  (lambda ()
+    (condition-case err
+      (progn
+	(xorns-fci-mode-on)
+	(xorns-auto-complete-mode)
 	(turn-on-auto-fill)
 	(ispell-change-dictionary "english")
 	(subword-mode nil)
@@ -179,6 +195,35 @@
     (xorns-missing-feature 'jedi)))
 
 
+
+;; Java and Scala
+
+(when (xorns-configure-p 'general)
+  (if (featurep 'javadoc-lookup)
+    (progn
+      ;; TODO: Check for each item before adding
+      (javadoc-add-roots
+	"/usr/share/doc/openjdk-7-jdk/api"
+	"/usr/share/doc/scala-doc/html"
+	"/usr/share/doc/libjsoup-java/api"
+	"~/.local/share/doc/play/content/api/scala"
+	"~/.local/share/doc/akka-actor_2.10-2.2.0"
+	"~/.local/share/doc/akka-slf4j_2.10-2.2.0"
+	;; Look for "akka-doc" and also our projects
+	)
+      (setq browse-url-browser-function 'browse-url-chromium)
+      )
+      ;; else
+      (xorns-missing-feature 'javadoc-lookup))
+  (if (featurep 'scala-mode)
+    (progn
+      (define-key scala-mode-map "\C-ch" 'javadoc-lookup))
+    ;; else
+    (xorns-missing-feature 'scala-mode))
+  (define-key java-mode-map "\C-ch" 'javadoc-lookup)
+  )
+
+
 ;;;###autoload
 (defun xorns-prog-dependencies-install ()
   "Install all dependencies of text modes."

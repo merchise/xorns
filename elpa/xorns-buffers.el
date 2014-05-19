@@ -78,7 +78,13 @@
 	       (mode . emacs-lisp-mode)
 	       (mode . lisp-interaction-mode)
 	       (mode . lisp-mode)))
-	   ("Python" (mode . python-mode))))))
+	   ("Python" (mode . python-mode))
+	   ("Scala/Java"
+	     (or
+	       (mode . scala-mode)
+	       (mode . java-mode)
+	       (mode . scala-mode-inf)))
+	   ))))
   (add-hook 'ibuffer-mode-hook
     (lambda ()
       (condition-case err
