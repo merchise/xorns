@@ -116,32 +116,35 @@ final separator."
 
 
 ;;;###autoload
-(defun xorns-locate-emacs-file (name &rest args)
+(defun xorns-locate-emacs-file (&rest args)
   "Return an absolute per-user Emacs-specific file-name.
 
-Checks for NAME using `locate-user-emacs-file'.  If this returned file-name
-exists returns it, but if not check other names (in argument ARGS) until one
-is found.
+Find a valid file-name checking each item in ARGS until one if found.  Each
+given name is processing with `substitute-in-file-name' to substitute
+environment variables referred to in file-name.  The function
+`locate-user-emacs-file' is used to localize the file inner Emacs home
+folder.  The first file that exists is returned or the last one if not.
 
-Return value when no file exists depend on ARGS.  If any is given
-return nil, if not the constructed file-name from NAME is returned any way.
+Value nil could be part of ARGS in order to use as the last item if it is
+desired to force an existing file to be returned.
 
-Each given item is processing with `substitute-in-file-name' to substitute
-environment variables referred to in file-name."
-  (let* ((locate
-	   (lambda (item)
-	     (let ((aux (substitute-in-file-name item)))
-	       (locate-user-emacs-file aux))))
-	 (locate-if
-	   (lambda (item)
-	     (let ((aux (apply locate item nil)))
-	       (if (file-exists-p aux) aux))))
-	 (first (apply locate name nil)))
-    (if (file-exists-p first)
-      first
-      ;; else
-      (let ((default (cl-some locate-if args)))
-	(or default (if (not args) first))))))
+If no item is given, the name of standard Emacs initialization file is
+returned."
+  (if args
+    (let (res last)
+      (while (and (not res) args)
+	(let* ((item (car args))
+	       (aux
+		 (if item
+		   (locate-user-emacs-file (substitute-in-file-name item)))))
+	  (setq last aux)
+	  (if (and aux (file-exists-p aux))
+	    (setq res aux)
+	    ;; else
+	    (setq args (cdr args)))))
+      (or res last))
+    ;; else
+    (locate-user-emacs-file "init.el" ".emacs")))
 
 
 ;;;###autoload
