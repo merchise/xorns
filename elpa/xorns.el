@@ -67,19 +67,18 @@
 
 
 
-;;;###autoload
-(defun xorns-manage-custom-file (&optional force)
+(defun xorns-manage-user-custom-files (&optional force)
   "Configure and load per-user custom initialization.
 
 This is useful when a GIT repository for `~/.emacs.d/' folder is shared to be
 used for several team members in order to each one could have his/her own
-`custom-file' using as name the pattern `custom-$USER.el'.
+`custom-file' using as name the pattern `custom-${USER}.el'.
 
 If `custom-file' variable is configured when this function runs, a proper
 warning is issued and no file is configured unless optional argument FORCE
 is given.
 
-Also check for file with name `init-$USER.el' and if exists, is loaded."
+Also check for file with name `init-${USER}.el' and if exists, is loaded."
   (let* ((configured custom-file)
 	 (do-config (or (not configured) force)))
     (if configured
@@ -95,11 +94,15 @@ Also check for file with name `init-$USER.el' and if exists, is loaded."
 	  (load custom-file 'noerror)
 	  (message "Loading `custom-file': %s" file-name))
 	;else
-	(message "Using new `custom-file': %s" file-name))))))
+	(message "Using new `custom-file': %s" file-name)))))
+  (let ((user-init-file
+	  (xorns-locate-emacs-file "init-${USER}.el" nil)))
+    (if user-init-file
+      (load user-init-file 'noerror))))
 
 
 (when (xorns-configure-p 'basic)
-  (xorns-manage-custom-file))
+  (xorns-manage-user-custom-files))
 
 
 (provide 'xorns)
