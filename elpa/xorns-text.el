@@ -106,7 +106,6 @@ Don't fail if `'fill-column-indicator' is not available."
       (error (message "error@tex-mode-hook: %s" err)))))
 
 
-
 (add-hook 'rst-mode-hook           ; run when entering reStructuredText mode
   (lambda ()
     (condition-case err
