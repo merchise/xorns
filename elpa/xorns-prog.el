@@ -48,6 +48,15 @@
 
 (require 'xorns-text)
 
+
+;;; Some variables
+(setq
+  emacs-lisp-docstring-fill-column 78
+  lisp-indent-offset 2
+   make-backup-files nil    ;; Use Version Control instead ;)
+  )
+
+
 ;;;###autoload
 (defun xorns-python-shell-send-cpaste (start end)
   "Send the region delimited by START and END wrapped with a %cpaste magic."
@@ -75,9 +84,13 @@
 
 (when (xorns-configure-p 'basic)
   (if (featurep 'flycheck)
-    (add-hook 'after-init-hook
-      (lambda ()
-	(global-flycheck-mode)))
+    (progn
+      (add-hook 'after-init-hook
+	(lambda ()
+	  (global-flycheck-mode)))
+      (setq
+	flycheck-disabled-checkers '(rst-sphinx python-pylint)
+	flycheck-idle-change-delay 1.5))
     ;; else
     (xorns-missing-feature 'flycheck)))
 
@@ -149,27 +162,27 @@
 	  (linum-mode 0))
 	(error (message "error@inferior-python-mode-hook: %s" err)))))
 
-  (custom-set-variables
+  (setq
     ;; Configure `ipython` as shell when use function `run-python` and other
     ;; related commands.
     ;; This configuration is based in the way we, in Merchise, configure
     ;; IPython.  See README documentation for more information.
-    '(python-shell-interpreter "ipython")
+    python-shell-interpreter "ipython"
     ;; Next is essentially configured in `ipython_config.py` as:
     ;; c.PromptManager.in_template = r'\#> \u:\w \$\n>>> '
-    '(python-shell-prompt-regexp "\\(^[0-9]+> .* [$]\\|>>> \\)")
-    '(python-shell-prompt-pdb-regexp "i?pdb> ")
-    '(python-shell-prompt-output-regexp "\\(\\s-{0,4}\\|    \\)")
-    '(python-shell-completion-setup-code
-       "from IPython.core.completerlib import module_completion")
-    '(python-shell-completion-module-string-code
-       (concat
-	 "print(repr(str(';').join(str(ac) "
-	 "for ac in module_completion('''%s''')).strip()))\n") 'now)
-    '(python-shell-completion-string-code
-       (concat
-	 "print(repr(str(';').join(str(ac) for ac in get_ipython()."
-	 "Completer.all_completions('''%s''')).strip()))\n") 'now)))
+    python-shell-prompt-regexp "\\(^[0-9]+> .* [$]\\|>>> \\)"
+    python-shell-prompt-pdb-regexp "i?pdb> "
+    python-shell-prompt-output-regexp "\\(\\s-{0,4}\\|    \\)"
+    python-shell-completion-setup-code
+       "from IPython.core.completerlib import module_completion"
+    python-shell-completion-module-string-code
+      (concat
+        "print(repr(str(';').join(str(ac) "
+        "for ac in module_completion('''%s''')).strip()))\n")
+    python-shell-completion-string-code
+      (concat
+	"print(repr(str(';').join(str(ac) for ac in get_ipython()."
+	"Completer.all_completions('''%s''')).strip()))\n")))
 
 
 

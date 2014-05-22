@@ -40,6 +40,7 @@
 
 (require 'server)
 (require 'font-lock)
+(require 'scroll-bar)
 (require 'mule)
 
 ;; See https://wiki.archlinux.org/index.php/emacs#Dead-accent_keys_problem:_.27.3Cdead-acute.3E_is_undefined.27
@@ -49,6 +50,14 @@
 ;; Allow this Emacs process to be a server for client processes
 (if (not (server-running-p))
   (server-start))
+
+
+;; Usability Interface Configuration
+(menu-bar-mode 0)
+(tool-bar-mode 0)
+(scroll-bar-mode 0)
+(mouse-wheel-mode t)    ; Mouse wheel support
+(fset 'yes-or-no-p 'y-or-n-p)   ; Replace `yes|not' commands for simpler `[yn]'
 
 
 ;; Maximize each new frame including the initial one
@@ -80,12 +89,8 @@
 (set-terminal-coding-system 'utf-8)
 
 
-;; Replace `yes|not' commands for simpler `[yn]'
-(fset 'yes-or-no-p 'y-or-n-p)
-
-
-;; Mouse wheel support
-(mouse-wheel-mode t)
+;; Cutting and pasting uses the clipboard
+(setq x-select-enable-clipboard t)
 
 
 
@@ -119,32 +124,6 @@
 (global-set-key (kbd "C-c d") 'xorns-pwd)
 (global-set-key (kbd "C-c m") 'man)
 
-(require 'dictionary nil 'noerror)
-(if (featurep 'dictionary)
-  (global-set-key (kbd "C-c w") 'dictionary-search)
-  ;else
-  )
-
-
-(require 'rfcview nil 'noerror)
-(when (featurep 'rfcview)
-  (add-hook 'rfcview-mode-hook
-    (lambda ()
-      (condition-case err
-	(progn
-	  (define-key rfcview-mode-map (kbd "l") 'pop-to-mark-command))
-	(error (message "error@rfcview-mode-hook: %s" err))))))
-
-
-
-(require 'deft nil 'noerror)
-(when (featurep 'deft)
-  (custom-set-variables
-    '(deft-auto-save-interval 60.0)
-    ; TODO: Remove all deft `.emacs.d' custom files
-    )
-  (global-set-key (kbd "<f12>") 'deft))
-
 
 
 ;;; Enable some disabled commands
@@ -157,11 +136,6 @@
 
 
 ;;; Some generic custom values
-
-(custom-set-variables
-  '(calendar-date-style 'iso)
-  )
-
 
 
 

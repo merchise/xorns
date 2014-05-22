@@ -51,6 +51,17 @@
 ;;; Code:
 
 
+(defun xorns-load-user-file (name)
+  "Load user initialization file NAME."
+  (let ((init-file
+	  (xorns-locate-emacs-file name nil)))
+    (if init-file
+      (load init-file 'noerror))))
+
+
+(when (xorns-configure-p 'basic)
+  (xorns-load-user-file "before-init-${USER}.el"))
+
 ;; Basic initialization
 (require 'xorns-startup)
 (require 'xorns-buffers)
@@ -58,8 +69,9 @@
 (require 'xorns-simple)
 (require 'xorns-term)
 (require 'xorns-prog)        ;; This requires `xorns-text'
-(require 'xorns-project)
 (require 'xorns-git)
+(require 'xorns-project)
+(require 'xorns-org)
 
 ;; Configure preferred package repositories
 (require 'xorns-package)
@@ -76,9 +88,7 @@ used for several team members in order to each one could have his/her own
 
 If `custom-file' variable is configured when this function runs, a proper
 warning is issued and no file is configured unless optional argument FORCE
-is given.
-
-Also check for file with name `init-${USER}.el' and if exists, is loaded."
+is given."
   (let* ((configured custom-file)
 	 (do-config (or (not configured) force)))
     (if configured
@@ -94,15 +104,12 @@ Also check for file with name `init-${USER}.el' and if exists, is loaded."
 	  (load custom-file 'noerror)
 	  (message "Loading `custom-file': %s" file-name))
 	;else
-	(message "Using new `custom-file': %s" file-name)))))
-  (let ((user-init-file
-	  (xorns-locate-emacs-file "init-${USER}.el" nil)))
-    (if user-init-file
-      (load user-init-file 'noerror))))
+	(message "Using new `custom-file': %s" file-name))))))
 
 
 (when (xorns-configure-p 'basic)
-  (xorns-manage-user-custom-files))
+  (xorns-manage-user-custom-files)
+  (xorns-load-user-file "after-init-${USER}.el"))
 
 
 (provide 'xorns)

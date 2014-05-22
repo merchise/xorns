@@ -43,6 +43,11 @@
 (require 'dired-single nil 'noerror)
 
 
+(setq
+  dired-dwim-target t
+  dired-listing-switches "-lha --group-directories-first"
+)
+
 (defun xorns-setup-dired-single ()
   "Customize `dired-single' key-bindings.
 

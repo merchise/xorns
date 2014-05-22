@@ -38,6 +38,7 @@
 (eval-when-compile
   (require 'cl))
 
+
 ;; TODO: How to auto-load other stuff but functions.
 
 ;;;###autoload
@@ -101,18 +102,30 @@ final separator."
 
 
 ;;;###autoload
+(defun xorns-preferred-directory (&rest dirs)
+  "Return name of preferred directory (the first that exists in DIRS.
+
+If no item is given in DIRS, return $HOME."
+  (file-name-as-directory
+    (if dirs
+      (cl-some
+	(lambda (item)
+	  (if (and item (file-directory-p item)) item))
+	dirs)
+      ;; else
+      "~")))
+
+
+;;;###autoload
 (defun xorns-preferred-default-directory ()
   "Return name of preferred default directory when start a new session."
-  (file-name-as-directory
-    (cl-some
-      (lambda (dir) (if (and dir (file-directory-p dir)) dir))
-      (list
-	(getenv "WORKSPACE")
-	(xorns-file-path-join "~" "work" "src")
-	(xorns-file-path-join "~" "work")
-	(xorns-file-path-join "~" "src" "merchise")
-	(xorns-file-path-join "~" "src")
-	"~"))))
+  (xorns-preferred-directory
+    (getenv "WORKSPACE")
+    (xorns-file-path-join "~" "work" "src")
+    (xorns-file-path-join "~" "work")
+    (xorns-file-path-join "~" "src" "merchise")
+    (xorns-file-path-join "~" "src")
+    "~"))
 
 
 ;;;###autoload
