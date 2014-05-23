@@ -134,9 +134,6 @@
 (put 'narrow-to-region 'disabled nil)
 (put 'set-goal-column 'disabled nil)
 
-
-;;; Some generic custom values
-
 
 
 ;;; Hooks
