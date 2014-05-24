@@ -226,8 +226,8 @@
 	)
       (setq browse-url-browser-function 'browse-url-chromium)
       )
-      ;; else
-      (xorns-missing-feature 'javadoc-lookup))
+    ;; else
+    (xorns-missing-feature 'javadoc-lookup))
   (if (featurep 'scala-mode)
     (progn
       (define-key scala-mode-map "\C-ch" 'javadoc-lookup))
