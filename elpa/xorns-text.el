@@ -42,8 +42,9 @@
 (require 'rst)
 (require 'outline)
 (require 'paren)
-(require 'fill-column-indicator)
+(require 'linum)
 
+(require 'fill-column-indicator nil 'noerror)
 (require 'auto-complete nil 'noerror)
 
 
@@ -52,14 +53,17 @@
 
 ;; Turn ON parenthesis matching
 (show-paren-mode t)
+(setq show-paren-mode t)
 
-(custom-set-variables
+(setq
   ; Consecutive years replaced with range
-  '(copyright-year-ranges t)
+  copyright-year-ranges t
   ; Add a newline automatically at the end of the file
-  '(require-final-newline t)
+  require-final-newline t
+  ; Do not display continuation lines
+  truncate-lines t
   ; Parenthesis matching style
-  '(show-paren-style 'mixed)
+  show-paren-style 'mixed
   )
 
 
@@ -69,9 +73,23 @@
 
 ;; Fill Column Indicator parameters
 (when (featurep 'fill-column-indicator)
-  (custom-set-variables
-    '(fci-rule-width 1)
-    '(fci-rule-color "#cccccc")))
+  (setq
+    fci-rule-width 1
+    fci-rule-color "#cccccc")
+  (set-default 'fill-column 78)
+  )
+
+
+;; Fill Column Indicator parameters
+(when (featurep 'linum)
+  (global-linum-mode t)
+  )
+
+
+(when (featurep 'ispell)
+  (setq
+    ispell-highlight-p t
+    ispell-silently-savep t))
 
 
 (defun xorns-fci-mode-on ()
@@ -104,7 +122,6 @@ Don't fail if `'fill-column-indicator' is not available."
     (condition-case err
       (setq ispell-parser 'tex)
       (error (message "error@tex-mode-hook: %s" err)))))
-
 
 
 (add-hook 'rst-mode-hook           ; run when entering reStructuredText mode

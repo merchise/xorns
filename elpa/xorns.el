@@ -51,6 +51,17 @@
 ;;; Code:
 
 
+(defun xorns-load-user-file (name)
+  "Load user initialization file NAME."
+  (let ((init-file
+	  (xorns-locate-emacs-file name nil)))
+    (if init-file
+      (load init-file 'noerror))))
+
+
+(when (xorns-configure-p 'basic)
+  (xorns-load-user-file "before-init-${USER}.el"))
+
 ;; Basic initialization
 (require 'xorns-startup)
 (require 'xorns-buffers)
@@ -58,8 +69,9 @@
 (require 'xorns-simple)
 (require 'xorns-term)
 (require 'xorns-prog)        ;; This requires `xorns-text'
-(require 'xorns-project)
 (require 'xorns-git)
+(require 'xorns-project)
+(require 'xorns-org)
 
 ;; Configure preferred package repositories
 (require 'xorns-package)
@@ -67,13 +79,12 @@
 
 
 
-;;;###autoload
-(defun xorns-manage-custom-file (&optional force)
-  "Configure and load custom configuration variables.
+(defun xorns-manage-user-custom-files (&optional force)
+  "Configure and load per-user custom initialization.
 
 This is useful when a GIT repository for `~/.emacs.d/' folder is shared to be
 used for several team members in order to each one could have his/her own
-`custom-file' using as name the pattern `custom-<USER>.el'.
+`custom-file' using as name the pattern `custom-${USER}.el'.
 
 If `custom-file' variable is configured when this function runs, a proper
 warning is issued and no file is configured unless optional argument FORCE
@@ -85,25 +96,20 @@ is given."
 	"Warning: A `custom-file' \"%s\" is already configured!"
 	custom-file))
     (if do-config
-      (let* ((proposed
-	  (locate-user-emacs-file
-	    (concat "custom-" user-real-login-name ".el")))
-	   (file-name
-	     (if (file-exists-p proposed)
-	       proposed
-               ; else
-	       (locate-user-emacs-file "custom.el"))))
+      (let ((file-name
+	       (xorns-locate-emacs-file "custom-${USER}.el" "custom.el")))
       (setq custom-file file-name)
       (if (file-exists-p custom-file)
 	(progn
 	  (load custom-file 'noerror)
 	  (message "Loading `custom-file': %s" file-name))
 	;else
-	(message "Using `custom-file': %s" file-name))))))
+	(message "Using new `custom-file': %s" file-name))))))
 
 
 (when (xorns-configure-p 'basic)
-  (xorns-manage-custom-file))
+  (xorns-manage-user-custom-files)
+  (xorns-load-user-file "after-init-${USER}.el"))
 
 
 (provide 'xorns)

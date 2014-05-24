@@ -43,6 +43,18 @@
 (require 'dired-single nil 'noerror)
 
 
+(defun -mac-os ()
+  "My current version of Mac OS bash doesn't allow grouping directories."
+  (require 'ns nil 'noerror))
+
+
+(setq
+  dired-dwim-target t
+  dired-listing-switches
+    (if (-mac-os) "-lah" "-la --group-directories-first -h")
+  )
+
+
 (defun xorns-setup-dired-single ()
   "Customize `dired-single' key-bindings.
 

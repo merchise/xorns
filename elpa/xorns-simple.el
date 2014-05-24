@@ -43,8 +43,9 @@
 
 ;;; Custom Variables and Settings
 
-(custom-set-variables
-  '(column-number-mode t)     ; Visualize current column number
+(setq
+  column-number-mode t
+  ido-auto-merge-delay-time 1.5
   )
 
 

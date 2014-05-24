@@ -42,6 +42,7 @@
 
 ;; Requires, auto-loads and declarations
 
+(require 'sendmail)
 (require 'smtpmail)
 (require 'message)
 
@@ -54,6 +55,10 @@
 
 ;; Local definitions
 
+(setq
+  mail-default-directory "~/mail/"
+  message-directory "~/mail/"
+  )
 
 (defgroup xorns-email nil
    "Xorns Email"

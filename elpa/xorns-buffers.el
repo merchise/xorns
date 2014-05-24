@@ -49,9 +49,11 @@
 (eval-when-compile
   (require 'cl))
 
+(require 'ibuffer nil 'noerror)
 (require 'ibuf-ext nil 'noerror)
 
-(require 'xorns-utils)
+(require 'xorns-utils nil 'noerror)
+
 
 ;; Get rid of the startup screen and `*scratch*' buffer message
 (setq inhibit-startup-screen t)
@@ -67,18 +69,38 @@
 
 (when (xorns-configure-p 'general)
   ;; Set `ibuffer' to loads some preferred groups.
-  (custom-set-variables
-    '(ibuffer-saved-filter-groups
-       '(("xorns-ibuffer-groups"
-	   ("Dired" (or (mode . dired-omit-mode) (mode . dired-mode)))
-	   ("RST" (mode . rst-mode))
-	   ("XML" (mode . nxml-mode))
-	   ("Emacs Lisp"
-	     (or
-	       (mode . emacs-lisp-mode)
-	       (mode . lisp-interaction-mode)
-	       (mode . lisp-mode)))
-	   ("Python" (mode . python-mode))))))
+  (setq
+    ibuffer-saved-filter-groups
+      '(("xorns-ibuffer-groups"
+	  ("Dired" (or (mode . dired-omit-mode) (mode . dired-mode)))
+	  ("RST" (mode . rst-mode))
+	  ("XML" (mode . nxml-mode))
+	  ("Emacs Lisp"
+	    (or
+	      (mode . emacs-lisp-mode)
+	      (mode . lisp-interaction-mode)
+	      (mode . lisp-mode)))
+	  ("Python" (mode . python-mode))
+	  ("Scala/Java"
+	    (or
+	      (mode . scala-mode)
+	      (mode . java-mode)
+	      (mode . scala-mode-inf)))
+	  ))
+    ibuffer-formats
+      '((mark modified read-only " "
+	  (name 22 22 :left :elide)
+	  " "
+	  (size 9 -1 :right)
+	  " "
+	  (mode 16 16 :left :elide)
+	  " "
+	  filename-and-process)
+	(mark " "
+	  (name 16 -1)
+	  " "
+	  filename))
+    )
   (add-hook 'ibuffer-mode-hook
     (lambda ()
       (condition-case err

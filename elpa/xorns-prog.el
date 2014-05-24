@@ -42,8 +42,20 @@
 (require 'yasnippet nil 'noerror)
 (require 'python nil 'noerror)
 (require 'jedi nil 'noerror)
+(require 'cc-mode nil 'noerror)
+(require 'scala-mode nil 'noerror)
+(require 'javadoc-lookup nil 'noerror)
 
 (require 'xorns-text)
+
+
+;;; Some variables
+(setq
+  emacs-lisp-docstring-fill-column 78
+  lisp-indent-offset 2
+   make-backup-files nil    ;; Use Version Control instead ;)
+  )
+
 
 ;;;###autoload
 (defun xorns-python-shell-send-cpaste (start end)
@@ -58,9 +70,9 @@
       (search-forward-regexp "[^\\s \t\n]" end 'noerror)
       (backward-char)  ;; search-forward ends after that
       (setq start (point))))
-  ;;  `python-shell-send-string' does too much magic trying to detect the
-  ;;  beginning of the output; using `comint-send-string' seems to be more
-  ;;  reliable.
+  ;; `python-shell-send-string' does too much magic trying to detect the
+  ;; beginning of the output; using `comint-send-string' seems to be more
+  ;; reliable.
   (comint-send-string (python-shell-get-or-create-process)
     (concat
       "%cpaste\n"
@@ -72,9 +84,13 @@
 
 (when (xorns-configure-p 'basic)
   (if (featurep 'flycheck)
-    (add-hook 'after-init-hook
-      (lambda ()
-	(global-flycheck-mode)))
+    (progn
+      (add-hook 'after-init-hook
+	(lambda ()
+	  (global-flycheck-mode)))
+      (setq
+	flycheck-disabled-checkers '(rst-sphinx python-pylint)
+	flycheck-idle-change-delay 1.5))
     ;; else
     (xorns-missing-feature 'flycheck)))
 
@@ -95,6 +111,19 @@
 	(xorns-fci-mode-on)
 	(xorns-auto-complete-mode)
 	(flyspell-prog-mode)
+	(turn-on-auto-fill)
+	(ispell-change-dictionary "english")
+	(subword-mode nil)
+	(linum-mode 1))
+      (error (message "error@prog-mode-hook: %s" err)))))
+
+
+(add-hook 'conf-unix-mode-hook          ; For configuration files
+  (lambda ()
+    (condition-case err
+      (progn
+	(xorns-fci-mode-on)
+	(xorns-auto-complete-mode)
 	(turn-on-auto-fill)
 	(ispell-change-dictionary "english")
 	(subword-mode nil)
@@ -133,27 +162,27 @@
 	  (linum-mode 0))
 	(error (message "error@inferior-python-mode-hook: %s" err)))))
 
-  (custom-set-variables
+  (setq
     ;; Configure `ipython` as shell when use function `run-python` and other
     ;; related commands.
     ;; This configuration is based in the way we, in Merchise, configure
     ;; IPython.  See README documentation for more information.
-    '(python-shell-interpreter "ipython")
+    python-shell-interpreter "ipython"
     ;; Next is essentially configured in `ipython_config.py` as:
     ;; c.PromptManager.in_template = r'\#> \u:\w \$\n>>> '
-    '(python-shell-prompt-regexp "\\(^[0-9]+> .* [$]\\|>>> \\)")
-    '(python-shell-prompt-pdb-regexp "i?pdb> ")
-    '(python-shell-prompt-output-regexp "\\(\\s-{0,4}\\|    \\)")
-    '(python-shell-completion-setup-code
-       "from IPython.core.completerlib import module_completion")
-    '(python-shell-completion-module-string-code
-       (concat
-	 "print(repr(str(';').join(str(ac) "
-	 "for ac in module_completion('''%s''')).strip()))\n") 'now)
-    '(python-shell-completion-string-code
-       (concat
-	 "print(repr(str(';').join(str(ac) for ac in get_ipython()."
-	 "Completer.all_completions('''%s''')).strip()))\n") 'now)))
+    python-shell-prompt-regexp "\\(^[0-9]+> .* [$]\\|>>> \\)"
+    python-shell-prompt-pdb-regexp "i?pdb> "
+    python-shell-prompt-output-regexp "\\(\\s-{0,4}\\|    \\)"
+    python-shell-completion-setup-code
+       "from IPython.core.completerlib import module_completion"
+    python-shell-completion-module-string-code
+      (concat
+        "print(repr(str(';').join(str(ac) "
+        "for ac in module_completion('''%s''')).strip()))\n")
+    python-shell-completion-string-code
+      (concat
+	"print(repr(str(';').join(str(ac) for ac in get_ipython()."
+	"Completer.all_completions('''%s''')).strip()))\n")))
 
 
 
@@ -179,6 +208,35 @@
     (xorns-missing-feature 'jedi)))
 
 
+
+;; Java and Scala
+
+(when (xorns-configure-p 'general)
+  (if (featurep 'javadoc-lookup)
+    (progn
+      ;; TODO: Check for each item before adding
+      (javadoc-add-roots
+	"/usr/share/doc/openjdk-7-jdk/api"
+	"/usr/share/doc/scala-doc/html"
+	"/usr/share/doc/libjsoup-java/api"
+	"~/.local/share/doc/play/content/api/scala"
+	"~/.local/share/doc/akka-actor_2.10-2.2.0"
+	"~/.local/share/doc/akka-slf4j_2.10-2.2.0"
+	;; Look for "akka-doc" and also our projects
+	)
+      (setq browse-url-browser-function 'browse-url-chromium)
+      )
+      ;; else
+      (xorns-missing-feature 'javadoc-lookup))
+  (if (featurep 'scala-mode)
+    (progn
+      (define-key scala-mode-map "\C-ch" 'javadoc-lookup))
+    ;; else
+    (xorns-missing-feature 'scala-mode))
+  (define-key java-mode-map "\C-ch" 'javadoc-lookup)
+  )
+
+
 ;;;###autoload
 (defun xorns-prog-dependencies-install ()
   "Install all dependencies of text modes."

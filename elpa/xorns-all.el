@@ -32,6 +32,7 @@
 
 ;;; Code:
 
+;; TODO: Deprecate or improve this
 
 ;;;###autoload
 (defun xorns-all-dependencies-install ()
