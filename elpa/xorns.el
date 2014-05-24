@@ -63,19 +63,39 @@
   (xorns-load-user-file "before-init-${USER}.el"))
 
 ;; Basic initialization
-(require 'xorns-startup)
-(require 'xorns-buffers)
-(require 'xorns-dired)
-(require 'xorns-simple)
-(require 'xorns-term)
-(require 'xorns-prog)        ;; This requires `xorns-text'
-(require 'xorns-git)
-(require 'xorns-project)
-(require 'xorns-org)
+(condition-case err
+  (require 'xorns-startup)
+  (error (message "error loading xorns-startup: %s" err)))
+(condition-case err
+  (require 'xorns-buffers)
+  (error (message "error loading xorns-buffers: %s" err)))
+(condition-case err
+  (require 'xorns-dired)
+  (error (message "error loading xorns-dired: %s" err)))
+(condition-case err
+  (require 'xorns-simple)
+  (error (message "error loading xorns-simple: %s" err)))
+(condition-case err
+  (require 'xorns-term)
+  (error (message "error loading xorns-term: %s" err)))
+(condition-case err
+  (require 'xorns-prog)        ;; This requires `xorns-text'
+  (error (message "error loading xorns-prog: %s" err)))
+(condition-case err
+  (require 'xorns-git)
+  (error (message "error loading xorns-git: %s" err)))
+(condition-case err
+  (require 'xorns-project)
+  (error (message "error loading xorns-project: %s" err)))
+(condition-case err
+  (require 'xorns-org)
+  (error (message "error loading xorns-org: %s" err)))
+
 
 ;; Configure preferred package repositories
-(require 'xorns-package)
-
+(condition-case err
+  (require 'xorns-package)
+  (error (message "error loading xorns-package: %s" err)))
 
 
 
