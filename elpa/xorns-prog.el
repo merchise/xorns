@@ -87,7 +87,8 @@
     (progn
       (add-hook 'after-init-hook
 	(lambda ()
-	  (global-flycheck-mode)))
+	  (unless (tramp-connectable-p (buffer-file-name))
+	    (global-flycheck-mode))))
       (setq
 	flycheck-disabled-checkers '(rst-sphinx python-pylint)
 	flycheck-idle-change-delay 1.5))
@@ -109,8 +110,9 @@
     (condition-case err
       (progn
 	(xorns-fci-mode-on)
-	(xorns-auto-complete-mode)
-	(flyspell-prog-mode)
+	(unless (tramp-connectable-p (buffer-file-name))
+	  (xorns-auto-complete-mode)
+	  (flyspell-prog-mode))
 	(turn-on-auto-fill)
 	(ispell-change-dictionary "english")
 	(subword-mode nil)
@@ -147,7 +149,8 @@
   (add-hook 'python-mode-hook
     (lambda ()
       (condition-case err
-	(xorns-jedi-setup)
+	(unless (tramp-connectable-p (buffer-file-name))
+	  (xorns-jedi-setup))
 	(error (message "error@python-mode-hook: %s" err))))))
 
 
@@ -174,7 +177,7 @@
     python-shell-prompt-pdb-regexp "i?pdb> "
     python-shell-prompt-output-regexp "\\(\\s-{0,4}\\|    \\)"
     python-shell-completion-setup-code
-       "from IPython.core.completerlib import module_completion"
+       "import sys; from IPython.core.completerlib import module_completion"
     python-shell-completion-module-string-code
       (concat
         "print(repr(str(';').join(str(ac) "

@@ -485,7 +485,9 @@ the python shell."
 
 (when (xorns-configure-p 'minimum)
   (add-hook 'find-file-hook          ; after a buffer is loaded from a file
-    'xorns-find-better-unique-buffer-name))
+    (lambda ()
+      (unless (tramp-connectable-p (buffer-file-name))
+	(xorns-find-better-unique-buffer-name)))))
 
 
 
@@ -497,7 +499,9 @@ the python shell."
   (dolist
     (hook '(prog-mode-hook text-mode-hook))
     (add-hook hook
-      #'xorns-exec-path-setup)))
+      (lambda ()
+	(unless (tramp-connectable-p (buffer-file-name))
+	  (xorns-exec-path-setup))))))
 
 (when (xorns-configure-p 'general)
   (add-hook
@@ -505,8 +509,9 @@ the python shell."
     (lambda ()
       (condition-case err
 	(progn
-	  (xorns-project-jedi-setup)
-	  (xorns-python-shell-setup-completion))
+	  (unless (tramp-connectable-p (buffer-file-name))
+	    (xorns-project-jedi-setup)
+	    (xorns-python-shell-setup-completion)))
 	(error (message "error@python-mode-hook: %s" err))))))
 
 
