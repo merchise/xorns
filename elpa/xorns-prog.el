@@ -218,15 +218,20 @@
   (if (featurep 'javadoc-lookup)
     (progn
       ;; TODO: Check for each item before adding
-      (javadoc-add-roots
-	"/usr/share/doc/openjdk-7-jdk/api"
-	"/usr/share/doc/scala-doc/html"
-	"/usr/share/doc/libjsoup-java/api"
-	"~/.local/share/doc/play/content/api/scala"
-	"~/.local/share/doc/akka-actor_2.10-2.2.0"
-	"~/.local/share/doc/akka-slf4j_2.10-2.2.0"
-	;; Look for "akka-doc" and also our projects
-	)
+      (let ((roots
+              (loop
+                for dir in (list
+                             "/usr/share/doc/openjdk-7-jdk/api"
+                             "/usr/share/doc/scala-doc/html"
+                             "/usr/share/doc/libjsoup-java/api"
+                             "~/.local/share/doc/play/content/api/scala"
+                             "~/.local/share/doc/akka-actor_2.10-2.2.0"
+                             "~/.local/share/doc/akka-slf4j_2.10-2.2.0"
+                             ;; Look for "akka-doc" and also our projects
+                             )
+                if (file-exists-p dir)
+                collect dir)))
+        (when roots (apply 'javadoc-add-roots roots)))
       (setq browse-url-browser-function 'browse-url-chromium)
       )
     ;; else
