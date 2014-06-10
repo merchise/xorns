@@ -37,7 +37,6 @@
 ;;; Code:
 
 (require 'outline)
-(require 'dash nil 'noerror)   ; facilities like -when-let and -mapcat
 (require 'flycheck nil 'noerror)
 (require 'yasnippet nil 'noerror)
 (require 'python nil 'noerror)
