@@ -36,7 +36,6 @@
 
 ;;; Code:
 
-(require 'dash nil 'noerror)
 (require 'projectile nil 'noerror)
 
 (require 'xorns-utils)
@@ -76,31 +75,17 @@ do it)."
 
 ;;; Nice buffer names
 
-;; TODO: Maybe this must be moved to `xorns.el'
-(defmacro --collecting-reduce (form l)
-  "Perform a collecting reducing using FORM over the list L.
+;; Some private functions that mimic dash.el behavior.
+(defun -scan-from (fn initial-value list)
+  (let ((r (list initial-value))
+	 (acc initial-value))
+    (loop
+      for item in list
+      do (setq acc (car (push (funcall fn acc item) r))))
+    (nreverse r)))
 
-A collecting reduce is a reduce that does not returns a single value (the
-result of the last computation) but that returns a list of all computations
-made.
-
-The FORM should use 'FIRST' and 'SECOND' as the current items to be processed.
-The first time FORM is executed FIRST takes nil."
-  `(-flatten
-     (-reduce-from
-       (lambda (previous second)
-	 (let ((first (car (last previous))))
-	   (list previous ,form)))
-       ()
-       ,l)))
-
-
-(defun xorns-collecting-reduce(func l)
-  "Functional form for `--collecting-reduce'.
-
-FUNC must be a function object and L must a sequence."
-  (--collecting-reduce (funcall func first second) l))
-
+(defun -scan (fn list)
+  (when list (-scan-from fn (car list) (cdr list))))
 
 (defun xorns-find-file-name-components (filename &optional abbreviate)
   "Return a list of FILENAME path components.
@@ -113,7 +98,7 @@ If ABBREVIATE is not nil, abbreviates the FILENAME before splitting."
     result))
 
 
-(defsubst -buffer-name-candidates (&optional filename)
+(defsubst --buffer-name-candidates (&optional filename)
   "Local function to get the better buffer names candidates for a FILENAME.
 
 If FILENAME is nil the variable `buffer-file-name' is used.
@@ -126,14 +111,14 @@ instance if FILENAME is \"~/.emacs.d/init.el\", then this function returns:
 Notice that the `file-name-nondirectory' candidate \"init.el\" is omitted,
 since it's deemed already tried and not unique."
   (cdr
-    (--collecting-reduce
-      (if first
-	(concat second "/" first)
-					; else
-	second)
+    (-scan (lambda (first second) (concat second "/" first))
       (nreverse
 	(xorns-find-file-name-components
 	  (or filename buffer-file-name) 'abbrev)))))
+
+
+(defun -buffer-name-candidates (&optional filename)
+  (--buffer-name-candidates filename))
 
 
 
