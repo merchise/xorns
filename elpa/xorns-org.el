@@ -82,14 +82,14 @@
   (add-hook 'rfcview-mode-hook
     (lambda ()
       (condition-case err
-	(progn
-	  (define-key rfcview-mode-map (kbd "l") 'pop-to-mark-command))
-	(error (message "error@rfcview-mode-hook: %s" err)))))
+        (progn
+          (define-key rfcview-mode-map (kbd "l") 'pop-to-mark-command))
+        (error (message "error@rfcview-mode-hook: %s" err)))))
   (let ((rfc-path "/usr/share/doc/RFC/links/"))
     (if (file-directory-p rfc-path)
       (setq
-	rfcview-rfc-location-pattern (concat rfc-path "rfc%s.txt.gz")
-	rfcview-std-location-pattern (concat rfc-path "rfc%s.txt.gz"))
+        rfcview-rfc-location-pattern (concat rfc-path "rfc%s.txt.gz")
+        rfcview-std-location-pattern (concat rfc-path "rfc%s.txt.gz"))
       ;; else
       (warn "RFCs folder '%s' doesn't exists!" rfc-path))))
 
