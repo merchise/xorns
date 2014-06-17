@@ -31,11 +31,14 @@
 ;;   buffer.
 ;;
 ;; - Configure `C-x C-b' to list buffers using `ibuffer' instead
-;;   standard `list-buffers'.
+;;   standard `list-buffers', or `xorns-select-buffer' if
+;;   `xorns-use-select-buffer' is non nil and `xorns-select-buffer-enabled'
+;;   evaluates to t.
 ;;
 ;; - Set `ibuffer' groups.
 ;;
 ;; - Functionality to force `*scratch*' buffer.
+;;
 
 ;; This module is automatically used when::
 ;;
@@ -106,6 +109,53 @@
       (condition-case err
 	(ibuffer-switch-to-saved-filter-groups "xorns-ibuffer-groups")
 	(error (message "error@ibuffer-mode-hook: %s" err))))))
+
+
+
+;;; Buffer selection
+
+(defconst xorns-grizzl-select-buffer-enabled
+  (and
+    (functionp 'grizzl-make-index)
+    (functionp 'grizzl-search))
+  "This is t if all the requirements for `xorns-select-buffer' are fulfill.")
+
+
+(defcustom xorns-use-grizzl-select-buffer nil
+  "If t then `C-x b` will call `xorns-grizzl-select-buffer'."
+  :group 'xorns
+  :type 'boolean)
+
+
+(defun xorns-grizzl-select-buffer ()
+  "Select a buffer via `grizzl-search'."
+  (interactive)
+  (let* (
+	  (visible-buffer-names
+	    (loop
+	      for buffer being the buffers
+	      for buffer-name = (buffer-name buffer)
+	      if (not (string-match "^ " buffer-name))
+	      collect buffer-name
+	      ))
+	  (buffers-index (grizzl-make-index visible-buffer-names))
+	  (buffer (grizzl-completing-read "Buffer: " buffers-index)))
+    (if (not (eq buffer (buffer-name)))
+      (switch-to-buffer buffer))))
+
+
+(when (and
+	(xorns-configure-p 'basic)
+	xorns-grizzl-select-buffer-enabled)
+  (lexical-let ((previous-binding  (global-key-binding (kbd "C-x b"))))
+    (message "The C-x b previous binding was %s" previous-binding)
+    (global-set-key (kbd "C-x b")
+      (lambda ()
+	(interactive)
+	(if xorns-use-grizzl-select-buffer
+	  (call-interactively #'xorns-grizzl-select-buffer)
+	  (call-interactively previous-binding)))))
+)
 
 
 ;;; Buffers

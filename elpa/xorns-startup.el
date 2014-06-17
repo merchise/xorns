@@ -108,6 +108,10 @@
 (require 'ido)
 (ido-mode t)
 
+(global-set-key (kbd "C-x b") 'ido-switch-buffer)  ;; Just to make sure a
+                                                   ;; previous binding is
+                                                   ;; properly set.
+
 
 (when (not (version< emacs-version "24.3"))   ; Discover more of Emacs
   (require 'discover nil 'noerror)            ; See http://t.co/IwZnrqQBRO

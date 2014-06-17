@@ -37,7 +37,6 @@
 ;;; Code:
 
 (require 'outline)
-(require 'dash nil 'noerror)   ; facilities like -when-let and -mapcat
 (require 'flycheck nil 'noerror)
 (require 'yasnippet nil 'noerror)
 (require 'python nil 'noerror)
@@ -53,7 +52,7 @@
 (setq
   emacs-lisp-docstring-fill-column 78
   lisp-indent-offset 2
-   make-backup-files nil    ;; Use Version Control instead ;)
+  make-backup-files nil    ;; Use Version Control instead ;)
   )
 
 
@@ -86,11 +85,12 @@
   (if (featurep 'flycheck)
     (progn
       (add-hook 'after-init-hook
-	(lambda ()
-	  (global-flycheck-mode)))
+        (lambda ()
+          (unless (tramp-connectable-p (buffer-file-name))
+            (global-flycheck-mode))))
       (setq
-	flycheck-disabled-checkers '(rst-sphinx python-pylint)
-	flycheck-idle-change-delay 1.5))
+        flycheck-disabled-checkers '(rst-sphinx python-pylint)
+        flycheck-idle-change-delay 1.5))
     ;; else
     (xorns-missing-feature 'flycheck)))
 
@@ -99,7 +99,7 @@
   (if (featurep 'yasnippet)
     (add-hook 'after-init-hook
       (lambda ()
-	(yas-global-mode 1)))
+        (yas-global-mode 1)))
     ;; else
     (xorns-missing-feature 'yasnippet)))
 
@@ -108,13 +108,14 @@
   (lambda ()
     (condition-case err
       (progn
-	(xorns-fci-mode-on)
-	(xorns-auto-complete-mode)
-	(flyspell-prog-mode)
-	(turn-on-auto-fill)
-	(ispell-change-dictionary "english")
-	(subword-mode nil)
-	(linum-mode 1))
+        (xorns-fci-mode-on)
+        (unless (tramp-connectable-p (buffer-file-name))
+          (xorns-auto-complete-mode)
+          (flyspell-prog-mode))
+        (turn-on-auto-fill)
+        (ispell-change-dictionary "english")
+        (subword-mode nil)
+        (linum-mode 1))
       (error (message "error@prog-mode-hook: %s" err)))))
 
 
@@ -122,12 +123,12 @@
   (lambda ()
     (condition-case err
       (progn
-	(xorns-fci-mode-on)
-	(xorns-auto-complete-mode)
-	(turn-on-auto-fill)
-	(ispell-change-dictionary "english")
-	(subword-mode nil)
-	(linum-mode 1))
+        (xorns-fci-mode-on)
+        (xorns-auto-complete-mode)
+        (turn-on-auto-fill)
+        (ispell-change-dictionary "english")
+        (subword-mode nil)
+        (linum-mode 1))
       (error (message "error@prog-mode-hook: %s" err)))))
 
 
@@ -138,8 +139,8 @@
   (lambda ()
     (condition-case err
       (progn
-	(define-key python-mode-map "\C-m" 'newline-and-indent)
-	(outline-minor-mode))
+        (define-key python-mode-map "\C-m" 'newline-and-indent)
+        (outline-minor-mode))
       (error (message "error@python-mode-hook: %s" err)))))
 
 
@@ -147,8 +148,9 @@
   (add-hook 'python-mode-hook
     (lambda ()
       (condition-case err
-	(xorns-jedi-setup)
-	(error (message "error@python-mode-hook: %s" err))))))
+        (unless (tramp-connectable-p (buffer-file-name))
+          (xorns-jedi-setup))
+        (error (message "error@python-mode-hook: %s" err))))))
 
 
 (when (xorns-configure-p 'general)
@@ -157,10 +159,10 @@
     ;; with autocompletion.
     (lambda ()
       (condition-case err
-	(progn
-	  (setq indent-tabs-mode nil)
-	  (linum-mode 0))
-	(error (message "error@inferior-python-mode-hook: %s" err)))))
+        (progn
+          (setq indent-tabs-mode nil)
+          (linum-mode 0))
+        (error (message "error@inferior-python-mode-hook: %s" err)))))
 
   (setq
     ;; Configure `ipython` as shell when use function `run-python` and other
@@ -174,15 +176,15 @@
     python-shell-prompt-pdb-regexp "i?pdb> "
     python-shell-prompt-output-regexp "\\(\\s-{0,4}\\|    \\)"
     python-shell-completion-setup-code
-       "from IPython.core.completerlib import module_completion"
+    "import sys; from IPython.core.completerlib import module_completion"
     python-shell-completion-module-string-code
-      (concat
-        "print(repr(str(';').join(str(ac) "
-        "for ac in module_completion('''%s''')).strip()))\n")
+    (concat
+      "print(repr(str(';').join(str(ac) "
+      "for ac in module_completion('''%s''')).strip()))\n")
     python-shell-completion-string-code
-      (concat
-	"print(repr(str(';').join(str(ac) for ac in get_ipython()."
-	"Completer.all_completions('''%s''')).strip()))\n")))
+    (concat
+      "print(repr(str(';').join(str(ac) for ac in get_ipython()."
+      "Completer.all_completions('''%s''')).strip()))\n")))
 
 
 
@@ -192,9 +194,9 @@
   (add-hook 'text-mode-hook
     (lambda ()
       (define-key rst-mode-map (kbd "C-c C-r !")
-	'xorns-python-shell-send-cpaste)
+        'xorns-python-shell-send-cpaste)
       (define-key rst-mode-map (kbd "C-c C-r C-r")
-	'xorns-python-shell-send-cpaste))))
+        'xorns-python-shell-send-cpaste))))
 
 
 ;;;###autoload
@@ -215,15 +217,20 @@
   (if (featurep 'javadoc-lookup)
     (progn
       ;; TODO: Check for each item before adding
-      (javadoc-add-roots
-	"/usr/share/doc/openjdk-7-jdk/api"
-	"/usr/share/doc/scala-doc/html"
-	"/usr/share/doc/libjsoup-java/api"
-	"~/.local/share/doc/play/content/api/scala"
-	"~/.local/share/doc/akka-actor_2.10-2.2.0"
-	"~/.local/share/doc/akka-slf4j_2.10-2.2.0"
-	;; Look for "akka-doc" and also our projects
-	)
+      (let ((roots
+              (loop
+                for dir in (list
+                             "/usr/share/doc/openjdk-7-jdk/api"
+                             "/usr/share/doc/scala-doc/html"
+                             "/usr/share/doc/libjsoup-java/api"
+                             "~/.local/share/doc/play/content/api/scala"
+                             "~/.local/share/doc/akka-actor_2.10-2.2.0"
+                             "~/.local/share/doc/akka-slf4j_2.10-2.2.0"
+                             ;; Look for "akka-doc" and also our projects
+                             )
+                if (file-exists-p dir)
+                collect dir)))
+        (when roots (apply 'javadoc-add-roots roots)))
       (setq browse-url-browser-function 'browse-url-chromium)
       )
     ;; else

@@ -46,7 +46,7 @@
 (require 'smtpmail)
 (require 'message)
 
-(require 'dash nil 'noerror)
+(require 'cl-lib)
 
 (require 'xorns-utils)
 (require 'xorns-widgets)
@@ -93,11 +93,16 @@
   "Choose the SMTP account according to the current message's from line."
   (let* ((from (xorns-get-from-address))
 	  (account
-	    (-first
-	      (lambda (account)
-		(let ((address (car account)))
-		  (string-match address from)))
-	      xorns-email-smtp-accounts)))
+	    (car
+	      ;; Chooses the first account that matches
+	      (loop
+		for account in xorns-email-smtp-accounts
+		for address = (car account)
+		for match = (string-match address from)
+		if match
+		collect account
+		until match))
+	    ))
     account))
 
 
