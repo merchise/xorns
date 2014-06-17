@@ -49,6 +49,8 @@
 
 
 (setq
+  ;; This is because `ls' used in Mac is a BSD version and doesn't have
+  ;; `group-directories-first'
   dired-dwim-target t
   dired-listing-switches
     (if (-mac-os) "-lah" "-la --group-directories-first -h")
