@@ -38,6 +38,7 @@
 
 (require 'projectile nil 'noerror)
 
+(require 'dash)
 (require 'xorns-utils)
 
 
