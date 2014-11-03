@@ -78,6 +78,11 @@ do it)."
 
 ;; Some private functions that mimic dash.el behavior.
 (defun -scan-from (fn initial-value list)
+  "Do a reduce but return all intermediate values.
+
+FN is the function to apply to each element of the list.  The first FN is
+passed the INITIAL-VALUE with the `car' of LIST.  Subsequent calls are passed
+the previous result and the 'next' value of the list."
   (let ((r (list initial-value))
 	 (acc initial-value))
     (loop
@@ -86,6 +91,9 @@ do it)."
     (nreverse r)))
 
 (defun -scan (fn list)
+  "Simplified form of `--scan-from'.
+
+FN is the same as in `--scan-from'.  The initial value is the `car' of LIST."
   (when list (-scan-from fn (car list) (cdr list))))
 
 (defun xorns-find-file-name-components (filename &optional abbreviate)
@@ -119,6 +127,9 @@ since it's deemed already tried and not unique."
 
 
 (defun -buffer-name-candidates (&optional filename)
+  "Functional alias for `--buffer-name-candidates'.
+
+FILENAME is the same as `--buffer-name-candidates'."
   (--buffer-name-candidates filename))
 
 
