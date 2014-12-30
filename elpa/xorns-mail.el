@@ -132,7 +132,7 @@ If BUFFER is not present, use the current buffer."
 		  ;; TODO: find a function for this
 		  (setq server
 		     (concat "smtp." email-domain)))
-	       (message "Setting SMTP. Server: '%s'. Login: '%s'. Type: '%s'"
+	       (message "xorns-email: Setting SMTP. Server: '%s'. Login: '%s'. Type: '%s'"
 		  server user stream-type)
 	       (setq
 		  smtpmail-smtp-server server
@@ -152,10 +152,10 @@ If BUFFER is not present, use the current buffer."
 	    (xorns-get-from-address)))))
 
 
-(defadvice smtpmail-via-smtp (before xorns-choose-smtp-account
-				(recipient smtpmail-text-buffer
-				   &optional ask-for-password)
-				activate compile)
+(defadvice smtpmail-via-smtp
+  (before xorns-choose-smtp-account
+    (recipient smtpmail-text-buffer &optional ask-for-password)
+    activate compile)
    "Choose the SMTP account from `xorns-smtp-accounts'."
    (xorns-use-appropriate-smtp-server smtpmail-text-buffer))
 

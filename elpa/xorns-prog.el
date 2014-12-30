@@ -139,6 +139,8 @@
   (lambda ()
     (condition-case err
       (progn
+	(define-key python-mode-map (kbd "C-c C-r")
+	  'xorns-python-shell-send-cpaste)
         (define-key python-mode-map "\C-m" 'newline-and-indent)
         (outline-minor-mode))
       (error (message "error@python-mode-hook: %s" err)))))
