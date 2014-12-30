@@ -38,18 +38,18 @@
 ;;; Code:
 
 
-(defun xorns-frame-maximize (&optional frame delay)
-  "Maximize the specified FRAME.
+;; (defun xorns-frame-maximize (&optional frame delay)
+;;   "Maximize the specified FRAME.
 
-If no frame is specified, current frame is assumed.  This functionality
-can be executed with a DELAY specified in seconds; if none is given, `0.1'
-is assumed."
-  (interactive)
-  (when (not (null window-system))
-    (run-with-idle-timer (or delay 0.1) nil
-      (lambda (frame)
-	  (modify-frame-parameters frame '((fullscreen . maximized))))
-      frame)))
+;; If no frame is specified, current frame is assumed.  This functionality
+;; can be executed with a DELAY specified in seconds; if none is given, `0.1'
+;; is assumed."
+;;   (interactive)
+;;   (when (not (null window-system))
+;;     (run-with-idle-timer (or delay 0.1) nil
+;;       (lambda (frame)
+;; 	  (modify-frame-parameters frame '((fullscreen . maximized))))
+;;       (if frame frame (caar (cdr (current-frame-configuration))))))
 
 
 (defun xorns-frame-fullscreen (&optional frame delay)

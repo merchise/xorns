@@ -53,6 +53,8 @@
     'package-archives
     '("melpa" . "http://melpa.milkbox.net/packages/")))
 
+;; TODO: Review ("gnu" . "http://elpa.gnu.org/packages/")
+
 
 ;;;###autoload
 (defun xorns-dependency-install (feature)
