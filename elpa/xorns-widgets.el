@@ -63,7 +63,8 @@ connection.  Other data such as password and port should be placed in the
 	     :help-echo
 	     "The address of the SMTP server for this account.  If left
 empty the address defaults to \"smtp.ADDRESS-DOMAIN\".")
-	   (choice (const :tag "Possibly upgrade to STARTTLS" nil)
+	   (choice
+	     (const :tag "Possibly upgrade to STARTTLS" nil)
 	     (const :tag "Always use STARTTLS" starttls)
 	     (const :tag "Never use STARTTLS" plain)
 	     (const :tag "Use TLS/SSL" ssl))
