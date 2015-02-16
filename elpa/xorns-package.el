@@ -1,6 +1,6 @@
 ;;; xorns-package.el --- Merchise package repositories initialization
 
-;; Copyright (C) 2014  Merchise Autrement
+;; Copyright (C) 2014-2015 Merchise
 ;; All rights reserved.
 
 ;; Author: Medardo Rodriguez <med@merchise.org>

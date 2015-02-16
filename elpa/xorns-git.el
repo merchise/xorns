@@ -1,6 +1,6 @@
 ;;; xorns-git --- Integrate Emacs with GIT using `magit'
 
-;; Copyright (C) 2014 Merchise Autrement
+;; Copyright (C) 2014-2015 Merchise
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-git

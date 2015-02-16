@@ -1,6 +1,6 @@
 ;;; xorns-project --- Manage and navigate projects in Emacs easily
 
-;; Copyright (C) 2014 Merchise Autrement
+;; Copyright (C) 2014-2015 Merchise
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-project
