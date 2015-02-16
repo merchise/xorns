@@ -78,6 +78,7 @@
 	  ("Dired" (or (mode . dired-omit-mode) (mode . dired-mode)))
 	  ("RST" (mode . rst-mode))
 	  ("XML" (mode . nxml-mode))
+	  ("RFC" (mode . rfcview-mode))
 	  ("Emacs Lisp"
 	    (or
 	      (mode . emacs-lisp-mode)

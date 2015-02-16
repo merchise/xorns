@@ -42,6 +42,7 @@
 (require 'font-lock)
 (require 'scroll-bar)
 (require 'mule)
+(require 'tramp)
 
 ;; See https://wiki.archlinux.org/index.php/emacs#Dead-accent_keys_problem:_.27.3Cdead-acute.3E_is_undefined.27
 (require 'iso-transl)

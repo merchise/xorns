@@ -260,7 +260,8 @@ If STRICT is nil::
 - any other value is synonym of `'maximum'."
   (let ((res
 	  (let ((options
-		  '((maximum . 100) (100 . 100)
+		  '((experimental . 110) (110 . 110)
+		    (maximum . 100) (100 . 100)
 		    (general . 70) (70 . 70)
 		    (basic . 10) (10 . 10)
 		    (minimum . 0) (nil . 0) (0 . 0)))

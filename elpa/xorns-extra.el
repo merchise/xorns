@@ -50,6 +50,7 @@
 
 (require 'xorns-mail)
 (require 'xorns-gud)
+(require 'xorns-ido)
 
 
 (provide 'xorns-extra)
