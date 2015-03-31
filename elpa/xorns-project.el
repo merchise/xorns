@@ -43,7 +43,6 @@
 
 
 (when (and (featurep 'projectile) (xorns-configure-p 'general))
-  (projectile-global-mode t)
   (add-to-list 'projectile-project-root-files "setup.py"))
 
 
