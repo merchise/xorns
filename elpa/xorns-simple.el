@@ -1,6 +1,6 @@
 ;;; xorns-simple --- Merchise basic editing commands for Emacs
 
-;; Copyright (C) 2014 Merchise Autrement
+;; Copyright (C) 2014, 2015 Merchise Autrement
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-simple

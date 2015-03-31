@@ -1,6 +1,6 @@
 ;;; xorns-mail --- Merchise extensions for sending and receiving mail
 
-;; Copyright (C) 2014 Merchise Autrement
+;; Copyright (C) 2014, 2015 Merchise Autrement
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
