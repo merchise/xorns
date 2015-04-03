@@ -139,6 +139,8 @@ If `dired-single' is not installed, does nothing."
     (define-key dired-mode-map [M-S-down] 'dired-single-buffer)
     (define-key dired-mode-map [mouse-1] 'dired-single-buffer-mouse)
     (define-key dired-mode-map "r" 'xorns-recursive-dired)
+    (define-key dired-mode-map (kbd "M-P")
+      #'(lambda () (interactive) (dired-single-buffer "..")))
     (define-key dired-mode-map [M-S-up]
       #'(lambda () (interactive) (dired-single-buffer "..")))
     (define-key dired-mode-map "^"
