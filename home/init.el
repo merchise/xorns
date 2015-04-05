@@ -1,6 +1,6 @@
 ;;; init.el --- Merchise Initialization File
 
-;; Copyright (C) 2014 Merchise Autrement
+;; Copyright (C) 2014, 2015 Merchise Autrement
 
 ;; This program is free software (GPL v3 or any later).
 ;; Type `C-h C-c' in Emacs to see full licence.
