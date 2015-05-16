@@ -142,7 +142,7 @@ another window."
     (let* ((tregex (regexp-quote (dired-current-directory)))
 	   (aux (replace-regexp-in-string tregex "" origin t t))
 	   (target (replace-regexp-in-string "/" "" aux t t)))
-      (search-forward target nil t)
+      (search-forward (concat " " target "\n") nil t)
       (search-backward target nil t))))
 
 
