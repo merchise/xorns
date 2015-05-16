@@ -126,6 +126,26 @@ With a prefix ARG, print a message with ctual parameters."
     (dired-sort-other params)))
 
 
+;;;###autoload
+(defun xorns-dired-single-buffer (&optional default-dirname)
+  "Visit selected directory in current buffer.
+Improve default `dired-single-buffer' by remembering parent position for
+recovering it when navigating up.
+
+Optional argument DEFAULT-DIRNAME specifies the directory to visit; if not
+specified, the directory or file on the current line is used (assuming it's a
+dired buffer).  If the current line represents a file, the file is visited in
+another window."
+  (interactive)
+  (let ((origin (dired-current-directory)))
+    (dired-single-buffer default-dirname)
+    (let* ((tregex (regexp-quote (dired-current-directory)))
+	   (aux (replace-regexp-in-string tregex "" origin t t))
+	   (target (replace-regexp-in-string "/" "" aux t t)))
+      (search-forward target nil t)
+      (search-backward target nil t))))
+
+
 (defun xorns-dired-single-setup ()
   "Customize `dired-single' key-bindings.
 
@@ -135,14 +155,14 @@ instead of creating a new one.
 If `dired-single' is not installed, does nothing."
   (when (featurep 'dired-single)
     (declare-function dired-single-buffer 'dired-single)
-    (define-key dired-mode-map [return] 'dired-single-buffer)
-    (define-key dired-mode-map [M-S-down] 'dired-single-buffer)
+    (define-key dired-mode-map [return] 'xorns-dired-single-buffer)
+    (define-key dired-mode-map [M-S-down] 'xorns-dired-single-buffer)
     (define-key dired-mode-map [mouse-1] 'dired-single-buffer-mouse)
     (define-key dired-mode-map "r" 'xorns-dired-recursive)
     (define-key dired-mode-map [M-S-up]
-      #'(lambda () (interactive) (dired-single-buffer "..")))
+      #'(lambda () (interactive) (xorns-dired-single-buffer "..")))
     (define-key dired-mode-map "^"
-      #'(lambda () (interactive) (dired-single-buffer "..")))))
+      #'(lambda () (interactive) (xorns-dired-single-buffer "..")))))
 
 
 (when (xorns-configure-p 'basic)

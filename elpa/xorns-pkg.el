@@ -1,1 +1,1 @@
-(define-package "xorns" "0.8" "Merchise extensions for Emacs" '((dash "20140308.656")))
+(define-package "xorns" "0.9" "Merchise extensions for Emacs" '((dash "20140308.656")))
