@@ -62,7 +62,7 @@
   )
 
 
-(defcustom xorns-recursive-dired-ignore-switches
+(defcustom xorns-dired-recursive-ignore-switches
   '(".git/*" "*.py?" "*.elc" "*.so" ".gitignore")
   "Switches passed to `ls' for extended recursive Dired.
 
@@ -74,13 +74,13 @@ to all the value defined in `dired-listing-switches'."
   :group 'xorns)
 
 
-(defun xorns-clean-recursive-dired-switches (params)
+(defun xorns-dired-clean-recursive-switches (params)
   "Remove all invalid PARAMS to apply ignore patterns in recursive Dired.
 
 To allow applying `--ignore' switches in recursive `ls' command, there are
 options that must be disabled in order this work properly.
 
-See also `bash' `ls' command and `xorns-recursive-dired' function."
+See also `bash' `ls' command and `xorns-dired-recursive' function."
   (let ((switches dired-listing-switches))
     (setq switches
       (replace-regexp-in-string " -[b-z0-9]*\\(a\\)" ""
@@ -96,37 +96,37 @@ See also `bash' `ls' command and `xorns-recursive-dired' function."
     ;; replace-regexp-in-string
     (mapconcat
       #'(lambda (arg) (format "--ignore='%s'" arg))
-      xorns-recursive-dired-ignore-switches
+      xorns-dired-recursive-ignore-switches
       " ")))
 
 
-(defun xorns-get-recursive-dired-switches ()
-  "Calculate  `ls' ignore arguments to be used in `xorns-recursive-dired'."
+(defun xorns-dired-get-recursive-switches ()
+  "Calculate  `ls' ignore arguments to be used in `xorns-dired-recursive'."
   (format "%s -BR %s"
     dired-listing-switches
     (mapconcat
       #'(lambda (arg) (format "--ignore='%s'" arg))
-      xorns-recursive-dired-ignore-switches
+      xorns-dired-recursive-ignore-switches
       " ")))
 
 
 ;; TODO: This function won't work in MacOsX or other Unixes.
-(defun xorns-recursive-dired (&optional arg)
+(defun xorns-dired-recursive (&optional arg)
   "Refresh the Dired buffer using recursive switch.
-Switches defined in `xorns-recursive-dired-ignore-switches' are used in
+Switches defined in `xorns-dired-recursive-ignore-switches' are used in
 addition to those in `dired-actual-switches'.  To configure prefix standard
 switches, customize `dired-listing-switches' variable.
 With a prefix ARG, print a message with ctual parameters."
   (interactive "P")
   (when dired-sort-inhibit
     (error "Cannot sort this dired buffer"))
-  (let ((params (xorns-get-recursive-dired-switches)))
+  (let ((params (xorns-dired-get-recursive-switches)))
     (if arg
       (message "Recursive Dired: %s" params))
     (dired-sort-other params)))
 
 
-(defun xorns-setup-dired-single ()
+(defun xorns-dired-single-setup ()
   "Customize `dired-single' key-bindings.
 
 After this function is called;  Enter, Click and ^ reuse the buffer
@@ -138,7 +138,7 @@ If `dired-single' is not installed, does nothing."
     (define-key dired-mode-map [return] 'dired-single-buffer)
     (define-key dired-mode-map [M-S-down] 'dired-single-buffer)
     (define-key dired-mode-map [mouse-1] 'dired-single-buffer-mouse)
-    (define-key dired-mode-map "r" 'xorns-recursive-dired)
+    (define-key dired-mode-map "r" 'xorns-dired-recursive)
     (define-key dired-mode-map [M-S-up]
       #'(lambda () (interactive) (dired-single-buffer "..")))
     (define-key dired-mode-map "^"
@@ -147,9 +147,9 @@ If `dired-single' is not installed, does nothing."
 
 (when (xorns-configure-p 'basic)
   (if (boundp 'dired-mode-map)
-    (xorns-setup-dired-single)
+    (xorns-dired-single-setup)
     ; else
-    (add-hook 'dired-load-hook 'xorns-setup-dired-single)))
+    (add-hook 'dired-load-hook 'xorns-dired-single-setup)))
 
 
 ;; ;; TODO: To preserve positions, use::
