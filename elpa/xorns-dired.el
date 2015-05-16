@@ -5,7 +5,7 @@
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-dired
 ;; Keywords: initialization, merchise, convenience
-;; Version: 20140319.1548
+;; Version: 20150516.1620
 
 ;; This file is NOT part of GNU Emacs but I'd like it. ;)
 
@@ -159,6 +159,8 @@ If `dired-single' is not installed, does nothing."
     (define-key dired-mode-map [M-S-down] 'xorns-dired-single-buffer)
     (define-key dired-mode-map [mouse-1] 'dired-single-buffer-mouse)
     (define-key dired-mode-map "r" 'xorns-dired-recursive)
+    (define-key dired-mode-map (kbd "M-P")
+      #'(lambda () (interactive) (dired-single-buffer "..")))
     (define-key dired-mode-map [M-S-up]
       #'(lambda () (interactive) (xorns-dired-single-buffer "..")))
     (define-key dired-mode-map "^"

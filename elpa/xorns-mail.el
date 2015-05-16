@@ -2,6 +2,11 @@
 
 ;; Copyright (C) 2014-2015 Merchise
 
+;; Author: Medardo Rodriguez <med@merchise.org>
+;; URL: http://dev.merchise.org/emacs/xorns-mail
+;; Keywords: initialization, merchise, convenience
+;; Version: 20150516.1620
+
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
@@ -15,11 +20,6 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>
 ;; or type `C-h C-c' in Emacs.
-
-;; Author: Medardo Rodriguez <med@merchise.org>
-;; URL: http://dev.merchise.org/emacs/xorns-mail
-;; Keywords: initialization, merchise, convenience
-;; Version: 0.1.0
 
 ;; This file is NOT part of GNU Emacs but I'd like it. ;)
 

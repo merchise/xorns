@@ -5,7 +5,7 @@
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-widgets
 ;; Keywords: initialization, merchise, convenience
-;; Version: 0.1.0
+;; Version: 20150516.1620
 
 ;; This file is NOT part of GNU Emacs but I'd like it. ;)
 
@@ -63,7 +63,8 @@ connection.  Other data such as password and port should be placed in the
 	     :help-echo
 	     "The address of the SMTP server for this account.  If left
 empty the address defaults to \"smtp.ADDRESS-DOMAIN\".")
-	   (choice (const :tag "Possibly upgrade to STARTTLS" nil)
+	   (choice
+	     (const :tag "Possibly upgrade to STARTTLS" nil)
 	     (const :tag "Always use STARTTLS" starttls)
 	     (const :tag "Never use STARTTLS" plain)
 	     (const :tag "Use TLS/SSL" ssl))

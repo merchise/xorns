@@ -2,6 +2,11 @@
 
 ;; Copyright (C) 2014-2015 Merchise
 
+;; Author: Medardo Rodriguez <med@merchise.org>
+;; URL: http://dev.merchise.org/emacs/xorns
+;; Keywords: initialization, merchise, convenience
+;; Version: 20150516.1620
+
 ;; This program is free software (GPL v3 or any later).
 ;; Type `C-h C-c' in Emacs to see full licence.
 
@@ -23,5 +28,6 @@
   ;; Require extra features
   (require 'xorns-extra))
 
+(setq magit-last-seen-setup-instructions "1.4.0")
 
 ;;; init.el ends here

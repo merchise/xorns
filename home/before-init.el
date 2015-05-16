@@ -2,6 +2,11 @@
 
 ;; Copyright (C) 2014-2015 Merchise
 
+;; Author: Medardo Rodriguez <med@merchise.org>
+;; URL: http://dev.merchise.org/emacs/xorns
+;; Keywords: initialization, merchise, convenience
+;; Version: 20150516.1620
+
 ;; This program is free software (GPL v3 or any later).
 ;; Type `C-h C-c' in Emacs to see full licence.
 
@@ -21,7 +26,7 @@
 ;; Remove "--group-directories-first" in Mac
 ;; '(dired-listing-switches "-l --group-directories-first -h")
 
- (setq
+(setq
    safe-local-variable-values
      '( (require-final-newline . t)
 	(py-indent-offset . 4)
@@ -105,6 +110,5 @@ Maybe, this function must be migrated to be integral part of `xorns'."
   (-set-faces "Monospace" 94)
   ;; Mac
   (-set-faces "Lucida Sans Typewriter" 115))
-
 
 ;;; before-init.el ends here
