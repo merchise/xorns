@@ -129,7 +129,7 @@
         (ispell-change-dictionary "english")
         (subword-mode nil)
         (linum-mode 1))
-      (error (message "error@prog-mode-hook: %s" err)))))
+      (error (message "error@conf-unix-mode-hook: %s" err)))))
 
 
 
@@ -275,6 +275,8 @@ This simply calls `indent-rigidly' using ±4 spaces."
   (xorns-dependency-install 'yasnippet)
   (xorns-dependency-install 'jedi))
 
+
+(global-set-key (kbd "C-M-,") 'completion-at-point)
 
 (provide 'xorns-prog)
 ;;; xorns-prog.el ends here
