@@ -86,7 +86,7 @@ See also `bash' `ls' command and `xorns-dired-recursive' function."
       (replace-regexp-in-string " -[b-z0-9]*\\(a\\)" ""
 	switches t t 2)
       )
-    (replace-regexp-in-string REGEXP "" STRING &optional FIXEDCASE LITERAL SUBEXP)
+    ;; TODO: Finish and use this function
     )
   (format "%s -BR %s"
     dired-listing-switches
@@ -145,8 +145,9 @@ another window."
     (let ((dst (dired-current-directory)))
       (if (string-prefix-p dst org)
 	(let ((target (car (split-string (substring org (length dst)) "/"))))
+	  (left-char 1)
 	  (search-forward (concat " " target "\n") nil t)
-	  (search-backward target nil t))))))
+	  (left-char (1+ (length target))))))))
 
 
 (defun xorns-dired-single-setup ()
