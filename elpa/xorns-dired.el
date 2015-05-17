@@ -137,13 +137,16 @@ specified, the directory or file on the current line is used (assuming it's a
 dired buffer).  If the current line represents a file, the file is visited in
 another window."
   (interactive)
-  (let ((origin (dired-current-directory)))
+  ; TODO: string-prefix-p
+  ; (setq ll (split-string "/xamatl/.git/hooks" "/"))
+  ; (car (delete "" ll))
+  (let ((org (dired-current-directory)))
     (dired-single-buffer default-dirname)
-    (let* ((tregex (regexp-quote (dired-current-directory)))
-	   (aux (replace-regexp-in-string tregex "" origin t t))
-	   (target (replace-regexp-in-string "/" "" aux t t)))
-      (search-forward (concat " " target "\n") nil t)
-      (search-backward target nil t))))
+    (let ((dst (dired-current-directory)))
+      (if (string-prefix-p dst org)
+	(let ((target (car (split-string (substring org (length dst)) "/"))))
+	  (search-forward (concat " " target "\n") nil t)
+	  (search-backward target nil t))))))
 
 
 (defun xorns-dired-single-setup ()
