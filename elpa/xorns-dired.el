@@ -74,6 +74,17 @@ to all the value defined in `dired-listing-switches'."
   :group 'xorns)
 
 
+(defun -dired-define-keys (keys def)
+  "In define several key sequences KEYS with the same function DEF.
+Always use `dired-mode-map' as the keymap.
+
+See `define-key' function for more information."
+  (mapcar
+      #'(lambda (key)
+	  (define-key dired-mode-map key def))
+      keys))
+
+
 (defun xorns-dired-clean-recursive-switches (params)
   "Remove all invalid PARAMS to apply ignore patterns in recursive Dired.
 
@@ -138,6 +149,7 @@ dired buffer).  If the current line represents a file, the file is visited in
 another window."
   (interactive)
   (let ((org (dired-current-directory)))
+    (declare-function dired-single-buffer 'dired-single)    ;; FIX: review
     (dired-single-buffer default-dirname)
     (let ((dst (dired-current-directory)))
       (if (string-prefix-p dst org)
@@ -158,15 +170,10 @@ instead of creating a new one.
 If `dired-single' is not installed, does nothing."
   (when (featurep 'dired-single)
     (declare-function dired-single-buffer 'dired-single)
-    (define-key dired-mode-map [return] 'xorns-dired-single-buffer)
-    (define-key dired-mode-map [M-S-down] 'xorns-dired-single-buffer)
     (define-key dired-mode-map [mouse-1] 'dired-single-buffer-mouse)
     (define-key dired-mode-map "r" 'xorns-dired-recursive)
-    (define-key dired-mode-map (kbd "M-P")
-      #'(lambda () (interactive) (dired-single-buffer "..")))
-    (define-key dired-mode-map [M-S-up]
-      #'(lambda () (interactive) (xorns-dired-single-buffer "..")))
-    (define-key dired-mode-map "^"
+    (-dired-define-keys `([return] [M-S-down]) 'xorns-dired-single-buffer)
+    (-dired-define-keys `(,(kbd "M-P") [M-S-up] "^")
       #'(lambda () (interactive) (xorns-dired-single-buffer "..")))))
 
 
