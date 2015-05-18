@@ -137,9 +137,6 @@ specified, the directory or file on the current line is used (assuming it's a
 dired buffer).  If the current line represents a file, the file is visited in
 another window."
   (interactive)
-  ; TODO: string-prefix-p
-  ; (setq ll (split-string "/xamatl/.git/hooks" "/"))
-  ; (car (delete "" ll))
   (let ((org (dired-current-directory)))
     (dired-single-buffer default-dirname)
     (let ((dst (dired-current-directory)))
