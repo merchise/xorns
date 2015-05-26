@@ -360,7 +360,7 @@ xorns-find-project-virtualenv-dir."
 	    (xorns-find-project-def-file "bin/buildout" sentinel buffer))
 	  (buildout-exec-path
 	    (when buildout-executable (file-name-directory
-					buildout-executable))))
+                                        buildout-executable))))
     (let ((local-exec-path (make-local-variable 'exec-path)))
       (when virtualenv-dir
 	(add-to-list local-exec-path virtualenv-dir))
@@ -374,10 +374,18 @@ xorns-find-project-virtualenv-dir."
 The PROJECT-FILE-NAME, SENTINEL and BUFFER parameters have the same meaning
 that in `xorns-find-project-virtualenv-dir'."
   (if (featurep 'jedi)
-    (let* ((virtualenv-dir
-	     (xorns-find-project-virtualenv-dir project-file-name sentinel buffer))
-	    (omelette-path
-	      (xorns-omelette-dirs sentinel buffer))
+    (let* ((virtualenv-dir (xorns-find-project-virtualenv-dir
+                             project-file-name sentinel buffer))
+            (buildout-txt (xorns-find-project-def-file
+                            "buildout.project.el" sentinel buffer))
+            (buildout-deveggs
+              (when buildout-txt
+                (with-temp-buffer
+                  (progn
+                    (insert-file-contents buildout-txt)
+                    (unless (zerop (buffer-size))
+                      (read (current-buffer)))
+                    ))))
 	    (preferred-dirs
 	      (cond
 		((eq xorns-use-workspace-for-jedi t)
@@ -392,14 +400,17 @@ that in `xorns-find-project-virtualenv-dir'."
 		      2)))))
 	    (jedi-server-args
 	      (append
+                (when buildout-deveggs
+                  (-mapcat
+                    (lambda (dir) (list "-p" dir))
+		    buildout-deveggs))
 		(when preferred-dirs
 		  (-mapcat
 		    (lambda (dir) (list "-p" dir))
 		    preferred-dirs))
 		(when virtualenv-dir
 		  (list "-v" virtualenv-dir))
-		(when omelette-path
-		  (list "-p" omelette-path)))))
+		)))
       (when jedi-server-args
 	(message "Jedi arguments are: '%s' for buffer '%s'"
 	  jedi-server-args (or buffer (current-buffer)))
