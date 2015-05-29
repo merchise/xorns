@@ -166,11 +166,12 @@ another window."
 
 Argument CLICK is the mouse-click event."
   (interactive "e")
+  ;; Next code could be generalized in `xorns-utils'.
   (let* ( (start (event-start click))
-		  (window (car start))
-		  (pos (car (cdr start))) )
-	(select-window window)
-	(goto-char pos))
+	  (window (car start))
+	  (pos (car (cdr start))) )
+    (select-window window)
+    (goto-char pos))
   (xorns-dired-single-buffer))
 
 (defun xorns-dired-single-setup ()
