@@ -29,6 +29,11 @@
 Pending Tasks
 =============
 
+- Make a function for  una función en xorns que formatee correctamente la
+  definición de un description list.  En los glosarios funciona bien con una
+  línea en blanco.
+
+
 - Better integrate `devhelp` using a command like `devhelp-word-at-point`, but
   for full terms; like `devhelp-identifier-at-point` that recognizes also
   points and regions.

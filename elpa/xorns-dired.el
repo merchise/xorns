@@ -161,6 +161,18 @@ another window."
 	  (left-char (1+ (length target))))))))
 
 
+(defun xorns-dired-single-buffer-mouse (click)
+  "Mouse-initiated version of `xorns-dired-single-buffer' (which see).
+
+Argument CLICK is the mouse-click event."
+  (interactive "e")
+  (let* ( (start (event-start click))
+		  (window (car start))
+		  (pos (car (cdr start))) )
+	(select-window window)
+	(goto-char pos))
+  (xorns-dired-single-buffer))
+
 (defun xorns-dired-single-setup ()
   "Customize `dired-single' key-bindings.
 
@@ -170,9 +182,10 @@ instead of creating a new one.
 If `dired-single' is not installed, does nothing."
   (when (featurep 'dired-single)
     (declare-function dired-single-buffer 'dired-single)
-    (define-key dired-mode-map [mouse-1] 'dired-single-buffer-mouse)
     (define-key dired-mode-map "r" 'xorns-dired-recursive)
     (-dired-define-keys `([return] [M-S-down]) 'xorns-dired-single-buffer)
+    (-dired-define-keys `([mouse-1] [mouse-2])
+      'xorns-dired-single-buffer-mouse)
     (-dired-define-keys `(,(kbd "M-P") [M-S-up] "^")
       #'(lambda () (interactive) (xorns-dired-single-buffer "..")))))
 
