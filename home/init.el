@@ -29,5 +29,6 @@
   (require 'xorns-extra))
 
 (setq magit-last-seen-setup-instructions "1.4.0")
+(setq ac-trigger-key "TAB")
 
 ;;; init.el ends here
