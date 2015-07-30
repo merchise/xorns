@@ -22,13 +22,14 @@
 ;; Activate ELPA packages.
 (package-initialize)
 
+(setq magit-last-seen-setup-instructions "1.4.0")
+
 (let ((xorns-config-level 'maximum))    ;; 'basic, 'general
   ;; Start the server and initialize all common Merchise settings.
   (require 'xorns)
   ;; Require extra features
   (require 'xorns-extra))
 
-(setq magit-last-seen-setup-instructions "1.4.0")
 (setq ac-trigger-key "TAB")
 
 ;;; init.el ends here

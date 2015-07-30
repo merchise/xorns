@@ -114,11 +114,6 @@ inside or outside Emacs, when server is running or not:
 - emacs-nw
 
 
-
-
-
-
-
 Documentation
 =============
 
@@ -208,13 +203,22 @@ Shell Terminals
 
 
 
-
 Buffers
 -------
 
 - Create function `xorns-clean-buffer-list`.
 
 
+Deft
+----
+Use the following code to obtain better Deft presentation::
+
+  (defun deft-chomp (str)
+    "Trim leading and trailing whitespace from STR."
+    (let ((aux (replace-regexp-in-string
+		 "\\(^[[:space:]\n]*\\|[[:space:]\n]*$\\)" "" str)))
+	(replace-regexp-in-string
+	  "[-~#=* ]\\{3,\\}" " " aux)))
 
 
 .. Footnotes
