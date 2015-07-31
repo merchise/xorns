@@ -85,6 +85,8 @@
 	      (mode . lisp-interaction-mode)
 	      (mode . lisp-mode)))
 	  ("Python" (mode . python-mode))
+          ("C" (or (mode . c-mode) (mode . cc-mode)))
+          ("Man pages" (mode . Man-mode))
 	  ("Scala/Java"
 	    (or
 	      (mode . scala-mode)
