@@ -272,6 +272,8 @@ This simply calls `indent-rigidly' using ±4 spaces."
   (progn
     ;; This requires you have the tern program installed in your system and in
     ;; the exec-path.
+    (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+    (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
     (add-hook 'js-mode-hook (lambda () (tern-mode t)))
     (eval-after-load 'tern
       '(progn
