@@ -207,7 +207,9 @@
   (if (featurep 'jedi)
     (progn
       (jedi:setup)
-      (define-key python-mode-map "\C-ch" 'jedi:show-doc))
+      (define-key python-mode-map "\C-ch" 'jedi:show-doc)
+      (define-key python-mode-map "\M-." 'jedi:goto-definition)
+      (define-key python-mode-map "\M-," 'jedi:goto-definition-pop-marker))
     ;; else
     (xorns-missing-feature 'jedi)))
 
