@@ -189,6 +189,24 @@
       "Completer.all_completions('''%s''')).strip()))\n")))
 
 
+(defun xorns-python-indent-rigidly (start end arg)
+  "Indent rigidly the region.
+
+START and END mark the region.  ARG will be used to tell whether to indent or
+outdent.
+
+This simply calls `indent-rigidly' using ±4 spaces."
+  (interactive "r\np")
+
+  ;; TODO: Take ±4 from a configuration/environmental feature
+  (if (= arg 1)  ;; the non-arg
+    (indent-rigidly start end 4)
+    (indent-rigidly start end -4)))
+
+(when (xorns-configure-p 'general)  ;; Make C-x C-tab indent rightly in Python
+  (define-key python-mode-map (kbd "C-x <C-tab>") 'xorns-python-indent-rigidly))
+
+
 
 ;; Python for reST
 
@@ -247,26 +265,8 @@
   (define-key java-mode-map "\C-ch" 'javadoc-lookup)
   )
 
-
 
-(defun xorns-python-indent-rigidly (start end arg)
-  "Indent rigidly the region.
 
-START and END mark the region.  ARG will be used to tell whether to indent or
-outdent.
-
-This simply calls `indent-rigidly' using ±4 spaces."
-  (interactive "r\np")
-
-  ;; TODO: Take ±4 from a configuration/environmental feature
-  (if (= arg 1)  ;; the non-arg
-    (indent-rigidly start end 4)
-    (indent-rigidly start end -4)))
-
-
-(when (xorns-configure-p 'general)
-  (define-key python-mode-map (kbd "C-x <C-tab>") 'xorns-python-indent-rigidly)
-  )
 
 
 
