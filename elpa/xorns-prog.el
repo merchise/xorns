@@ -266,7 +266,17 @@ This simply calls `indent-rigidly' using ±4 spaces."
   )
 
 
+;;; Javascript, CoffeeScript and LiveScript
 
+(when (xorns-configure-p 'general)
+  (progn
+    ;; This requires you have the tern program installed in your system and in
+    ;; the exec-path.
+    (add-hook 'js-mode-hook (lambda () (tern-mode t)))
+    (eval-after-load 'tern
+      '(progn
+         (require 'tern-auto-complete)
+         (tern-ac-setup)))))
 
 
 
@@ -275,7 +285,11 @@ This simply calls `indent-rigidly' using ±4 spaces."
   "Install all dependencies of text modes."
   (xorns-dependency-install 'flycheck)
   (xorns-dependency-install 'yasnippet)
-  (xorns-dependency-install 'jedi))
+  (xorns-dependency-install 'jedi)
+  (xorns-dependency-install 'js2-mode)
+  (xorns-dependency-install 'tern)
+  (xorns-dependency-install 'tern-auto-complete)
+  )
 
 
 (global-set-key (kbd "C-M-,") 'completion-at-point)
