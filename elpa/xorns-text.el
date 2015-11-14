@@ -103,6 +103,19 @@ Don't fail if `'fill-column-indicator' is not available."
 
 
 
+;;; Sub-tree utility
+(defun xorns-toggle-subtree ()
+  "Show or hide the current subtree depending on its current state."
+  (interactive)
+  (save-excursion
+    (outline-back-to-heading)
+    (if (not (outline-invisible-p (line-end-position)))
+	(hide-subtree)
+      (show-subtree)
+      (show-entry))))
+
+
+
 ;;; Hooks
 
 (add-hook 'before-save-hook 'copyright-update)
@@ -158,6 +171,7 @@ If this feature is not installed don't fail and just report a message."
 ;; TODO: This is defined by standard mode inner "C-c@'
 (define-key outline-minor-mode-map (kbd "C-=") 'show-subtree)
 (define-key outline-minor-mode-map (kbd "M-=") 'hide-subtree)
+(define-key outline-minor-mode-map (kbd "C-+") 'xorns-toggle-subtree)
 
 
 
