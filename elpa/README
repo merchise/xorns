@@ -202,7 +202,6 @@ Shell Terminals
 - `Auxiliary commands`_ (in `bin` directory) must work in `sudo` modes.
 
 
-
 Buffers
 -------
 

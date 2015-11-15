@@ -84,8 +84,24 @@ In the case of grep results, each visited buffer is marked read-only."
     (next-error arg reset)))
 
 
-(global-set-key (kbd "C-M-g") 'xorns-next-grep-result)
+(defun xorns-yank-filename ()
+  "Make buffer file-name the latest kill in the kill ring."
+  (interactive)
+  (save-excursion
+    (kill-new (or buffer-file-truename (buffer-name)))))
 
+
+
+(defun xorns-yank-default-directory ()
+  "Make default directory the latest kill in the kill ring."
+  (interactive)
+  (save-excursion
+    (kill-new default-directory)))
+
+
+(global-set-key (kbd "C-M-g") 'xorns-next-grep-result)
+(define-key global-map (kbd "C-c M-w") 'xorns-yank-filename)
+(define-key global-map (kbd "C-c C-w") 'xorns-yank-default-directory)
 
 (provide 'xorns-simple)
 ;;; xorns-simple.el ends here
