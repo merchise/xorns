@@ -202,6 +202,12 @@ Shell Terminals
 - `Auxiliary commands`_ (in `bin` directory) must work in `sudo` modes.
 
 
+Module Names
+------------
+
+- Create a function to determine the module name to use it in snippets.
+
+
 Buffers
 -------
 
