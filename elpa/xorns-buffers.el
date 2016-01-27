@@ -77,7 +77,13 @@
       '(("xorns-ibuffer-groups"
 	  ("Dired" (or (mode . dired-omit-mode) (mode . dired-mode)))
 	  ("RST" (mode . rst-mode))
-	  ("XML" (mode . nxml-mode))
+	  ("XML, HTML, CSS"
+            (or
+              (mode . nxml-mode)
+              (mode . html-mode)
+              (mode . css-mode)
+              (mode . less-mode)
+              (mode . sass-mode)))
 	  ("RFC" (mode . rfcview-mode))
 	  ("Emacs Lisp"
 	    (or
