@@ -1,6 +1,6 @@
 ;;; install --- Install the xorns package
 
-;; Copyright (C) 2014-2015 Merchise
+;; Copyright (C) 2014-2016 Merchise
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/install
@@ -71,7 +71,7 @@
     (let* ((pkg-desc
 	     (assq pkg package-alist))
 	   (version
-	     (package-version-join (package-desc-vers (cdr pkg-desc)))))
+	     (package-version-join (package-desc-version (cdr pkg-desc)))))
       (message "Deleting old package: `%s', version: %s" pkg version)
       (package-delete (symbol-name pkg) version))))
 

@@ -20,6 +20,8 @@
 ;;; Code:
 
 ;; Activate ELPA packages.
+(load "~/.emacs.d/elpa/nxml-mode-20041004/rng-auto.el")
+
 (package-initialize)
 
 (setq magit-last-seen-setup-instructions "1.4.0")
