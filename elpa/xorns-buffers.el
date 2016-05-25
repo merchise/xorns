@@ -1,6 +1,6 @@
 ;;; xorns-buffers --- Buffers management
 
-;; Copyright (C) 2014-2015 Merchise
+;; Copyright (C) 2014-2016 Merchise
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-buffers
@@ -85,8 +85,11 @@
               (mode . less-mode)
               (mode . sass-mode)))
 	  ("RFC" (mode . rfcview-mode))
-	  ("Emacs Lisp"
+	  ("Emacs Lisp/Haskell/Agda/Coq"
 	    (or
+              (mode . haskell-mode)
+              (mode . agda2-mode)
+              (mode . coq-mode)
 	      (mode . emacs-lisp-mode)
 	      (mode . lisp-interaction-mode)
 	      (mode . lisp-mode)))
