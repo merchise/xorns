@@ -69,11 +69,11 @@
   "Remove old package if already installed."
   (when (package-installed-p pkg)
     (let* ((pkg-desc
-	     (assq pkg package-alist))
-	   (version
-	     (package-version-join (package-desc-version (cdr pkg-desc)))))
+             (cadr (assq pkg package-alist)))
+            (version
+              (package-desc-version pkg-desc)))
       (message "Deleting old package: `%s', version: %s" pkg version)
-      (package-delete (symbol-name pkg) version))))
+      (package-delete pkg-desc))))
 
 
 (defun main ()
