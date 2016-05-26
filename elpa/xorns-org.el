@@ -1,6 +1,6 @@
 ;;; xorns-org --- Manage miscellaneous organization stuffs.
 
-;; Copyright (C) 2014-2015 Merchise
+;; Copyright (C) 2014-2016 Merchise
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-project
@@ -45,12 +45,13 @@
 ;;; Code:
 
 
-(require 'calendar nil 'noerror)
+
+(require 'org nil 'noerror)
 (require 'dict nil 'noerror)
 (require 'dictionary nil 'noerror)
 (require 'deft nil 'noerror)
 (require 'rfcview nil 'noerror)
-(require'wget nil 'noerror)
+(require 'wget nil 'noerror)
 
 
 (when (featurep 'calendar)
