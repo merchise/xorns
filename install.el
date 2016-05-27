@@ -79,12 +79,16 @@
 (defun main ()
   "Execute all installation process."
   (delete-old-package)
-  (let* ((name-with-version (format "%s-%s" pkg pkg-new-version))
-	 (tar-file-name (format "./%s.tar" name-with-version))
+  (let* ((name-with-version (format  "%s-%s" pkg pkg-new-version))
+	 (tar-file-name (concat name-with-version ".tar"))
+	 (cur default-directory)
+	 (full (concat cur "elpa"))
+	 (tmp temporary-file-directory)
 	  )
     (message "Create symbolic link from `elpa' to `%s'." name-with-version)
-    (make-symbolic-link "./elpa/" name-with-version 'ok-if-exists)
+    (make-symbolic-link full (concat tmp name-with-version) 'ok-if-exists)
     (message "Create tar file `%s'." tar-file-name)
+    (cd tmp)
     (shell-command
       (format "tar -cf %s %s/*" tar-file-name name-with-version))
     (message "Installing package: %s" pkg)
@@ -93,6 +97,7 @@
     (delete-file tar-file-name)
     (message "Deleting symbolic link: %s" name-with-version)
     (delete-file name-with-version)
+    (cd cur)
     )
   )
 
