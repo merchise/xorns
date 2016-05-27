@@ -1,6 +1,6 @@
 ;;; xorns --- Execute all Merchise preferred initialization
 
-;; Copyright (C) 2014-2015 Merchise
+;; Copyright (C) 2014-2016 Merchise
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns
@@ -90,7 +90,9 @@
 (condition-case err
   (require 'xorns-org)
   (error (message "error loading xorns-org: %s" err)))
-
+(condition-case err
+  (require 'xorns-apt)
+  (error (message "error loading xorns-apt: %s" err)))
 
 ;; Configure preferred package repositories
 (condition-case err
