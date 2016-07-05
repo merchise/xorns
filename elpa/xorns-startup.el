@@ -57,7 +57,8 @@
 (menu-bar-mode 0)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
-(mouse-wheel-mode t)    ; Mouse wheel support
+(when (functionp 'mouse-whel-mode)
+  (mouse-wheel-mode t))    ; Mouse wheel support
 (fset 'yes-or-no-p 'y-or-n-p)   ; Replace `yes|not' commands for simpler `[yn]'
 
 
@@ -99,7 +100,7 @@
 
 ;; Set shift-(left, right, up, down) to move between windows
 
-(require 'windmove)
+(require 'windmove nil)
 (when (featurep 'windmove)
   (windmove-default-keybindings)
   (setq windmove-wrap-around t))
