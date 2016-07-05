@@ -45,6 +45,7 @@
 (require 'scala-mode nil 'noerror)
 (require 'javadoc-lookup nil 'noerror)
 
+(require 'dash)
 (require 'xorns-text)
 
 
@@ -119,6 +120,13 @@
       (error (message "error@prog-mode-hook: %s" err)))))
 
 
+;; FCI interacts badly with the Agda interactive features, so let's turn it
+;; off.
+(add-hook 'agda2-mode-hook
+  (lambda()
+    (xorns-fci-mode-off)))
+
+
 (add-hook 'conf-unix-mode-hook          ; For configuration files
   (lambda ()
     (condition-case err
@@ -189,6 +197,17 @@
       "Completer.all_completions('''%s''')).strip()))\n")))
 
 
+(defun xorns-python-get-full-name (&optional buffer)
+  "Get the module name of the BUFFER.
+
+If BUFFER is nil the, use the current BUFFER."
+  (-when-let*
+    ((working-buffer (or buffer (current-buffer)))
+     (buffer-fname (buffer-file-name working-buffer))
+     )
+    buffer-fname))
+
+
 (defun xorns-python-indent-rigidly (start end arg)
   "Indent rigidly the region.
 
@@ -204,8 +223,8 @@ This simply calls `indent-rigidly' using ±4 spaces."
     (indent-rigidly start end -4)))
 
 (when (xorns-configure-p 'general)  ;; Make C-x C-tab indent rightly in Python
-  (define-key python-mode-map (kbd "C-x <C-tab>") 'xorns-python-indent-rigidly))
-
+  (define-key python-mode-map (kbd "C-x <C-tab>") 'xorns-python-indent-rigidly)
+  (define-key python-mode-map (kbd "C-x C-x <tab>") 'xorns-python-indent-rigidly))
 
 
 ;; Python for reST
@@ -291,6 +310,7 @@ This simply calls `indent-rigidly' using ±4 spaces."
   (xorns-dependency-install 'js2-mode)
   (xorns-dependency-install 'tern)
   (xorns-dependency-install 'tern-auto-complete)
+  (xorns-dependency-install 'dash)
   )
 
 
