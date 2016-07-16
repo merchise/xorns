@@ -29,10 +29,11 @@
 Pending Tasks
 =============
 
-- Make a function for  una función en xorns que formatee correctamente la
-  definición de un description list.  En los glosarios funciona bien con una
-  línea en blanco.
+-  Variables "clean-buffer-list-delay-general" and
+   "clean-buffer-list-delay-special" looks like deprecated.
 
+- Make a function to format properly a description list definition.  In
+  glossaries it's possible a blank line, but not in normal definitions.
 
 - Better integrate `devhelp` using a command like `devhelp-word-at-point`, but
   for full terms; like `devhelp-identifier-at-point` that recognizes also
