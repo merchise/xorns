@@ -102,6 +102,16 @@ Don't fail if `'fill-column-indicator' is not available."
     (xorns-missing-feature 'fill-column-indicator)))
 
 
+(defun xorns-fci-mode-off ()
+  "Set `fci-mode' off.
+
+Don't fail if `'fill-column-indicator' is not available."
+  (if (featurep 'fill-column-indicator)
+    (fci-mode 0)
+    ;else
+    (xorns-missing-feature 'fill-column-indicator)))
+
+
 
 ;;; Sub-tree utility
 (defun xorns-toggle-subtree ()
@@ -114,6 +124,13 @@ Don't fail if `'fill-column-indicator' is not available."
       (show-subtree)
       (show-entry))))
 
+
+
+;;; Alternative keybindings
+(defun xorns-rst-alternative-keybind ()
+  "Define alternative keybindings when used over a non-X windows."
+  ;; TODO:  Check non-X mode
+  (define-key rst-mode-map (kbd "C-c =") 'rst-adjust))
 
 
 ;;; Hooks
@@ -141,11 +158,12 @@ Don't fail if `'fill-column-indicator' is not available."
   (lambda ()
     (condition-case err
       (progn
-	(turn-on-auto-fill)
-	(flyspell-mode nil)		; When used flyspell-prog-mode I
-					; can't see the errors while typing
-	(setq ispell-parser 'tex)
-	(xorns-fci-mode-on))
+        (turn-on-auto-fill)
+        (flyspell-mode nil)             ; When used flyspell-prog-mode I
+                                        ; can't see the errors while typing
+        (setq ispell-parser 'tex)
+        (xorns-fci-mode-on)
+        (xorns-rst-alternative-keybind))
       (error (message "error@rst-mode-hook: %s" err)))))
 
 

@@ -136,7 +136,7 @@ If BUFFER is not present, use the current buffer."
 		  server user stream-type)
 	       (setq
 		  smtpmail-smtp-server server
-		  smtpmail-smtp-user user
+		  ;; smtpmail-smtp-user user
 		  smtpmail-stream-type stream-type)
 	       (setq
 		  ;; TODO: configure
@@ -152,12 +152,11 @@ If BUFFER is not present, use the current buffer."
 	    (xorns-get-from-address)))))
 
 
-(defadvice smtpmail-via-smtp
-  (before xorns-choose-smtp-account
-    (recipient smtpmail-text-buffer &optional ask-for-password)
-    activate compile)
-   "Choose the SMTP account from `xorns-smtp-accounts'."
-   (xorns-use-appropriate-smtp-server smtpmail-text-buffer))
+(defun -xorns-use-appropriate-server (recipient smtpmail-text-buffer &optional ask-for-password)
+  "Choose the SMTP account from `xorns-smtp-accounts'."
+  (xorns-use-appropriate-smtp-server smtpmail-text-buffer))
+
+(advice-add 'smtpmail-via-smtp :before #'-xorns-use-appropriate-server)
 
 
 
