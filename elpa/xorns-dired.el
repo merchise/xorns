@@ -1,6 +1,6 @@
 ;;; xorns-dired --- Merchise extensions for `dired'
 
-;; Copyright (C) 2014-2015 Merchise
+;; Copyright (C) 2014-2016 Merchise
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-dired
@@ -184,7 +184,8 @@ If `dired-single' is not installed, does nothing."
   (when (featurep 'dired-single)
     (declare-function dired-single-buffer 'dired-single)
     (define-key dired-mode-map "r" 'xorns-dired-recursive)
-    (-dired-define-keys `([return] [M-S-down]) 'xorns-dired-single-buffer)
+    (-dired-define-keys `([return] [M-S-down] ,(kbd "RET"))
+      'xorns-dired-single-buffer)
     (-dired-define-keys `([mouse-1] [mouse-2])
       'xorns-dired-single-buffer-mouse)
     (-dired-define-keys `(,(kbd "M-P") [M-S-up] "^")

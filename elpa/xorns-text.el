@@ -1,6 +1,6 @@
 ;;; xorns-text --- Merchise text modes, and its idiosyncratic commands
 
-;; Copyright (C) 2014-2015 Merchise
+;; Copyright (C) 2014-2016 Merchise
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-text
@@ -126,13 +126,6 @@ Don't fail if `'fill-column-indicator' is not available."
 
 
 
-;;; Alternative keybindings
-(defun xorns-rst-alternative-keybind ()
-  "Define alternative keybindings when used over a non-X windows."
-  ;; TODO:  Check non-X mode
-  (define-key rst-mode-map (kbd "C-c =") 'rst-adjust))
-
-
 ;;; Hooks
 
 (add-hook 'before-save-hook 'copyright-update)
@@ -162,8 +155,7 @@ Don't fail if `'fill-column-indicator' is not available."
         (flyspell-mode nil)             ; When used flyspell-prog-mode I
                                         ; can't see the errors while typing
         (setq ispell-parser 'tex)
-        (xorns-fci-mode-on)
-        (xorns-rst-alternative-keybind))
+        (xorns-fci-mode-on))
       (error (message "error@rst-mode-hook: %s" err)))))
 
 

@@ -1,6 +1,6 @@
 ;;; xorns-startup --- Basic initialization
 
-;; Copyright (C) 2014-2015 Merchise
+;; Copyright (C) 2014-2016 Merchise
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-startup
@@ -57,7 +57,7 @@
 (menu-bar-mode 0)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
-(when (functionp 'mouse-whel-mode)
+(when (functionp 'mouse-wheel-mode)
   (mouse-wheel-mode t))    ; Mouse wheel support
 (fset 'yes-or-no-p 'y-or-n-p)   ; Replace `yes|not' commands for simpler `[yn]'
 

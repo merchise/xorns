@@ -90,7 +90,9 @@
 (condition-case err
   (require 'xorns-org)
   (error (message "error loading xorns-org: %s" err)))
-
+(condition-case err
+  (require 'xorns-apt)
+  (error (message "error loading xorns-apt: %s" err)))
 
 ;; Configure preferred package repositories
 (condition-case err
