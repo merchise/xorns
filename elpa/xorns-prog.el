@@ -187,10 +187,10 @@
     python-shell-prompt-output-regexp "\\(\\s-{0,4}\\|    \\)"
     python-shell-completion-setup-code
     "import sys; from IPython.core.completerlib import module_completion"
-    python-shell-completion-module-string-code
-    (concat
-      "print(repr(str(';').join(str(ac) "
-      "for ac in module_completion('''%s''')).strip()))\n")
+    ;; python-shell-completion-module-string-code
+    ;; (concat
+    ;;   "print(repr(str(';').join(str(ac) "
+    ;;   "for ac in module_completion('''%s''')).strip()))\n")
     python-shell-completion-string-code
     (concat
       "print(repr(str(';').join(str(ac) for ac in get_ipython()."

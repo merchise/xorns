@@ -73,8 +73,7 @@
 (when (featurep 'deft)
   ; TODO: Remove all deft `.emacs.d' custom files
   (setq deft-auto-save-interval 60.0)
-  (setq deft-extension "rst")
-  (setq deft-text-mode 'rst-mode)
+  (add-to-list 'deft-extensions "rst" 'append)
   (global-set-key (kbd "<f12>") 'deft))
 
 
