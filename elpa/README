@@ -193,7 +193,7 @@ Install
 Shell Terminals
 ---------------
 
-- Execute all :name:`Emacs Lisp` commands in order to have `eshell` like
+- Execute all `Emacs Lisp`:name: commands in order to have `eshell` like
   `bash` in normal terminals.  For example, use `setenv`.
 
   When updating the environment variable `PATH`, also set the Emacs Lips
@@ -216,6 +216,7 @@ Buffers
 
 Deft
 ----
+
 Use the following code to obtain better Deft presentation::
 
   (defun deft-chomp (str)
@@ -226,6 +227,12 @@ Use the following code to obtain better Deft presentation::
 	  "[-~#=* ]\\{3,\\}" " " aux)))
 
 
-.. Footnotes
+Magit/Dired Integration
+-----------------------
+
+Integrate ``dired`` to use ``magit-file-rename`` function.
+
+
+.. rubric:: Footnotes
 
 .. [#inif] We encourage `~/.emacs.d/init.el`.
