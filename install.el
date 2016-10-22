@@ -40,6 +40,8 @@
 (eval-when-compile
   (require 'cl))
 
+;; Activate ELPA packages.
+(load "~/.emacs.d/elpa/nxml-mode-20041004/rng-auto.el")
 
 (package-initialize)
 
