@@ -102,7 +102,7 @@
 
 (require 'windmove nil)
 (when (featurep 'windmove)
-  (windmove-default-keybindings)
+  (windmove-default-keybindings 'ctrl)
   (setq windmove-wrap-around t))
 
 
