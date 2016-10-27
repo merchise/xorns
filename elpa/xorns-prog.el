@@ -272,7 +272,6 @@ This simply calls `indent-rigidly' using ±4 spaces."
                 if (file-exists-p dir)
                 collect dir)))
         (when roots (apply 'javadoc-add-roots roots)))
-      (setq browse-url-browser-function 'browse-url-chromium)
       )
     ;; else
     (xorns-missing-feature 'javadoc-lookup))
