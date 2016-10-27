@@ -52,6 +52,16 @@
 (require 'deft nil 'noerror)
 (require 'rfcview nil 'noerror)
 (require 'wget nil 'noerror)
+(require 'ispell)
+(require 'xorns-text)
+
+
+(when (featurep 'org)
+  (global-set-key "\C-cl" 'org-store-link)
+  (global-set-key "\C-cc" 'org-capture)
+  (global-set-key "\C-ca" 'org-agenda)
+  (global-set-key "\C-cb" 'org-iswitchb)
+  (define-key org-mode-map "\C-cil" 'ispell-change-dictionary))
 
 
 (when (featurep 'calendar)
@@ -62,6 +72,7 @@
 (when (featurep 'dict)
   (set-variable 'dict-servers '("localhost"))
   )
+
 
 (when (featurep 'dictionary)
   (global-set-key (kbd "C-c w") 'dictionary-search)
@@ -98,6 +109,16 @@
   (setq wget-download-directory
     (xorns-preferred-directory "~/Downloads" "~/download" "~/softlib" "~")))
 
+
+(add-hook 'org-mode-hook           ; run when entering org mode
+  (lambda ()
+    (condition-case err
+      (progn
+        (turn-on-auto-fill)
+	(flyspell-mode nil)
+        (setq ispell-parser 'tex)
+        (xorns-fci-mode-on))
+      (error (message "error@org-mode-hook: %s" err)))))
 
 (provide 'xorns-org)
 ;;; xorns-org.el ends here
