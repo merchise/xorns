@@ -74,10 +74,10 @@
   "Show information for a Debian PACKAGE.
 A selection of known packages is presented.  See `apt-utils-mode'
 for more detailed help."
-  (interactive
-   (let ((package (xorns-apt-choose-package)))
-     (when (> (length package) 0)
-       (apt-utils-show-package-1 package t nil)))))
+  (interactive "P")
+  (let ((package (xorns-apt-choose-package)))
+    (when (> (length package) 0)
+      (apt-utils-show-package-1 package t nil))))
 
 (when (xorns-configure-p 'basic)
   (if (featurep 'apt-utils)
