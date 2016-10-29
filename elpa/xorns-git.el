@@ -47,6 +47,7 @@
   (if (featurep 'magit)
     (progn
       (global-set-key "\C-xg" 'magit-status)
+      (global-set-key "\C-cg" 'magit-status)
       (add-hook 'git-commit-mode-hook  ; run when in `magit' mode
 	(lambda ()
 	  (condition-case err
