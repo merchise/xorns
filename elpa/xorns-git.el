@@ -39,6 +39,8 @@
 
 (require 'ispell)
 (require 'magit nil 'noerror)
+(require 'xorns-utils nil 'noerror)
+(require 'xorns-package nil 'noerror)
 
 
 (when (xorns-configure-p 'basic)
