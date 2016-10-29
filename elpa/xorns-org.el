@@ -53,7 +53,18 @@
 (require 'rfcview nil 'noerror)
 (require 'wget nil 'noerror)
 (require 'ispell)
-(require 'xorns-text)
+(require 'xorns-text nil 'noerror)
+
+
+;;;###autoload
+(defun xorns-deft-open-file (&optional arg)
+  "When the point is at a widget, open the file in a new buffer.
+The argument ARG is passed to `deft-open-file' as SWITCH."
+  (interactive "P")
+  (let ((file (deft-filename-at-point)))
+    (when file
+      (deft-open-file file nil arg)
+      (kill-buffer "*Deft*"))))
 
 
 (when (featurep 'org)
@@ -85,7 +96,8 @@
   ; TODO: Remove all deft `.emacs.d' custom files
   (setq deft-auto-save-interval 60.0)
   (add-to-list 'deft-extensions "rst" 'append)
-  (global-set-key (kbd "<f12>") 'deft))
+  (global-set-key (kbd "<f12>") 'deft)
+  (define-key deft-mode-map (kbd "M-RET") 'xorns-deft-open-file))
 
 
 
