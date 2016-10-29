@@ -75,6 +75,7 @@
   (setq
     ibuffer-saved-filter-groups
       '(("xorns-ibuffer-groups"
+	  ("Dired" (or (mode . dired-omit-mode) (mode . dired-mode)))
 	  ("Org"
 	    (or
 	      (mode . org-mode)
@@ -83,32 +84,34 @@
 	      (mode . calendar-mode)
 	      (mode . bbdb-mode)
 	      (name . "bbdb")))
-	  ("Dired" (or (mode . dired-omit-mode) (mode . dired-mode)))
 	  ("RST" (mode . rst-mode))
-	  ("XML, HTML, CSS"
+	  ("XML/HTML/CSS"
             (or
               (mode . nxml-mode)
               (mode . html-mode)
               (mode . css-mode)
               (mode . less-mode)
               (mode . sass-mode)))
-	  ("RFC" (mode . rfcview-mode))
-	  ("Emacs Lisp/Haskell/Agda/Coq"
+	  ("Emacs/Lisp"
+	    (or
+	      (mode . emacs-lisp-mode)
+	      (mode . lisp-interaction-mode)
+	      (mode . lisp-mode)
+	      (name . "*scratch*")))
+	  ("Python" (mode . python-mode))
+	  ("Haskell/Agda/Coq"
 	    (or
               (mode . haskell-mode)
               (mode . agda2-mode)
-              (mode . coq-mode)
-	      (mode . emacs-lisp-mode)
-	      (mode . lisp-interaction-mode)
-	      (mode . lisp-mode)))
-	  ("Python" (mode . python-mode))
+              (mode . coq-mode)))
           ("C" (or (mode . c-mode) (mode . cc-mode)))
-          ("Man pages" (mode . Man-mode))
 	  ("Scala/Java"
 	    (or
 	      (mode . scala-mode)
 	      (mode . java-mode)
 	      (mode . scala-mode-inf)))
+          ("Man pages" (mode . Man-mode))
+	  ("RFC" (mode . rfcview-mode))
 	  ))
     ibuffer-formats
       '((mark modified read-only " "
