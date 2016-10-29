@@ -1,0 +1,21 @@
+#+TITLE: Backlog for *Xorns* -  an improved way to use Emacs
+#+AUTHOR: Merchise Autrement [~º/~]
+#+DESCRIPTION: Development planning for this package.
+
+* Minor issues [/]
+
+* Configuration [/]
+
+- [ ] Configure ~ibuffer-saved-filter-groups~ incrementally.
+
+  This is, each module will add its own group.  *xorns-buffers.el* will only
+  configure generic modes.
+
+  Plan a similar task for every variable that has parts dependable on specific
+  stuffs in different modules.
+
+- [ ] Create a *tagged* configuration system.
+
+  That will allow to determine which features to load in a more precise way.
+  See ~xorns-config-level~ function for more information on current actual
+  implementation.
