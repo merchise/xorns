@@ -83,6 +83,7 @@
 	      (mode . diary-mode)
 	      (mode . calendar-mode)
 	      (mode . bbdb-mode)
+	      (name . "*Deft*")
 	      (name . "bbdb")))
 	  ("RST" (mode . rst-mode))
 	  ("XML/HTML/CSS"
