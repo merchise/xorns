@@ -43,6 +43,7 @@
 (require 'scroll-bar)
 (require 'mule)
 (require 'tramp)
+(require 'auto-complete nil 'noerror)
 
 ;; See https://wiki.archlinux.org/index.php/emacs#Dead-accent_keys_problem:_.27.3Cdead-acute.3E_is_undefined.27
 (require 'iso-transl)
@@ -93,6 +94,9 @@
 
 ;; Cutting and pasting uses the clipboard
 (setq x-select-enable-clipboard t)
+
+;; Key to start auto-complete
+(setq  ac-trigger-key "TAB")
 
 
 

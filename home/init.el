@@ -1,6 +1,6 @@
 ;;; init.el --- Merchise Initialization File
 
-;; Copyright (C) 2014-2015 Merchise
+;; Copyright (C) 2014-2016 Merchise Autrement [~º/~]
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns
@@ -24,6 +24,7 @@
 
 (package-initialize)
 
+;; TODO: Why this is needed?
 (setq magit-last-seen-setup-instructions "1.4.0")
 
 (let ((xorns-config-level 'maximum))    ;; 'basic, 'general
@@ -31,7 +32,5 @@
   (require 'xorns)
   ;; Require extra features
   (require 'xorns-extra))
-
-(setq ac-trigger-key "TAB")
 
 ;;; init.el ends here
