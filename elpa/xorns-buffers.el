@@ -75,6 +75,14 @@
   (setq
     ibuffer-saved-filter-groups
       '(("xorns-ibuffer-groups"
+	  ("Org"
+	    (or
+	      (mode . org-mode)
+	      (mode . org-agenda-mode)
+	      (mode . diary-mode)
+	      (mode . calendar-mode)
+	      (mode . bbdb-mode)
+	      (name . "bbdb")))
 	  ("Dired" (or (mode . dired-omit-mode) (mode . dired-mode)))
 	  ("RST" (mode . rst-mode))
 	  ("XML, HTML, CSS"
