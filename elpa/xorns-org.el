@@ -72,7 +72,20 @@ The argument ARG is passed to `deft-open-file' as SWITCH."
   (global-set-key "\C-cc" 'org-capture)
   (global-set-key "\C-ca" 'org-agenda)
   (global-set-key "\C-cb" 'org-iswitchb)
-  (define-key org-mode-map "\C-cil" 'ispell-change-dictionary))
+  (define-key org-mode-map "\C-cil" 'ispell-change-dictionary)
+  (setq org-todo-keywords
+    '((sequence "TODO(t)" "|" "DONE(d!)")
+      (sequence "FIX(f)" "BUG(b)" "|" "SOLVED(s!)")
+      (sequence "DEVELOP(v)" "REVIEW(r!)" "TEST(p!)" "|" "DELIVERY(e@/!)")
+      (sequence "WTF(w)" "XXX(x)" "|" "WORTHY(y!)")
+      (sequence "|" "CANCELED(c@)")))
+  (setq org-todo-keyword-faces
+    '(("TODO" . org-warning)
+      ("BUG" . org-warning)
+      ("WTF" . "black")
+      ("CANCELED" . (:foreground "blue" :weight bold))))
+  ; TODO: (setq org-enforce-todo-dependencies t)
+  )
 
 
 (when (featurep 'calendar)
