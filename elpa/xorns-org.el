@@ -44,15 +44,15 @@
 
 ;;; Code:
 
-
-
-(require 'org nil 'noerror)
 (require 'dict nil 'noerror)
 (require 'dictionary nil 'noerror)
-(require 'deft nil 'noerror)
+(require 'dictionary nil 'noerror)
 (require 'rfcview nil 'noerror)
 (require 'wget nil 'noerror)
 (require 'ispell)
+(require 'deft nil 'noerror)
+(require 'org nil 'noerror)
+(require 'calendar nil 'noerror)
 (require 'xorns-text nil 'noerror)
 
 
@@ -73,23 +73,24 @@ The argument ARG is passed to `deft-open-file' as SWITCH."
   (global-set-key "\C-ca" 'org-agenda)
   (global-set-key "\C-cb" 'org-iswitchb)
   (define-key org-mode-map "\C-cil" 'ispell-change-dictionary)
-  (setq org-todo-keywords
-    '((sequence "TODO(t)" "|" "DONE(d!)")
-      (sequence "FIX(f)" "BUG(b)" "|" "SOLVED(s!)")
-      (sequence "DEVELOP(v)" "REVIEW(r!)" "TEST(p!)" "|" "DELIVERY(e@/!)")
-      (sequence "WTF(w)" "XXX(x)" "|" "WORTHY(y!)")
-      (sequence "|" "CANCELED(c@)")))
-  (setq org-todo-keyword-faces
-    '(("TODO" . org-warning)
-      ("BUG" . org-warning)
-      ("WTF" . "black")
-      ("CANCELED" . (:foreground "blue" :weight bold))))
+  (setq
+    org-todo-keywords
+      '((sequence "TODO(t)" "|" "DONE(d!)")
+	(sequence "FIX(f)" "BUG(b)" "|" "SOLVED(s!)")
+	(sequence "DEVELOP(v)" "REVIEW(r!)" "TEST(p!)" "|" "DELIVERY(e@/!)")
+	(sequence "WTF(w)" "XXX(x)" "|" "WORTHY(y!)")
+	(sequence "|" "CANCELED(c@)"))
+    org-todo-keyword-faces
+      '(("TODO" . org-warning)
+        ("BUG" . org-warning)
+        ("WTF" . "black")
+        ("CANCELED" . (:foreground "blue" :weight bold))))
   ; TODO: (setq org-enforce-todo-dependencies t)
   )
 
-
 (when (featurep 'calendar)
-  (setq calendar-date-style 'iso)
+  ;; Next is needed in order to use `diary-anniversary' without the year
+  (setq calendar-date-style 'american)
   )
 
 
@@ -100,8 +101,9 @@ The argument ARG is passed to `deft-open-file' as SWITCH."
 
 (when (featurep 'dictionary)
   (global-set-key (kbd "C-c w") 'dictionary-search)
-  (setq dictionary-server "localhost")
-  (setq dictionary-use-single-buffer t)
+  (setq
+    dictionary-server "localhost"
+    dictionary-use-single-buffer t)
   )
 
 
