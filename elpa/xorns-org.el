@@ -46,10 +46,9 @@
 
 (require 'dict nil 'noerror)
 (require 'dictionary nil 'noerror)
-(require 'dictionary nil 'noerror)
+(require 'ispell)
 (require 'rfcview nil 'noerror)
 (require 'wget nil 'noerror)
-(require 'ispell)
 (require 'deft nil 'noerror)
 (require 'org nil 'noerror)
 (require 'calendar nil 'noerror)
