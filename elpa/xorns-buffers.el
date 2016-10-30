@@ -75,7 +75,16 @@
   (setq
     ibuffer-saved-filter-groups
       '(("xorns-ibuffer-groups"
-	  ("Dired" (or (mode . dired-omit-mode) (mode . dired-mode)))
+	  ("Emacs System"
+	    (or
+	      (name . "*scratch*")
+	      (name . "*Messages*")
+	      (mode . Custom-mode)
+	      (mode . completion-list-mode)))
+	  ("Dired"
+	    (or
+	      (mode . dired-omit-mode)
+	      (mode . dired-mode)))
 	  ("Org"
 	    (or
 	      (mode . org-mode)
@@ -85,20 +94,11 @@
 	      (mode . bbdb-mode)
 	      (name . "*Deft*")
 	      (name . "bbdb")))
-	  ("RST" (mode . rst-mode))
-	  ("XML/HTML/CSS"
-            (or
-              (mode . nxml-mode)
-              (mode . html-mode)
-              (mode . css-mode)
-              (mode . less-mode)
-              (mode . sass-mode)))
-	  ("Emacs/Lisp"
+	  ("Lisp"
 	    (or
 	      (mode . emacs-lisp-mode)
 	      (mode . lisp-interaction-mode)
-	      (mode . lisp-mode)
-	      (name . "*scratch*")))
+	      (mode . lisp-mode)))
 	  ("Python" (mode . python-mode))
 	  ("Haskell/Agda/Coq"
 	    (or
@@ -111,23 +111,44 @@
 	      (mode . scala-mode)
 	      (mode . java-mode)
 	      (mode . scala-mode-inf)))
+	  ("RST/Markdown"
+	    (or
+	      (mode . rst-mode)
+	      (mode . markdown-mode)))
+	  ("XML/HTML/CSS"
+            (or
+              (mode . nxml-mode)
+              (mode . html-mode)
+              (mode . css-mode)
+              (mode . less-mode)
+              (mode . sass-mode)))
 	  ("Version Control"
 	    (or
+	      (mode . git-commit-mode)
+	      (mode . git-commit-major-mode)
+	      (mode . git-rebase-mode)
 	      (mode . magit-mode)
 	      (mode . magit-cherry-mode)
 	      (mode . magit-diff-mode)
 	      (mode . magit-log-mode)
 	      (mode . magit-log-select-mode)
 	      (mode . magit-merge-preview-mode)
+	      (mode . magit-popup-mode)
 	      (mode . magit-process-mode)
 	      (mode . magit-refs-mode)
 	      (mode . magit-reflog-mode)
 	      (mode . magit-revision-mode)
 	      (mode . magit-stash-mode)
 	      (mode . magit-stashes-mode)
-	      (mode . magit-status-mode)))
-          ("Man pages" (mode . Man-mode))
-	  ("RFC" (mode . rfcview-mode))
+	      (mode . magit-status-mode)
+	      (mode . diff-mode)))
+	  ("Help/Info"
+	    (or
+	      (mode . help-mode)
+	      (mode . Info-mode)
+	      (mode . Man-mode)
+	      (mode . woman-mode)
+	      (mode . rfcview-mode)))
 	  ))
     ibuffer-formats
       '((mark modified read-only " "
