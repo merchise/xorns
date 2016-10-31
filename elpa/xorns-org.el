@@ -52,6 +52,8 @@
 (require 'deft nil 'noerror)
 (require 'org nil 'noerror)
 (require 'calendar nil 'noerror)
+(require 'ob-core nil 'noerror)
+(require 'ob-python nil 'noerror)
 (require 'xorns-text nil 'noerror)
 
 
@@ -64,6 +66,38 @@ The argument ARG is passed to `deft-open-file' as SWITCH."
     (when file
       (deft-open-file file nil arg)
       (kill-buffer "*Deft*"))))
+
+
+(defvar xorns-org-confirm-babel-evaluate
+  nil
+  "To use as an extra check in modified `org-confirm-babel-evaluate'.")
+
+
+(defun xorns-org-confirm-babel-evaluate (lang body)
+  "Check if special security flag is set for LANG in the BODY.
+
+This function will check if the code BODY contains the flag 'TRUSTED = true';
+if not; check for the function defined in `xorns-org-confirm-babel-evaluate'
+variable.
+
+The flag could be defined in a commented area in your code, but must be
+surrounded with blanks."
+  (let* ( (regex
+	    "\\(^\\|\\W\\)trusted[[:blank:]]*=[[:blank:]]*true\\(\\W\\|$\\)")
+	  (res
+	    (not (string-match regex body)))
+	)
+    (if (and res xorns-org-confirm-babel-evaluate)
+      (funcall xorns-org-confirm-babel-evaluate lang body)
+      ; else
+      res))
+  )
+
+
+(when (featurep 'calendar)
+  ;; Next is needed in order to use `diary-anniversary' without the year
+  (setq calendar-date-style 'american)
+  )
 
 
 (when (featurep 'org)
@@ -83,14 +117,36 @@ The argument ARG is passed to `deft-open-file' as SWITCH."
       '(("TODO" . org-warning)
         ("BUG" . org-warning)
         ("WTF" . "black")
-        ("CANCELED" . (:foreground "blue" :weight bold))))
+        ("CANCELED" . (:foreground "blue" :weight bold)))
+    org-confirm-babel-evaluate 'xorns-org-confirm-babel-evaluate)
   ; TODO: (setq org-enforce-todo-dependencies t)
   )
 
-(when (featurep 'calendar)
-  ;; Next is needed in order to use `diary-anniversary' without the year
-  (setq calendar-date-style 'american)
-  )
+
+(when (featurep 'ob-python)
+  (when (not (assoc 'python org-babel-load-languages))
+    (setq org-babel-load-languages
+      (cons '(python . t) org-babel-load-languages)))
+  (setq org-babel-default-header-args:python
+    (cons '(:results . "output")
+      (assq-delete-all :results org-babel-default-header-args:python)))
+  (let*
+    ((preamble
+       (assoc :preamble org-babel-default-header-args:python))
+     (prefix
+       "\nfrom __future__ import ")
+     (full-prefix
+       (concat
+	 prefix
+	 "division, print_function, absolute_import\n")))
+    (if preamble
+      (when (not (string-prefix-p prefix (cdr preamble)))
+	(setcdr preamble (concat full-prefix (cdr preamble))))
+      ; else
+      (setq preamble (cons :preamble full-prefix)))
+    (setq org-babel-default-header-args:python
+      (cons preamble
+	(assq-delete-all :preamble org-babel-default-header-args:python)))))
 
 
 (when (featurep 'dict)
