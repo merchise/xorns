@@ -19,3 +19,11 @@
   That will allow to determine which features to load in a more precise way.
   See ~xorns-config-level~ function for more information on current actual
   implementation.
+
+  Also, -consider- re-factor setup functions in order to install *xorns*
+  features more efficiently and move some of them to be load on demand and not
+  in the first configuration.
+
+  Function names could have the pattern ~xorns:setup-<feature-name>~.  Using
+  ~xorns:setup~ will configure those features selected in user configuration
+  file (currently *Emacs* delays a lot of time in *xorns*) first load.
