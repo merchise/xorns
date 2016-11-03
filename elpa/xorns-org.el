@@ -57,7 +57,6 @@
 (require 'xorns-text nil 'noerror)
 
 
-;;;###autoload
 (defun xorns-deft-open-file (&optional arg)
   "When the point is at a widget, open the file in a new buffer.
 The argument ARG is passed to `deft-open-file' as SWITCH."
@@ -168,7 +167,6 @@ surrounded with blanks."
   (add-to-list 'deft-extensions "rst" 'append)
   (global-set-key (kbd "<f12>") 'deft)
   (define-key deft-mode-map (kbd "M-RET") 'xorns-deft-open-file))
-
 
 
 (when (featurep 'rfcview)

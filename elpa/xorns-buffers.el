@@ -54,7 +54,6 @@
 
 (require 'ibuffer nil 'noerror)
 (require 'ibuf-ext nil 'noerror)
-
 (require 'xorns-utils nil 'noerror)
 
 
@@ -169,6 +168,19 @@
       (condition-case err
 	(ibuffer-switch-to-saved-filter-groups "xorns-ibuffer-groups")
 	(error (message "error@ibuffer-mode-hook: %s" err))))))
+
+
+(defun xorns-ibuffer-visit-buffer (&optional single)
+  "Visit the buffer on this line.
+If optional argument SINGLE is non-nil, then also ensure there is only one
+window.  After that standard behaviour, this function kills the `ibuffer'."
+  (interactive "P")
+  (ibuffer-visit-buffer single)
+  (kill-buffer "*Ibuffer*"))
+
+
+(when (featurep 'ibuffer)
+    (define-key ibuffer-mode-map (kbd "M-RET") 'xorns-ibuffer-visit-buffer))
 
 
 
