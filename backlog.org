@@ -2,9 +2,25 @@
 #+AUTHOR: Merchise Autrement [~º/~]
 #+DESCRIPTION: Development planning for this package.
 
-* Minor issues [/]
+* Backlog for *Xorns*
 
-* Configuration [/]
+** Development ideas. [/]
+
+- [ ] Change 'xorns' version to use date-time like most 'elpa' packages.
+
+- [ ] Make a function to remove old versions of installed
+  packages in a safe way.
+
+- [ ] Structure 'xorns' in several separate packages using 'Architecture
+  Continuum' layers.  Initialization loading order must be imposed, first
+  *foundation* and *common systems*; then, in several internal levels of,
+  *industry* and *specific* layers.
+
+
+** Minor issues. [/]
+
+
+** Configuration. [/]
 
 - [ ] Configure ~ibuffer-saved-filter-groups~ incrementally.
 
