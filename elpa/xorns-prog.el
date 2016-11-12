@@ -246,7 +246,7 @@ This simply calls `indent-rigidly' using ±4 spaces."
       (jedi:setup)
       (define-key python-mode-map "\C-ch" 'jedi:show-doc)
       (define-key python-mode-map "\M-." 'jedi:goto-definition)
-      (define-key python-mode-map "\M-," 'jedi:goto-definition-pop-marker))
+      (define-key python-mode-map "\M-*" 'jedi:goto-definition-pop-marker))
     ;; else
     (xorns-missing-feature 'jedi)))
 
