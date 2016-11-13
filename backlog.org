@@ -43,3 +43,5 @@
   Function names could have the pattern ~xorns:setup-<feature-name>~.  Using
   ~xorns:setup~ will configure those features selected in user configuration
   file (currently *Emacs* delays a lot of time in *xorns*) first load.
+
+- [ ] Create ~$HOME/.local/bin/~ symbolic links from [[file:install.el][package installation]].
