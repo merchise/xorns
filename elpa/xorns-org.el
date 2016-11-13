@@ -53,6 +53,7 @@
 (require 'org nil 'noerror)
 (require 'calendar nil 'noerror)
 (require 'ob-core nil 'noerror)
+(require 'ob-sh nil 'noerror)
 (require 'ob-python nil 'noerror)
 (require 'xorns-text nil 'noerror)
 
@@ -120,6 +121,15 @@ surrounded with blanks."
     org-confirm-babel-evaluate 'xorns-org-confirm-babel-evaluate)
   ; TODO: (setq org-enforce-todo-dependencies t)
   )
+
+
+(when (featurep 'ob-sh)
+  (when (not (assoc 'sh org-babel-load-languages))
+    (setq org-babel-load-languages
+      (cons '(sh . t) org-babel-load-languages)))
+  (setq org-babel-default-header-args:sh
+    (cons '(:results . "output")
+      (assq-delete-all :results org-babel-default-header-args:sh))))
 
 
 (when (featurep 'ob-python)
