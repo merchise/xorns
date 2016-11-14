@@ -1,6 +1,6 @@
 ;;; xorns-dired --- Merchise extensions for `dired'
 
-;; Copyright (C) 2014-2016 Merchise
+;; Copyright (C) 2014-2016 Merchise Autrement [~º/~]
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-dired
@@ -42,7 +42,6 @@
 (require 'xorns-utils nil 'noerror)
 (require 'dired)
 (require 'dired-single nil 'noerror)
-
 
 
 (defun -mac-os ()

@@ -1,6 +1,6 @@
 ;;; xorns-frames.el --- Merchise frame management for Emacs
 
-;; Copyright (C) 2014-2016  Merchise
+;; Copyright (C) 2014-2016  Merchise Autrement [~º/~]
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; Created: 2014-02-05

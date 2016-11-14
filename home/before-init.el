@@ -1,6 +1,6 @@
 ;;; before-init.el --- Example Merchise Initialization File for local user
 
-;; Copyright (C) 2014-2015 Merchise
+;; Copyright (C) 2014-2015 Merchise Autrement [~º/~]
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns

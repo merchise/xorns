@@ -1,6 +1,6 @@
 ;;; xorns-all --- Related to all `xorns' sub-modules
 
-;; Copyright (C) 2014-2016 Merchise
+;; Copyright (C) 2014-2016 Merchise Autrement [~º/~]
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-all
