@@ -19,6 +19,8 @@
 
 ** Minor issues. [/]
 
+- [ ] See [[info:elisp#Warning%20Tips][Tips for Avoiding Compiler Warnings]].
+
 
 ** Configuration. [/]
 
