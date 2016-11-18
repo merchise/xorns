@@ -46,6 +46,7 @@
 
 (require 'fill-column-indicator nil 'noerror)
 (require 'auto-complete nil 'noerror)
+(require 'iso-transl nil 'noerror)
 
 
 
@@ -174,6 +175,7 @@ If this feature is not installed don't fail and just report a message."
 
 ;; It only function in RST major mode and if `ispell' is enabled.
 ;; TODO: Check which other modes needs this definition.
+(define-key key-translation-map (kbd "M-[") 'iso-transl-ctl-x-8-map)
 (define-key rst-mode-map "\C-cil" 'ispell-change-dictionary)
 
 
