@@ -68,15 +68,23 @@ The argument ARG is passed to `deft-open-file' as SWITCH."
       (kill-buffer "*Deft*"))))
 
 
-(defvar xorns-org-confirm-babel-evaluate
+(defgroup xorns-org nil
+  "Xorns outline-based organizer."
+  :tag "xorns"
+  :group 'xorns)
+
+
+(defcustom xorns-org-confirm-babel-evaluate
   nil
-  "To use as an extra check in modified `org-confirm-babel-evaluate'.")
+  "To use as an extra check in modified `org-confirm-babel-evaluate'."
+  :group 'xorns-org
+  :type '(choice boolean function))
 
 
 (defun xorns-org-confirm-babel-evaluate (lang body)
   "Check if special security flag is set for LANG in the BODY.
 
-This function will check if the code BODY contains the flag 'TRUSTED = true';
+This function will check if the code BODY contains the flag 'trusted = true';
 if not; check for the function defined in `xorns-org-confirm-babel-evaluate'
 variable.
 
@@ -88,7 +96,11 @@ surrounded with blanks."
 	    (not (string-match regex body)))
 	)
     (if (and res xorns-org-confirm-babel-evaluate)
-      (funcall xorns-org-confirm-babel-evaluate lang body)
+      (if (functionp xorns-org-confirm-babel-evaluate)
+	(funcall xorns-org-confirm-babel-evaluate lang body)
+        ; else
+	xorns-org-confirm-babel-evaluate
+	)
       ; else
       res))
   )
@@ -129,7 +141,25 @@ surrounded with blanks."
       (cons '(sh . t) org-babel-load-languages)))
   (setq org-babel-default-header-args:sh
     (cons '(:results . "output")
-      (assq-delete-all :results org-babel-default-header-args:sh))))
+      (assq-delete-all :results org-babel-default-header-args:sh)))
+  (let*
+    ((shebang
+       (assoc :shebang org-babel-default-header-args:sh))
+     (prefix
+       "#!/bin/bash\n\nexport SUDO_ASKPASS=")
+     (full-prefix
+       (concat
+	 prefix
+	 (xorns-file-path-join (getenv "HOME") ".local/bin/asksp")
+	 "\n")))
+    (if shebang
+      (when (not (string-prefix-p prefix (cdr shebang)))
+	(setcdr shebang (concat full-prefix (cdr shebang))))
+      ; else
+      (setq shebang (cons :shebang full-prefix)))
+    (setq org-babel-default-header-args:sh
+      (cons shebang
+	(assq-delete-all :shebang org-babel-default-header-args:sh)))))
 
 
 (when (featurep 'ob-python)
