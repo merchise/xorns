@@ -161,6 +161,10 @@ If BUFFER is not present, use the current buffer."
 
 ;;; Integration with Gnus reply
 
+(require 'gnus nil)
+(require 'gnus-sum nil)
+
+
 (defun -xorns-gnus-summary-reply (reply-func &rest args)
   "Change the From message header to one of the recipients of the message
 that's being replied.  If the message have several recipients ..."
@@ -193,17 +197,16 @@ that's being replied.  If the message have several recipients ..."
       (condition-case err
         (progn
           (advice-add 'gnus-summary-reply :around #'-xorns-gnus-summary-reply)
-          (let* ((user-gnus-file
-		 (locate-user-emacs-file (concat "gnus-" user-real-login-name ".el"))
-                 (user-gnus-file
-                   (if (file-exists-p user-gnus-file)
-                     user-gnus-file
-                     (locate-user-emacs-file "gnus.el")))))
-	  (when (file-exists-p user-gnus-file)
-	    (message "Loading gnus configuration file %s" user-gnus-file)
-	    (load-file user-gnus-file))))
 
-	(error (message "error@gnus-load-hook: %s" err)))))
+          (let* ((user-gnus-file (locate-user-emacs-file (concat "gnus-" user-real-login-name ".el")))
+                 (gnus-file (if (file-exists-p user-gnus-file)
+                              user-gnus-file
+                              (locate-user-emacs-file "gnus.el"))))
+
+            (when (file-exists-p gnus-file)
+              (message "Loading gnus configuration file %s" user-gnus-file)
+              (load-file gnus-file))))
+	(error (message "error@gnus-load-hook: %s" err))))))
 
 
 
