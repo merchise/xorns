@@ -47,3 +47,13 @@
   file (currently *Emacs* delays a lot of time in *xorns*) first load.
 
 - [ ] Create ~$HOME/.local/bin/~ symbolic links from [[file:install.el][package installation]].
+
+- [ ] When you 'byte-recompile-directory' elpa, there are two files that must
+  not compile, so '.elc' must be erased:
+
+  + requirejs-20151203.2319/snippets/js-mode/.yas-compiled-snippets.el
+  + requirejs-20151203.2319/snippets/js2-mode/.yas-compiled-snippets.el
+
+- [ ] There is a package (named 'tide') in our '.emacs.d/elpa/', but don't
+  generate 'tide-autoloads' and Emacs reports an error.  This package is not
+  used inside any other in 'elpa'.
