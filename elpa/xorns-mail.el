@@ -158,6 +158,7 @@ If BUFFER is not present, use the current buffer."
 
 (advice-add 'smtpmail-via-smtp :before #'-xorns-use-appropriate-server)
 
+
 
 ;;; Integration with Gnus reply
 
@@ -167,11 +168,14 @@ If BUFFER is not present, use the current buffer."
 
 (defun -xorns-gnus-summary-reply (reply-func &rest args)
   "Change the From message header to one of the recipients of the message
-that's being replied.  If the message have several recipients ..."
+that's being replied.
+
+This function is prepared to advice the `gnus-summary-reply' function.  The
+REPLY-FUNC is expected to behave as such.  The ARGS contain the arguments to
+the original REPLY-FUNC."
   (let* ((article (gnus-summary-article-number))
          (header (gnus-summary-article-header article))
          (rcpt (assoc 'To (mail-header-extra header))))
-    (message "Rcpt: %s" rcpt)
     (apply reply-func args)
     (save-excursion
       (save-restriction
@@ -183,31 +187,7 @@ that's being replied.  If the message have several recipients ..."
       ;; was sent to several emails, how to get the From from it.
       (message-carefully-insert-headers (list (cons 'From (cdr rcpt)))))))
 
-
-
-;;; Hooks
-
-(when (xorns-configure-p 'maximum)
-  (add-hook 'message-setup-hook
-    (lambda ()
-      (flyspell-mode 1)))
-
-  (add-hook 'gnus-load-hook
-    (lambda ()
-      (condition-case err
-        (progn
-          (advice-add 'gnus-summary-reply :around #'-xorns-gnus-summary-reply)
-
-          (let* ((user-gnus-file (locate-user-emacs-file (concat "gnus-" user-real-login-name ".el")))
-                 (gnus-file (if (file-exists-p user-gnus-file)
-                              user-gnus-file
-                              (locate-user-emacs-file "gnus.el"))))
-
-            (when (file-exists-p gnus-file)
-              (message "Loading gnus configuration file %s" user-gnus-file)
-              (load-file gnus-file))))
-	(error (message "error@gnus-load-hook: %s" err))))))
-
+(advice-add 'gnus-summary-reply :around #'-xorns-gnus-summary-reply)
 
 
 (provide 'xorns-mail)
