@@ -185,7 +185,8 @@ the original REPLY-FUNC."
         (delete-matching-lines "^From: "))
       ;; And put it back using the To address... TODO: When the original email
       ;; was sent to several emails, how to get the From from it.
-      (message-carefully-insert-headers (list (cons 'From (cdr rcpt)))))))
+      (message-carefully-insert-headers
+        (list (cons 'From (mail-decode-encoded-address-string (cdr rcpt))))))))
 
 (advice-add 'gnus-summary-reply :around #'-xorns-gnus-summary-reply)
 
