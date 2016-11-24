@@ -165,6 +165,8 @@ If BUFFER is not present, use the current buffer."
 (require 'gnus nil)
 (require 'gnus-sum nil)
 
+(spam-initialize)
+
 
 (defun -xorns-gnus-summary-reply (reply-func &rest args)
   "Change the From message header to one of the recipients of the message
