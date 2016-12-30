@@ -1,6 +1,6 @@
 ;;; xorns-mail --- Merchise extensions for sending and receiving mail
 
-;; Copyright (C) 2014-2016 Merchise Autrement [~º/~]
+;; Copyright (C) 2014-2016 Merchise
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-mail
@@ -136,7 +136,7 @@ If BUFFER is not present, use the current buffer."
 		  server user stream-type)
 	       (setq
 		  smtpmail-smtp-server server
-		  smtpmail-smtp-user user
+		  ;; smtpmail-smtp-user user
 		  smtpmail-stream-type stream-type)
 	       (setq
 		  ;; TODO: configure
@@ -158,52 +158,26 @@ If BUFFER is not present, use the current buffer."
 
 (advice-add 'smtpmail-via-smtp :before #'-xorns-use-appropriate-server)
 
-
-;;; Integration with Gnus reply
-
-(defun -xorns-gnus-summary-reply (reply-func &rest args)
-  "Change the From message header to one of the recipients of the message
-that's being replied.  If the message have several recipients ..."
-  (let* ((article (gnus-summary-article-number))
-         (header (gnus-summary-article-header article))
-         (rcpt (assoc 'To (mail-header-extra header))))
-    (message "Rcpt: %s" rcpt)
-    (apply reply-func args)
-    (save-excursion
-      (save-restriction
-        (message-narrow-to-headers-or-head)
-        (goto-char (point-min))
-        ;; Remove the "From: " header
-        (delete-matching-lines "^From: "))
-      ;; And put it back using the To address... TODO: When the original email
-      ;; was sent to several emails, how to get the From from it.
-      (message-carefully-insert-headers (list (cons 'From (cdr rcpt)))))))
-
 
 
 ;;; Hooks
 
 (when (xorns-configure-p 'maximum)
-  (add-hook 'message-setup-hook
-    (lambda ()
-      (flyspell-mode 1)))
-
   (add-hook 'gnus-load-hook
     (lambda ()
       (condition-case err
-        (progn
-          (advice-add 'gnus-summary-reply :around #'-xorns-gnus-summary-reply)
-          (let* ((user-gnus-file
-		 (locate-user-emacs-file (concat "gnus-" user-real-login-name ".el"))
-                 (user-gnus-file
-                   (if (file-exists-p user-gnus-file)
-                     user-gnus-file
-                     (locate-user-emacs-file "gnus.el")))))
+	(let* ((user-gnus-file
+		 (locate-user-emacs-file
+		   (concat "gnus-" user-real-login-name ".el")))
+	       (user-gnus-file
+		 (if (file-exists-p user-gnus-file)
+		   user-gnus-file
+		   ;else
+		   (locate-user-emacs-file "gnus.el"))))
 	  (when (file-exists-p user-gnus-file)
 	    (message "Loading gnus configuration file %s" user-gnus-file)
-	    (load-file user-gnus-file))))
-
-	(error (message "error@gnus-load-hook: %s" err)))))
+	    (load-file user-gnus-file)))
+	(error (message "error@gnus-load-hook: %s" err))))))
 
 
 
