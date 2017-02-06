@@ -140,9 +140,11 @@ If BUFFER is not present, use the current buffer."
 		  smtpmail-stream-type stream-type)
 	       (setq
 		  ;; TODO: configure
-		  smtpmail-smtp-service (if (eq stream-type 'ssl)
-					   465
-					   25))
+                 smtpmail-smtp-service
+                 (case stream-type
+                   ('ssl 465)
+                   ('starttls 587)
+                   (otherwise 25)))
 	       (when xorns-email-debug
 		  (setq
 		     smtpmail-debug-info t
