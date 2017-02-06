@@ -29,6 +29,8 @@
 ;;    warning about changes from the old magit.
 (setq magit-last-seen-setup-instructions "1.4.0")
 
+(put 'magit-clean 'disabled nil)
+
 (let ((xorns-config-level 'maximum))    ;; 'basic, 'general
   ;; Start the server and initialize all common Merchise settings.
   (require 'xorns)
