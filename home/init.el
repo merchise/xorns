@@ -24,8 +24,12 @@
 
 (package-initialize)
 
-;; TODO: Why this is needed?
+;; Q: Why this is needed?
+;; A: Because new magit versions check this to show a rather long message
+;;    warning about changes from the old magit.
 (setq magit-last-seen-setup-instructions "1.4.0")
+
+(put 'magit-clean 'disabled nil)
 
 (let ((xorns-config-level 'maximum))    ;; 'basic, 'general
   ;; Start the server and initialize all common Merchise settings.

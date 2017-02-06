@@ -1,6 +1,6 @@
 ;;; xorns-mail --- Merchise extensions for sending and receiving mail
 
-;; Copyright (C) 2014-2016 Merchise
+;; Copyright (C) 2014-2017 Merchise
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-mail
@@ -140,9 +140,11 @@ If BUFFER is not present, use the current buffer."
 		  smtpmail-stream-type stream-type)
 	       (setq
 		  ;; TODO: configure
-		  smtpmail-smtp-service (if (eq stream-type 'ssl)
-					   465
-					   25))
+                 smtpmail-smtp-service
+                 (case stream-type
+                   ('ssl 465)
+                   ('starttls 587)
+                   (otherwise 25)))
 	       (when xorns-email-debug
 		  (setq
 		     smtpmail-debug-info t
@@ -160,25 +162,37 @@ If BUFFER is not present, use the current buffer."
 
 
 
-;;; Hooks
+;;; Integration with Gnus reply
 
-(when (xorns-configure-p 'maximum)
-  (add-hook 'gnus-load-hook
-    (lambda ()
-      (condition-case err
-	(let* ((user-gnus-file
-		 (locate-user-emacs-file
-		   (concat "gnus-" user-real-login-name ".el")))
-	       (user-gnus-file
-		 (if (file-exists-p user-gnus-file)
-		   user-gnus-file
-		   ;else
-		   (locate-user-emacs-file "gnus.el"))))
-	  (when (file-exists-p user-gnus-file)
-	    (message "Loading gnus configuration file %s" user-gnus-file)
-	    (load-file user-gnus-file)))
-	(error (message "error@gnus-load-hook: %s" err))))))
+(require 'gnus nil)
+(require 'gnus-sum nil)
 
+(spam-initialize)
+
+
+(defun -xorns-gnus-summary-reply (reply-func &rest args)
+  "Change the From message header to one of the recipients of the message
+that's being replied.
+
+This function is prepared to advice the `gnus-summary-reply' function.  The
+REPLY-FUNC is expected to behave as such.  The ARGS contain the arguments to
+the original REPLY-FUNC."
+  (let* ((article (gnus-summary-article-number))
+         (header (gnus-summary-article-header article))
+         (rcpt (assoc 'To (mail-header-extra header))))
+    (apply reply-func args)
+    (save-excursion
+      (save-restriction
+        (message-narrow-to-headers-or-head)
+        (goto-char (point-min))
+        ;; Remove the "From: " header
+        (delete-matching-lines "^From: "))
+      ;; And put it back using the To address... TODO: When the original email
+      ;; was sent to several emails, how to get the From from it.
+      (message-carefully-insert-headers
+        (list (cons 'From (mail-decode-encoded-address-string (cdr rcpt))))))))
+
+(advice-add 'gnus-summary-reply :around #'-xorns-gnus-summary-reply)
 
 
 (provide 'xorns-mail)
