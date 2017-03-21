@@ -1,6 +1,6 @@
 ;;; xorns-dired --- Merchise extensions for `dired'
 
-;; Copyright (C) 2014-2016 Merchise Autrement [~º/~]
+;; Copyright (C) 2014-2017 Merchise Autrement [~º/~]
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-dired
@@ -38,6 +38,9 @@
 
 
 ;;; Code:
+
+;; TODO: Create a function to toggle visibility of ignored files, see
+;; `xorns-dired-recursive-ignore-switches' variable.
 
 (require 'xorns-utils nil 'noerror)
 (require 'dired)
@@ -120,7 +123,9 @@ See also `bash' `ls' command and `xorns-dired-recursive' function."
       " ")))
 
 
-;; TODO: This function won't work in MacOsX or other Unixes.
+;; TODO: This function could not work in MacOsX or other Unixes, this is
+;; because old 'bash' versions not allowing `--ignore' or
+;; `--group-directories-first' options.
 (defun xorns-dired-recursive (&optional arg)
   "Refresh the Dired buffer using recursive switch.
 Switches defined in `xorns-dired-recursive-ignore-switches' are used in
