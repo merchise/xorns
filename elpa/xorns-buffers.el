@@ -1,6 +1,6 @@
 ;;; xorns-buffers --- Buffers management
 
-;; Copyright (C) 2014-2016 Merchise Autrement [~º/~]
+;; Copyright (C) 2014-2017 Merchise Autrement [~º/~]
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-buffers
@@ -216,6 +216,8 @@ window.  After that standard behaviour, this function kills the `ibuffer'."
       (switch-to-buffer buffer))))
 
 
+;; TODO: Prepare a function (not a lambda) in order to see the help with
+;; `describe-key'.
 (when (and
 	(xorns-configure-p 'basic)
 	xorns-grizzl-select-buffer-enabled)
