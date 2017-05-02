@@ -44,6 +44,7 @@
 
 (require 'xorns-utils nil 'noerror)
 (require 'dired)
+(require 'dired-x)
 (require 'dired-single nil 'noerror)
 
 
@@ -200,7 +201,10 @@ If `dired-single' is not installed, does nothing."
   (if (boundp 'dired-mode-map)
     (xorns-dired-single-setup)
     ; else
-    (add-hook 'dired-load-hook 'xorns-dired-single-setup)))
+    (add-hook 'dired-load-hook 'xorns-dired-single-setup))
+  (add-hook 'dired-load-hook
+    (lambda () (load "dired-x"))))
+
 
 
 ;; ;; TODO: To preserve positions, use::
