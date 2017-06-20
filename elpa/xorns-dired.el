@@ -189,12 +189,13 @@ If `dired-single' is not installed, does nothing."
   (when (featurep 'dired-single)
     (declare-function dired-single-buffer 'dired-single)
     (define-key dired-mode-map "r" 'xorns-dired-recursive)
-    (-dired-define-keys `([return] [M-S-down] ,(kbd "RET"))
+    (-dired-define-keys `([return] [M-S-down] [M-down] ,(kbd "RET"))
       'xorns-dired-single-buffer)
     (-dired-define-keys `([mouse-1] [mouse-2])
       'xorns-dired-single-buffer-mouse)
-    (-dired-define-keys `(,(kbd "M-P") [M-S-up] "^")
-      #'(lambda () (interactive) (xorns-dired-single-buffer "..")))))
+    (-dired-define-keys `(,(kbd "M-P") [M-S-up] [M-up] "^")
+      #'(lambda () (interactive) (xorns-dired-single-buffer "..")))
+    ))
 
 
 (when (xorns-configure-p 'basic)
