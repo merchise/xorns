@@ -81,77 +81,83 @@
 
 
 (defun xorns-get-from-address ()
-   "Return the from address (without quoted name) in a message buffer."
-   (save-excursion
-      (mail-strip-quoted-names
-	 (save-restriction
-	    (message-narrow-to-headers)
-	    (message-fetch-field "from")))))
+  "Return the from address (without quoted name) in a message buffer."
+  (save-excursion
+    (mail-strip-quoted-names
+      (save-restriction
+        (message-narrow-to-headers)
+        (message-fetch-field "from")))))
 
 
 (defun xorns-select-appropriate-smtp-server ()
   "Choose the SMTP account according to the current message's from line."
   (let* ((from (xorns-get-from-address))
-	  (account
-	    (car
-	      ;; Chooses the first account that matches
-	      (loop
-		for account in xorns-email-smtp-accounts
-		for address = (car account)
-		for match = (string-match address from)
-		if match
-		collect account
-		until match))
-	    ))
+          (account
+            (car
+              ;; Chooses the first account that matches
+              (loop
+                for account in xorns-email-smtp-accounts
+                for address = (car account)
+                for match = (string-match address from)
+                if match
+                collect account
+                until match))
+            ))
     account))
 
 
 (defun xorns-use-appropriate-smtp-server (&optional buffer)
-   "Set the appropriate SMTP related variables in the BUFFER.
+  "Set the appropriate SMTP related variables in the BUFFER.
 If BUFFER is not present, use the current buffer."
-   (let ((account (xorns-select-appropriate-smtp-server))
-	 (buffer (or buffer (current-buffer))))
-      (with-current-buffer buffer
-	 (when account
-	    ;; TODO: (address login server mech) <- account
-	    (let* ((address (car account))
-		   (login (cadr account))
-		   (server (string-utils-trim-whitespace (caddr account)))
-		   (stream-type (cadddr account))
-		   (message-from (split-string (xorns-get-from-address) "@"))
-		   (email-login (car message-from))
-		   (email-domain (cadr message-from))
-		   (user
-		      (cond
-			 ((eq login 'full-email-address)
-			    (concat email-login "@" email-domain))
-			 ((eq login 'user-from-email)
-			    email-login)
-			 (t login))))
-	       (when (equal "" server)
-		  ;; TODO: find a function for this
-		  (setq server
-		     (concat "smtp." email-domain)))
-	       (message "xorns-email: Setting SMTP. Server: '%s'. Login: '%s'. Type: '%s'"
-		  server user stream-type)
-	       (setq
-		  smtpmail-smtp-server server
-		  ;; smtpmail-smtp-user user
-		  smtpmail-stream-type stream-type)
-	       (setq
-		  ;; TODO: configure
-                 smtpmail-smtp-service
-                 (case stream-type
-                   ('ssl 465)
-                   ('starttls 587)
-                   (otherwise 25)))
-	       (when xorns-email-debug
-		  (setq
-		     smtpmail-debug-info t
-		     smtpmail-debug-verb t)))))
-      (unless account
-	 (error "No account matches message's from '%s'"
-	    (xorns-get-from-address)))))
+  (let ((account (xorns-select-appropriate-smtp-server))
+         (buffer (or buffer (current-buffer))))
+    (with-current-buffer buffer
+      (when account
+        ;; TODO: (address login server mech) <- account
+        (let* ((address (car account))
+                (login (cadr account))
+                (server (string-utils-trim-whitespace (caddr account)))
+                (stream-type (cadddr account))
+                (message-from (split-string (xorns-get-from-address) "@"))
+                (email-login (car message-from))
+                (email-domain (cadr message-from))
+                (user
+                  (cond
+                    ((eq login 'full-email-address)
+                      (concat email-login "@" email-domain))
+                    ((eq login 'user-from-email)
+                      email-login)
+                    (t login)))
+                (envelop-address
+                  (cond
+                    ((eq login 'full-email-address) user)
+                    (t nil))))
+          (when (equal "" server)
+            ;; TODO: find a function for this
+            (setq server
+              (concat "smtp." email-domain)))
+          (message
+            "xorns-email: Setting SMTP. Server: '%s'. Login: '%s'. Type: '%s'"
+            server user stream-type)
+          (setq
+            smtpmail-smtp-server server
+            smtpmail-smtp-user user
+            smtpmail-stream-type stream-type)
+          (when envelop-address
+            (setq smtpmail-mail-address envelop-address))
+          (setq
+            smtpmail-smtp-service
+            (case stream-type
+              ('ssl 465)
+              ('starttls 587)
+              (otherwise 25)))
+          (when xorns-email-debug
+            (setq
+              smtpmail-debug-info t
+              smtpmail-debug-verb t)))))
+    (unless account
+      (error "No account matches message's from '%s'"
+        (xorns-get-from-address)))))
 
 
 (defun -xorns-use-appropriate-server (recipient smtpmail-text-buffer &optional ask-for-password)
@@ -178,8 +184,8 @@ This function is prepared to advice the `gnus-summary-reply' function.  The
 REPLY-FUNC is expected to behave as such.  The ARGS contain the arguments to
 the original REPLY-FUNC."
   (let* ((article (gnus-summary-article-number))
-         (header (gnus-summary-article-header article))
-         (rcpt (assoc 'To (mail-header-extra header))))
+          (header (gnus-summary-article-header article))
+          (rcpt (assoc 'To (mail-header-extra header))))
     (apply reply-func args)
     (save-excursion
       (save-restriction
