@@ -1,6 +1,6 @@
 ;;; xorns-text --- Merchise text modes, and its idiosyncratic commands
 
-;; Copyright (C) 2014-2016 Merchise Autrement [~º/~]
+;; Copyright (C) 2014-2017 Merchise Autrement [~º/~]
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-text
@@ -47,6 +47,8 @@
 (require 'fill-column-indicator nil 'noerror)
 (require 'auto-complete nil 'noerror)
 (require 'iso-transl nil 'noerror)
+(require 'google-translate nil 'noerror)
+(require 'google-translate-smooth-ui nil 'noerror)
 
 
 
@@ -177,6 +179,7 @@ If this feature is not installed don't fail and just report a message."
 ;; TODO: Check which other modes needs this definition.
 (define-key key-translation-map (kbd "M-[") 'iso-transl-ctl-x-8-map)
 (define-key rst-mode-map "\C-cil" 'ispell-change-dictionary)
+(global-set-key "\C-c\C-t" 'google-translate-smooth-translate)
 
 
 ;; For outline minor modes
