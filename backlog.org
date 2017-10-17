@@ -17,9 +17,12 @@
   *industry* and *specific* layers.
 
 
-** Minor issues. [/]
+** Issues [/]
 
 - [ ] See [[info:elisp#Warning%20Tips][Tips for Avoiding Compiler Warnings]].
+
+- [ ] Correct error: function not known to be defined ("tramp-connectable-p")
+  is used three times in [[file:elpa/xorns-prog.el][xorns-prog.el]], and twice in [[file:elpa/xorns-project.el][xorns-project.el]]
 
 
 ** Configuration. [/]
