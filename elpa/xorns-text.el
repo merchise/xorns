@@ -179,7 +179,7 @@ If this feature is not installed don't fail and just report a message."
 ;; TODO: Check which other modes needs this definition.
 (define-key key-translation-map (kbd "M-[") 'iso-transl-ctl-x-8-map)
 (define-key rst-mode-map "\C-cil" 'ispell-change-dictionary)
-(global-set-key "\C-c\C-t" 'google-translate-smooth-translate)
+(global-set-key (kbd "C-|") 'google-translate-smooth-translate)
 
 
 ;; For outline minor modes
