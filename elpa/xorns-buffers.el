@@ -58,8 +58,9 @@
 
 
 ;; Get rid of the startup screen and `*scratch*' buffer message
-(setq inhibit-startup-screen t)
-(setq initial-scratch-message nil)
+(xorns-set-values
+  '(inhibit-startup-screen t)
+  '(initial-scratch-message nil))
 
 
 
@@ -71,86 +72,87 @@
 
 (when (xorns-configure-p 'general)
   ;; Set `ibuffer' to loads some preferred groups.
-  (setq
-    ibuffer-saved-filter-groups
-      '(("xorns-ibuffer-groups"
-	  ("Emacs System"
-	    (or
-	      (name . "*scratch*")
-	      (name . "*Messages*")
-	      (mode . Custom-mode)
-	      (mode . completion-list-mode)))
-	  ("Dired"
-	    (or
-	      (mode . dired-omit-mode)
-	      (mode . dired-mode)))
-	  ("Org"
-	    (or
-	      (mode . org-mode)
-	      (mode . org-agenda-mode)
-	      (mode . diary-mode)
-	      (mode . calendar-mode)
-	      (mode . bbdb-mode)
-	      (name . "*Deft*")
-	      (name . "bbdb")))
-	  ("Lisp"
-	    (or
-	      (mode . emacs-lisp-mode)
-	      (mode . lisp-interaction-mode)
-	      (mode . lisp-mode)))
-	  ("Python" (mode . python-mode))
-	  ("Haskell/Agda/Coq"
-	    (or
-              (mode . haskell-mode)
-              (mode . agda2-mode)
-              (mode . coq-mode)))
-          ("C" (or (mode . c-mode) (mode . cc-mode)))
-	  ("Scala/Java"
-	    (or
-	      (mode . scala-mode)
-	      (mode . java-mode)
-	      (mode . scala-mode-inf)))
-	  ("RST/Markdown"
-	    (or
-	      (mode . rst-mode)
-	      (mode . markdown-mode)))
-	  ("XML/HTML/CSS"
-            (or
-              (mode . nxml-mode)
-              (mode . html-mode)
-              (mode . css-mode)
-              (mode . less-mode)
-              (mode . sass-mode)))
-	  ("Version Control"
-	    (or
-	      (mode . git-commit-mode)
-	      (mode . git-commit-major-mode)
-	      (mode . git-rebase-mode)
-	      (mode . magit-mode)
-	      (mode . magit-cherry-mode)
-	      (mode . magit-diff-mode)
-	      (mode . magit-log-mode)
-	      (mode . magit-log-select-mode)
-	      (mode . magit-merge-preview-mode)
-	      (mode . magit-popup-mode)
-	      (mode . magit-process-mode)
-	      (mode . magit-refs-mode)
-	      (mode . magit-reflog-mode)
-	      (mode . magit-revision-mode)
-	      (mode . magit-stash-mode)
-	      (mode . magit-stashes-mode)
-	      (mode . magit-status-mode)
-	      (mode . diff-mode)))
-	  ("Help/Info"
-	    (or
-	      (mode . help-mode)
-	      (mode . Info-mode)
-	      (mode . Man-mode)
-	      (mode . woman-mode)
-	      (mode . rfcview-mode)))
-	  ))
-    ibuffer-formats
-      '((mark modified read-only " "
+  (xorns-set-values
+    '(ibuffer-saved-filter-groups
+       (quote (("xorns-ibuffer-groups"
+		 ("Emacs System"
+		   (or
+		     (name . "*scratch*")
+		     (name . "*Messages*")
+		     (mode . Custom-mode)
+		     (mode . completion-list-mode)))
+		 ("Dired"
+		   (or
+		     (mode . dired-omit-mode)
+		     (mode . dired-mode)))
+		 ("Org"
+		   (or
+		     (mode . org-mode)
+		     (mode . org-agenda-mode)
+		     (mode . diary-mode)
+		     (mode . calendar-mode)
+		     (mode . bbdb-mode)
+		     (name . "*Deft*")
+		     (name . "bbdb")))
+		 ("Lisp"
+		   (or
+		     (mode . emacs-lisp-mode)
+		     (mode . lisp-interaction-mode)
+		     (mode . lisp-mode)))
+		 ("Python" (mode . python-mode))
+		 ("Haskell/Agda/Coq"
+		   (or
+		     (mode . haskell-mode)
+		     (mode . agda2-mode)
+		     (mode . coq-mode)))
+		 ("C" (or (mode . c-mode) (mode . cc-mode)))
+		 ("Scala/Java"
+		   (or
+		     (mode . scala-mode)
+		     (mode . java-mode)
+		     (mode . scala-mode-inf)))
+		 ("RST/Markdown"
+		   (or
+		     (mode . rst-mode)
+		     (mode . markdown-mode)))
+		 ("XML/HTML/CSS"
+		   (or
+		     (mode . nxml-mode)
+		     (mode . html-mode)
+		     (mode . css-mode)
+		     (mode . less-mode)
+		     (mode . sass-mode)))
+		 ("Version Control"
+		   (or
+		     (mode . git-commit-mode)
+		     (mode . git-commit-major-mode)
+		     (mode . git-rebase-mode)
+		     (mode . magit-mode)
+		     (mode . magit-cherry-mode)
+		     (mode . magit-diff-mode)
+		     (mode . magit-log-mode)
+		     (mode . magit-log-select-mode)
+		     (mode . magit-merge-preview-mode)
+		     (mode . magit-popup-mode)
+		     (mode . magit-process-mode)
+		     (mode . magit-refs-mode)
+		     (mode . magit-reflog-mode)
+		     (mode . magit-revision-mode)
+		     (mode . magit-stash-mode)
+		     (mode . magit-stashes-mode)
+		     (mode . magit-status-mode)
+		     (mode . diff-mode)))
+		 ("Help/Info"
+		   (or
+		     (mode . help-mode)
+		     (mode . Info-mode)
+		     (mode . Man-mode)
+		     (mode . woman-mode)
+		     (mode . rfcview-mode)))
+		 )))
+       )
+    '(ibuffer-formats
+      (quote ((mark modified read-only " "
 	  (name 22 22 :left :elide)
 	  " "
 	  (size 9 -1 :right)
@@ -161,7 +163,7 @@
 	(mark " "
 	  (name 16 -1)
 	  " "
-	  filename))
+	  filename))))
     )
   (add-hook 'ibuffer-mode-hook
     (lambda ()
