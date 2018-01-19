@@ -244,10 +244,8 @@ An optional argument ARG could be given to delete other windows; if
   (let ((buf (get-buffer-create "*scratch*")))
     (set-buffer-major-mode buf)
     (switch-to-buffer-other-window buf)
-    (if (or
-	  (= (prefix-numeric-value arg) 0)
-	  (equal (xorns-default-directory) xorns-home-dir))
-      (setq default-directory (xorns-preferred-default-directory)))
+    (if (= (prefix-numeric-value arg) 0)
+      (xorns-set-default-directory))
     (if arg (delete-other-windows))))
 
 
@@ -263,8 +261,7 @@ An optional argument ARG could be given to delete other windows; if
    (lambda ()
      (condition-case err
        ;; Set initial default directory for `*scratch*' buffer
-       (if (equal (xorns-default-directory) xorns-home-dir)
-	 (setq default-directory (xorns-preferred-default-directory)))
+       (xorns-set-default-directory)
        (error (message "error@after-init-hook: %s" err))))))
 
 
