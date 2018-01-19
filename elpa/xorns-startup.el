@@ -44,8 +44,9 @@
 (require 'mule)
 (require 'tramp)
 (require 'auto-complete nil 'noerror)
+(require 'xorns-utils nil 'noerror)
 
-;; See https://wiki.archlinux.org/index.php/emacs#Dead-accent_keys_problem:_.27.3Cdead-acute.3E_is_undefined.27
+;; See https://wiki.archlinux.org/index.php/Emacs#Dead-accent_keys_problem:_.27.3Cdead-acute.3E_is_undefined.27
 (require 'iso-transl)
 
 
@@ -72,7 +73,7 @@
 
 
 ;; Show current directory in title bar
-(setq frame-title-format
+(xorns-set-value 'frame-title-format
   ; Original value was::
   ;    '(multiple-frames "%b" ("" invocation-name "@" system-name))
   '(multiple-frames "%b"
@@ -82,21 +83,17 @@
        (:eval (abbreviate-file-name default-directory)))))
 
 
-;; Maximum decoration level for fontification
-;; (different font for each structure).
-(setq font-lock-maximum-decoration t)
-
-
-;; Configure coding for terminal
-(setq locale-coding-system 'utf-8)
-(set-terminal-coding-system 'utf-8)
-
-
-;; Cutting and pasting uses the clipboard
-(setq x-select-enable-clipboard t)
-
-;; Key to start auto-complete
-(setq  ac-trigger-key "TAB")
+(xorns-set-values
+  ;; Maximum decoration level for fontification
+  ;; (different font for each structure).
+  '(font-lock-maximum-decoration t)
+  ;; Configure coding for terminal
+  '(locale-coding-system 'utf-8)
+  '(set-terminal-coding-system 'utf-8)
+  ;; Cutting and pasting uses the clipboard
+  '(x-select-enable-clipboard t)
+  ;; Key to start auto-complete
+  '(ac-trigger-key "TAB"))
 
 
 
@@ -107,7 +104,7 @@
 (require 'windmove nil)
 (when (featurep 'windmove)
   (windmove-default-keybindings 'ctrl)
-  (setq windmove-wrap-around t))
+  (xorns-set-value 'windmove-wrap-around t))
 
 
 ;; Interactively do things with buffers and files
