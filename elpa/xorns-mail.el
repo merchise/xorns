@@ -48,9 +48,10 @@
 
 (require 'cl-lib)
 
-(require 'xorns-utils)
-(require 'xorns-widgets)
+(require 'xorns-utils nil 'noerror)
+(require 'xorns-widgets nil 'noerror)
 
+;; TODO: Use 'xorns-set-value' and 'xorns-set-values' instead 'setq'
 
 
 ;; Local definitions
