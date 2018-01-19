@@ -56,6 +56,7 @@
 (require 'ob-sh nil 'noerror)
 (require 'ob-python nil 'noerror)
 (require 'xorns-text nil 'noerror)
+(require 'xorns-utils nil 'noerror)
 
 
 (defun xorns-deft-open-file (&optional arg)
@@ -107,9 +108,8 @@ surrounded with blanks."
 
 
 (when (featurep 'calendar)
-  ;; Next is needed in order to use `diary-anniversary' without the year
-  (setq calendar-date-style 'american)
-  )
+  ;; Needed in order to use `diary-anniversary' without the year
+  (xorns-set-value 'calendar-date-style 'american))
 
 
 (when (featurep 'org)
@@ -118,28 +118,30 @@ surrounded with blanks."
   (global-set-key "\C-ca" 'org-agenda)
   (global-set-key "\C-cb" 'org-iswitchb)
   (define-key org-mode-map "\C-cil" 'ispell-change-dictionary)
-  (setq
-    org-todo-keywords
-      '((sequence "TODO(t)" "|" "DONE(d!)")
-	(sequence "FIX(f)" "BUG(b)" "|" "SOLVED(s!)")
-	(sequence "DEVELOP(v)" "REVIEW(r!)" "TEST(p!)" "|" "DELIVERY(e@/!)")
-	(sequence "WTF(w)" "XXX(x)" "|" "WORTHY(y!)")
-	(sequence "|" "CANCELED(c@)"))
-    org-todo-keyword-faces
-      '(("TODO" . org-warning)
-        ("BUG" . org-warning)
-        ("WTF" . "black")
-        ("CANCELED" . (:foreground "blue" :weight bold)))
-    org-confirm-babel-evaluate 'xorns-org-confirm-babel-evaluate)
-  ; TODO: (setq org-enforce-todo-dependencies t)
+  (xorns-set-values
+    '(org-todo-keywords
+       (quote
+	 ((sequence "TODO(t)" "|" "DONE(d!)")
+	  (sequence "FIX(f)" "BUG(b)" "|" "SOLVED(s!)")
+	  (sequence "DEVELOP(v)" "REVIEW(r!)" "TEST(p!)" "|" "DELIVERY(e@/!)")
+	  (sequence "WTF(w)" "XXX(x)" "|" "WORTHY(y!)")
+	  (sequence "|" "CANCELED(c@)"))))
+    '(org-todo-keyword-faces
+      (quote
+	(("TODO" . org-warning)
+	 ("BUG" . org-warning)
+	  ("WTF" . "black")
+	  ("CANCELED" . (:foreground "blue" :weight bold))))
+       '(org-confirm-babel-evaluate xorns-org-confirm-babel-evaluate)))
+  ; TODO: (xorns-set-value 'org-enforce-todo-dependencies t)
   )
 
 
 (when (featurep 'ob-sh)
   (when (not (assoc 'sh org-babel-load-languages))
-    (setq org-babel-load-languages
+    (xorns-set-value 'org-babel-load-languages
       (cons '(sh . t) org-babel-load-languages)))
-  (setq org-babel-default-header-args:sh
+  (xorns-set-value 'org-babel-default-header-args:sh
     (cons '(:results . "output")
       (assq-delete-all :results org-babel-default-header-args:sh)))
   (let*
@@ -157,16 +159,16 @@ surrounded with blanks."
 	(setcdr shebang (concat full-prefix (cdr shebang))))
       ; else
       (setq shebang (cons :shebang full-prefix)))
-    (setq org-babel-default-header-args:sh
+    (xorns-set-value 'org-babel-default-header-args:sh
       (cons shebang
 	(assq-delete-all :shebang org-babel-default-header-args:sh)))))
 
 
 (when (featurep 'ob-python)
   (when (not (assoc 'python org-babel-load-languages))
-    (setq org-babel-load-languages
+    (xorns-set-value 'org-babel-load-languages
       (cons '(python . t) org-babel-load-languages)))
-  (setq org-babel-default-header-args:python
+  (xorns-set-value 'org-babel-default-header-args:python
     (cons '(:results . "output")
       (assq-delete-all :results org-babel-default-header-args:python)))
   (let*
@@ -183,7 +185,7 @@ surrounded with blanks."
 	(setcdr preamble (concat full-prefix (cdr preamble))))
       ; else
       (setq preamble (cons :preamble full-prefix)))
-    (setq org-babel-default-header-args:python
+    (xorns-set-value 'org-babel-default-header-args:python
       (cons preamble
 	(assq-delete-all :preamble org-babel-default-header-args:python)))))
 
@@ -195,15 +197,14 @@ surrounded with blanks."
 
 (when (featurep 'dictionary)
   (global-set-key (kbd "C-c w") 'dictionary-search)
-  (setq
-    dictionary-server "localhost"
-    dictionary-use-single-buffer t)
-  )
+  (xorns-set-values
+    '(dictionary-server "localhost")
+    '(dictionary-use-single-buffer t)))
 
 
 (when (featurep 'deft)
   ; TODO: Remove all deft `.emacs.d' custom files
-  (setq deft-auto-save-interval 60.0)
+  (xorns-set-value 'deft-auto-save-interval 60.0)
   (add-to-list 'deft-extensions "rst" 'append)
   (global-set-key (kbd "<f12>") 'deft)
   (define-key deft-mode-map (kbd "M-RET") 'xorns-deft-open-file))
@@ -218,15 +219,15 @@ surrounded with blanks."
         (error (message "error@rfcview-mode-hook: %s" err)))))
   (let ((rfc-path "/usr/share/doc/RFC/links/"))
     (if (file-directory-p rfc-path)
-      (setq
-        rfcview-rfc-location-pattern (concat rfc-path "rfc%s.txt.gz")
-        rfcview-std-location-pattern (concat rfc-path "rfc%s.txt.gz"))
+      (xorns-set-values
+        '(rfcview-rfc-location-pattern (concat rfc-path "rfc%s.txt.gz"))
+        '(rfcview-std-location-pattern (concat rfc-path "rfc%s.txt.gz")))
       ;; else
       (warn "RFCs folder '%s' doesn't exists!" rfc-path))))
 
 
 (when (featurep 'wget)
-  (setq wget-download-directory
+  (xorns-set-value 'wget-download-directory
     (xorns-preferred-directory "~/Downloads" "~/download" "~/softlib" "~")))
 
 
@@ -236,7 +237,7 @@ surrounded with blanks."
       (progn
         (turn-on-auto-fill)
 	(flyspell-mode nil)
-        (setq ispell-parser 'tex)
+        (xorns-set-value 'ispell-parser 'tex)
         (xorns-fci-mode-on))
       (error (message "error@org-mode-hook: %s" err)))))
 
