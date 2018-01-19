@@ -49,24 +49,24 @@
 (require 'iso-transl nil 'noerror)
 (require 'google-translate nil 'noerror)
 (require 'google-translate-smooth-ui nil 'noerror)
-
+(require 'xorns-utils nil 'noerror)
 
 
 ;;; Custom Variables and Settings
 
 ;; Turn ON parenthesis matching
 (show-paren-mode t)
-(setq show-paren-mode t)
+(xorns-set-value 'show-paren-mode t)
 
-(setq
+(xorns-set-values
   ; Consecutive years replaced with range
-  copyright-year-ranges t
+  '(copyright-year-ranges t)
   ; Add a newline automatically at the end of the file
-  require-final-newline t
+  '(require-final-newline t)
   ; Do not display continuation lines
-  truncate-lines t
+  '(truncate-lines t)
   ; Parenthesis matching style
-  show-paren-style 'mixed
+  '(show-paren-style 'mixed)
   )
 
 
@@ -76,9 +76,9 @@
 
 ;; Fill Column Indicator parameters
 (when (featurep 'fill-column-indicator)
-  (setq
-    fci-rule-width 1
-    fci-rule-color "#cccccc")
+  (xorns-set-values
+    '(fci-rule-width 1)
+    '(fci-rule-color "#cccccc"))
   (set-default 'fill-column 78)
   )
 
@@ -90,9 +90,9 @@
 
 
 (when (featurep 'ispell)
-  (setq
-    ispell-highlight-p t
-    ispell-silently-savep t))
+  (xorns-set-values
+    '(ispell-highlight-p t)
+    '(ispell-silently-savep t)))
 
 
 (defun xorns-fci-mode-on ()
@@ -146,7 +146,7 @@ Don't fail if `'fill-column-indicator' is not available."
 (add-hook 'tex-mode-hook           ; run when entering generic-TeX mode
   (lambda ()
     (condition-case err
-      (setq ispell-parser 'tex)
+      (xorns-set-value 'ispell-parser 'tex)
       (error (message "error@tex-mode-hook: %s" err)))))
 
 
@@ -157,7 +157,7 @@ Don't fail if `'fill-column-indicator' is not available."
         (turn-on-auto-fill)
         (flyspell-mode nil)             ; When used flyspell-prog-mode I
                                         ; can't see the errors while typing
-        (setq ispell-parser 'tex)
+        (xorns-set-value 'ispell-parser 'tex)
         (xorns-fci-mode-on))
       (error (message "error@rst-mode-hook: %s" err)))))
 
