@@ -165,8 +165,8 @@
 
 (when (xorns-configure-p 'general)
   (add-hook 'inferior-python-mode-hook
-    ;; Avoid sending TABs to ipython process, otherwise the ipython will respond
-    ;; with autocompletion.
+    ;; Avoid sending TABs to ipython process, otherwise the ipython will
+    ;; respond with autocompletion.
     (lambda ()
       (condition-case err
         (progn
@@ -180,21 +180,17 @@
     ;; This configuration is based in the way we, in Merchise, configure
     ;; IPython.  See README documentation for more information.
     '(python-shell-interpreter "ipython")
-    ;; Next is essentially configured in `ipython_config.py` as:
-    ;; c.PromptManager.in_template = r'\#> \u:\w \$\n>>> '
-    '(python-shell-prompt-regexp "\\(^[0-9]+> .* [$]\\|>>> \\)")
+    '(python-shell-interpreter-args "-i --simple-prompt")
+    '(python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: ")
     '(python-shell-prompt-pdb-regexp "i?pdb> ")
-    '(python-shell-prompt-output-regexp "\\(\\s-{0,4}\\|    \\)")
-    '(python-shell-completion-setup-code
-       "import sys; from IPython.core.completerlib import module_completion")
-    ;; python-shell-completion-module-string-code
-    ;; (concat
-    ;;   "print(repr(str(';').join(str(ac) "
-    ;;   "for ac in module_completion('''%s''')).strip()))\n")
+    '(python-shell-prompt-regexp "In \\[[0-9]+\\]: ")
+     '(python-shell-completion-setup-code
+	"import sys; from IPython.core.completerlib import module_completion")
     '(python-shell-completion-string-code
-      (concat
-       "print(repr(str(';').join(str(ac) for ac in get_ipython()."
-       "Completer.all_completions('''%s''')).strip()))\n"))))
+       (concat
+	 "print(repr(str(';').join(str(ac) for ac in get_ipython()."
+	 "Completer.all_completions('''%s''')).strip()))"
+	 ""))))
 
 
 (defun xorns-python-indent-rigidly (start end arg)
