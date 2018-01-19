@@ -198,15 +198,25 @@ If `dired-single' is not installed, does nothing."
       #'(lambda () (interactive) (xorns-dired-single-buffer "..")))
     ))
 
+(defun xorns-dired-setup ()
+  "Customize `dired' key-bindings.
+
+After this function is called;  Enter, Click and ^ reuse the buffer
+instead of creating a new one.
+
+If `dired-single' is not installed, does nothing."
+  (xorns-dired-single-setup)
+  (-dired-define-keys
+    `(,(kbd "C-c o") ,(kbd "C-c C-o") ,(kbd "C-c h") ,(kbd "C-c C-h"))
+    'dired-omit-mode))
 
 (when (xorns-configure-p 'basic)
   (if (boundp 'dired-mode-map)
-    (xorns-dired-single-setup)
+    (xorns-dired-setup)
     ; else
-    (add-hook 'dired-load-hook 'xorns-dired-single-setup))
+    (add-hook 'dired-load-hook 'xorns-dired-setup))
   (add-hook 'dired-load-hook
     (lambda () (load "dired-x"))))
-
 
 
 ;; ;; TODO: To preserve positions, use::
