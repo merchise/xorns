@@ -478,8 +478,8 @@ the python shell."
       ;; Using python-shell-extra-pythonpaths is not working so
       ;; let's messup with python-shell-completion-setup-code.
       (make-local-variable 'python-shell-completion-setup-code)
-      (setq
-	python-shell-completion-setup-code
+      (xorns-set-value
+	'python-shell-completion-setup-code
 	(concat
 	  python-shell-completion-setup-code
 	  "\n"
