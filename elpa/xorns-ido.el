@@ -33,15 +33,15 @@
 ;;; Code:
 
 (require 'ido)
-(require 'xorns-utils)
+(require 'xorns-utils nil 'noerror)
 
 
-(defun -xorns-customize-ido ()
+(defun -customize-vertical-ido ()
   "Customize `ido' for vertical appearance."
-  (setq ido-decorations
-    (quote ("\n-> " "" "\n " "\n ..." "[" "]"
-	     " [No match]" " [Matched]" " [Not readable]"
-	     " [Too big]" " [Confirm]")))
+  (xorns-set-value 'ido-decorations
+    '("\n-> " "" "\n " "\n ..." "[" "]"
+      " [No match]" " [Matched]" " [Not readable]"
+      " [Too big]" " [Confirm]"))
 
   (defun ido-disable-line-truncation ()
     (set (make-local-variable 'truncate-lines) nil))
@@ -56,7 +56,7 @@
 
 
 (when (xorns-configure-p 'experimental)
-  (-xorns-customize-ido))
+  (-customize-vertical-ido))
 
 
 (provide 'xorns-ido)
