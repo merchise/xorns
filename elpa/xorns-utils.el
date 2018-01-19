@@ -54,9 +54,38 @@
 
 ;;;###autoload
 (defun xorns-get-value (symbol)
-  "Return SYMBOL's value or  nil if that is void."
+  "Return SYMBOL's value or nil if that is void."
   (if (boundp symbol)
     (symbol-value symbol)))
+
+
+;;;###autoload
+(defun xorns-set-value (symbol value)
+  "Initialize a variable.
+
+SYMBOL is the variable name, and VALUE is any expression."
+  (unless (or (get symbol 'standard-value)
+	      (memq (get symbol 'custom-autoload) '(nil noset)))
+    (custom-load-symbol symbol))
+  ;; set the variable.
+  (set symbol value))
+
+
+;;;###autoload
+(defun xorns-set-values (&rest args)
+  "Install user customizations of variable values specified in ARGS.
+
+The arguments should each be a list of the form:
+
+  '(SYMBOL EXP)
+
+This stores EXP (after evaluating it) as the saved value for SYMBOL."
+  (dolist (entry args)
+    (unless (listp entry)
+      (error "Incompatible custom symbol value pair specification"))
+    (let* ((symbol (indirect-variable (nth 0 entry)))
+	   (value (nth 1 entry)))
+      (xorns-set-value symbol (eval value)))))
 
 
 
