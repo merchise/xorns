@@ -37,7 +37,7 @@
 
 ;;; Code:
 
-(require 'xorns-utils)
+(require 'xorns-utils nil 'noerror)
 
 
 (defgroup xorns-term nil
@@ -48,7 +48,7 @@
 
 
 (setenv "PATH" (concat (getenv "PATH") ":" (expand-file-name "~/.local/bin")))
-;; TODO: (setq eshell-path-env (concat eshell-path-env ":/home/med/.local/bin"))
+;; TODO: (xorns eshell-path-env (concat eshell-path-env ":/home/med/.local/bin"))
 
 ;; eshell-load-hook
 ;; (eshell/addpath "/home/med/.local/bin")
