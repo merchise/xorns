@@ -158,6 +158,13 @@ If no item is given in DIRS, return $HOME."
 
 
 ;;;###autoload
+(defun xorns-set-default-directory ()
+  "Set the default directory to its original value."
+  (if (equal (xorns-default-directory) xorns-home-dir)
+    (xorns-set-value 'default-directory (xorns-preferred-default-directory))))
+
+
+;;;###autoload
 (defun xorns-locate-emacs-file (&rest args)
   "Return an absolute per-user Emacs-specific file-name.
 
