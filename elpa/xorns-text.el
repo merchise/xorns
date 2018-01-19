@@ -1,6 +1,6 @@
 ;;; xorns-text --- Merchise text modes, and its idiosyncratic commands
 
-;; Copyright (C) 2014-2017 Merchise Autrement [~º/~]
+;; Copyright (c) Merchise Autrement [~º/~]
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-text

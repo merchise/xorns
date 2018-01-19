@@ -1,6 +1,6 @@
 ;;; xorns-apt --- Extend `apt-utils.el' package
 
-;; Copyright (C) 2016 Merchise Autrement [~º/~]
+;; Copyright (c) Merchise Autrement [~º/~]
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-apt

@@ -1,6 +1,6 @@
 ;;; xorns-mail --- Merchise extensions for sending and receiving mail
 
-;; Copyright (C) 2014-2017 Merchise
+;; Copyright (c) Merchise Autrement [~º/~]
 
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-mail
