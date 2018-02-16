@@ -59,8 +59,9 @@
 
 
 ;;;###autoload
-(defun xorns-python-shell-send-cpaste (start end)
-  "Send the region delimited by START and END wrapped with a %cpaste magic."
+(defun xorns-python-shell-send-paste (start end)
+  "Send the region delimited by START and END wrapped with a %paste magic."
+  ;; TODO: Try migrate this function to use 'ansi-term'
   (interactive "r")
   (unless (region-active-p)
     ;; If the region is not active, use the current line
@@ -74,11 +75,12 @@
   ;; `python-shell-send-string' does too much magic trying to detect the
   ;; beginning of the output; using `comint-send-string' seems to be more
   ;; reliable.
-  (comint-send-string (python-shell-get-or-create-process)
-    (concat
-      "%cpaste\n"
-      (buffer-substring start end)
-      "\n")))
+  (save-excursion
+    (kill-new (buffer-substring start end))
+    (let*
+      ((buffer (xorns-ansi-term))
+       (process (get-buffer-process buffer)))
+      (comint-send-string process "%paste\n"))))
 
 
 ;;; Hooks
@@ -148,7 +150,7 @@
     (condition-case err
       (progn
 	(define-key python-mode-map (kbd "C-c C-r")
-	  'xorns-python-shell-send-cpaste)
+	  'xorns-python-shell-send-paste)
         (define-key python-mode-map "\C-m" 'newline-and-indent)
         (outline-minor-mode))
       (error (message "error@python-mode-hook: %s" err)))))
@@ -218,7 +220,7 @@ This simply calls `indent-rigidly' using ±4 spaces."
   (add-hook 'text-mode-hook
     (lambda ()
       (define-key rst-mode-map (kbd "C-c C-r !")
-        'xorns-python-shell-send-cpaste)
+        'xorns-python-shell-send-paste)
       (define-key rst-mode-map (kbd "C-c C-r C-r")
         'xorns-python-shell-send-cpaste))))
 
