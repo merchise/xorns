@@ -171,7 +171,27 @@ The python shell to execute is defined in the custom variable
       (ansi-term cmd buf-name))))
 
 
+;;;###autoload
+(defun xorns-toggle-term-mode ()
+  "Toggle term-mode between \"term-line-mode\" and \"term-char-mode\"."
+  (interactive)
+  (if (term-in-char-mode)
+    (term-line-mode)
+    ;else
+    (term-char-mode)))
+
+
 (global-set-key (kbd "C-c t") 'xorns-ansi-term)
+
+(add-hook 'term-mode-hook
+  (lambda ()
+    (condition-case err
+      (progn
+	(define-key term-mode-map (kbd "C-c C-t") 'xorns-toggle-term-mode)
+	(define-key term-raw-map (kbd "C-c C-t") 'xorns-toggle-term-mode)
+
+        )
+      (error (message "error@term-mode-hook: %s" err)))))
 
 
 (provide 'xorns-term)
