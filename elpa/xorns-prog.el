@@ -61,7 +61,6 @@
 ;;;###autoload
 (defun xorns-python-shell-send-paste (start end)
   "Send the region delimited by START and END wrapped with a %paste magic."
-  ;; TODO: Try migrate this function to use 'ansi-term'
   (interactive "r")
   (unless (region-active-p)
     ;; If the region is not active, use the current line

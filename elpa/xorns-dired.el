@@ -39,7 +39,6 @@
 
 ;;; Code:
 
-;; TODO: Create a function to toggle visibility of ignored files, see
 ;; `xorns-dired-recursive-ignore-switches' variable.
 
 (require 'xorns-utils nil 'noerror)

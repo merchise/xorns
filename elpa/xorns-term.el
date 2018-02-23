@@ -61,21 +61,21 @@
 
 (defcustom xorns-system-shell nil
   "System shell command name.
-Preferred system shell command.  The definitive command to execute,
-is calculated by the function of equal name."
+
+Preferred system shell command.  The definitive command to execute, is
+calculated by the function of equal name."
   :type 'string
   :safe '-safe-cmd
-  :require 'xorns-term
   :group 'xorns-term)
 
 
 (defcustom xorns-python-shell nil
   "Python shell command name.
-Preferred python shell command.  The definitive command to execute,
-is calculated by the function of equal name."
+
+Preferred python shell command.  The definitive command to execute, is
+calculated by the function of equal name."
   :type 'string
   :safe '-safe-cmd
-  :require 'xorns-term
   :group 'xorns-term)
 
 
@@ -124,13 +124,12 @@ python shell defined in function `xorns-python-shell'."
     (or py3 (xorns-python-shell))))
 
 
-;;;###autoload
-(defun xorns-ansi-term (&optional arg)
-  "Start a terminal\-emulator in a new buffer.
+(defun xorns-get-ansi-term-shell-name (&optional arg)
+  "Get the shell name for a terminal\-emulator.
 
 The meaning of optional argument ARG depends of `major-mode' value.
 Non nil means alternative shell, if `major-mode' is not `python-mode'
-*base* is a system shell and *alternative* is a python shell;
+`base' is a system shell and *alternative* is a python shell;
 otherwise the logic is inverted.  If ARG is number `3' (independently
 of `major-mode') try to run a `python-3' shell if installed.
 
@@ -141,14 +140,29 @@ The base shell to execute is defined in the custom variable
 The python shell to execute is defined in the custom variable
 `xorns-python-shell'; if it is nil, use the function
 `xorns-default-python-shell'."
-  (interactive "P")
   (let*
     ((in-python (eq major-mode 'python-mode))
      (shell
        (cond
 	 ((null arg) (if in-python 'Python 'System))
 	 ((= (prefix-numeric-value arg) 3) 'Python-3)
-	 ((if in-python 'System 'Python))))
+	 ((if in-python 'System 'Python)))))
+  shell))
+
+
+;;;###autoload
+(defun xorns-ansi-term (&optional arg)
+  "Start a terminal\-emulator in a new buffer.
+
+The meaning of optional argument ARG is explained in
+`xorns-get-ansi-term-shell-name' function.
+
+Return the buffer hosting the shell."
+  (interactive "P")
+  (message "ARG is => %s" arg)
+  (message "ARGF is => %s" current-prefix-arg)
+  (let*
+    ((shell (xorns-get-ansi-term-shell-name arg))
      (cmd
        (cond
 	 ((eq shell 'System) (xorns-system-shell))
@@ -166,9 +180,20 @@ The python shell to execute is defined in the custom variable
 	;else
 	(message ">>> Killing buffer: %s" starred)
 	(kill-buffer cur-buf)))
-    (when cmd
-      (message ">>> Opening: %s" starred)
-      (ansi-term cmd buf-name))))
+    (if cmd
+      (progn
+	(message ">>> Opening: %s" starred)
+	(ansi-term cmd buf-name))
+      ;else
+      cur-buf)))
+
+
+;; (defsubst ibuffer-get-region-and-prefix ()
+;;   (let ((arg (prefix-numeric-value current-prefix-arg)))
+;;     (if (use-region-p) (list (region-beginning) (region-end) arg)
+;;       (list nil nil arg))))
+
+
 
 
 ;;;###autoload
