@@ -48,7 +48,6 @@
 
 
 (setenv "PATH" (concat (getenv "PATH") ":" (expand-file-name "~/.local/bin")))
-;; TODO: (xorns eshell-path-env (concat eshell-path-env ":/home/med/.local/bin"))
 
 ;; eshell-load-hook
 ;; (eshell/addpath "/home/med/.local/bin")
@@ -57,6 +56,14 @@
 (defun -safe-cmd (cmd)
   "Private function to test if CMD is a valid executable or nil."
   (or (null cmd) (executable-find cmd)))
+
+
+(defun -is-valid-command (widget)
+  "Check if the command WIDGET value is valid."
+  (let ((value (widget-value widget)))
+    (unless (or (null value) (executable-find value))
+      (widget-put widget :error (format "Invalid executable: '%s'" value))
+      widget)))
 
 
 (defcustom xorns-system-shell nil
