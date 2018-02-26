@@ -44,7 +44,32 @@
 
 ;;; Code:
 
-(require 'dict nil 'noerror)
+
+(defgroup xorns-org nil
+  "Xorns outline-based organizer."
+  :tag "xorns"
+  :group 'xorns)
+
+
+(defcustom xorns-avoid-load-dict-strategies t
+  "Avoid initial loading of `dict-strategies'.
+
+Defining `dict-strategies' custom variable, `dict-get-strategies' function is
+executed for every host in `dict-servers'.
+
+With a connection without Internet access, it will take a very long time.
+This patch avoid this."
+  :group 'xorns-org
+  :type 'boolean)
+
+
+(if xorns-avoid-load-dict-strategies
+  (let ((dict-servers '("localhost")))
+    (require 'dict nil 'noerror))
+  ;else
+  (require 'dict nil 'noerror))
+
+
 (require 'dictionary nil 'noerror)
 (require 'ispell)
 (require 'rfcview nil 'noerror)
@@ -67,12 +92,6 @@ The argument ARG is passed to `deft-open-file' as SWITCH."
     (when file
       (deft-open-file file nil arg)
       (kill-buffer "*Deft*"))))
-
-
-(defgroup xorns-org nil
-  "Xorns outline-based organizer."
-  :tag "xorns"
-  :group 'xorns)
 
 
 (defcustom xorns-org-confirm-babel-evaluate
@@ -188,11 +207,6 @@ surrounded with blanks."
     (xorns-set-value 'org-babel-default-header-args:python
       (cons preamble
 	(assq-delete-all :preamble org-babel-default-header-args:python)))))
-
-
-(when (featurep 'dict)
-  (set-variable 'dict-servers '("localhost"))
-  )
 
 
 (when (featurep 'dictionary)
