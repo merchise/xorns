@@ -37,6 +37,7 @@
 
 ;;; Code:
 
+(require 'term nil 'noerror)
 (require 'xorns-utils nil 'noerror)
 
 
@@ -51,11 +52,6 @@
 
 ;; eshell-load-hook
 ;; (eshell/addpath "/home/med/.local/bin")
-
-
-(defun -safe-cmd (cmd)
-  "Private function to test if CMD is a valid executable or nil."
-  (or (null cmd) (executable-find cmd)))
 
 
 (defun -is-valid-command (widget)
@@ -106,12 +102,11 @@ macro); and a function, to format the content in a custom defined way."
 
 
 (defcustom xorns-system-shell nil
-  "System shell command name.
+  "Preferred system shell command.
 
-Preferred system shell command.  The definitive command to execute, is
-calculated by the function of equal name."
+Normally, this command is associated with identifier `0' of
+`xorns-term-shells' definitions.  See `xorns-system-shell' function."
   :type 'string
-  :safe '-safe-cmd
   :group 'xorns-term)
 
 
@@ -121,7 +116,6 @@ calculated by the function of equal name."
 Preferred python shell command.  The definitive command to execute, is
 calculated by the function of equal name."
   :type 'string
-  :safe '-safe-cmd
   :group 'xorns-term)
 
 
@@ -205,8 +199,6 @@ The meaning of optional argument ARG is explained in
 
 Return the buffer hosting the shell."
   (interactive "P")
-  (message "ARG is => %s" arg)
-  (message "ARGF is => %s" current-prefix-arg)
   (let*
     ((shell (xorns-get-ansi-term-shell-name arg))
      (cmd
