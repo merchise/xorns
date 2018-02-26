@@ -66,6 +66,45 @@
       widget)))
 
 
+(defcustom xorns-term-shells nil
+  "Shell definition list to be managed by `xorns-ansi-term'.
+
+Shells configuration to manage ansi\-terminal\-emulators.  The value is an
+`alist' of the form `((IDENTIFIER . DEFINITION) ...)'.
+
+IDENTIFIER is used to select the shell kind (for example, with a prefix
+argument).  The semantic of `0' is reserved for system shell.
+
+DEFINITION can either be a list with: the COMMAND to execute when creating a
+new terminal\-emulator, for example `/bin/bash'; initial buffer NAME;
+MAJOR\-MODE preferring the shell; and how to PASTE (send) the selected content
+to the shell process.  Or it can be only the COMMAND string.
+
+The buffer name will be formatted using the template \"*IDENTIFIER - NAME*\".
+
+The PASTE method could be *Standard*, to use the content literally; a string
+containing '%s', to format the content using the given *template*; any other
+string: will yank the content to the clipboard and then send the given value
+to the shell process (useful in shells like 'IPython' using '%paste' magic
+macro); and a function, to format the content in a custom defined way."
+  :type '(repeat
+	   (cons
+	     (integer :tag "Identifier")
+	     (list :tag "Shell definition"
+	       (choice :tag "Command"
+		 (string :tag "Simple Executable")
+		 (cons :tag "Compound"
+		   (string :tag "Executable")
+		   (string :tag "Arguments")))
+	       (string :tag "Name")
+	       (repeat :tag "Major modes" symbol)
+	       (choice :tag "Paste"
+		 (const :tag "Standard" nil)
+		 (string :tag "Template")
+		 (function :tag "Custom")))))
+  :group 'xorns-term)
+
+
 (defcustom xorns-system-shell nil
   "System shell command name.
 
