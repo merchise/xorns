@@ -60,10 +60,15 @@
 
 
 ;;;###autoload
-(defun xorns-set-value (symbol value)
-  "Initialize a variable.
+(defun xorns-get-original-value (symbol)
+  "Return SYMBOL's original value or nil if that is void."
+  (if (boundp symbol)
+    (eval (car (get symbol 'standard-value)))))
 
-SYMBOL is the variable name, and VALUE is any expression."
+
+;;;###autoload
+(defun xorns-set-value (symbol value)
+  "Initialize a SYMBOL (variable name) with an expression (VALUE)."
   (unless (or (get symbol 'standard-value)
 	      (memq (get symbol 'custom-autoload) '(nil noset)))
     (custom-load-symbol symbol))
