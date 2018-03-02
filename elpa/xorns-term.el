@@ -127,13 +127,12 @@ if not valid, looks up in a list of alternatives (in order):
 environment variables `ESHELL' and `SHELL', custom Emacs variable
 `shell-file-name', any of [`bash' `sh' `ksh' `zsh' `tclsh' `csh'
 `tcsh']."
-  (let ((variants
-	  (list
-	    (getenv "ESHELL")
-	    (getenv "SHELL")
-	    (xorns-get-value 'shell-file-name)
-	    "bash" "sh" "ksh" "zsh" "tclsh" "csh" "tcsh")))
-    (apply 'xorns-executable-find xorns-system-shell variants)))
+  (xorns-executable-find xorns-system-shell
+    (getenv "SHELL")
+    (xorns-get-value 'shell-file-name)
+    (xorns-get-original-value 'shell-file-name)
+    (getenv "ESHELL")
+    "bash" "sh" "ksh" "zsh" "tclsh" "csh" "tcsh"))
 
 
 (defun xorns-python-shell ()
@@ -144,13 +143,11 @@ if not valid, looks up in a list of alternatives (in order):
 `ipython', custom Emacs variable `python-command', environment
 variable `PYTHON' and custom variables `python-python-command' and
 `python-jython-command'."
-  (let ((variants
-	  (list
-	    (xorns-get-value 'python-shell-interpreter)
-	    "ipython"
-	    "python"
-	    (getenv "PYTHON"))))
-    (apply 'xorns-executable-find xorns-python-shell variants)))
+  (xorns-executable-find xorns-python-shell
+    (xorns-get-value 'python-shell-interpreter)
+    (getenv "PYTHON")
+    (xorns-get-original-value 'python-shell-interpreter)
+    "ipython" "python"))
 
 
 (defun xorns-python3-shell ()
