@@ -48,20 +48,6 @@
    :group 'shell)
 
 
-(setenv "PATH" (concat (getenv "PATH") ":" (expand-file-name "~/.local/bin")))
-
-;; eshell-load-hook
-;; (eshell/addpath "/home/med/.local/bin")
-
-
-(defun -is-valid-command (widget)
-  "Check if the command WIDGET value is valid."
-  (let ((value (widget-value widget)))
-    (unless (or (null value) (executable-find value))
-      (widget-put widget :error (format "Invalid executable: '%s'" value))
-      widget)))
-
-
 (defcustom xorns-term-shells nil
   "Shell definition list to be managed by `xorns-ansi-term'.
 
