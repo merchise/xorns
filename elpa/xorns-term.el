@@ -96,13 +96,12 @@ is the responsibility of the user."
   :group 'xorns-term)
 
 
-(defcustom xorns-system-shell nil
-  "Preferred system shell command.
+(defvar xorns-term-preferred-shell nil
+  "Mapping between major modes and preferred shells.
 
-Normally, this command is associated with identifier `0' of
-`xorns-term-shells' definitions.  See `xorns-system-shell' function."
-  :type 'string
-  :group 'xorns-term)
+How to manage which ansi\-terminal\-emulator to favor in each `major-mode'.
+An association list with the form `((MAJOR-MODE . IDENTIFIER) ...)' and it is
+calculated from the field 'Major modes' in `xorns-term-shells'.")
 
 
 (defvar xorns-term-shell-identifier nil
@@ -111,6 +110,8 @@ Normally, this command is associated with identifier `0' of
 This variable must be buffer local.")
 
 
+(defvar xorns-term-last-shell nil
+  "Last shell issued.")
 
 
 (defun xorns-system-shell ()
@@ -121,7 +122,7 @@ if not valid, looks up in a list of alternatives (in order):
 environment variables `ESHELL' and `SHELL', custom Emacs variable
 `shell-file-name', any of [`bash' `sh' `ksh' `zsh' `tclsh' `csh'
 `tcsh']."
-  (xorns-executable-find xorns-system-shell
+  (xorns-executable-find
     (getenv "SHELL")
     (xorns-get-value 'shell-file-name)
     (xorns-get-original-value 'shell-file-name)
@@ -130,21 +131,7 @@ environment variables `ESHELL' and `SHELL', custom Emacs variable
 
 
 (defun xorns-get-ansi-term-shell-name (&optional arg)
-  "Get the shell name for a terminal\-emulator.
-
-The meaning of optional argument ARG depends of `major-mode' value.
-Non nil means alternative shell, if `major-mode' is not `python-mode'
-`base' is a system shell and *alternative* is a python shell;
-otherwise the logic is inverted.  If ARG is number `3' (independently
-of `major-mode') try to run a `python-3' shell if installed.
-
-The base shell to execute is defined in the custom variable
-`xorns-base-shell'; if it is nil, use the function
-`xorns-default-shell'.
-
-The python shell to execute is defined in the custom variable
-`xorns-python-shell'; if it is nil, use the function
-`xorns-default-python-shell'."
+  "Get the shell name for a terminal\-emulator."
   (let*
     ((in-python (eq major-mode 'python-mode))
      (shell
@@ -155,12 +142,78 @@ The python shell to execute is defined in the custom variable
   shell))
 
 
+(defun xorns-update-running-shells ()
+  "Update information in `xorns-session-current-shells'."
+  (dolist (item xorns-term-shells)
+    (let* ((identifier (nth 0 item))
+	   (command (nth 1 item))    ; cmd | (cmd args)
+	   (name (nth 2 item))
+	   (modes (nth 3 item))
+	   (paste (nth 4 item)))      ; nil | template | function
+
+      ; (bufferp buffer)
+      ; (buffer-live-p buffer)
+      ; (term-check-proc buffer)
+      (get-buffer "*ansi-term*")
+      )))
+
+
+(defun xorns-ansi-term-get-buffer (arg)
+  "Return the `ansi-term' buffer associated with the semantics of ARG.
+
+ARG is related to the IDENTIFIER definition in `xorns-term-shells'.
+
+One orphan shell (not configured in `xorns-term-shells') can be issued by:
+
+- Issuing an integer argument not yet configured or used.
+
+- By typing a plain `universal-argument' (\\[universal-argument]); in this
+  case, the new identifier is the first not used and positive.
+
+- By typing a plain `negative-argument' (\\[negative-argument]); in this case,
+  the new identifier is the first not used and negative.
+
+- Not using the prefix argument (nil); the last command shell is reused; the
+  first time, the system shell (identifier = 0).
+
+The parameters of orphan shells are deduced from the current `major-mode'."
+  (let ((buffers (buffer-list frame)))
+    (cond
+      ((integerp arg))
+      )
+    ))
+
+
+;;;###autoload
+(defun xorns-ansi-term* (&optional arg)
+  "Start a terminal\-emulator in a new buffer.
+
+The selected shell command is launched and hosted in an `ansi-term' buffer.
+
+See `xorns-ansi-term-get-buffer' function for details in the meaning of ARG
+parameter.
+
+
+Return the buffer hosting the shell."
+  (interactive "P")
+  (let* ()
+    ))
+
+
 ;;;###autoload
 (defun xorns-ansi-term (&optional arg)
   "Start a terminal\-emulator in a new buffer.
 
-The meaning of optional argument ARG is explained in
-`xorns-get-ansi-term-shell-name' function.
+The selected shell command is launched and hosted in an `ansi-term' buffer.
+
+The meaning of ARG is the same as the identifier in the custom variable
+`xorns-term-shells'.
+
+When an unregistered value is issued, command shell data will be asked; a
+new (not yet used) identifier will be generated with a plain
+`universal-argument' \\[universal-argument] (or `negative-argument'
+\\[negative-argument]) with no numeric argument; default values will be taken
+from the current buffer context.
 
 Return the buffer hosting the shell."
   (interactive "P")
@@ -168,9 +221,12 @@ Return the buffer hosting the shell."
     ((shell (xorns-get-ansi-term-shell-name arg))
      (cmd
        (cond
-	 ((eq shell 'System) (xorns-system-shell))
-	 ((eq shell 'Python)  (xorns-python-shell))
-	 ((xorns-python3-shell))))
+	 ((eq shell 'System)
+	   (xorns-system-shell))
+	 ((eq shell 'Python)
+	   (xorns-python-shell))
+	 (;else
+	   (xorns-python3-shell))))
       (buf-name (format "%s Shell" shell))
       (starred (format "*%s*" buf-name))
       (cur-buf (get-buffer starred))
