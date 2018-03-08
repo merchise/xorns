@@ -51,39 +51,48 @@
 (defcustom xorns-term-shells nil
   "Shell definition list to be managed by `xorns-ansi-term'.
 
-Shells configuration to manage ansi\-terminal\-emulators.  The value is an
-`alist' of the form `((IDENTIFIER . DEFINITION) ...)'.
+Configuration to manage ansi\-terminal\-emulators.  The value is an
+association list of the form `((IDENTIFIER . DEFINITION) ...)'.
 
 IDENTIFIER is used to select the shell kind (for example, with a prefix
-argument).  The semantic of `0' is reserved for system shell.
+argument).  The semantic of `0' is reserved for system shell; we encourage you
+use `1' for your main programmer language shell (Python, for example), and `2'
+for your working project (like 'xoeuf' in Merchise).
 
-DEFINITION can either be a list with: the COMMAND to execute when creating a
-new terminal\-emulator, for example `/bin/bash'; initial buffer NAME;
-MAJOR\-MODE preferring the shell; and how to PASTE (send) the selected content
-to the shell process.  Or it can be only the COMMAND string.
+DEFINITION is a list with the following components:
 
-The buffer name will be formatted using the template \"*IDENTIFIER - NAME*\".
+- The COMMAND to execute when creating a new terminal\-emulator, for example
+  `/bin/bash'.
 
-The PASTE method could be *Standard*, to use the content literally; a string
-containing '%s', to format the content using the given *template*; any other
-string: will yank the content to the clipboard and then send the given value
-to the shell process (useful in shells like 'IPython' using '%paste' magic
-macro); and a function, to format the content in a custom defined way."
+- A NAME\-TEMPLATE to format the initial buffer name.  The `xorns-format'
+  function will be used with `{id}' for the identifier, and `{cmd}' for the
+  command.
+
+- How to PASTE (send) content to the shell process.  The PASTE method could be
+  *Standard*, to use the content literally; a string containing '%s', to
+  format the content using the given *template*; any other string: will yank
+  the content to the clipboard and then send the given value to the shell
+  process (useful in shells like 'IPython' using '%paste' magic macro); and a
+  function, to format the content in a custom defined way.
+
+- A list of MAJOR\-MODES to select a preferred shell by default.
+
+It is not checked that there is a unique identifier for each definition.  This
+is the responsibility of the user."
   :type '(repeat
 	   (cons
 	     (integer :tag "Identifier")
-	     (list :tag "Shell definition"
-	       (choice :tag "Command"
-		 (string :tag "Simple Executable")
-		 (cons :tag "Compound"
-		   (string :tag "Executable")
-		   (string :tag "Arguments")))
-	       (string :tag "Name")
-	       (repeat :tag "Major modes" symbol)
+	     (choice :tag "Command"
+	       (string :tag "Executable")
+	       (cons :tag "With Arguments"
+		 (string :tag "Executable")
+		 (string :tag "Arguments")))
+	       (string :tag "Name Template")
 	       (choice :tag "Paste"
 		 (const :tag "Standard" nil)
 		 (string :tag "Template")
-		 (function :tag "Custom")))))
+		 (function :tag "Custom"))
+	       (repeat :tag "Major modes" symbol)))
   :group 'xorns-term)
 
 
