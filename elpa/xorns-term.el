@@ -26,7 +26,10 @@
 ;;; Commentary:
 
 ;; Configure use of `ansi-term' with a system shell or a python shell.
-;; Define the key\-binding `C-c t' to launch the terminal shell.
+;; Define user key\-bindings configured in `xorns-term-launch-keys' to launch
+;; the terminal shells; in `xorns-term-paste-keys' to paste content into a
+;; shell; and in `xorns-term-toggle-mode-key' to to toggle `ansi-term' mode
+;; between `term-line-mode' and `term-char-mode'.
 ;;
 ;; This module is automatically used when::
 ;;
@@ -82,36 +85,45 @@ is the responsibility of the user."
   :type '(repeat
 	   (cons
 	     (integer :tag "Identifier")
-	     (choice :tag "Command"
-	       (string :tag "Executable")
-	       (cons :tag "With Arguments"
+	     (list :tag "Definition"
+	       (choice :tag "Command"
 		 (string :tag "Executable")
-		 (string :tag "Arguments")))
+		 (cons :tag "With Arguments"
+		   (string :tag "Executable")
+		   (string :tag "Arguments")))
 	       (string :tag "Name Template")
 	       (choice :tag "Paste"
 		 (const :tag "Standard" nil)
 		 (string :tag "Template")
 		 (function :tag "Custom"))
-	       (repeat :tag "Major modes" symbol)))
+	       (repeat :tag "Major modes" symbol))))
   :group 'xorns-term)
 
 
-(defvar xorns-term-preferred-shell nil
-  "Mapping between major modes and preferred shells.
+(defcustom xorns-term-launch-keys (list (kbd "C-c t"))
+  "A list of key\-bindings to launch terminal shells."
+  :type '(repeat  key-sequence)
+  :group 'xorns-term)
 
-How to manage which ansi\-terminal\-emulator to favor in each `major-mode'.
-An association list with the form `((MAJOR-MODE . IDENTIFIER) ...)' and it is
-calculated from the field 'Major modes' in `xorns-term-shells'.")
+
+(defcustom xorns-term-paste-keys (list (kbd "C-c C-t"))
+  "A list of key\-bindings to paste content into terminal shells."
+  :type '(repeat key-sequence)
+  :group 'xorns-term)
+
+
+(defcustom xorns-term-toggle-mode-key (kbd "C-c C-t")
+"A key\-binding to toggle between `term-line-mode' and `term-char-mode'.
+
+This could be the same as the main definition for `xorns-term-paste-keys'."
+  :type 'key-sequence
+  :group 'xorns-term)
 
 
 (defvar xorns-term-shell-identifier nil
   "Selected `xorns-term-shells' IDENTIFIER any `ansi-term' buffer.
 
-This variable must be buffer local.")
-
-
-(defvar xorns-term-last-shell nil
-  "Last shell issued.")
+This variable is defined local in each buffer.")
 
 
 (defun xorns-system-shell ()
@@ -131,7 +143,7 @@ environment variables `ESHELL' and `SHELL', custom Emacs variable
 
 
 (defun xorns-get-ansi-term-shell-name (&optional arg)
-  "Get the shell name for a terminal\-emulator."
+  "Get the shell name for a `ansi-term' (based in ARG)."
   (let*
     ((in-python (eq major-mode 'python-mode))
      (shell
@@ -142,59 +154,96 @@ environment variables `ESHELL' and `SHELL', custom Emacs variable
   shell))
 
 
-(defun xorns-update-running-shells ()
-  "Update information in `xorns-session-current-shells'."
-  (dolist (item xorns-term-shells)
-    (let* ((identifier (nth 0 item))
-	   (command (nth 1 item))    ; cmd | (cmd args)
-	   (name (nth 2 item))
-	   (modes (nth 3 item))
-	   (paste (nth 4 item)))      ; nil | template | function
+;; (bufferp buffer)
+;; (buffer-live-p buffer)
+;; (term-check-proc buffer)
+;; (get-buffer "*ansi-term*")
 
-      ; (bufferp buffer)
-      ; (buffer-live-p buffer)
-      ; (term-check-proc buffer)
-      (get-buffer "*ansi-term*")
-      )))
+
+(defvar --term-mode-shell-mapping nil
+  "Cache variable for `xorns-term-mode-shell-mapping'.")
+
+
+(defun xorns-term-mode-shell-mapping ()
+  "Mapping between major modes and preferred shells.
+
+Manage which `ansi-term' kind to favor in each `major-mode'.  Return an
+association list `((MAJOR-MODE . SHELL-IDENTIFIER) ...)', and it is calculated
+from the field 'Major modes' in `xorns-term-shells'."
+  (or --term-mode-shell-mapping
+    (let (res)
+      (dolist (shell xorns-term-shells)
+	(let ((id (nth 0 shell))
+	       (modes (nth 4 shell)))
+	  (dolist (mode modes)
+	    (let ((pair (assq mode res)))
+	      (if (null pair)
+		(add-to-list 'res (cons mode id) 'append)
+		;else
+		(message
+		  "Error: major mode '%s' repeated shells (%s, %s)"
+		  mode id (cdr pair)))))))
+      (setq --term-mode-shell-mapping res))))
+
+
+(defun xorns-ansi-term-get-by-mode ()
+  "Obtain the registered shell that fits the current `major-mode'.
+
+If none fits, the system shell (`0') is returned."
+  (let* ((shell-id (alist-get major-mode (xorns-term-mode-shell-mapping)))
+	 (shell (assq shell-id xorns-term-shells)))
+    (or shell (list 0 (xorns-system-shell) "Default Shell" nil nil)))
+  )
 
 
 (defun xorns-ansi-term-get-buffer (arg)
-  "Return the `ansi-term' buffer associated with the semantics of ARG.
+  "Return the `ansi-term' buffer or the shell information to launch one.
 
-ARG is related to the IDENTIFIER definition in `xorns-term-shells'.
-
-One orphan shell (not configured in `xorns-term-shells') can be issued by:
-
-- Issuing an integer argument not yet configured or used.
-
-- By typing a plain `universal-argument' (\\[universal-argument]); in this
-  case, the new identifier is the first not used and positive.
-
-- By typing a plain `negative-argument' (\\[negative-argument]); in this case,
-  the new identifier is the first not used and negative.
-
-- Not using the prefix argument (nil); the last command shell is reused; the
-  first time, the system shell (identifier = 0).
-
-The parameters of orphan shells are deduced from the current `major-mode'."
-  (let ((buffers (buffer-list frame)))
+See `xorns-ansi-term' command for more information about the ARG parameter
+semantics."
+  (let ((buffers (buffer-list)))
     (cond
-      ((integerp arg))
+      ((null arg)
+	(xorns-ansi-term-get-by-mode))
+      ((integerp arg)
+	)
+      ((listp arg)
+	)
+      ((symbolp arg)    ; -
+	)
       )
     ))
 
 
 ;;;###autoload
 (defun xorns-ansi-term* (&optional arg)
-  "Start a terminal\-emulator in a new buffer.
+  "Start or reuse a terminal\-emulator shell in a buffer.
 
-The selected shell command is launched and hosted in an `ansi-term' buffer.
+ARG is either related to the IDENTIFIER definition in `xorns-term-shells', or
+to some special functions when launching or reusing the shell.  The prefix ARG
+could be:
 
-See `xorns-ansi-term-get-buffer' function for details in the meaning of ARG
-parameter.
+- Not used (nil); a default shell is launched depending on the current
+  `major-mode' (resulting in the system shell when no one is found).
 
+- Any integer; either the configured shell with that
+  IDENTIFIER, or an orphan shell, is launched.  The parameters for an orphan
+  shell are deduced from the current `major-mode', or the last shell
+  launched (the system shell by default).
 
-Return the buffer hosting the shell."
+- A plain `universal-argument' (\\[universal-argument]) launches an orphan
+  shell asking the user for the parameters.
+
+- A plain `negative-argument' (\\[negative-argument]) selects a registered
+  shell to lauch it.
+
+- Repeated plain `universal-argument' (\\[universal-argument]) selects a live
+  shell buffer.
+
+For numeric arguments (integers), you must use any combination of
+`digit-argument' (never use plain `universal-argument', nor plain
+`universal-argument', that are interpreted for different semantics in this
+command)."
   (interactive "P")
   (let* ()
     ))
@@ -202,20 +251,7 @@ Return the buffer hosting the shell."
 
 ;;;###autoload
 (defun xorns-ansi-term (&optional arg)
-  "Start a terminal\-emulator in a new buffer.
-
-The selected shell command is launched and hosted in an `ansi-term' buffer.
-
-The meaning of ARG is the same as the identifier in the custom variable
-`xorns-term-shells'.
-
-When an unregistered value is issued, command shell data will be asked; a
-new (not yet used) identifier will be generated with a plain
-`universal-argument' \\[universal-argument] (or `negative-argument'
-\\[negative-argument]) with no numeric argument; default values will be taken
-from the current buffer context.
-
-Return the buffer hosting the shell."
+  "Start a terminal\-emulator in a new buffer (based in ARG)."
   (interactive "P")
   (let*
     ((shell (xorns-get-ansi-term-shell-name arg))
@@ -247,6 +283,14 @@ Return the buffer hosting the shell."
       cur-buf)))
 
 
+;;;###autoload
+(defun xorns-ansi-term-paste (&optional arg)
+  "Paste content into a `ansi-term' shell (based in ARG)."
+  (interactive "P")
+  (message ">>>> PASTE-ARG= %s" arg)
+  )
+
+
 ;; (defsubst ibuffer-get-region-and-prefix ()
 ;;   (let ((arg (prefix-numeric-value current-prefix-arg)))
 ;;     (if (use-region-p) (list (region-beginning) (region-end) arg)
@@ -257,25 +301,31 @@ Return the buffer hosting the shell."
 
 ;;;###autoload
 (defun xorns-toggle-term-mode ()
-  "Toggle term-mode between \"term-line-mode\" and \"term-char-mode\"."
+  "Toggle term-mode between `term-line-mode' and `term-char-mode'."
   (interactive)
   (if (term-in-char-mode)
     (term-line-mode)
-    ;else
+    ;;else
     (term-char-mode)))
 
 
-(global-set-key (kbd "C-c t") 'xorns-ansi-term)
+(dolist (key xorns-term-launch-keys)
+  (global-set-key key 'xorns-ansi-term))
+(dolist (key xorns-term-paste-keys)
+  (global-set-key key 'xorns-ansi-term-paste))
 
-(add-hook 'term-mode-hook
-  (lambda ()
-    (condition-case err
-      (progn
-	(define-key term-mode-map (kbd "C-c C-t") 'xorns-toggle-term-mode)
-	(define-key term-raw-map (kbd "C-c C-t") 'xorns-toggle-term-mode)
 
-        )
-      (error (message "error@term-mode-hook: %s" err)))))
+(if xorns-term-toggle-mode-key
+  (add-hook 'term-mode-hook
+    (lambda ()
+      (condition-case err
+	(progn
+	  (define-key term-mode-map
+	    xorns-term-toggle-mode-key 'xorns-toggle-term-mode)
+	  (define-key term-raw-map
+	    xorns-term-toggle-mode-key 'xorns-toggle-term-mode))
+	;; handlers
+	(error (message "error@term-mode-hook: %s" err))))))
 
 
 (provide 'xorns-term)
