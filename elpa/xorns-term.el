@@ -44,6 +44,50 @@
 (require 'xorns-utils nil 'noerror)
 
 
+
+;;; Remove in future version
+
+
+(defun xorns-get-ansi-term-shell-name (&optional arg)
+  "Get the shell name for a `ansi-term' (based in ARG)."
+  (let*
+    ((in-python (eq major-mode 'python-mode))
+     (shell
+       (cond
+	 ((null arg) (if in-python 'Python 'System))
+	 ((= (prefix-numeric-value arg) 3) 'Python-3)
+	 ((if in-python 'System 'Python)))))
+  shell))
+
+
+;; (bufferp buffer)
+;; (buffer-live-p buffer)
+;; (term-check-proc buffer)
+;; (get-buffer "*ansi-term*")
+
+;
+
+;;; Misc
+
+(defun xorns-system-shell ()
+  "Command to use as system shell.
+
+To calculate the value, test first the custom value of equal name and
+if not valid, looks up in a list of alternatives (in order):
+environment variables `ESHELL' and `SHELL', custom Emacs variable
+`shell-file-name', any of [`bash' `sh' `ksh' `zsh' `tclsh' `csh'
+`tcsh']."
+  (xorns-executable-find
+    (getenv "SHELL")
+    (xorns-get-value 'shell-file-name)
+    (xorns-get-original-value 'shell-file-name)
+    (getenv "ESHELL")
+    "bash" "sh" "ksh" "zsh" "tclsh" "csh" "tcsh"))
+
+
+;;; Ansi Terminal
+
+
 (defgroup xorns-term nil
    "Running `xorns' shell from within Emacs buffers."
    :prefix "xorns-term-"
@@ -54,29 +98,30 @@
 (defcustom xorns-term-shells nil
   "Shell definition list to be managed by `xorns-ansi-term'.
 
-Configuration to manage ansi\-terminal\-emulators.  The value is an
-association list of the form `((IDENTIFIER . DEFINITION) ...)'.
+The value is an association list `((IDENTIFIER . DEFINITION) ...)'.
 
-IDENTIFIER is used to select the shell kind (for example, with a prefix
-argument).  The semantic of `0' is reserved for system shell; we encourage you
-use `1' for your main programmer language shell (Python, for example), and `2'
-for your working project (like 'xoeuf' in Merchise).
+IDENTIFIER is an integer, it's used to select the shell kind (for example,
+with a prefix argument).  The semantic of `0' is reserved for system shell; we
+encourage you use `1' for your main programmer language shell (Python, for
+example), and `2' for your working project (like 'xoeuf' in Merchise).
 
 DEFINITION is a list with the following components:
 
 - The COMMAND to execute when creating a new terminal\-emulator, for example
   `/bin/bash'.
 
-- A NAME\-TEMPLATE to format the initial buffer name.  The `xorns-format'
-  function will be used with `{id}' for the identifier, and `{cmd}' for the
-  command.
+- A NAME definition is used to format the initial buffer name, and maybe to
+  identify the shell kind with a human readable symbol.  If nil, a name will
+  be generated; if a symbol, the standard template '*<ID> - <SYMBOL>*' will be
+  used; if a string, the `xorns-format' function will be used with `{id}' for
+  the identifier, and `{cmd}' for the command.
 
-- How to PASTE (send) content to the shell process.  The PASTE method could be
-  *Standard*, to use the content literally; a string containing '%s', to
-  format the content using the given *template*; any other string: will yank
-  the content to the clipboard and then send the given value to the shell
-  process (useful in shells like 'IPython' using '%paste' magic macro); and a
-  function, to format the content in a custom defined way.
+- How to PASTE (send) content to the shell process.  Could be *Standard*, to
+  use the content literally; a string containing '%s', to `format' the
+  content; any other string: will yank the content to the clipboard and then
+  send the given value to the shell process (useful in shells like 'IPython'
+  using '%paste' magic macro); and a function, to format the content in a
+  custom defined way.
 
 - A list of MAJOR\-MODES to select a preferred shell by default.
 
@@ -91,7 +136,10 @@ is the responsibility of the user."
 		 (cons :tag "With Arguments"
 		   (string :tag "Executable")
 		   (string :tag "Arguments")))
-	       (string :tag "Name Template")
+	       (choice :tag "Name"
+		 (const :tag "Standard" nil)
+		 (string :tag "Template")
+		 (symbol :tag "Symbol"))
 	       (choice :tag "Paste"
 		 (const :tag "Standard" nil)
 		 (string :tag "Template")
@@ -142,25 +190,7 @@ environment variables `ESHELL' and `SHELL', custom Emacs variable
     "bash" "sh" "ksh" "zsh" "tclsh" "csh" "tcsh"))
 
 
-(defun xorns-get-ansi-term-shell-name (&optional arg)
-  "Get the shell name for a `ansi-term' (based in ARG)."
-  (let*
-    ((in-python (eq major-mode 'python-mode))
-     (shell
-       (cond
-	 ((null arg) (if in-python 'Python 'System))
-	 ((= (prefix-numeric-value arg) 3) 'Python-3)
-	 ((if in-python 'System 'Python)))))
-  shell))
-
-
-;; (bufferp buffer)
-;; (buffer-live-p buffer)
-;; (term-check-proc buffer)
-;; (get-buffer "*ansi-term*")
-
-
-(defvar --term-mode-shell-mapping nil
+(defvar xorns-term-mode-shell-mapping nil
   "Cache variable for `xorns-term-mode-shell-mapping'.")
 
 
@@ -170,7 +200,7 @@ environment variables `ESHELL' and `SHELL', custom Emacs variable
 Manage which `ansi-term' kind to favor in each `major-mode'.  Return an
 association list `((MAJOR-MODE . SHELL-IDENTIFIER) ...)', and it is calculated
 from the field 'Major modes' in `xorns-term-shells'."
-  (or --term-mode-shell-mapping
+  (or xorns-term-mode-shell-mapping
     (let (res)
       (dolist (shell xorns-term-shells)
 	(let ((id (nth 0 shell))
@@ -183,7 +213,7 @@ from the field 'Major modes' in `xorns-term-shells'."
 		(message
 		  "Error: major mode '%s' repeated shells (%s, %s)"
 		  mode id (cdr pair)))))))
-      (setq --term-mode-shell-mapping res))))
+      (setq xorns-term-mode-shell-mapping res))))
 
 
 (defun xorns-ansi-term-get-by-mode ()
