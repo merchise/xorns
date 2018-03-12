@@ -25,11 +25,15 @@
 
 ;;; Commentary:
 
-;; Configure use of `ansi-term' with a system shell or a python shell.
-;; Define user key\-bindings configured in `xorns-term-launch-keys' to launch
-;; the terminal shells; in `xorns-term-paste-keys' to paste content into a
-;; shell; and in `xorns-term-toggle-mode-key' to to toggle `ansi-term' mode
-;; between `term-line-mode' and `term-char-mode'.
+;; xorns-term is our interface to the `ansi-term' (general command
+;; interpreter).  Shell categories are configured in `xorns-term-shells'; the
+;; command `xorns-ansi-term' is used to launch (or select) a
+;; terminal\-emulator; `xorns-ansi-term-paste' paste selected content into one
+;; using `comint-mode'.  Define user key\-bindings configured in
+;; `xorns-term-launch-keys' to launch the terminal shells; in
+;; `xorns-term-paste-keys' to paste content into a shell; and in
+;; `xorns-term-toggle-mode-key' to to toggle `ansi-term' mode between
+;; `term-line-mode' and `term-char-mode'.
 ;;
 ;; This module is automatically used when::
 ;;
@@ -96,37 +100,38 @@ environment variables `ESHELL' and `SHELL', custom Emacs variable
 
 
 (defcustom xorns-term-shells nil
-  "Shell definition list to be managed by `xorns-ansi-term'.
+  "Shell definition list to be managed by terminal shells.
 
 The value is an association list `((IDENTIFIER . DEFINITION) ...)'.
 
 IDENTIFIER is an integer, it's used to select the shell kind (for example,
-with a prefix argument).  The semantic of `0' is reserved for system shell; we
-encourage you use `1' for your main programmer language shell (Python, for
-example), and `2' for your working project (like 'xoeuf' in Merchise).
+with a prefix argument).  `0' is reserved for system shell; we advice you use
+each value in levels of priorities, for example `1' for your main programmer
+language shell, and `2' for your working project (like 'xoeuf' in Merchise).
 
-DEFINITION is a list with the following components:
+DEFINITION has the following components:
 
-- The COMMAND to execute when creating a new terminal\-emulator, for example
+- The COMMAND to execute when creating a new terminal shell, for example
   `/bin/bash'.
 
-- A NAME definition is used to format the initial buffer name, and maybe to
-  identify the shell kind with a human readable symbol.  If nil, a name will
-  be generated; if a symbol, the standard template '*<ID> - <SYMBOL>*' will be
-  used; if a string, the `xorns-format' function will be used with `{id}' for
-  the identifier, and `{cmd}' for the command.
+- A NAME definition, used to format the buffer name, and to identify the shell
+  kind with a human readable symbol.  nil: the default name will be used; a
+  symbol (recommended): the template '*<ID> - <SYMBOL>*' will be used for the
+  buffer name, and '<SYMBOL>-mode' will be added to the mode mappings; string:
+  the buffer name will be calculated using `xorns-format' function, `{id}' and
+  `{cmd}' could be used for the identifier and for the command respectively.
 
-- How to PASTE (send) content to the shell process.  Could be *Standard*, to
-  use the content literally; a string containing '%s', to `format' the
-  content; any other string: will yank the content to the clipboard and then
-  send the given value to the shell process (useful in shells like 'IPython'
-  using '%paste' magic macro); and a function, to format the content in a
-  custom defined way.
+- PASTE method, specify how to process the content to be sent to the shell
+  process.  nil: the content will be used literally (standard); a string
+  containing '%s': the content will be formatted using that value; any
+  other string: will yank the content to the clipboard and then send the given
+  value to the shell process (useful in shells like 'IPython' using '%paste'
+  magic macro); a function: the content will be processed in a custom defined
+  way, and the sent the result to the process.
 
 - A list of MAJOR\-MODES to select a preferred shell by default.
 
-It is not checked that there is a unique identifier for each definition.  This
-is the responsibility of the user."
+Identifiers are not checked to be unique, this user responsibility."
   :type '(repeat
 	   (cons
 	     (integer :tag "Identifier")
