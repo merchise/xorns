@@ -50,7 +50,6 @@
 
 
 
-
 ;;; Remove in future version
 
 
@@ -175,10 +174,9 @@ This could be included as one of those defined in `xorns-term-paste-keys'."
   :group 'xorns-term)
 
 
-(defvar xorns-term-shell-identifier nil
-  "Selected `xorns-term-shells' IDENTIFIER any `ansi-term' buffer.
+(defvar xorns-term-shell-register nil
+  "Live buffer local register, same type as `xorns-term-shells' items.")
 
-This variable is defined local in each buffer.")
 
 (defadvice ansi-term (after xorns-register-shell-info
 		       (program &optional new-buffer-name)
@@ -223,16 +221,24 @@ from the field 'Major modes' in `xorns-term-shells'."
       (setq xorns-term-mode-shell-mapping res))))
 
 
-(defun xorns-ansi-term-get-by-mode ()
-  "Obtain the registered shell that fits the current `major-mode'.
 
-If none fits, the system shell (`0') is returned."
-  (let* ((shell-id (alist-get major-mode (xorns-term-mode-shell-mapping)))
-	 (shell (assq shell-id xorns-term-shells)))
-    (or shell (list 0 (xorns-system-shell) "Default Shell" nil nil)))
+(defun xorns-term-autonomous-shell-data ()
+  "Obtain the shell data from an autonomous `ansi-term'."
   )
 
 
+(defun xorns-term-get-shell-by-mode ()
+  "Obtain the shell data that fits the current buffer `major-mode'.
+
+If none fits, the system shell (`0') is returned."
+  (if (eq major-mode 'term-mode)
+    (or xorns-term-shell-register    ; xorns-ansi-term
+      (xorns-term-autonomous-shell-data))
+    ;; else
+    (let ((shell-id (alist-get major-mode (xorns-term-mode-shell-mapping))))
+      (or
+	(assq shell-id xorns-term-shells)
+	(list 0 (xorns-system-shell) 'default nil nil)))
     ))
 
 
@@ -266,8 +272,38 @@ For numeric arguments (integers), you must use any combination of
 `universal-argument', that are interpreted for different semantics in this
 command)."
   (interactive "P")
-  (let* ()
-    ))
+  (cond
+    ((null arg)
+      )
+    )
+  (let*
+    ((shell (xorns-get-ansi-term-shell-name arg))
+     (cmd
+       (cond
+	 ((eq shell 'System)
+	   (xorns-system-shell))
+	 ((eq shell 'Python)
+	   (xorns-python-shell))
+	 (;else
+	   (xorns-python3-shell))))
+      (buf-name (format "%s Shell" shell))
+      (starred (format "*%s*" buf-name))
+      (cur-buf (get-buffer starred))
+      (cur-proc (get-buffer-process cur-buf)))
+    (if cur-buf
+      (if cur-proc
+	(progn
+	  (setq cmd nil)
+	  (switch-to-buffer cur-buf))
+	;else
+	(message ">>> Killing buffer: %s" starred)
+	(kill-buffer cur-buf)))
+    (if cmd
+      (progn
+	(message ">>> Opening: %s" starred)
+	(ansi-term cmd buf-name))
+      ;else
+      cur-buf)))
 
 
 ;;;###autoload
@@ -316,8 +352,6 @@ command)."
 ;;   (let ((arg (prefix-numeric-value current-prefix-arg)))
 ;;     (if (use-region-p) (list (region-beginning) (region-end) arg)
 ;;       (list nil nil arg))))
-
-
 
 
 ;;;###autoload
