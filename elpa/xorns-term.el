@@ -50,6 +50,7 @@
 
 
 
+
 ;;; Remove in future version
 
 
@@ -70,7 +71,7 @@
 ;; (term-check-proc buffer)
 ;; (get-buffer "*ansi-term*")
 
-;
+
 
 ;;; Misc
 
@@ -155,13 +156,13 @@ Identifiers are not checked to be unique, this user responsibility."
 
 
 (defcustom xorns-term-launch-keys (list (kbd "C-c t"))
-  "A list of key\-bindings to launch terminal shells."
+  "List of key\-bindings, each one will launch a terminal shell."
   :type '(repeat  key-sequence)
   :group 'xorns-term)
 
 
 (defcustom xorns-term-paste-keys (list (kbd "C-c C-t"))
-  "A list of key\-bindings to paste content into terminal shells."
+  "List of key\-bindings, each one will paste content into a terminal shell."
   :type '(repeat key-sequence)
   :group 'xorns-term)
 
@@ -169,7 +170,7 @@ Identifiers are not checked to be unique, this user responsibility."
 (defcustom xorns-term-toggle-mode-key (kbd "C-c C-t")
 "A key\-binding to toggle between `term-line-mode' and `term-char-mode'.
 
-This could be the same as the main definition for `xorns-term-paste-keys'."
+This could be included as one of those defined in `xorns-term-paste-keys'."
   :type 'key-sequence
   :group 'xorns-term)
 
@@ -179,21 +180,6 @@ This could be the same as the main definition for `xorns-term-paste-keys'."
 
 This variable is defined local in each buffer.")
 
-
-(defun xorns-system-shell ()
-  "Command to use as system shell.
-
-To calculate the value, test first the custom value of equal name and
-if not valid, looks up in a list of alternatives (in order):
-environment variables `ESHELL' and `SHELL', custom Emacs variable
-`shell-file-name', any of [`bash' `sh' `ksh' `zsh' `tclsh' `csh'
-`tcsh']."
-  (xorns-executable-find
-    (getenv "SHELL")
-    (xorns-get-value 'shell-file-name)
-    (xorns-get-original-value 'shell-file-name)
-    (getenv "ESHELL")
-    "bash" "sh" "ksh" "zsh" "tclsh" "csh" "tcsh"))
 (defadvice ansi-term (after xorns-register-shell-info
 		       (program &optional new-buffer-name)
 		       activate)
@@ -247,22 +233,6 @@ If none fits, the system shell (`0') is returned."
   )
 
 
-(defun xorns-ansi-term-get-buffer (arg)
-  "Return the `ansi-term' buffer or the shell information to launch one.
-
-See `xorns-ansi-term' command for more information about the ARG parameter
-semantics."
-  (let ((buffers (buffer-list)))
-    (cond
-      ((null arg)
-	(xorns-ansi-term-get-by-mode))
-      ((integerp arg)
-	)
-      ((listp arg)
-	)
-      ((symbolp arg)    ; -
-	)
-      )
     ))
 
 
