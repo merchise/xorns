@@ -45,6 +45,7 @@
 ;;; Code:
 
 (require 'term nil 'noerror)
+(require 'advice nil 'noerror)
 (require 'xorns-utils nil 'noerror)
 
 
@@ -193,6 +194,21 @@ environment variables `ESHELL' and `SHELL', custom Emacs variable
     (xorns-get-original-value 'shell-file-name)
     (getenv "ESHELL")
     "bash" "sh" "ksh" "zsh" "tclsh" "csh" "tcsh"))
+(defadvice ansi-term (after xorns-register-shell-info
+		       (program &optional new-buffer-name)
+		       activate)
+  "Store `xorns-term-shell-register' local variable."
+  ;; This function must update the register, if created before in
+  ;; `xorns-ansi-term'.
+  (unless xorns-term-shell-register
+    (set (make-local-variable 'xorns-term-shell-register)
+      (list
+	0                               ; Identifier
+	program                         ; Command
+	(or new-buffer-name 'default)   ; Name
+	nil                             ; Paste
+	nil                             ; Major modes
+	))))
 
 
 (defvar xorns-term-mode-shell-mapping nil
