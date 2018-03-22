@@ -223,7 +223,7 @@ window.  After that standard behaviour, this function kills the `ibuffer'."
 (when (and
 	(xorns-configure-p 'basic)
 	xorns-grizzl-select-buffer-enabled)
-  (lexical-let ((previous-binding  (global-key-binding (kbd "C-x b"))))
+  (lexical-let ((previous-binding (global-key-binding (kbd "C-x b"))))
     (message "The C-x b previous binding was %s" previous-binding)
     (global-set-key (kbd "C-x b")
       (lambda ()

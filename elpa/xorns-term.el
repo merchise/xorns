@@ -29,13 +29,14 @@
 ;; interpreter).  Shell categories are configured in `xorns-term-shells'; the
 ;; command `xorns-ansi-term' is used to launch (or select) a
 ;; terminal\-emulator; `xorns-ansi-term-paste' paste selected content into one
-;; using `comint-mode'.  Define user key\-bindings configured in
-;; `xorns-term-launch-keys' to launch the terminal shells; in
-;; `xorns-term-paste-keys' to paste content into a shell; and in
-;; `xorns-term-toggle-mode-key' to to toggle `ansi-term' mode between
-;; `term-line-mode' and `term-char-mode'.
+;; using `comint-mode'.
 ;;
-;; This module is automatically used when::
+;; Automatically key\-bindings in `xorns-term-launch-keys' are configured to
+;; launch the terminal shells; in `xorns-term-paste-keys' to paste content
+;; into a shell; and in `xorns-term-toggle-mode-key' to to toggle `ansi-term'
+;; mode between `term-line-mode' and `term-char-mode'.
+;;
+;; This module is automatically used when:
 ;;
 ;;     (require 'xorns)
 
@@ -63,12 +64,6 @@
 	 ((= (prefix-numeric-value arg) 3) 'Python-3)
 	 ((if in-python 'System 'Python)))))
   shell))
-
-
-;; (bufferp buffer)
-;; (buffer-live-p buffer)
-;; (term-check-proc buffer)
-;; (get-buffer "*ansi-term*")
 
 
 
@@ -174,29 +169,27 @@ This could be included as one of those defined in `xorns-term-paste-keys'."
   :group 'xorns-term)
 
 
-(defvar xorns-term-shell-register nil
-  "Live buffer local register, same type as `xorns-term-shells' items.")
+(defvar xorns-term-shell-context nil
+  "Local variable to store shell context.
+
+Value could either be an identifier (normal execution of a registered shell,
+it is is related to `xorns-term-shells'), a command executable (when
+`ansi-term' is called without control of Xorns), or an anonymous shell
+register `(IDENTIFIER . COMMAND-EXECUTABLE)'.")
 
 
 (defadvice ansi-term (after xorns-register-shell-info
 		       (program &optional new-buffer-name)
 		       activate)
-  "Store `xorns-term-shell-register' local variable."
+  "Store `xorns-term-shell-context' local variable."
   ;; This function must update the register, if created before in
   ;; `xorns-ansi-term'.
-  (unless xorns-term-shell-register
-    (set (make-local-variable 'xorns-term-shell-register)
-      (list
-	0                               ; Identifier
-	program                         ; Command
-	(or new-buffer-name 'default)   ; Name
-	nil                             ; Paste
-	nil                             ; Major modes
-	))))
+  (unless xorns-term-shell-context
+    (set (make-local-variable 'xorns-term-shell-context) program)))
 
 
 (defvar xorns-term-mode-shell-mapping nil
-  "Cache variable for `xorns-term-mode-shell-mapping'.")
+  "Store cache for `xorns-term-mode-shell-mapping' function.")
 
 
 (defun xorns-term-mode-shell-mapping ()
@@ -208,9 +201,13 @@ from the field 'Major modes' in `xorns-term-shells'."
   (or xorns-term-mode-shell-mapping
     (let (res)
       (dolist (shell xorns-term-shells)
-	(let ((id (nth 0 shell))
-	       (modes (nth 4 shell)))
-	  (dolist (mode modes)
+	(let* ((id (nth 0 shell))
+	       (name (nth 2 shell))
+	       (modes (nth 4 shell))
+	       (modes* (append modes
+			 (if (symbolp name)
+			   (list (make-symbol (format "%s-mode" name)))))))
+	  (dolist (mode modes*)
 	    (let ((pair (assq mode res)))
 	      (if (null pair)
 		(add-to-list 'res (cons mode id) 'append)
@@ -222,18 +219,13 @@ from the field 'Major modes' in `xorns-term-shells'."
 
 
 
-(defun xorns-term-autonomous-shell-data ()
-  "Obtain the shell data from an autonomous `ansi-term'."
-  )
-
-
-(defun xorns-term-get-shell-by-mode ()
-  "Obtain the shell data that fits the current buffer `major-mode'.
+(defun xorns-get-mode-shell ()
+  "Obtain the shell kind that fits the `major-mode' for the current buffer.
 
 If none fits, the system shell (`0') is returned."
   (if (eq major-mode 'term-mode)
-    (or xorns-term-shell-register    ; xorns-ansi-term
-      (xorns-term-autonomous-shell-data))
+    (or xorns-term-shell-context    ; xorns-ansi-term
+      (list 0 (xorns-system-shell)))
     ;; else
     (let ((shell-id (alist-get major-mode (xorns-term-mode-shell-mapping))))
       (or
@@ -242,40 +234,37 @@ If none fits, the system shell (`0') is returned."
     ))
 
 
+;; (buffer-live-p buffer)
+;; (term-check-proc buffer)
+
+
 ;;;###autoload
 (defun xorns-ansi-term* (&optional arg)
-  "Start or reuse a terminal\-emulator shell in a buffer.
+  "Launch or select a terminal shell in a buffer.
 
-ARG is either related to the IDENTIFIER definition in `xorns-term-shells', or
-to some special functions when launching or reusing the shell.  The prefix ARG
-could be:
+A shell could be either launched depending on the current `major-mode', a
+configured IDENTIFIER in `xorns-term-shells', or cloning the shell parameters
+in a live buffer.  Default shell is system shell (identified by '0').
 
-- Not used (nil); a default shell is launched depending on the current
-  `major-mode' (resulting in the system shell when no one is found).
+The prefix ARG could be:
 
-- Any integer; either the configured shell with that
-  IDENTIFIER, or an orphan shell, is launched.  The parameters for an orphan
-  shell are deduced from the current `major-mode', or the last shell
-  launched (the system shell by default).
+- Not used (nil); use current `major-mode' to determine which shell to
+  launch.
 
-- A plain `universal-argument' (\\[universal-argument]) launches an orphan
-  shell asking the user for the parameters.
+- An integer; that IDENTIFIER is used to either select a live shell, launch a
+  registered one, or use the previous logic (no prefix ARG) with that
+  IDENTIFIER for the new buffer.  Integers are taken only using full a
+  combination of `digit-argument', not when the following cases are issued.
 
-- A plain `negative-argument' (\\[negative-argument]) selects a registered
+- A plain`universal-argument' (\\[universal-argument]) selects a registered
   shell to lauch it.
 
-- Repeated plain `universal-argument' (\\[universal-argument]) selects a live
+- Repeated `universal-argument' (\\[universal-argument]) selects a live
   shell buffer.
 
-For numeric arguments (integers), you must use any combination of
-`digit-argument' (never use plain `universal-argument', nor plain
-`universal-argument', that are interpreted for different semantics in this
-command)."
+- A `negative-argument' (\\[negative-argument]) launches a new shell creating
+  a new IDENTIFIER and asking for the command to execute and the name."
   (interactive "P")
-  (cond
-    ((null arg)
-      )
-    )
   (let*
     ((shell (xorns-get-ansi-term-shell-name arg))
      (cmd
