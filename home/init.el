@@ -43,8 +43,8 @@
 
 (when (null (functionp 'agda-mode))
   (-when-let* ((agda-mode (xorns-executable-find "agda-mode"))
-                (agda-locate (concat agda-mode " locate"))
-                (coding-system-for-read 'utf-8))
+               (agda-locate (concat agda-mode " locate"))
+               (coding-system-for-read 'utf-8))
     (load-file (shell-command-to-string agda-locate))))
 
 ;;; init.el ends here
