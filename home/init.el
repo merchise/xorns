@@ -37,6 +37,10 @@
   ;; Require extra features
   (require 'xorns-extra))
 
+(let ((proof-general "~/.emacs.d/lisp/PG/generic/proof-site"))
+  (when (file-directory-p proof-general)
+    (load proof-general)))
+
 (when (null (functionp 'agda-mode))
   (-when-let* ((agda-mode (xorns-executable-find "agda-mode"))
                 (agda-locate (concat agda-mode " locate"))
