@@ -345,6 +345,43 @@ If STRICT is nil::
       (if (eq res t) 2 res))))
 
 
+(defun xorns-completing-read (prompt choices &optional def)
+  "Read a string in the minibuffer with completion using `ido'.
+
+PROMPT is a string to prompt with; a colon and a space will be appended.
+CHOICES is a list of strings which are the possible completions.
+DEF, if non-nil, is the default value."
+  (if choices
+    (ido-completing-read
+      (concat prompt  ": ") choices nil 'require-match nil nil def)))
+
+
+(defun xorns-read (prompt &optional default-value keymap read hist)
+  "Read a string from the minibuffer, prompting with string PROMPT.
+
+If second optional arg DEFAULT-VALUE is given, should be a string to return
+  this value for empty input.
+
+Third arg is a KEYMAP to use whilst reading.
+
+If fourth arg READ is given, interpret the result as a Lisp object and return
+  that object.
+
+Fifth arg HIST , specifies a history list and optionally the initial position
+  in the list.
+
+See `read-from-minibuffer' for more information on all arguments."
+  (let* ((prompt*
+	   (concat
+	     (or prompt ">>>")
+	     (if default-value (format " (%s)" default-value))
+	     (if (or prompt default-value) ":") " "))
+	 (res
+	   (read-from-minibuffer
+	     prompt* nil keymap read hist default-value)))
+    (or (unless (equal res "") res) default-value "")))
+
+
 ;;;###autoload
 (defun xorns-configure-p (&optional arg)
   "Return if a configuration level could be executed.
