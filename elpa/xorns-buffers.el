@@ -75,12 +75,7 @@
   (xorns-set-values
     '(ibuffer-saved-filter-groups
        (quote (("xorns-ibuffer-groups"
-		 ("Emacs System"
-		   (or
-		     (name . "*scratch*")
-		     (name . "*Messages*")
-		     (mode . Custom-mode)
-		     (mode . completion-list-mode)))
+		 ("Shell" (mode . term-mode))
 		 ("Dired"
 		   (or
 		     (mode . dired-omit-mode)
@@ -94,11 +89,6 @@
 		     (mode . bbdb-mode)
 		     (name . "*Deft*")
 		     (name . "bbdb")))
-		 ("Lisp"
-		   (or
-		     (mode . emacs-lisp-mode)
-		     (mode . lisp-interaction-mode)
-		     (mode . lisp-mode)))
 		 ("Python" (mode . python-mode))
 		 ("Haskell/Agda/Coq"
 		   (or
@@ -142,6 +132,12 @@
 		     (mode . magit-stashes-mode)
 		     (mode . magit-status-mode)
 		     (mode . diff-mode)))
+		 ("System"
+		   (or
+		     (name . "*scratch*")
+		     (name . "*Messages*")
+		     (mode . Custom-mode)
+		     (mode . completion-list-mode)))
 		 ("Help/Info"
 		   (or
 		     (mode . help-mode)
@@ -149,6 +145,11 @@
 		     (mode . Man-mode)
 		     (mode . woman-mode)
 		     (mode . rfcview-mode)))
+		 ("Lisp"
+		   (or
+		     (mode . emacs-lisp-mode)
+		     (mode . lisp-interaction-mode)
+		     (mode . lisp-mode)))
 		 )))
        )
     '(ibuffer-formats
