@@ -45,6 +45,9 @@
 
 ;;; Code:
 
+(eval-when-compile
+  (require 'cl))
+
 (require 'term nil 'noerror)
 (require 'advice nil 'noerror)
 (require 'xorns-utils nil 'noerror)
@@ -218,20 +221,85 @@ from the field 'Major modes' in `xorns-term-shells'."
       (setq xorns-term-mode-shell-mapping res))))
 
 
+(defun xorns-get-shell-by-mode ()
+  "Obtain the shell data that fits the `major-mode' for the current buffer."
+  (or
+    ;; Already in a terminal
+    (if xorns-term-shell-context
+      ;; assert (eq major-mode 'term-mode)
+      (current-buffer))
+    ;; Registered shell
+    (let ((id (alist-get major-mode (xorns-term-mode-shell-mapping))))
+      (assq id xorns-term-shells))))
 
-(defun xorns-get-mode-shell ()
-  "Obtain the shell kind that fits the `major-mode' for the current buffer.
 
-If none fits, the system shell (`0') is returned."
-  (if (eq major-mode 'term-mode)
-    (or xorns-term-shell-context    ; xorns-ansi-term
-      (list 0 (xorns-system-shell)))
-    ;; else
-    (let ((shell-id (alist-get major-mode (xorns-term-mode-shell-mapping))))
-      (or
-	(assq shell-id xorns-term-shells)
-	(list 0 (xorns-system-shell) 'default nil nil)))
-    ))
+(defun xorns-get-shell-by-id (id)
+  "Obtain the registered or live shell data for the given ID."
+  (or
+    ;; Live buffer
+    (car
+      (delq nil
+	(mapcar
+	  (lambda (buf)
+	    (with-current-buffer buf
+	      (if (and (listp xorns-term-shell-context)
+		    (eq id (car xorns-term-shell-context)))
+		buf)))
+	  (buffer-list))))
+    ;; Registered shell
+    (assq id xorns-term-shells)))
+
+
+(defun xorns-get-shell-by-context (&optional arg)
+  "Obtain the shell data from the current context.
+
+ARG is currently unused, in the future it could be interpreted as one or more
+plain \\[universal-argument].
+
+A shell context could be either depends on the current `major-mode', on a
+configured IDENTIFIER in `xorns-term-shells', or the parameters in a live
+buffer."
+(or (xorns-get-shell-by-mode) (xorns-system-shell)))
+
+
+(defun xorns-read-shell-command (&optional prompt)
+  ""
+  (xorns-completing-read (or prompt "Run program") nil)
+)
+
+
+(defun xorns-term-completing-read (&optional prompt)
+  "Read (select) a terminal buffer in the minibuffer, with completion.
+
+PROMPT is a string to prompt with; a colon and a space will be appended."
+  (let* ((names
+	   (loop
+	     for buffer being the buffers
+	     for name = (buffer-name buffer)
+	     if (with-current-buffer buffer xorns-term-shell-context)
+	     collect name))
+	  (selected
+	    (xorns-completing-read (or prompt "Run shell  Buffer") names)))
+    (if selected (get-buffer selected))))
+
+
+(defun xorns-shell-completing-read (&optional prompt)
+  "Read (select) a registered shell in the minibuffer, with completion.
+
+PROMPT is a string to prompt with; a colon and a space will be appended."
+  (let* ((names
+	   (loop
+	     for shell in xorns-term-shells
+	     for name = (nth 2 shell)
+	     collect name))
+	  (selected
+	    (xorns-completing-read (or prompt "Shell Buffer") names)))
+    (if selected
+      (delq nil
+	(mapcar
+	  (lambda (shell)
+	    (if (eq selected (nth 2 shell))
+	      shell)) xorns-term-shells)))))
 
 
 ;; (buffer-live-p buffer)
@@ -243,28 +311,35 @@ If none fits, the system shell (`0') is returned."
   "Launch or select a terminal shell in a buffer.
 
 A shell could be either launched depending on the current `major-mode', a
-configured IDENTIFIER in `xorns-term-shells', or cloning the shell parameters
-in a live buffer.  Default shell is system shell (identified by '0').
+configured IDENTIFIER in `xorns-term-shells', cloning the shell parameters in
+a live buffer, or asking the user the command to execute.  Default shell is
+system shell (identified by '0').
 
 The prefix ARG could be:
 
-- Not used (nil); use current `major-mode' to determine which shell to
-  launch.
+- None (nil); current `major-mode' is used to determine which shell to launch.
 
-- An integer; that IDENTIFIER is used to either select a live shell, launch a
-  registered one, or use the previous logic (no prefix ARG) with that
-  IDENTIFIER for the new buffer.  Integers are taken only using full a
-  combination of `digit-argument', not when the following cases are issued.
+- An integer; IDENTIFIER to either select a live shell, launch a
+  registered one, or use the current `major-mode' logic to generate a new
+  buffer.
 
-- A plain`universal-argument' (\\[universal-argument]) selects a registered
-  shell to lauch it.
-
-- Repeated `universal-argument' (\\[universal-argument]) selects a live
-  shell buffer.
-
-- A `negative-argument' (\\[negative-argument]) launches a new shell creating
-  a new IDENTIFIER and asking for the command to execute and the name."
+- Plain prefix argument; a shell is launched with a new generated IDENTIFIER.
+  In case of `universal-argument' (\\[universal-argument]), the current shell
+  context is cloned; in case of `negative-argument' (\\[negative-argument]),
+  the command to execute is asked to the user."
   (interactive "P")
+  (let ((shell
+	  (cond
+	    ((null arg) (xorns-get-shell-by-mode))
+	    ((integerp arg) (xorns-get-shell-by-id arg))
+	    ((listp arg) (xorns-get-shell-by-context arg))
+	    ((symbolp arg) (xorns-read-shell-command))    ;; '-
+
+
+	    )
+	  ))
+    )
+  ;;;
   (let*
     ((shell (xorns-get-ansi-term-shell-name arg))
      (cmd
@@ -333,8 +408,7 @@ The prefix ARG could be:
 (defun xorns-ansi-term-paste (&optional arg)
   "Paste content into a `ansi-term' shell (based in ARG)."
   (interactive "P")
-  (message ">>>> PASTE-ARG= %s" arg)
-  )
+  (message ">>>> PASTE-ARG = '%s' of type: %s" arg (type-of arg)))
 
 
 ;; (defsubst ibuffer-get-region-and-prefix ()
