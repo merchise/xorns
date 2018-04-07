@@ -123,9 +123,9 @@ Don't fail if `'fill-column-indicator' is not available."
   (save-excursion
     (outline-back-to-heading)
     (if (not (outline-invisible-p (line-end-position)))
-	(hide-subtree)
-      (show-subtree)
-      (show-entry))))
+	(outline-hide-subtree)
+      (outline-show-subtree)
+      (outline-show-entry))))
 
 
 
