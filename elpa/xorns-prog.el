@@ -43,7 +43,6 @@
 (require 'python nil 'noerror)
 (require 'jedi nil 'noerror)
 (require 'cc-mode nil 'noerror)
-(require 'scala-mode nil 'noerror)
 (require 'javadoc-lookup nil 'noerror)
 
 (require 'xorns-text nil 'noerror)
@@ -105,6 +104,7 @@ python shell defined in function `xorns-python-shell'."
     (let*
       ((buffer (xorns-ansi-term))
        (process (get-buffer-process buffer)))
+      ;; (with-current-buffer "*Python Shell*" (term-send-raw-string "x = 1\n")?
       (comint-send-string process "%paste\n"))))
 
 
@@ -262,38 +262,6 @@ This simply calls `indent-rigidly' using ±4 spaces."
     ;; else
     (xorns-missing-feature 'jedi)))
 
-
-
-;; Java and Scala
-
-(when (xorns-configure-p 'general)
-  (if (featurep 'javadoc-lookup)
-    (progn
-      ;; TODO: Check for each item before adding
-      (let ((roots
-              (loop
-                for dir in (list
-                             "/usr/share/doc/openjdk-7-jdk/api"
-                             "/usr/share/doc/scala-doc/html"
-                             "/usr/share/doc/libjsoup-java/api"
-                             "~/.local/share/doc/play/content/api/scala"
-                             "~/.local/share/doc/akka-actor_2.10-2.2.0"
-                             "~/.local/share/doc/akka-slf4j_2.10-2.2.0"
-                             ;; Look for "akka-doc" and also our projects
-                             )
-                if (file-exists-p dir)
-                collect dir)))
-        (when roots (apply 'javadoc-add-roots roots)))
-      )
-    ;; else
-    (xorns-missing-feature 'javadoc-lookup))
-  (if (featurep 'scala-mode)
-    (progn
-      (define-key scala-mode-map "\C-ch" 'javadoc-lookup))
-    ;; else
-    (xorns-missing-feature 'scala-mode))
-  (define-key java-mode-map "\C-ch" 'javadoc-lookup)
-  )
 
 
 ;;; Javascript, CoffeeScript and LiveScript
