@@ -48,8 +48,10 @@
 (eval-when-compile
   (require 'cl))
 
+(require 's nil 'noerror)
 (require 'term nil 'noerror)
 (require 'advice nil 'noerror)
+(require 'xorns-prog nil 'noerror)
 (require 'xorns-utils nil 'noerror)
 
 
@@ -73,13 +75,12 @@
 ;;; Misc
 
 (defun xorns-system-shell ()
-  "Command to use as system shell.
+  "Get the command to use as System Shell.
 
-To calculate the value, test first the custom value of equal name and
-if not valid, looks up in a list of alternatives (in order):
-environment variables `ESHELL' and `SHELL', custom Emacs variable
-`shell-file-name', any of [`bash' `sh' `ksh' `zsh' `tclsh' `csh'
-`tcsh']."
+To calculate the value, looks up in a list of alternatives (in order):
+environment variable `SHELL', custom Emacs variable `shell-file-name',
+environment variable `ESHELL', and any of [`bash' `sh' `ksh' `zsh' `tclsh'
+`csh' `tcsh']."
   (xorns-executable-find
     (getenv "SHELL")
     (xorns-get-value 'shell-file-name)
@@ -99,56 +100,55 @@ environment variables `ESHELL' and `SHELL', custom Emacs variable
 
 
 (defcustom xorns-term-shells nil
-  "Shell definition list to be managed by terminal shells.
+  "Terminal shells (definition list).
 
-The value is an association list `((IDENTIFIER . DEFINITION) ...)'.
+The value is a list `((INDEX PROGRAM MODE BUFFER-NAME PASTE) ...)'.
 
-IDENTIFIER is an integer, it's used to select the shell kind (for example,
-with a prefix argument).  `0' is reserved for system shell; we advice you use
-each value in levels of priorities, for example `1' for your main programmer
-language shell, and `2' for your working project (like 'xoeuf' in Merchise).
+INDEX (integer), used with numeric prefix arguments to select the shell kind.
+Values must be customized in priority sorted: `0' for system; `1' for
+preferred programmer language; `2' for working project (like 'xoeuf' in
+Merchise), ...
 
-DEFINITION has the following components:
+PROGRAM (string), the command to execute when launching a new terminal shell,
+for example '/bin/bash'.
 
-- The COMMAND to execute when creating a new terminal shell, for example
-  `/bin/bash'.
+MODE (symbol), preferred `major-mode'.
 
-- A NAME definition, used to format the buffer name, and to identify the shell
-  kind with a human readable symbol.  nil: the default name will be used; a
-  symbol (recommended): the template '*<ID> - <SYMBOL>*' will be used for the
-  buffer name, and '<SYMBOL>-mode' will be added to the mode mappings; string:
-  the buffer name will be calculated using `xorns-format' function, `{id}' and
-  `{cmd}' could be used for the identifier and for the command respectively.
+BUFFER-NAME (string), template to calculate the buffer name using `s-format'
+function.  The placeholders `${index}', `${program}', `${mode}', and `${name}'
+can be used.  If not given, default value is taken from
+`xorns-term-default-buffer-name-template'.
 
-- PASTE method, specify how to process the content to be sent to the shell
-  process.  nil: the content will be used literally (standard); a string
-  containing '%s': the content will be formatted using that value; any
-  other string: will yank the content to the clipboard and then send the given
-  value to the shell process (useful in shells like 'IPython' using '%paste'
-  magic macro); a function: the content will be processed in a custom defined
-  way, and the sent the result to the process.
+NAME is generated either removing the suffix `-mode' from the MODE value, or
+with the PROGRAM value.
 
-- A list of MAJOR\-MODES to select a preferred shell by default.
-
-Identifiers are not checked to be unique, this user responsibility."
+PASTE (string or function), how to send content from any buffer to a terminal
+shell process.  If not given, the content will be used literally; when the
+value contains '%s', the content will be pre-formatted; on any other string
+value, the content is yanked into the clipboard, and the specified value is
+sent alone (this method is useful in shells like 'IPython' using '%paste'
+magic macro); a function is used to process the content in a custom defined
+way."
   :type '(repeat
-	   (cons
-	     (integer :tag "Identifier")
-	     (list :tag "Definition"
-	       (choice :tag "Command"
+	   (list
+	     (integer :tag "Index")                ;; 0
+	     (choice :tag "Program"                ;; 1
+	       (string :tag "Executable")
+	       (cons :tag "With Options"
 		 (string :tag "Executable")
-		 (cons :tag "With Arguments"
-		   (string :tag "Executable")
-		   (string :tag "Arguments")))
-	       (choice :tag "Name"
-		 (const :tag "Standard" nil)
-		 (string :tag "Template")
-		 (symbol :tag "Symbol"))
-	       (choice :tag "Paste"
-		 (const :tag "Standard" nil)
-		 (string :tag "Template")
-		 (function :tag "Custom"))
-	       (repeat :tag "Major modes" symbol))))
+		 (repeat :tag "Switches"
+		   (string :tag "Option"))))
+	     (symbol :tag "Mode")                  ;; 2
+	     (string :tag "Buffer Name")           ;; 3
+	     (choice :tag "Paste"                  ;; 4
+	       (string :tag "Template")
+	       (function :tag "Function"))))
+  :group 'xorns-term)
+
+
+(defcustom xorns-term-default-buffer-name-template "<${index}> ${name}"
+  "Default template when not given in a shell definition."
+  :type 'string
   :group 'xorns-term)
 
 
@@ -172,23 +172,112 @@ This could be included as one of those defined in `xorns-term-paste-keys'."
   :group 'xorns-term)
 
 
-(defvar xorns-term-shell-context nil
-  "Local variable to store shell context.
+(defvar xorns-term-shell-program nil
+  "Local variable to store shell program executable.")
 
-Value could either be an identifier (normal execution of a registered shell,
-it is is related to `xorns-term-shells'), a command executable (when
-`ansi-term' is called without control of Xorns), or an anonymous shell
-register `(IDENTIFIER . COMMAND-EXECUTABLE)'.")
+
+(defvar xorns-term-shell-index nil
+  "Local variable to store shell index.")
 
 
 (defadvice ansi-term (after xorns-register-shell-info
 		       (program &optional new-buffer-name)
 		       activate)
-  "Store `xorns-term-shell-context' local variable."
-  ;; This function must update the register, if created before in
-  ;; `xorns-ansi-term'.
-  (unless xorns-term-shell-context
-    (set (make-local-variable 'xorns-term-shell-context) program)))
+  "Store `xorns-term-shell-program' local variable."
+  (unless xorns-term-shell-program
+    (set (make-local-variable 'xorns-term-shell-program) program)))
+
+
+(defadvice term-exec (before xorns--term-exec
+		       (buffer name command startfile switches)
+		       activate)
+  "Set argument 'switches' if defined in local scope."
+  (if (null switches)
+    (let ((aux (xorns-get-value 'xorns--program-switches)))
+      (if aux
+	(setq switches aux)))))
+
+
+
+(defun xorns--shell-normalize (&optional shell)
+  "Convert any SHELL context to a proper registry as in `xorns-term-shells'."
+  (declare (pure t) (side-effect-free t))
+  (cond
+    ((null shell)
+      ;; default
+      (assq 0 xorns-term-shells))
+    ((listp shell) shell)
+    ((bufferp shell)
+      (with-current-buffer shell
+	(list xorns-term-shell-index xorns-term-shell-program)))
+    ((integerp shell) (assq shell xorns-term-shells))))
+
+
+(defun xorns--shell-get-index (shell)
+  "Get the defined mode for the given SHELL."
+  (declare (pure t) (side-effect-free t))
+  (car (xorns--shell-normalize shell)))
+
+
+(defun xorns--shell-get-program (shell)
+  "Get the defined program for the given SHELL."
+  (declare (pure t) (side-effect-free t))
+  (nth 1 (xorns--shell-normalize shell)))
+
+
+(defun xorns--shell-get-program-executable (shell)
+  "Get the defined program executable part for the given SHELL."
+  (declare (pure t) (side-effect-free t))
+  (let ((res (xorns--shell-get-program shell)))
+    (if (listp res)
+      (car res)
+      ;; else
+      res)))
+
+
+(defun xorns--shell-get-program-switches (shell)
+  "Get the defined program arguments part for the given SHELL."
+  (declare (pure t) (side-effect-free t))
+  (let ((aux (xorns--shell-get-program shell)))
+    (if (listp aux)
+      (cdr aux))))
+
+
+(defun xorns--shell-get-mode (shell)
+  "Get the defined mode for the given SHELL."
+  (declare (pure t) (side-effect-free t))
+  (let ((res (nth 2 (xorns--shell-normalize shell))))
+    (if (eq res '##) nil res)))
+
+
+(defun xorns--shell-get-name (shell)
+  "Get the defined program arguments part for the given SHELL."
+  (declare (pure t) (side-effect-free t))
+  (let ((mode (xorns--shell-get-mode shell)))
+    (if mode
+      (replace-regexp-in-string "-mode$" "" (symbol-name mode))
+      ;; else
+      (file-name-base (xorns--shell-get-program-executable shell)))))
+
+
+(defun xorns--shell-get-buffer-name (shell)
+  "Get the defined program arguments part for the given SHELL."
+  (declare (pure t) (side-effect-free t))
+  (let ((shell (xorns--shell-normalize shell)))
+    (if shell
+      (let ((res (nth 3 shell)))
+	(if (or (null res) (string= res ""))
+	  (setq res xorns-term-default-buffer-name-template))
+	(if (string-match "${" res)
+	  (setq res
+	    (s-format res 'aget
+	      (list
+		(cons 'index (xorns--shell-get-index shell))
+		(cons 'program (xorns--shell-get-program-executable shell))
+		(cons 'mode (xorns--shell-get-mode shell))
+		(cons 'name (xorns--shell-get-name shell))))))
+	res))))
+
 
 
 (defvar xorns-term-mode-shell-mapping nil
@@ -199,42 +288,20 @@ register `(IDENTIFIER . COMMAND-EXECUTABLE)'.")
   "Mapping between major modes and preferred shells.
 
 Manage which `ansi-term' kind to favor in each `major-mode'.  Return an
-association list `((MAJOR-MODE . SHELL-IDENTIFIER) ...)', and it is calculated
-from the field 'Major modes' in `xorns-term-shells'."
+association list `((MAJOR-MODE . SHELL-INDEX) ...)', and it is calculated from
+the field 'Major modes' in `xorns-term-shells'."
   (or xorns-term-mode-shell-mapping
-    (let (res)
-      (dolist (shell xorns-term-shells)
-	(let* ((id (nth 0 shell))
-	       (name (nth 2 shell))
-	       (modes (nth 4 shell))
-	       (modes* (append modes
-			 (if (symbolp name)
-			   (list (make-symbol (format "%s-mode" name)))))))
-	  (dolist (mode modes*)
-	    (let ((pair (assq mode res)))
-	      (if (null pair)
-		(add-to-list 'res (cons mode id) 'append)
-		;else
-		(message
-		  "Error: major mode '%s' repeated shells (%s, %s)"
-		  mode id (cdr pair)))))))
-      (setq xorns-term-mode-shell-mapping res))))
+    (delq nil
+      (mapcar
+	  (lambda (shell)
+	    (let ((mode (xorns--shell-get-mode shell)))
+	      (if mode
+		(cons mode (xorns--shell-get-index shell)))))
+	xorns-term-shells))))
 
 
-(defun xorns-get-shell-by-mode ()
-  "Obtain the shell data that fits the `major-mode' for the current buffer."
-  (or
-    ;; Already in a terminal
-    (if xorns-term-shell-context
-      ;; assert (eq major-mode 'term-mode)
-      (current-buffer))
-    ;; Registered shell
-    (let ((id (alist-get major-mode (xorns-term-mode-shell-mapping))))
-      (assq id xorns-term-shells))))
-
-
-(defun xorns-get-shell-by-id (id)
-  "Obtain the registered or live shell data for the given ID."
+(defun xorns--shell-get (index)
+  "Obtain the registered or live shell data for the given INDEX."
   (or
     ;; Live buffer
     (car
@@ -242,68 +309,105 @@ from the field 'Major modes' in `xorns-term-shells'."
 	(mapcar
 	  (lambda (buf)
 	    (with-current-buffer buf
-	      (if (and (listp xorns-term-shell-context)
-		    (eq id (car xorns-term-shell-context)))
+	      (if (eq index xorns-term-shell-index)
 		buf)))
 	  (buffer-list))))
     ;; Registered shell
-    (assq id xorns-term-shells)))
+    (assq index xorns-term-shells)))
 
 
-(defun xorns-get-shell-by-context (&optional arg)
-  "Obtain the shell data from the current context.
+(defun xorns--current-mode-get-shell ()
+  "Obtain the shell data that fits the `major-mode' for the current buffer.
 
-ARG is currently unused, in the future it could be interpreted as one or more
-plain \\[universal-argument].
-
-A shell context could be either depends on the current `major-mode', on a
-configured IDENTIFIER in `xorns-term-shells', or the parameters in a live
-buffer."
-(or (xorns-get-shell-by-mode) (xorns-system-shell)))
+Return either an index or program, if already in a terminal; or a list for a
+shell definition registry.  nil represents that no shell is preferred for the
+current mode."
+  (or
+    ;; Already in a terminal
+    xorns-term-shell-index
+    xorns-term-shell-program
+    ;; Registered shell
+    (let ((id (alist-get major-mode (xorns-term-mode-shell-mapping))))
+      (assq id xorns-term-shells))))
 
 
 (defun xorns-read-shell-command (&optional prompt)
-  ""
+  "Read the program to execute in a shell.
+
+PROMPT is a string to prompt with; a colon and a space will be appended."
   (xorns-completing-read (or prompt "Run program") nil)
 )
 
 
-(defun xorns-term-completing-read (&optional prompt)
-  "Read (select) a terminal buffer in the minibuffer, with completion.
-
-PROMPT is a string to prompt with; a colon and a space will be appended."
-  (let* ((names
-	   (loop
-	     for buffer being the buffers
-	     for name = (buffer-name buffer)
-	     if (with-current-buffer buffer xorns-term-shell-context)
-	     collect name))
-	  (selected
-	    (xorns-completing-read (or prompt "Run shell  Buffer") names)))
-    (if selected (get-buffer selected))))
-
-
-(defun xorns-shell-completing-read (&optional prompt)
-  "Read (select) a registered shell in the minibuffer, with completion.
-
-PROMPT is a string to prompt with; a colon and a space will be appended."
-  (let* ((names
-	   (loop
-	     for shell in xorns-term-shells
-	     for name = (nth 2 shell)
-	     collect name))
-	  (selected
-	    (xorns-completing-read (or prompt "Shell Buffer") names)))
-    (if selected
-      (delq nil
-	(mapcar
-	  (lambda (shell)
-	    (if (eq selected (nth 2 shell))
-	      shell)) xorns-term-shells)))))
+(defun xorns--ansi-term (shell)
+  "Start or select a SHELL."
+  (let ((index (xorns--shell-get-index shell))
+	(program (xorns--shell-get-program-executable shell))
+	(switches (xorns--shell-get-program-switches shell))
+	(buffer-name (xorns--shell-get-buffer-name shell)))
+    (message
+      ">>> Opening terminal with INDEX %s and PROGRAM %s" index program)
+    (let ((xorns--program-switches switches))
+      (ansi-term program buffer-name))))
 
 
 ;; (buffer-live-p buffer)
 ;; (term-check-proc buffer)
+
+
+(defun xorns--shell-get-new-index ()
+  "Calculate an unused new shell index."
+  (let ((buffer-indexes
+	  (delq nil
+	    (mapcar
+	      (lambda (buf)
+		(with-current-buffer buf
+		  xorns-term-shell-index))
+	      (buffer-list)))))
+    (let ((index 0) res)
+      (while (null res)
+	(if (or (memq index buffer-indexes) (assq index xorns-term-shells))
+	  ;; next one
+	  (setq index (1+ index))
+	  ;; when not found, it is a match
+	  (setq res index)))
+      res)))
+
+
+(defun xorns--launch-ansi-term (&optional shell)
+  "Launch or select a terminal shell.
+
+SHELL definition must be an integer (index on the registry); an string
+representing a program executable; or nil to launch the default shell with
+index 0."
+  (let
+    ((shell*
+       (cond
+	 ((null shell) (xorns--shell-get 0))
+	 ((integerp shell) (xorns--shell-get shell))
+	 ((stringp shell) (list (xorns--shell-get-new-index) shell))
+	 (t shell)    ;; assuming `(bufferp shell)'
+	 )))
+    (if (listp shell*)
+      (xorns--ansi-term shell)
+      ;; else, bufferp
+      (switch-to-buffer shell))))
+
+
+(defun xorns--clone-ansi-term (source)
+  "Clone a current terminal SHELL from a SOURCE index or program definition."
+  nil
+  )
+
+
+(defun xorns--default-ansi-term ()
+  "Launch or select a terminal shell depending on current `major-mode'."
+  (let ((shell (xorns--current-mode-get-shell)))
+    (cond
+      ((null shell) (xorns--launch-ansi-term))
+      ((or (integerp shell) (stringp shell)) (xorns--clone-ansi-term shell))
+      (t (xorns--launch-ansi-term (car shell)))))    ;; assuming list
+  )
 
 
 ;;;###autoload
@@ -321,53 +425,19 @@ The prefix ARG could be:
 
 - An integer; IDENTIFIER to either select a live shell, launch a
   registered one, or use the current `major-mode' logic to generate a new
-  buffer.
+  buffer with that index.
 
-- Plain prefix argument; a shell is launched with a new generated IDENTIFIER.
-  In case of `universal-argument' (\\[universal-argument]), the current shell
-  context is cloned; in case of `negative-argument' (\\[negative-argument]),
-  the command to execute is asked to the user."
+- Plain prefix argument; a new shell is launched with a new index.  In case of
+  `universal-argument' (\\[universal-argument]), the command to execute is
+  asked to the user; in case of `negative-argument' (\\[negative-argument]),
+  the current shell context is cloned."
   (interactive "P")
-  (let ((shell
-	  (cond
-	    ((null arg) (xorns-get-shell-by-mode))
-	    ((integerp arg) (xorns-get-shell-by-id arg))
-	    ((listp arg) (xorns-get-shell-by-context arg))
-	    ((symbolp arg) (xorns-read-shell-command))    ;; '-
-
-
-	    )
-	  ))
-    )
-  ;;;
-  (let*
-    ((shell (xorns-get-ansi-term-shell-name arg))
-     (cmd
-       (cond
-	 ((eq shell 'System)
-	   (xorns-system-shell))
-	 ((eq shell 'Python)
-	   (xorns-python-shell))
-	 (;else
-	   (xorns-python3-shell))))
-      (buf-name (format "%s Shell" shell))
-      (starred (format "*%s*" buf-name))
-      (cur-buf (get-buffer starred))
-      (cur-proc (get-buffer-process cur-buf)))
-    (if cur-buf
-      (if cur-proc
-	(progn
-	  (setq cmd nil)
-	  (switch-to-buffer cur-buf))
-	;else
-	(message ">>> Killing buffer: %s" starred)
-	(kill-buffer cur-buf)))
-    (if cmd
-      (progn
-	(message ">>> Opening: %s" starred)
-	(ansi-term cmd buf-name))
-      ;else
-      cur-buf)))
+  (cond
+    ((null arg) (xorns--default-ansi-term))
+    ((integerp arg) (xorns--shell-get arg))
+    ((listp arg) (xorns--current-mode-get-shell))    ;; TODO: ????
+    ((symbolp arg) (xorns-read-shell-command))    ;; '-
+    ))
 
 
 ;;;###autoload
