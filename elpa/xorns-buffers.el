@@ -75,6 +75,11 @@
   (xorns-set-values
     '(ibuffer-saved-filter-groups
        (quote (("xorns-ibuffer-groups"
+		 ("System"
+		   (or
+		     (name . "*scratch*")
+		     (name . "*Messages*")
+		     (mode . Custom-mode)))
 		 ("Shell" (mode . term-mode))
 		 ("Dired"
 		   (or
@@ -95,6 +100,11 @@
 		     (mode . haskell-mode)
 		     (mode . agda2-mode)
 		     (mode . coq-mode)))
+		 ("Lisp"
+		   (or
+		     (mode . emacs-lisp-mode)
+		     (mode . lisp-interaction-mode)
+		     (mode . lisp-mode)))
 		 ("C" (or (mode . c-mode) (mode . cc-mode)))
 		 ("Scala/Java"
 		   (or
@@ -132,24 +142,14 @@
 		     (mode . magit-stashes-mode)
 		     (mode . magit-status-mode)
 		     (mode . diff-mode)))
-		 ("System"
-		   (or
-		     (name . "*scratch*")
-		     (name . "*Messages*")
-		     (mode . Custom-mode)
-		     (mode . completion-list-mode)))
-		 ("Help/Info"
+		 ("Help/Info/Completions"
 		   (or
 		     (mode . help-mode)
 		     (mode . Info-mode)
 		     (mode . Man-mode)
 		     (mode . woman-mode)
-		     (mode . rfcview-mode)))
-		 ("Lisp"
-		   (or
-		     (mode . emacs-lisp-mode)
-		     (mode . lisp-interaction-mode)
-		     (mode . lisp-mode)))
+		     (mode . rfcview-mode)
+		     (mode . completion-list-mode)))
 		 )))
        )
     '(ibuffer-formats
