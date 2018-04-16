@@ -104,34 +104,6 @@ This stores EXP (after evaluating it) as the saved value for SYMBOL."
       (format "\\`%s\\|%s\\'" blanks blanks) "" s)))
 
 
-;;;###autoload
-(defun xorns-format (string replacements &rest objects)
-  "Format a STRING doing REPLACEMENTS, then a standard `format' with OBJECTS.
-
-Placeholders in the string are `{FROM-KEY}', and each replacement is a pair
-with the form `(FROM . TO)'.  Two continues braces are replaced by just one.
-
-The function `replace-regexp-in-string' is used to do the substitutions.
-
-For example:
-
-  (xorns-format \"{x}%s is {y} not {{y}}\" \\='((x . foo) (y . 1)) \\='bar)
-
-return the string \"foobar is 1 not {y}\"."
-  (let ((open "__open_brace__")
-	(closed "__closed_brace__"))
-    (setq string (replace-regexp-in-string "{{" open string))
-    (setq string (replace-regexp-in-string "}}" closed string))
-    (while replacements
-      (setq string (replace-regexp-in-string
-		       (format "{%s}" (caar replacements))
-		       (format "%s" (cdar replacements)) string))
-      (setq replacements (cdr replacements)))
-    (setq string (replace-regexp-in-string closed "}" string))
-    (setq string (replace-regexp-in-string open "{" string)))
-  (apply 'format string objects))
-
-
 
 ;;; Files
 
