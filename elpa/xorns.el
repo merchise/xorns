@@ -103,6 +103,9 @@
 (condition-case err
   (require 'xorns-apt)
   (error (message "error loading xorns-apt: %s" err)))
+(condition-case err
+  (require 'xorns-xml)
+  (error (message "error loading xorns-xml: %s" err)))
 
 ;; Configure preferred package repositories
 (condition-case err
@@ -142,6 +145,7 @@ is given."
 (when (xorns-configure-p 'basic)
   (xorns-manage-user-custom-files)
   (xorns-load-user-file "after-init-${USER}.el"))
+
 
 
 (provide 'xorns)
