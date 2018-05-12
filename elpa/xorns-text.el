@@ -184,8 +184,8 @@ If this feature is not installed don't fail and just report a message."
 
 ;; For outline minor modes
 ;; TODO: This is defined by standard mode inner "C-c@'
-(define-key outline-minor-mode-map (kbd "C-=") 'show-subtree)
-(define-key outline-minor-mode-map (kbd "M-=") 'hide-subtree)
+(define-key outline-minor-mode-map (kbd "C-=") 'outline-show-subtree)
+(define-key outline-minor-mode-map (kbd "M-=") 'outline-hide-subtree)
 (define-key outline-minor-mode-map (kbd "C-+") 'xorns-toggle-subtree)
 
 
