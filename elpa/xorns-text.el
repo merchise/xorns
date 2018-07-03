@@ -131,7 +131,7 @@ Don't fail if `'fill-column-indicator' is not available."
 
 ;;; Hooks
 
-(add-hook 'before-save-hook 'copyright-update)
+;;(add-hook 'before-save-hook 'copyright-update)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 ;; TODO: (add-hook 'before-save-hook 'time-stamp)
 
