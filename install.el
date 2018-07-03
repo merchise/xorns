@@ -26,7 +26,7 @@
 ;;; Commentary:
 
 ;; To run this installation program, from the shell:
-;;     `$ emacs --load=install.el --batch --debug'
+;;     `emacs --load=install.el --batch --debug'
 ;;
 ;; See `xorns-init.el' for more info to configure `xorns' in your
 ;; Emacs initialization file.
@@ -45,67 +45,30 @@
 
 (package-initialize)
 
-(defconst pkg 'xorns
-  "Symbol for package identifier.")
-
-
-(defun file-read-text (file-name)
-  "Read text from FILE-NAME."
-  (decode-coding-string
-    (with-temp-buffer
-      (set-buffer-multibyte nil)
-      (setq buffer-file-coding-system 'binary)
-      (insert-file-contents-literally file-name)
-      (buffer-substring-no-properties (point-min) (point-max)))
-    'utf-8))
-
-
-(defconst pkg-new-version
-  (let* ((pkg-info (file-read-text (format "./elpa/%s-pkg.el" pkg)))
-	 (version (nth 2 (read pkg-info))))
-    version)
-  "Configured new version for the package.")
-
-
 (defun delete-old-package ()
-  "Remove old package if already installed."
-  (when (package-installed-p pkg)
-    (let* ((pkg-desc
-             (cadr (assq pkg package-alist)))
-            (version
-              (package-desc-version pkg-desc)))
-      (message "Deleting old package: `%s', version: %s" pkg version)
-      (package-delete pkg-desc))))
+  "Remove old package if installed."
+  (let ((pkg 'xorns))
+    (when (package-installed-p pkg)
+      (let* ((pkg-desc (cadr (assq pkg package-alist)))
+              (version (package-desc-version pkg-desc)))
+	(message "Deleting old package: `%s', version: %s" pkg version)
+	(package-delete pkg-desc)))))
 
 
-(defun main ()
+(defun install-process ()
   "Execute all installation process."
-  (delete-old-package)
-  (let* ((name-with-version (format  "%s-%s" pkg pkg-new-version))
-	 (tar-file-name (concat name-with-version ".tar"))
-	 (cur default-directory)
-	 (full (concat cur "elpa"))
-	 (tmp temporary-file-directory)
-	  )
-    (message "Create symbolic link from `elpa' to `%s'." name-with-version)
-    (make-symbolic-link full (concat tmp name-with-version) 'ok-if-exists)
-    (message "Create tar file `%s'." tar-file-name)
-    (cd tmp)
-    (shell-command
-      (format "tar -cf %s %s/*" tar-file-name name-with-version))
-    (message "Installing package: %s" pkg)
-    (package-install-file tar-file-name)
-    (message "Deleting tar file: %s" tar-file-name)
-    (delete-file tar-file-name)
-    (message "Deleting symbolic link: %s" name-with-version)
-    (delete-file name-with-version)
-    (cd cur)
-    )
-  )
+  (let ((src (expand-file-name "elpa"))
+	(pkg (expand-file-name "xorns" temporary-file-directory)))
+    (message "Create symbolic link from `%s' to `%s'." src pkg)
+    (make-symbolic-link src pkg 'ok-if-exists)
+    (package-install-file (file-name-as-directory pkg))
+    (message "Deleting symbolic link: %s" pkg)
+    (delete-file pkg)))
+
 
 ;;; Execute main body
-
-(main)
+(delete-old-package)
+(install-process)
 
 
 (provide 'install)
