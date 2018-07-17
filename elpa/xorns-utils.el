@@ -70,7 +70,7 @@
 (defun xorns-set-value (symbol value)
   "Initialize a SYMBOL (variable name) with an expression (VALUE)."
   (unless (or (get symbol 'standard-value)
-	      (memq (get symbol 'custom-autoload) '(nil noset)))
+            (memq (get symbol 'custom-autoload) '(nil noset)))
     (custom-load-symbol symbol))
   ;; set the variable.
   (set symbol value))
@@ -89,7 +89,7 @@ This stores EXP (after evaluating it) as the saved value for SYMBOL."
     (unless (listp entry)
       (error "Incompatible custom symbol value pair specification"))
     (let* ((symbol (indirect-variable (nth 0 entry)))
-	   (value (nth 1 entry)))
+            (value (nth 1 entry)))
       (xorns-set-value symbol (eval value)))))
 
 
@@ -130,7 +130,7 @@ final separator."
       (setq res xorns-directory-separator))
     (mapc
       (lambda (arg)
-	(setq res (concat (file-name-as-directory res) (or arg ""))))
+        (setq res (concat (file-name-as-directory res) (or arg ""))))
       args)
     res))
 
@@ -143,9 +143,9 @@ If no item is given in DIRS, return $HOME."
   (file-name-as-directory
     (if dirs
       (cl-some
-	(lambda (item)
-	  (if (and item (file-directory-p item)) item))
-	dirs)
+        (lambda (item)
+          (if (and item (file-directory-p item)) item))
+        dirs)
       ;; else
       "~")))
 
@@ -187,15 +187,15 @@ returned."
   (if args
     (let (res last)
       (while (and (not res) args)
-	(let* ((item (car args))
-	       (aux
-		 (if item
-		   (locate-user-emacs-file (substitute-in-file-name item)))))
-	  (setq last aux)
-	  (if (and aux (file-exists-p aux))
-	    (setq res aux)
-	    ;; else
-	    (setq args (cdr args)))))
+        (let* ((item (car args))
+                (aux
+                  (if item
+                    (locate-user-emacs-file (substitute-in-file-name item)))))
+          (setq last aux)
+          (if (and aux (file-exists-p aux))
+            (setq res aux)
+            ;; else
+            (setq args (cdr args)))))
       (or res last))
     ;; else
     (locate-user-emacs-file "init.el" ".emacs")))
@@ -226,32 +226,32 @@ use command `cd'."
 
 ;;;###autoload
 (defun xorns-pwd (&optional no-show)
-    "Show and put in the kill ring the current directory.
+  "Show and put in the kill ring the current directory.
 
 If optional argument NO-SHOW is not nil, the message is not shown.  The
 format for the message is: The first position is used as `<0>' for the
 first time this command is executed for each directory, and `<+>' when
 repeated; next is printed `$' for an ordinary user or `#' for `root';
 then a space and the value of `default-directory'."
-    (interactive "P")
-    (let* ((pwd (xorns-default-directory))
-	   (last (if kill-ring (car kill-ring)))
-	   (new (not (equal last pwd)))
-	   (sudo (equal user-real-login-name "root"))
-	   (prompt (format "%s%s" (if new "<0>" "<+>") (if sudo "#" "$"))))
-      (if new
-	(kill-new pwd))
-      (unless no-show
-	(message "%s %s" prompt pwd))))
+  (interactive "P")
+  (let* ((pwd (xorns-default-directory))
+          (last (if kill-ring (car kill-ring)))
+          (new (not (equal last pwd)))
+          (sudo (equal user-real-login-name "root"))
+          (prompt (format "%s%s" (if new "<0>" "<+>") (if sudo "#" "$"))))
+    (if new
+      (kill-new pwd))
+    (unless no-show
+      (message "%s %s" prompt pwd))))
 
 
 ;; TODO: This code must be removed when every body uses Emacs >= 24.3
 (unless (functionp 'file-name-base)
   (defun file-name-base (&optional filename)
-     "Return the base name of the FILENAME: no directory, no extension.
+    "Return the base name of the FILENAME: no directory, no extension.
 FILENAME defaults to `buffer-file-name'."
-     (file-name-sans-extension
-	(file-name-nondirectory (or filename (buffer-file-name))))))
+    (file-name-sans-extension
+      (file-name-nondirectory (or filename (buffer-file-name))))))
 
 
 ;; The LOCAL arg to `add-hook' is interpreted differently in Emacs and
@@ -300,19 +300,19 @@ If STRICT is nil::
 
 - any other value is synonym of `'maximum'."
   (let ((res
-	  (let ((options
-		  '((experimental . 110) (110 . 110)
-		    (maximum . 100) (100 . 100)
-		    (general . 70) (70 . 70)
-		    (basic . 10) (10 . 10)
-		    (minimum . 0) (nil . 0) (0 . 0)))
-		 (default '(t . t)))
-	    (cdr (or (assq arg options) default)))))
+          (let ((options
+                  '((experimental . 110) (110 . 110)
+                     (maximum . 100) (100 . 100)
+                     (general . 70) (70 . 70)
+                     (basic . 10) (10 . 10)
+                     (minimum . 0) (nil . 0) (0 . 0)))
+                 (default '(t . t)))
+            (cdr (or (assq arg options) default)))))
     (if strict
       (if (not (or (null res) (eq res t)))
-	res
-	;; else
-	(error "Invalid argument `%s' in strict mode!" arg))
+        res
+        ;; else
+        (error "Invalid argument `%s' in strict mode!" arg))
       ;; else
       (if (eq res t) 2 res))))
 
@@ -344,13 +344,13 @@ Fifth arg HIST , specifies a history list and optionally the initial position
 
 See `read-from-minibuffer' for more information on all arguments."
   (let* ((prompt*
-	   (concat
-	     (or prompt ">>>")
-	     (if default-value (format " (%s)" default-value))
-	     (if (or prompt default-value) ":") " "))
-	 (res
-	   (read-from-minibuffer
-	     prompt* nil keymap read hist default-value)))
+           (concat
+             (or prompt ">>>")
+             (if default-value (format " (%s)" default-value))
+             (if (or prompt default-value) ":") " "))
+          (res
+            (read-from-minibuffer
+              prompt* nil keymap read hist default-value)))
     (or (unless (equal res "") res) default-value "")))
 
 
@@ -365,10 +365,10 @@ Variable `xorns-config-level' only must be defined in the scope of
 initialization process (See README file and documentation of
 `xorns-get-config-level' function)."
   (let ((conf
-	  (xorns-get-config-level
-	    (if (boundp 'xorns-config-level)
-	      (symbol-value 'xorns-config-level))))
-	 (level (xorns-get-config-level arg 'strict)))
+          (xorns-get-config-level
+            (if (boundp 'xorns-config-level)
+              (symbol-value 'xorns-config-level))))
+         (level (xorns-get-config-level arg 'strict)))
     (if conf (<= level conf))))
 
 

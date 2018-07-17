@@ -63,12 +63,12 @@
   "Get the shell name for a `ansi-term' (based in ARG)."
   (let*
     ((in-python (eq major-mode 'python-mode))
-     (shell
-       (cond
-	 ((null arg) (if in-python 'Python 'System))
-	 ((= (prefix-numeric-value arg) 3) 'Python-3)
-	 ((if in-python 'System 'Python)))))
-  shell))
+      (shell
+        (cond
+          ((null arg) (if in-python 'Python 'System))
+          ((= (prefix-numeric-value arg) 3) 'Python-3)
+          ((if in-python 'System 'Python)))))
+    shell))
 
 
 
@@ -93,10 +93,10 @@ environment variable `ESHELL', and any of [`bash' `sh' `ksh' `zsh' `tclsh'
 
 
 (defgroup xorns-term nil
-   "Running `xorns' shell from within Emacs buffers."
-   :prefix "xorns-term-"
-   :group 'xorns
-   :group 'shell)
+  "Running `xorns' shell from within Emacs buffers."
+  :prefix "xorns-term-"
+  :group 'xorns
+  :group 'shell)
 
 
 (defcustom xorns-term-shells nil
@@ -130,19 +130,19 @@ sent alone (this method is useful in shells like 'IPython' using '%paste'
 magic macro); a function is used to process the content in a custom defined
 way."
   :type '(repeat
-	   (list
-	     (integer :tag "Index")                ;; 0
-	     (choice :tag "Program"                ;; 1
-	       (string :tag "Executable")
-	       (cons :tag "With Options"
-		 (string :tag "Executable")
-		 (repeat :tag "Switches"
-		   (string :tag "Option"))))
-	     (symbol :tag "Mode")                  ;; 2
-	     (string :tag "Buffer Name")           ;; 3
-	     (choice :tag "Paste"                  ;; 4
-	       (string :tag "Template")
-	       (function :tag "Function"))))
+           (list
+             (integer :tag "Index")                ;; 0
+             (choice :tag "Program"                ;; 1
+               (string :tag "Executable")
+               (cons :tag "With Options"
+                 (string :tag "Executable")
+                 (repeat :tag "Switches"
+                   (string :tag "Option"))))
+             (symbol :tag "Mode")                  ;; 2
+             (string :tag "Buffer Name")           ;; 3
+             (choice :tag "Paste"                  ;; 4
+               (string :tag "Template")
+               (function :tag "Function"))))
   :group 'xorns-term)
 
 
@@ -165,7 +165,7 @@ way."
 
 
 (defcustom xorns-term-toggle-mode-key (kbd "C-c C-t")
-"A key\-binding to toggle between `term-line-mode' and `term-char-mode'.
+  "A key\-binding to toggle between `term-line-mode' and `term-char-mode'.
 
 This could be included as one of those defined in `xorns-term-paste-keys'."
   :type 'key-sequence
@@ -181,21 +181,21 @@ This could be included as one of those defined in `xorns-term-paste-keys'."
 
 
 (defadvice ansi-term (after xorns-register-shell-info
-		       (program &optional new-buffer-name)
-		       activate)
+                       (program &optional new-buffer-name)
+                       activate)
   "Store `xorns-term-shell-program' local variable."
   (unless xorns-term-shell-program
     (set (make-local-variable 'xorns-term-shell-program) program)))
 
 
 (defadvice term-exec (before xorns--term-exec
-		       (buffer name command startfile switches)
-		       activate)
+                       (buffer name command startfile switches)
+                       activate)
   "Set argument 'switches' if defined in local scope."
   (if (null switches)
     (let ((aux (xorns-get-value 'xorns--program-switches)))
       (if aux
-	(setq switches aux)))))
+        (setq switches aux)))))
 
 
 
@@ -209,7 +209,7 @@ This could be included as one of those defined in `xorns-term-paste-keys'."
     ((listp shell) shell)
     ((bufferp shell)
       (with-current-buffer shell
-	(list xorns-term-shell-index xorns-term-shell-program)))
+        (list xorns-term-shell-index xorns-term-shell-program)))
     ((integerp shell) (assq shell xorns-term-shells))))
 
 
@@ -266,17 +266,17 @@ This could be included as one of those defined in `xorns-term-paste-keys'."
   (let ((shell (xorns--shell-normalize shell)))
     (if shell
       (let ((res (nth 3 shell)))
-	(if (or (null res) (string= res ""))
-	  (setq res xorns-term-default-buffer-name-template))
-	(if (string-match "${" res)
-	  (setq res
-	    (s-format res 'aget
-	      (list
-		(cons 'index (xorns--shell-get-index shell))
-		(cons 'program (xorns--shell-get-program-executable shell))
-		(cons 'mode (xorns--shell-get-mode shell))
-		(cons 'name (xorns--shell-get-name shell))))))
-	res))))
+        (if (or (null res) (string= res ""))
+          (setq res xorns-term-default-buffer-name-template))
+        (if (string-match "${" res)
+          (setq res
+            (s-format res 'aget
+              (list
+                (cons 'index (xorns--shell-get-index shell))
+                (cons 'program (xorns--shell-get-program-executable shell))
+                (cons 'mode (xorns--shell-get-mode shell))
+                (cons 'name (xorns--shell-get-name shell))))))
+        res))))
 
 
 
@@ -293,11 +293,11 @@ the field 'Major modes' in `xorns-term-shells'."
   (or xorns-term-mode-shell-mapping
     (delq nil
       (mapcar
-	  (lambda (shell)
-	    (let ((mode (xorns--shell-get-mode shell)))
-	      (if mode
-		(cons mode (xorns--shell-get-index shell)))))
-	xorns-term-shells))))
+        (lambda (shell)
+          (let ((mode (xorns--shell-get-mode shell)))
+            (if mode
+              (cons mode (xorns--shell-get-index shell)))))
+        xorns-term-shells))))
 
 
 (defun xorns--shell-get (index)
@@ -306,12 +306,12 @@ the field 'Major modes' in `xorns-term-shells'."
     ;; Live buffer
     (car
       (delq nil
-	(mapcar
-	  (lambda (buf)
-	    (with-current-buffer buf
-	      (if (eq index xorns-term-shell-index)
-		buf)))
-	  (buffer-list))))
+        (mapcar
+          (lambda (buf)
+            (with-current-buffer buf
+              (if (eq index xorns-term-shell-index)
+                buf)))
+          (buffer-list))))
     ;; Registered shell
     (assq index xorns-term-shells)))
 
@@ -336,15 +336,15 @@ current mode."
 
 PROMPT is a string to prompt with; a colon and a space will be appended."
   (xorns-completing-read (or prompt "Run program") nil)
-)
+  )
 
 
 (defun xorns--ansi-term (shell)
   "Start or select a SHELL."
   (let ((index (xorns--shell-get-index shell))
-	(program (xorns--shell-get-program-executable shell))
-	(switches (xorns--shell-get-program-switches shell))
-	(buffer-name (xorns--shell-get-buffer-name shell)))
+         (program (xorns--shell-get-program-executable shell))
+         (switches (xorns--shell-get-program-switches shell))
+         (buffer-name (xorns--shell-get-buffer-name shell)))
     (message
       ">>> Opening terminal with INDEX %s and PROGRAM %s" index program)
     (let ((xorns--program-switches switches))
@@ -358,19 +358,19 @@ PROMPT is a string to prompt with; a colon and a space will be appended."
 (defun xorns--shell-get-new-index ()
   "Calculate an unused new shell index."
   (let ((buffer-indexes
-	  (delq nil
-	    (mapcar
-	      (lambda (buf)
-		(with-current-buffer buf
-		  xorns-term-shell-index))
-	      (buffer-list)))))
+          (delq nil
+            (mapcar
+              (lambda (buf)
+                (with-current-buffer buf
+                  xorns-term-shell-index))
+              (buffer-list)))))
     (let ((index 0) res)
       (while (null res)
-	(if (or (memq index buffer-indexes) (assq index xorns-term-shells))
-	  ;; next one
-	  (setq index (1+ index))
-	  ;; when not found, it is a match
-	  (setq res index)))
+        (if (or (memq index buffer-indexes) (assq index xorns-term-shells))
+          ;; next one
+          (setq index (1+ index))
+          ;; when not found, it is a match
+          (setq res index)))
       res)))
 
 
@@ -383,11 +383,11 @@ index 0."
   (let
     ((shell*
        (cond
-	 ((null shell) (xorns--shell-get 0))
-	 ((integerp shell) (xorns--shell-get shell))
-	 ((stringp shell) (list (xorns--shell-get-new-index) shell))
-	 (t shell)    ;; assuming `(bufferp shell)'
-	 )))
+         ((null shell) (xorns--shell-get 0))
+         ((integerp shell) (xorns--shell-get shell))
+         ((stringp shell) (list (xorns--shell-get-new-index) shell))
+         (t shell)    ;; assuming `(bufferp shell)'
+         )))
     (if (listp shell*)
       (xorns--ansi-term shell)
       ;; else, bufferp
@@ -446,31 +446,31 @@ The prefix ARG could be:
   (interactive "P")
   (let*
     ((shell (xorns-get-ansi-term-shell-name arg))
-     (cmd
-       (cond
-	 ((eq shell 'System)
-	   (xorns-system-shell))
-	 ((eq shell 'Python)
-	   (xorns-python-shell))
-	 (;else
-	   (xorns-python3-shell))))
+      (cmd
+        (cond
+          ((eq shell 'System)
+            (xorns-system-shell))
+          ((eq shell 'Python)
+            (xorns-python-shell))
+          (;else
+            (xorns-python3-shell))))
       (buf-name (format "%s Shell" shell))
       (starred (format "*%s*" buf-name))
       (cur-buf (get-buffer starred))
       (cur-proc (get-buffer-process cur-buf)))
     (if cur-buf
       (if cur-proc
-	(progn
-	  (setq cmd nil)
-	  (switch-to-buffer cur-buf))
-	;else
-	(message ">>> Killing buffer: %s" starred)
-	(kill-buffer cur-buf)))
+        (progn
+          (setq cmd nil)
+          (switch-to-buffer cur-buf))
+                                        ;else
+        (message ">>> Killing buffer: %s" starred)
+        (kill-buffer cur-buf)))
     (if cmd
       (progn
-	(message ">>> Opening: %s" starred)
-	(ansi-term cmd buf-name))
-      ;else
+        (message ">>> Opening: %s" starred)
+        (ansi-term cmd buf-name))
+                                        ;else
       cur-buf)))
 
 
@@ -507,13 +507,13 @@ The prefix ARG could be:
   (add-hook 'term-mode-hook
     (lambda ()
       (condition-case err
-	(progn
-	  (define-key term-mode-map
-	    xorns-term-toggle-mode-key 'xorns-toggle-term-mode)
-	  (define-key term-raw-map
-	    xorns-term-toggle-mode-key 'xorns-toggle-term-mode))
-	;; handlers
-	(error (message "error@term-mode-hook: %s" err))))))
+        (progn
+          (define-key term-mode-map
+            xorns-term-toggle-mode-key 'xorns-toggle-term-mode)
+          (define-key term-raw-map
+            xorns-term-toggle-mode-key 'xorns-toggle-term-mode))
+        ;; handlers
+        (error (message "error@term-mode-hook: %s" err))))))
 
 
 (provide 'xorns-term)

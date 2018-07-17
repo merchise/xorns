@@ -83,9 +83,9 @@ Always use `dired-mode-map' as the keymap.
 
 See `define-key' function for more information."
   (mapcar
-      #'(lambda (key)
-	  (define-key dired-mode-map key def))
-      keys))
+    #'(lambda (key)
+        (define-key dired-mode-map key def))
+    keys))
 
 
 (defun xorns-dired-clean-recursive-switches (params)
@@ -98,7 +98,7 @@ See also `bash' `ls' command and `xorns-dired-recursive' function."
   (let ((switches dired-listing-switches))
     (setq switches
       (replace-regexp-in-string " -[b-z0-9]*\\(a\\)" ""
-	switches t t 2)
+        switches t t 2)
       )
     ;; TODO: Finish and use this function
     )
@@ -158,12 +158,12 @@ another window."
     (dired-single-buffer default-dirname)
     (let ((dst (dired-current-directory)))
       (if (string-prefix-p dst org)
-	(let* ((targets (split-string (substring org (length dst)) "/"))
-	       (aux (car targets))
-	       (target (if (string= aux "") (cadr targets) aux)))
-	  (left-char 1)
-	  (search-forward (concat " " target "\n") nil t)
-	  (left-char (1+ (length target))))))))
+        (let* ((targets (split-string (substring org (length dst)) "/"))
+                (aux (car targets))
+                (target (if (string= aux "") (cadr targets) aux)))
+          (left-char 1)
+          (search-forward (concat " " target "\n") nil t)
+          (left-char (1+ (length target))))))))
 
 
 (defun xorns-dired-single-buffer-mouse (click)
@@ -173,8 +173,8 @@ Argument CLICK is the mouse-click event."
   (interactive "e")
   ;; Next code could be generalized in `xorns-utils'.
   (let* ( (start (event-start click))
-	  (window (car start))
-	  (pos (car (cdr start))) )
+          (window (car start))
+          (pos (car (cdr start))) )
     (select-window window)
     (goto-char pos))
   (xorns-dired-single-buffer))
@@ -212,7 +212,7 @@ If `dired-single' is not installed, does nothing."
 (when (xorns-configure-p 'basic)
   (if (boundp 'dired-mode-map)
     (xorns-dired-setup)
-    ; else
+                                        ; else
     (add-hook 'dired-load-hook 'xorns-dired-setup))
   (add-hook 'dired-load-hook
     (lambda () (load "dired-x"))))

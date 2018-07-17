@@ -29,13 +29,13 @@
 (require 'nxml-mode)
 
 (add-to-list 'hs-special-modes-alist
-             '(nxml-mode
-               "<!--\\|<[^/>]*[^/]>"
-               "-->\\|</[^/>]*[^/]>"
+  '(nxml-mode
+     "<!--\\|<[^/>]*[^/]>"
+     "-->\\|</[^/>]*[^/]>"
 
-               "<!--"
-               sgml-skip-tag-forward
-               nil))
+     "<!--"
+     sgml-skip-tag-forward
+     nil))
 
 (add-hook 'nxml-mode-hook 'hs-minor-mode)
 

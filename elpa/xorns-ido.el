@@ -40,8 +40,8 @@
   "Customize `ido' for vertical appearance."
   (xorns-set-value 'ido-decorations
     '("\n-> " "" "\n " "\n ..." "[" "]"
-      " [No match]" " [Matched]" " [Not readable]"
-      " [Too big]" " [Confirm]"))
+       " [No match]" " [Matched]" " [Not readable]"
+       " [Too big]" " [Confirm]"))
 
   (defun ido-disable-line-truncation ()
     (set (make-local-variable 'truncate-lines) nil))

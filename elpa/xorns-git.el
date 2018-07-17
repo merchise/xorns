@@ -49,15 +49,15 @@
       (global-set-key "\C-xg" 'magit-status)
       (global-set-key "\C-cg" 'magit-status)
       (add-hook 'git-commit-mode-hook  ; run when in `magit' mode
-	(lambda ()
-	  (condition-case err
-	    (progn
-	      (turn-on-auto-fill)
-	      (flyspell-mode nil)
-	      ;; TODO: Use .dir-locals.el
-	      (ispell-change-dictionary "english"))
-	    (error (message "error@git-commit-mode-hook: %s" err))))))
-    ;else
+        (lambda ()
+          (condition-case err
+            (progn
+              (turn-on-auto-fill)
+              (flyspell-mode nil)
+              ;; TODO: Use .dir-locals.el
+              (ispell-change-dictionary "english"))
+            (error (message "error@git-commit-mode-hook: %s" err))))))
+                                        ;else
     (xorns-missing-feature 'magit)))
 
 

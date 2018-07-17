@@ -54,12 +54,12 @@
 ;;; Some simple functions
 
 (defun -set-buffer-read-only ()
-   "Private function to be used in `xorns-next-grep-result'."
-   (xorns-set-value 'buffer-read-only t))
+  "Private function to be used in `xorns-next-grep-result'."
+  (xorns-set-value 'buffer-read-only t))
 
 
 (defun xorns-next-grep-result (&optional arg reset)
-   "Visit next grep result.
+  "Visit next grep result.
 
 If no grep process is active, find next error in occur buffer.
 

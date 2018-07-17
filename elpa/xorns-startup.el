@@ -74,8 +74,8 @@
 
 ;; Show current directory in title bar
 (xorns-set-value 'frame-title-format
-  ; Original value was::
-  ;    '(multiple-frames "%b" ("" invocation-name "@" system-name))
+                                        ; Original value was::
+                                        ;    '(multiple-frames "%b" ("" invocation-name "@" system-name))
   '(multiple-frames "%b"
      (""
        invocation-name
@@ -112,8 +112,8 @@
 (ido-mode t)
 
 (global-set-key (kbd "C-x b") 'ido-switch-buffer)  ;; Just to make sure a
-                                                   ;; previous binding is
-                                                   ;; properly set.
+;; previous binding is
+;; properly set.
 
 
 (when (not (version< emacs-version "24.3"))   ; Discover more of Emacs
@@ -149,8 +149,8 @@
   (lambda ()
     (condition-case err
       (progn
-	(add-to-list 'exec-path "~/.local/bin")
-	(add-to-list 'exec-path "~/bin"))
+        (add-to-list 'exec-path "~/.local/bin")
+        (add-to-list 'exec-path "~/bin"))
       (error (message "error@after-init-hook: %s" err)))))
 
 
