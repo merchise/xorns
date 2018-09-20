@@ -41,4 +41,5 @@
 
 (define-key nxml-mode-map (kbd "C-c +") 'hs-toggle-hiding)
 
+(provide 'xorns-xml)
 ;;; xorns-xml.el ends here
