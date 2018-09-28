@@ -207,7 +207,13 @@ If `dired-single' is not installed, does nothing."
   (xorns-dired-single-setup)
   (-dired-define-keys
     `(,(kbd "C-c o") ,(kbd "C-c C-o") ,(kbd "C-c h") ,(kbd "C-c C-h"))
-    'dired-omit-mode))
+    'dired-omit-mode)
+  (when (functionp 'w3m-goto-url)
+    (-dired-define-keys `("J")
+      #'(lambda () (interactive)
+	  (w3m-goto-url (dired-copy-filename-as-kill 0))))
+    )
+  )
 
 (when (xorns-configure-p 'basic)
   (if (boundp 'dired-mode-map)
