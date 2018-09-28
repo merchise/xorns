@@ -54,9 +54,9 @@
 (require 'env nil 'noerror)
 
 (let* ((current (getenv "PATH"))
-       (ok
-	 (let ((inhibit-changing-match-data t))
-	   (string-match "/\\.local/bin" current))))
+        (ok
+          (let ((inhibit-changing-match-data t))
+            (string-match "/\\.local/bin" current))))
   (if (not ok)
     (setenv "PATH" (concat current ":" (expand-file-name "~/.local/bin")))))
 
@@ -64,7 +64,7 @@
 (defun xorns-load-user-file (name)
   "Load user initialization file NAME."
   (let ((init-file
-	  (xorns-locate-emacs-file name nil)))
+          (xorns-locate-emacs-file name nil)))
     (if init-file
       (load init-file 'noerror))))
 
@@ -125,21 +125,21 @@ If `custom-file' variable is configured when this function runs, a proper
 warning is issued and no file is configured unless optional argument FORCE
 is given."
   (let* ((configured custom-file)
-	 (do-config (or (not configured) force)))
+          (do-config (or (not configured) force)))
     (if configured
       (message
-	"Warning: A `custom-file' \"%s\" is already configured!"
-	custom-file))
+        "Warning: A `custom-file' \"%s\" is already configured!"
+        custom-file))
     (if do-config
       (let ((file-name
-	       (xorns-locate-emacs-file "custom-${USER}.el" "custom.el")))
-      (setq custom-file file-name)
-      (if (file-exists-p custom-file)
-	(progn
-	  (load custom-file 'noerror)
-	  (message "Loading `custom-file': %s" file-name))
-	;else
-	(message "Using new `custom-file': %s" file-name))))))
+              (xorns-locate-emacs-file "custom-${USER}.el" "custom.el")))
+        (setq custom-file file-name)
+        (if (file-exists-p custom-file)
+          (progn
+            (load custom-file 'noerror)
+            (message "Loading `custom-file': %s" file-name))
+                                        ;else
+          (message "Using new `custom-file': %s" file-name))))))
 
 
 (when (xorns-configure-p 'basic)

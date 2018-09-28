@@ -103,7 +103,7 @@ python shell defined in function `xorns-python-shell'."
     (kill-new (buffer-substring start end))
     (let*
       ((buffer (xorns-ansi-term))
-       (process (get-buffer-process buffer)))
+        (process (get-buffer-process buffer)))
       ;; (with-current-buffer "*Python Shell*" (term-send-raw-string "x = 1\n")?
       (comint-send-string process "%paste\n"))))
 
@@ -174,8 +174,8 @@ python shell defined in function `xorns-python-shell'."
   (lambda ()
     (condition-case err
       (progn
-	(define-key python-mode-map (kbd "C-c C-r")
-	  'xorns-python-shell-send-paste)
+        (define-key python-mode-map (kbd "C-c C-r")
+          'xorns-python-shell-send-paste)
         (define-key python-mode-map "\C-m" 'newline-and-indent)
         (outline-minor-mode))
       (error (message "error@python-mode-hook: %s" err)))))
@@ -211,13 +211,13 @@ python shell defined in function `xorns-python-shell'."
     '(python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: ")
     '(python-shell-prompt-pdb-regexp "i?pdb> ")
     '(python-shell-prompt-regexp "In \\[[0-9]+\\]: ")
-     '(python-shell-completion-setup-code
-	"import sys; from IPython.core.completerlib import module_completion")
+    '(python-shell-completion-setup-code
+       "import sys; from IPython.core.completerlib import module_completion")
     '(python-shell-completion-string-code
        (concat
-	 "print(repr(str(';').join(str(ac) for ac in get_ipython()."
-	 "Completer.all_completions('''%s''')).strip()))"
-	 ""))))
+         "print(repr(str(';').join(str(ac) for ac in get_ipython()."
+         "Completer.all_completions('''%s''')).strip()))"
+         ""))))
 
 
 (defun xorns-python-indent-rigidly (start end arg)
@@ -292,9 +292,9 @@ This simply calls `indent-rigidly' using ±4 spaces."
 (defun c-lineup-arglist-tabs-only (ignored)
   "Line up argument lists by tabs, not spaces.  IGNORED is ignored."
   (let* ((anchor (c-langelem-pos c-syntactic-element))
-         (column (c-langelem-2nd-pos c-syntactic-element))
-         (offset (- (1+ column) anchor))
-         (steps (floor offset c-basic-offset)))
+          (column (c-langelem-2nd-pos c-syntactic-element))
+          (offset (- (1+ column) anchor))
+          (steps (floor offset c-basic-offset)))
     (* (max steps 1)
       c-basic-offset)))
 
@@ -316,9 +316,9 @@ This simply calls `indent-rigidly' using ±4 spaces."
         (when (and filename
                 (string-match (expand-file-name xorns-linux-kernel-trees-path)
                   filename))
-	  (xorns-set-values
-	    '(indent-tabs-mode t)
-	    '(show-trailing-whitespace t))
+          (xorns-set-values
+            '(indent-tabs-mode t)
+            '(show-trailing-whitespace t))
           (c-set-style "linux-tabs-only"))))) )
 
 

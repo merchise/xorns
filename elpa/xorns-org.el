@@ -66,7 +66,7 @@ This patch avoid this."
 (if xorns-avoid-load-dict-strategies
   (let ((dict-servers '("localhost")))
     (require 'dict nil 'noerror))
-  ;else
+                                        ;else
   (require 'dict nil 'noerror))
 
 
@@ -111,17 +111,17 @@ variable.
 The flag could be defined in a commented area in your code, but must be
 surrounded with blanks."
   (let* ( (regex
-	    "\\(^\\|\\W\\)trusted[[:blank:]]*=[[:blank:]]*true\\(\\W\\|$\\)")
-	  (res
-	    (not (string-match regex body)))
-	)
+            "\\(^\\|\\W\\)trusted[[:blank:]]*=[[:blank:]]*true\\(\\W\\|$\\)")
+          (res
+            (not (string-match regex body)))
+          )
     (if (and res xorns-org-confirm-babel-evaluate)
       (if (functionp xorns-org-confirm-babel-evaluate)
-	(funcall xorns-org-confirm-babel-evaluate lang body)
-        ; else
-	xorns-org-confirm-babel-evaluate
-	)
-      ; else
+        (funcall xorns-org-confirm-babel-evaluate lang body)
+                                        ; else
+        xorns-org-confirm-babel-evaluate
+        )
+                                        ; else
       res))
   )
 
@@ -140,19 +140,19 @@ surrounded with blanks."
   (xorns-set-values
     '(org-todo-keywords
        (quote
-	 ((sequence "TODO(t)" "|" "DONE(d!)")
-	  (sequence "FIX(f)" "BUG(b)" "|" "SOLVED(s!)")
-	  (sequence "DEVELOP(v)" "REVIEW(r!)" "TEST(p!)" "|" "DELIVERY(e@/!)")
-	  (sequence "WTF(w)" "XXX(x)" "|" "WORTHY(y!)")
-	  (sequence "|" "CANCELED(c@)"))))
+         ((sequence "TODO(t)" "|" "DONE(d!)")
+           (sequence "FIX(f)" "BUG(b)" "|" "SOLVED(s!)")
+           (sequence "DEVELOP(v)" "REVIEW(r!)" "TEST(p!)" "|" "DELIVERY(e@/!)")
+           (sequence "WTF(w)" "XXX(x)" "|" "WORTHY(y!)")
+           (sequence "|" "CANCELED(c@)"))))
     '(org-todo-keyword-faces
-      (quote
-	(("TODO" . org-warning)
-	 ("BUG" . org-warning)
-	  ("WTF" . "black")
-	  ("CANCELED" . (:foreground "blue" :weight bold))))
+       (quote
+         (("TODO" . org-warning)
+           ("BUG" . org-warning)
+           ("WTF" . "black")
+           ("CANCELED" . (:foreground "blue" :weight bold))))
        '(org-confirm-babel-evaluate xorns-org-confirm-babel-evaluate)))
-  ; TODO: (xorns-set-value 'org-enforce-todo-dependencies t)
+                                        ; TODO: (xorns-set-value 'org-enforce-todo-dependencies t)
   )
 
 
@@ -166,21 +166,21 @@ surrounded with blanks."
   (let*
     ((shebang
        (assoc :shebang org-babel-default-header-args:sh))
-     (prefix
-       "#!/bin/bash\n\nexport SUDO_ASKPASS=")
-     (full-prefix
-       (concat
-	 prefix
-	 (xorns-file-path-join (getenv "HOME") ".local/bin/asksp")
-	 "\n")))
+      (prefix
+        "#!/bin/bash\n\nexport SUDO_ASKPASS=")
+      (full-prefix
+        (concat
+          prefix
+          (xorns-file-path-join (getenv "HOME") ".local/bin/asksp")
+          "\n")))
     (if shebang
       (when (not (string-prefix-p prefix (cdr shebang)))
-	(setcdr shebang (concat full-prefix (cdr shebang))))
-      ; else
+        (setcdr shebang (concat full-prefix (cdr shebang))))
+                                        ; else
       (setq shebang (cons :shebang full-prefix)))
     (xorns-set-value 'org-babel-default-header-args:sh
       (cons shebang
-	(assq-delete-all :shebang org-babel-default-header-args:sh)))))
+        (assq-delete-all :shebang org-babel-default-header-args:sh)))))
 
 
 (when (featurep 'ob-python)
@@ -193,20 +193,20 @@ surrounded with blanks."
   (let*
     ((preamble
        (assoc :preamble org-babel-default-header-args:python))
-     (prefix
-       "\nfrom __future__ import ")
-     (full-prefix
-       (concat
-	 prefix
-	 "division, print_function, absolute_import\n")))
+      (prefix
+        "\nfrom __future__ import ")
+      (full-prefix
+        (concat
+          prefix
+          "division, print_function, absolute_import\n")))
     (if preamble
       (when (not (string-prefix-p prefix (cdr preamble)))
-	(setcdr preamble (concat full-prefix (cdr preamble))))
-      ; else
+        (setcdr preamble (concat full-prefix (cdr preamble))))
+                                        ; else
       (setq preamble (cons :preamble full-prefix)))
     (xorns-set-value 'org-babel-default-header-args:python
       (cons preamble
-	(assq-delete-all :preamble org-babel-default-header-args:python)))))
+        (assq-delete-all :preamble org-babel-default-header-args:python)))))
 
 
 (when (featurep 'dictionary)
@@ -217,7 +217,7 @@ surrounded with blanks."
 
 
 (when (featurep 'deft)
-  ; TODO: Remove all deft `.emacs.d' custom files
+                                        ; TODO: Remove all deft `.emacs.d' custom files
   (xorns-set-value 'deft-auto-save-interval 60.0)
   (add-to-list 'deft-extensions "rst" 'append)
   (global-set-key (kbd "<f12>") 'deft)
@@ -250,7 +250,7 @@ surrounded with blanks."
     (condition-case err
       (progn
         (turn-on-auto-fill)
-	(flyspell-mode nil)
+        (flyspell-mode nil)
         (xorns-set-value 'ispell-parser 'tex)
         (xorns-fci-mode-on))
       (error (message "error@org-mode-hook: %s" err)))))

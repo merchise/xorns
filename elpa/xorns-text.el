@@ -59,13 +59,13 @@
 (xorns-set-value 'show-paren-mode t)
 
 (xorns-set-values
-  ; Consecutive years replaced with range
+                                        ; Consecutive years replaced with range
   '(copyright-year-ranges t)
-  ; Add a newline automatically at the end of the file
+                                        ; Add a newline automatically at the end of the file
   '(require-final-newline t)
-  ; Do not display continuation lines
+                                        ; Do not display continuation lines
   '(truncate-lines t)
-  ; Parenthesis matching style
+                                        ; Parenthesis matching style
   '(show-paren-style 'mixed)
   )
 
@@ -101,7 +101,7 @@
 Don't fail if `'fill-column-indicator' is not available."
   (if (featurep 'fill-column-indicator)
     (fci-mode t)
-    ;else
+                                        ;else
     (xorns-missing-feature 'fill-column-indicator)))
 
 
@@ -111,7 +111,7 @@ Don't fail if `'fill-column-indicator' is not available."
 Don't fail if `'fill-column-indicator' is not available."
   (if (featurep 'fill-column-indicator)
     (fci-mode 0)
-    ;else
+                                        ;else
     (xorns-missing-feature 'fill-column-indicator)))
 
 
@@ -123,7 +123,7 @@ Don't fail if `'fill-column-indicator' is not available."
   (save-excursion
     (outline-back-to-heading)
     (if (not (outline-invisible-p (line-end-position)))
-	(outline-hide-subtree)
+      (outline-hide-subtree)
       (outline-show-subtree)
       (outline-show-entry))))
 
@@ -168,7 +168,7 @@ Don't fail if `'fill-column-indicator' is not available."
 If this feature is not installed don't fail and just report a message."
   (if (featurep 'auto-complete)
     (auto-complete-mode t)
-    ;else
+                                        ;else
     (xorns-missing-feature 'auto-complete)))
 
 

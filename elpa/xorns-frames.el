@@ -48,7 +48,7 @@
 ;;   (when (not (null window-system))
 ;;     (run-with-idle-timer (or delay 0.1) nil
 ;;       (lambda (frame)
-;; 	  (modify-frame-parameters frame '((fullscreen . maximized))))
+;;    (modify-frame-parameters frame '((fullscreen . maximized))))
 ;;       (if frame frame (caar (cdr (current-frame-configuration))))))
 
 
@@ -62,7 +62,7 @@ is assumed."
   (when (not (null window-system))
     (run-with-idle-timer (or delay 0.1) nil
       (lambda (frame)
-	(modify-frame-parameters frame '((fullscreen . fullboth))))
+        (modify-frame-parameters frame '((fullscreen . fullboth))))
       frame)))
 
 
