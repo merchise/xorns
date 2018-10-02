@@ -445,7 +445,8 @@ The prefix ARG could be:
   "Start a terminal\-emulator in a new buffer (based in ARG)."
   (interactive "P")
   (let*
-    ((shell (xorns-get-ansi-term-shell-name arg))
+    (
+      (shell (xorns-get-ansi-term-shell-name arg))
       (cmd
         (cond
           ((eq shell 'System)
@@ -470,7 +471,7 @@ The prefix ARG could be:
       (progn
         (message ">>> Opening: %s" starred)
         (ansi-term cmd buf-name))
-                                        ;else
+    ;else
       cur-buf)))
 
 
