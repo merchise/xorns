@@ -85,6 +85,9 @@
                    (or
                      (mode . dired-omit-mode)
                      (mode . dired-mode)))
+		 ("Web"
+                   (or
+                     (mode . w3m-mode)))
                  ("Org"
                    (or
                      (mode . org-mode)
@@ -94,6 +97,7 @@
                      (mode . bbdb-mode)
                      (name . "*Deft*")
                      (name . "bbdb")))
+                 ("Configuration" (mode . conf-unix-mode))
                  ("Python" (mode . python-mode))
                  ("Haskell/Agda/Coq"
                    (or
