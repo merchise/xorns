@@ -53,7 +53,14 @@
     'package-archives
     '("melpa" . "http://melpa.milkbox.net/packages/")))
 
-;; TODO: Review ("gnu" . "http://elpa.gnu.org/packages/")
+;; TODO: Review next
+;; In
+;; https://emacs.stackexchange.com/questions/44788/error-use-package-cannot-load-magit
+;; (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+;;              ("melpa" . "https://melpa.org/packages/")
+;;              ("marmalade" . "https://marmalade-repo.org/packages/")
+;;              ("melpa-stable" . "https://stable.melpa.org/packages/")
+;;              ("elpy" . "https://jorgenschaefer.github.io/packages/")))
 
 
 ;;;###autoload
