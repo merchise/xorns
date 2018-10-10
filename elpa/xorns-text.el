@@ -139,7 +139,7 @@ Don't fail if `'fill-column-indicator' is not available."
 (add-hook 'text-mode-hook
   (lambda ()
     (condition-case err
-      (linum-mode 1)
+      (xorns-try-linum-mode)
       (error (message "error@text-mode-hook: %s" err)))))
 
 

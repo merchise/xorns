@@ -49,6 +49,12 @@
   :group 'convenience)
 
 
+(defcustom xorns-big-buffer-size-limit 50
+  "Limit in KBytes to consider a buffer big (default is 50K)."
+  :group 'xorns
+  :type 'integer)
+
+
 
 ;;; Symbols and variables
 
@@ -243,6 +249,22 @@ then a space and the value of `default-directory'."
       (kill-new pwd))
     (unless no-show
       (message "%s %s" prompt pwd))))
+
+
+;;;###autoload
+(defun xorns-try-linum-mode ()
+  "Enable line numbers in the left margin but only if buffer is not big.
+
+A buffer is considered big if buffer size is less that
+`xorns-big-buffer-size-limit'."
+  (let ((buffer-size (/ (buffer-size) 1024)))
+    (if (< buffer-size xorns-big-buffer-size-limit)
+      (linum-mode 1)
+      ; else
+      (linum-mode 0)
+      (message "Disable 'linum-mode' for a big buffer: %sK" buffer-size))
+      nil
+  ))
 
 
 ;; TODO: This code must be removed when every body uses Emacs >= 24.3

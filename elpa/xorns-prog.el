@@ -45,7 +45,7 @@
 (require 'cc-mode nil 'noerror)
 (require 'javadoc-lookup nil 'noerror)
 
-(require 'xorns-text nil 'noerror)
+;(require 'xorns-text nil 'noerror)
 (require 'xorns-utils nil 'noerror)
 
 
@@ -143,7 +143,7 @@ python shell defined in function `xorns-python-shell'."
         (turn-on-auto-fill)
         (ispell-change-dictionary "english")
         (subword-mode nil)
-        (linum-mode 1))
+        (xorns-try-linum-mode))
       (error (message "error@prog-mode-hook: %s" err)))))
 
 
@@ -163,7 +163,7 @@ python shell defined in function `xorns-python-shell'."
         (turn-on-auto-fill)
         (ispell-change-dictionary "english")
         (subword-mode nil)
-        (linum-mode 1))
+        (xorns-try-linum-mode))
       (error (message "error@conf-unix-mode-hook: %s" err)))))
 
 
