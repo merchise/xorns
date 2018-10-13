@@ -49,8 +49,8 @@
 ;;; Code:
 
 
-(require 'use-package nil 'noerror)
-
+(eval-when-compile
+  (require 'use-package nil 'noerror))
 
 (use-package lsp-mode
   :ensure t
