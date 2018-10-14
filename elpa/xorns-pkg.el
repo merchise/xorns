@@ -1,4 +1,5 @@
+;;; -*- no-byte-compile: t -*-
 (define-package
-  "xorns" "20180703.1855"
+  "xorns" "20181014.1105"
   "Merchise extensions for Emacs"
-  '((dash "20171028.854") (f "20171119.723") (s "20171102.227")))
+  '((emacs "26.1") (dash "20180726.1213") (f "20180106.922") (s "20180406.808") (use-package "20180715.1801")))
