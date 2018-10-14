@@ -52,16 +52,17 @@
 (eval-when-compile
   (require 'use-package nil 'noerror))
 
+
 (use-package lsp-mode
   :ensure t
+  :functions (projectile-project-root lsp-python-enable)
+
   :config
 
-  ;; make sure we have lsp-imenu everywhere we have LSP
   (require 'lsp-imenu)
+
   (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
-  ;; project root
-  ;; NB: use either projectile-project-root or ffip-get-project-root-directory
-  ;;     or any other function that can be used to find the root directory of a project
+
   (lsp-define-stdio-client
     lsp-python
     "python"
@@ -72,13 +73,12 @@
 
   ;; make sure this is activated when python-mode is activated
   ;; lsp-python-enable is created by macro above
-  (add-hook 'python-mode-hook
-            (lambda ()
-              (lsp-python-enable)))
+  (add-hook 'python-mode-hook (lambda () (lsp-python-enable)))
 
   ;; lsp extras
   (use-package lsp-ui
     :ensure t
+    :functions (lsp--as-regex lsp--enable-stdio-client lsp--set-configuration)
     :config
     (setq lsp-ui-sideline-ignore-duplicate t)
     (add-hook 'lsp-mode-hook 'lsp-ui-mode))
