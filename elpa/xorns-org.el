@@ -78,7 +78,7 @@ This patch avoid this."
 (require 'org nil 'noerror)
 (require 'calendar nil 'noerror)
 (require 'ob-core nil 'noerror)
-(require 'ob-sh nil 'noerror)
+(require 'ob-shell nil 'noerror)
 (require 'ob-python nil 'noerror)
 (require 'xorns-text nil 'noerror)
 (require 'xorns-utils nil 'noerror)
@@ -156,16 +156,16 @@ surrounded with blanks."
   )
 
 
-(when (featurep 'ob-sh)
-  (when (not (assoc 'sh org-babel-load-languages))
+(when (featurep 'ob-shell)
+  (when (not (assoc 'shell org-babel-load-languages))
     (xorns-set-value 'org-babel-load-languages
-      (cons '(sh . t) org-babel-load-languages)))
-  (xorns-set-value 'org-babel-default-header-args:sh
+      (cons '(shell . t) org-babel-load-languages)))
+  (xorns-set-value 'org-babel-default-header-args:shell
     (cons '(:results . "output")
-      (assq-delete-all :results org-babel-default-header-args:sh)))
+      (assq-delete-all :results org-babel-default-header-args:shell)))
   (let*
     ((shebang
-       (assoc :shebang org-babel-default-header-args:sh))
+       (assoc :shebang org-babel-default-header-args:shell))
       (prefix
         "#!/bin/bash\n\nexport SUDO_ASKPASS=")
       (full-prefix
@@ -178,9 +178,9 @@ surrounded with blanks."
         (setcdr shebang (concat full-prefix (cdr shebang))))
                                         ; else
       (setq shebang (cons :shebang full-prefix)))
-    (xorns-set-value 'org-babel-default-header-args:sh
+    (xorns-set-value 'org-babel-default-header-args:shell
       (cons shebang
-        (assq-delete-all :shebang org-babel-default-header-args:sh)))))
+        (assq-delete-all :shebang org-babel-default-header-args:shell)))))
 
 
 (when (featurep 'ob-python)
