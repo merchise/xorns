@@ -42,6 +42,7 @@
 
 (package-initialize)
 
+
 (defun delete-old-package ()
   "Remove old package if installed."
   (let ((pkg 'xorns))

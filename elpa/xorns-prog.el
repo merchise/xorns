@@ -289,6 +289,7 @@ This simply calls `indent-rigidly' using ±4 spaces."
   :group 'xorns
   :type 'string)
 
+;; TODO: 'c-syntactic-element' is void
 (defun c-lineup-arglist-tabs-only (ignored)
   "Line up argument lists by tabs, not spaces.  IGNORED is ignored."
   (let* ((anchor (c-langelem-pos c-syntactic-element))

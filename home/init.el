@@ -45,4 +45,6 @@
                (coding-system-for-read 'utf-8))
     (load-file (shell-command-to-string agda-locate))))
 
+
+(provide 'init)
 ;;; init.el ends here
