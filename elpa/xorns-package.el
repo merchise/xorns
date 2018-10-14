@@ -26,10 +26,19 @@
 
 ;;; Commentary:
 
-;; Add packages repositories preferred by Merchise:
-;;  - elpa: Original Emacs Lisp Package Archive
-;;  - marmalade: User-contributed repository
-;;  - melpa: ?
+;; Add package archives preferred by us:
+;;
+;; - gnu (the system default): https://elpa.gnu.org/packages/
+;; - melpa: https://melpa.org/packages/
+;; - marmalade: https://marmalade-repo.org/packages/
+;;
+;; Extra package archives (see below) are configured while starting Emacs if
+;; `xorns-extra-package-archives' variable is t, or at any time calling
+;; `xorns-configure-extra-package-archives' function:
+;;
+;; - elpa: https://tromey.com/elpa/
+;; - melpa-stable: https://stable.melpa.org/packages/
+;; - elpy: https://jorgenschaefer.github.io/packages/
 
 ;; This module is automatically used when::
 ;;
@@ -40,36 +49,44 @@
 
 ;;; Code:
 
-(require 'package)
 
-(when (xorns-configure-p 'general)
-  (add-to-list
-    'package-archives
-    '("elpa" . "http://tromey.com/elpa/"))
-  (add-to-list
-    'package-archives
-    '("marmalade" . "http://marmalade-repo.org/packages/"))
-  (add-to-list
-    'package-archives
-    '("melpa" . "http://melpa.milkbox.net/packages/")))
-
-;; TODO: Review next
-;; In
-;; https://emacs.stackexchange.com/questions/44788/error-use-package-cannot-load-magit
-;; (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-;;              ("melpa" . "https://melpa.org/packages/")
-;;              ("marmalade" . "https://marmalade-repo.org/packages/")
-;;              ("melpa-stable" . "https://stable.melpa.org/packages/")
-;;              ("elpy" . "https://jorgenschaefer.github.io/packages/")))
+(require 'package nil 'noerror)
+(require 'use-package nil 'noerror)
 
 
-;;;###autoload
+(defcustom xorns-extra-package-archives nil
+  "If t, extra package archives are configured while starting Emacs."
+  :group 'xorns
+  :type 'boolean)
+
+
+(defun xorns-configure-extra-package-archives ()
+  "Configure extra `package-archives'."
+  (interactive)
+  (add-to-list 'package-archives
+    '("elpa" . "https://tromey.com/elpa/") t)
+  (add-to-list 'package-archives
+    '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+  (add-to-list 'package-archives
+    '("elpy" . "https://jorgenschaefer.github.io/packages/") t))
+
+
 (defun xorns-dependency-install (feature)
   "Install a dependency FEATURE if not installed."
   (condition-case err
     (when (not (package-installed-p feature))
       (package-install feature))
     (error (message "error@dependency-install: %s" err))))
+
+
+(add-to-list 'package-archives    ;; "http://melpa.milkbox.net/packages/" ?
+  '("melpa" . "https://melpa.org/packages/") t)
+(add-to-list 'package-archives
+  '("marmalade" . "https://marmalade-repo.org/packages/") t)
+
+
+(if xorns-extra-package-archives
+  (xorns-configure-extra-package-archives))
 
 
 (provide 'xorns-package)
