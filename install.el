@@ -55,7 +55,7 @@
 
 (defun install-process ()
   "Execute all installation process."
-  (let ((src (expand-file-name "elpa"))
+  (let ((src (expand-file-name "package"))
 	(pkg (expand-file-name "xorns" temporary-file-directory)))
     (message "Create symbolic link from `%s' to `%s'." src pkg)
     (make-symbolic-link src pkg 'ok-if-exists)
