@@ -97,7 +97,7 @@
 
 
 
-;;; Other standard or ELPA packages initialization
+;;; Other standard or packages initialization
 
 ;; Set shift-(left, right, up, down) to move between windows
 

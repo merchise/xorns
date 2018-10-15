@@ -25,9 +25,9 @@
 
 ;;; Commentary:
 
-;; Extensions functions that can be used in a plain Emacs (with no ELPA
-;; extensions installed).  All mode specific functions must be placed
-;; in the specific `xorns' sub-module.
+;; Extensions functions that can be used in a plain Emacs (with no extensions
+;; installed).  All mode specific functions must be placed in the specific
+;; `xorns' sub-module.
 
 ;; Enjoy!
 

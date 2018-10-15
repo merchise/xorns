@@ -90,7 +90,6 @@ executed (see `Specific Merchise Settings`_ for more info).
 
 A final initialization file could be::
 
-    ;; Activate ELPA packages.
     (package-initialize)
 
     (let ((xorns-config-level 'maximum))
@@ -103,9 +102,9 @@ A final initialization file could be::
 Auxiliary Commands
 ------------------
 
-In `Xorns ELPA package` there is a folder named `bin` with several shell
-executable files in order to use them to open `emacsclient` in any context,
-inside or outside Emacs, when server is running or not:
+In `Xorns` there is a folder named `bin` with several shell executable files
+in order to use them to open `emacsclient` in any context, inside or outside
+Emacs, when server is running or not:
 
 - emc
 
