@@ -51,7 +51,6 @@
 
 
 (require 'package nil 'noerror)
-(require 'use-package nil 'noerror)
 
 
 (defcustom xorns-extra-package-archives nil
