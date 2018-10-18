@@ -57,21 +57,6 @@
 
 
 
-(defcustom xorns-use-workspace-for-jedi nil
-  "Have jedi include your `xorns-preferred-default-directory'.
-
-Possible values are: nil, t or the symbol `subdirs'.  If t your preferred
-default directory will be included alone.  If `subdirs` each of the
-sub-directories in your preferred default directory will be included.  If nil,
-then the preferred directory will not be included (unless other customizations
-do it)."
-  :group 'xorns
-  :type '(choice
-           (const :tag "Don't include any thing" nil)
-           (const :tag "Include subdirs" subdirs)
-           (const :tag "Include top-directory" t)))
-
-
 
 ;;; Nice buffer names
 
@@ -368,56 +353,6 @@ xorns-find-project-virtualenv-dir."
         (add-to-list local-exec-path buildout-exec-path)))))
 
 
-(defun xorns-project-jedi-setup (&optional project-file-name sentinel buffer)
-  "Setup the `jedi:server-args' for the project's virtualenv.
-
-The PROJECT-FILE-NAME, SENTINEL and BUFFER parameters have the same meaning
-that in `xorns-find-project-virtualenv-dir'."
-  (if (featurep 'jedi)
-    (let* ((virtualenv-dir (xorns-find-project-virtualenv-dir
-                             project-file-name sentinel buffer))
-            (buildout-txt (xorns-find-project-def-file
-                            "buildout.project.el" sentinel buffer))
-            (buildout-deveggs
-              (when buildout-txt
-                (with-temp-buffer
-                  (progn
-                    (insert-file-contents buildout-txt)
-                    (unless (zerop (buffer-size))
-                      (read (current-buffer)))
-                    ))))
-            (preferred-dirs
-              (cond
-                ((eq xorns-use-workspace-for-jedi t)
-                  (xorns-preferred-default-directory))
-                ((eq xorns-use-workspace-for-jedi 'subdirs)
-                  (cl-remove-if-not
-                    (lambda (d) (if (file-directory-p d) d))
-                    (cl-subseq
-                      (directory-files
-                        (xorns-preferred-default-directory)
-                        'fullname)
-                      2)))))
-            (jedi-server-args
-              (append
-                (when buildout-deveggs
-                  (-mapcat
-                    (lambda (dir) (list "-p" dir))
-                    buildout-deveggs))
-                (when preferred-dirs
-                  (-mapcat
-                    (lambda (dir) (list "-p" dir))
-                    preferred-dirs))
-                (when virtualenv-dir
-                  (list "-v" virtualenv-dir))
-                )))
-      (when jedi-server-args
-        (message "Jedi arguments are: '%s' for buffer '%s'"
-          jedi-server-args (or buffer (current-buffer)))
-        (set (make-local-variable 'jedi:server-args) jedi-server-args)))
-    ;; else
-    (xorns-missing-feature 'jedi)))
-
 
 (defun xorns-find-better-unique-buffer-name ()
   "Hook for `find-file-hook' to find a better buffer name."
@@ -509,16 +444,6 @@ the python shell."
         (unless (tramp-connectable-p (buffer-file-name))
           (xorns-exec-path-setup))))))
 
-(when (xorns-configure-p 'general)
-  (add-hook
-    'python-mode-hook        ; run when editing python source code
-    (lambda ()
-      (condition-case err
-        (progn
-          (unless (tramp-connectable-p (buffer-file-name))
-            (xorns-project-jedi-setup)
-            (xorns-python-shell-setup-completion)))
-        (error (message "error@python-mode-hook: %s" err))))))
 
 
 (provide 'xorns-project)
