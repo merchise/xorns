@@ -88,6 +88,13 @@
   )
 
 
+(defcustom pyls-extra-arguments nil
+  "Extra arguments for the python language server."
+  :group 'lsp-python
+  :risky t
+  :type '(repeat string))
+
+
 (use-package lsp-mode
   :ensure t
   :functions (projectile-project-root lsp-python-enable)
@@ -101,13 +108,14 @@
     lsp-python
     "python"
     #'projectile-project-root
-    '("pyls")
+    nil
+    :command-fn (lambda () `("pyls" ,@pyls-extra-arguments))
     :docstring "Enable Language Server Protocol for Python."
     )
 
   ;; make sure this is activated when python-mode is activated
   ;; lsp-python-enable is created by macro above
-  (add-hook 'python-mode-hook (lambda () (lsp-python-enable)))
+  (add-hook 'python-mode-hook #'lsp-python-enable)
   ;; (add-hook 'python-mode-hook 'flycheck-mode)
 
   ;; lsp extras
