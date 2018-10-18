@@ -29,6 +29,7 @@
 ;;; Code:
 
 
+(require 'python nil 'noerror)
 (require 'flycheck nil 'noerror)
 
 
@@ -129,6 +130,7 @@ This simply calls `indent-rigidly' using ±4 spaces."
       (add-hook 'after-init-hook
         (lambda ()
           (unless (tramp-connectable-p (buffer-file-name))
+
             (global-flycheck-mode))))
       (xorns-set-value 'flycheck-idle-change-delay 60)
       )
