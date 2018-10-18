@@ -19,6 +19,8 @@
 
 ** Issues [/]
 
+- [ ] Replace 'emacs-goodies-el' with 'elpa'.
+
 - [ ] See [[info:elisp#Warning%20Tips][Tips for Avoiding Compiler Warnings]].
 
 - [ ] Correct error: function not known to be defined ("tramp-connectable-p")
