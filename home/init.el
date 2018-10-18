@@ -21,6 +21,7 @@
 
 
 (package-initialize)
+ (require 'use-package)
 
 ;; Q: Why this is needed?
 ;; A: Because new magit versions check this to show a rather long message
