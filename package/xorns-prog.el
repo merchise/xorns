@@ -38,10 +38,7 @@
 
 (require 'outline)
 (require 'comint nil 'noerror)
-(require 'flycheck nil 'noerror)
 (require 'yasnippet nil 'noerror)
-(require 'python nil 'noerror)
-(require 'jedi nil 'noerror)
 (require 'cc-mode nil 'noerror)
 (require 'javadoc-lookup nil 'noerror)
 
@@ -49,78 +46,47 @@
 (require 'xorns-utils nil 'noerror)
 
 
-;;; Some variables
-(xorns-set-values
-  '(emacs-lisp-docstring-fill-column 78)
-  '(lisp-indent-offset 2)
-  '(make-backup-files nil)    ;; Use Version Control instead ;)
+(use-package emacs
+  :custom
+  (emacs-lisp-docstring-fill-column 78)
+  (lisp-indent-offset 2)
+  ;; See alternatives in:
+  ;; https://www.emacswiki.org/emacs/Auto Save
+  ;; https://www.emacswiki.org/emacs/BackupFiles
+  (make-backup-files nil)
+  ;; TODO: Conflict with 'pyls'
+  (create-lockfiles nil)
   )
 
 
-(defun xorns-python-shell ()
-  "Return the command to use as python shell.
+(use-package python
+  :defer t
+  :init
+  (defun -inferior-python-setup()
+    (xorns-set-value 'indent-tabs-mode nil)
+    (linum-mode 0))
 
-To calculate the value, test first the custom value of equal name and
-if not valid, looks up in a list of alternatives (in order):
-`ipython', custom Emacs variable `python-command', environment
-variable `PYTHON' and custom variables `python-python-command' and
-`python-jython-command'."
-  (xorns-executable-find
-    (xorns-get-value 'python-shell-interpreter)
-    (getenv "PYTHON")
-    (xorns-get-original-value 'python-shell-interpreter)
-    "ipython" "python"))
+  :custom
+  (python-shell-interpreter "ipython")
+  (python-shell-interpreter-args "-i --simple-prompt")
+  (python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: ")
+  (python-shell-prompt-pdb-regexp "i?pdb> ")
+  (python-shell-prompt-regexp "In \\[[0-9]+\\]: ")
+  (python-shell-completion-setup-code
+    "import sys; from IPython.core.completerlib import module_completion")
+  (python-shell-completion-string-code
+    (concat
+      "print(repr(str(';').join(str(ac) for ac in get_ipython()."
+      "Completer.all_completions('''%s''')).strip()))"
+      ""))
 
-
-(defun xorns-python3-shell ()
-  "Command to use as python\-3 shell.
-
-In this case there is not a paired custom variable.  To calculate the
-value to return, this function tests first two alternatives:
-`ipython3' and `python3'.  If none is valid, use the logic for the
-python shell defined in function `xorns-python-shell'."
-  (let ((py3 (xorns-executable-find "ipython3" "python3")))
-    (or py3 (xorns-python-shell))))
-
-
-;;;###autoload
-(defun xorns-python-shell-send-paste (start end)
-  "Send the region delimited by START and END wrapped with a %paste magic."
-  (interactive "r")
-  (unless (region-active-p)
-    ;; If the region is not active, use the current line
-    (save-excursion
-      (end-of-line)
-      (setq end (point))
-      (beginning-of-line)
-      (search-forward-regexp "[^\\s \t\n]" end 'noerror)
-      (backward-char)  ;; search-forward ends after that
-      (setq start (point))))
-  ;; `python-shell-send-string' does too much magic trying to detect the
-  ;; beginning of the output; using `comint-send-string' seems to be more
-  ;; reliable.
-  (save-excursion
-    (kill-new (buffer-substring start end))
-    (let*
-      ((buffer (xorns-ansi-term))
-        (process (get-buffer-process buffer)))
-      ;; (with-current-buffer "*Python Shell*" (term-send-raw-string "x = 1\n")?
-      (comint-send-string process "%paste\n"))))
+  :bind (:map python-mode-map ("C-m" . newline-and-indent))
+  :hook ((python-mode . outline-minor-mode)
+	 (inferior-python-mode . -inferior-python-setup))
+  )
 
 
 ;;; Hooks
-
-(when (xorns-configure-p 'basic)
-  (if (featurep 'flycheck)
-    (progn
-      (add-hook 'after-init-hook
-        (lambda ()
-          (unless (tramp-connectable-p (buffer-file-name))
-            (global-flycheck-mode))))
-      (xorns-set-value 'flycheck-idle-change-delay 60)
-      )
-    ;; else
-    (xorns-missing-feature 'flycheck)))
 
 
 (when (xorns-configure-p 'basic)
@@ -170,97 +136,12 @@ python shell defined in function `xorns-python-shell'."
 
 ;;; Python
 
-(add-hook 'python-mode-hook
-  (lambda ()
-    (condition-case err
-      (progn
-        (define-key python-mode-map (kbd "C-c C-r")
-          'xorns-python-shell-send-paste)
-        (define-key python-mode-map "\C-m" 'newline-and-indent)
-        (outline-minor-mode))
-      (error (message "error@python-mode-hook: %s" err)))))
-
-
-(when (xorns-configure-p 'basic)
-  (add-hook 'python-mode-hook
-    (lambda ()
-      (condition-case err
-        (unless (tramp-connectable-p (buffer-file-name))
-          (xorns-jedi-setup))
-        (error (message "error@python-mode-hook: %s" err))))))
-
-
-(when (xorns-configure-p 'general)
-  (add-hook 'inferior-python-mode-hook
-    ;; Avoid sending TABs to ipython process, otherwise the ipython will
-    ;; respond with autocompletion.
-    (lambda ()
-      (condition-case err
-        (progn
-          (xorns-set-value 'indent-tabs-mode nil)
-          (linum-mode 0))
-        (error (message "error@inferior-python-mode-hook: %s" err)))))
-
-  (xorns-set-values
-    ;; Configure `ipython` as shell when use function `run-python` and other
-    ;; related commands.
-    ;; This configuration is based in the way we, in Merchise, configure
-    ;; IPython.  See README documentation for more information.
-    '(python-shell-interpreter "ipython")
-    '(python-shell-interpreter-args "-i --simple-prompt")
-    '(python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: ")
-    '(python-shell-prompt-pdb-regexp "i?pdb> ")
-    '(python-shell-prompt-regexp "In \\[[0-9]+\\]: ")
-    '(python-shell-completion-setup-code
-       "import sys; from IPython.core.completerlib import module_completion")
-    '(python-shell-completion-string-code
-       (concat
-         "print(repr(str(';').join(str(ac) for ac in get_ipython()."
-         "Completer.all_completions('''%s''')).strip()))"
-         ""))))
-
-
-(defun xorns-python-indent-rigidly (start end arg)
-  "Indent rigidly the region.
-
-START and END mark the region.  ARG will be used to tell whether to indent or
-outdent.
-
-This simply calls `indent-rigidly' using ±4 spaces."
-  (interactive "r\np")
-
-  ;; TODO: Take ±4 from a configuration/environmental feature
-  (if (= arg 1)  ;; the non-arg
-    (indent-rigidly start end 4)
-    (indent-rigidly start end -4)))
-
-(when (xorns-configure-p 'general)  ;; Make C-x C-tab indent rightly in Python
-  (define-key python-mode-map (kbd "C-x <C-tab>") 'xorns-python-indent-rigidly)
-  (define-key python-mode-map (kbd "C-x C-x <tab>") 'xorns-python-indent-rigidly))
 
 
 ;; Python for reST
 
-(when (xorns-configure-p 'maximum)
-  (add-hook 'text-mode-hook
-    (lambda ()
-      (define-key rst-mode-map (kbd "C-c C-r !")
-        'xorns-python-shell-send-paste)
-      (define-key rst-mode-map (kbd "C-c C-r C-r")
-        'xorns-python-shell-send-cpaste))))
 
 
-;;;###autoload
-(defun xorns-jedi-setup ()
-  "Setup `jedi' for current buffer."
-  (if (featurep 'jedi)
-    (progn
-      (jedi:setup)
-      (define-key python-mode-map "\C-ch" 'jedi:show-doc)
-      (define-key python-mode-map "\M-." 'jedi:goto-definition)
-      (define-key python-mode-map "\M-*" 'jedi:goto-definition-pop-marker))
-    ;; else
-    (xorns-missing-feature 'jedi)))
 
 
 
@@ -328,9 +209,7 @@ This simply calls `indent-rigidly' using ±4 spaces."
 ;;;###autoload
 (defun xorns-prog-dependencies-install ()
   "Install all dependencies of text modes."
-  (xorns-dependency-install 'flycheck)
   (xorns-dependency-install 'yasnippet)
-  (xorns-dependency-install 'jedi)
   (xorns-dependency-install 'js2-mode)
   (xorns-dependency-install 'tern)
   (xorns-dependency-install 'tern-auto-complete)
