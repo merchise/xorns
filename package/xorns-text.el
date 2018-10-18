@@ -158,6 +158,7 @@ Don't fail if `'fill-column-indicator' is not available."
         (flyspell-mode nil)             ; When used flyspell-prog-mode I
                                         ; can't see the errors while typing
         (xorns-set-value 'ispell-parser 'tex)
+	(xorns-set-value 'rst-new-adornment-down t)
         (xorns-fci-mode-on))
       (error (message "error@rst-mode-hook: %s" err)))))
 
