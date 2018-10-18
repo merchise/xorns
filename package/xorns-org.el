@@ -66,7 +66,7 @@ This patch avoid this."
 (if xorns-avoid-load-dict-strategies
   (let ((dict-servers '("localhost")))
     (require 'dict nil 'noerror))
-                                        ;else
+  ;else
   (require 'dict nil 'noerror))
 
 
@@ -74,7 +74,6 @@ This patch avoid this."
 (require 'ispell)
 (require 'rfcview nil 'noerror)
 (require 'wget nil 'noerror)
-(require 'deft nil 'noerror)
 (require 'org nil 'noerror)
 (require 'calendar nil 'noerror)
 (require 'ob-core nil 'noerror)
@@ -84,14 +83,33 @@ This patch avoid this."
 (require 'xorns-utils nil 'noerror)
 
 
-(defun xorns-deft-open-file (&optional arg)
-  "When the point is at a widget, open the file in a new buffer.
+(use-package deft
+  :custom
+  (deft-extensions '("txt" "text" "md" "markdown" "org" "rst"))
+  (deft-use-filter-string-for-filename t)
+  (deft-use-filename-as-title t)
+  (deft-auto-save-interval 60.0)
+  (deft-directory "~/.pim/notes/")
+  (deft-strip-summary-regexp "\\([
+	]\\|=\\{3,\\}\\|-\\{3,\\}\\|^#\\+[[:upper:]_]+:.*$\\)")
+
+  :config
+  (eval-when-compile
+    (declare-function deft-filename-at-point "deft.el")
+    (declare-function deft-open-file "deft.el"))
+
+  (defun xorns-deft-open-file (&optional arg)
+    "When the point is at a widget, open the file in a new buffer.
 The argument ARG is passed to `deft-open-file' as SWITCH."
-  (interactive "P")
-  (let ((file (deft-filename-at-point)))
-    (when file
-      (deft-open-file file nil arg)
-      (kill-buffer "*Deft*"))))
+    (interactive "P")
+    (let ((file (deft-filename-at-point)))
+      (when file
+	(deft-open-file file nil arg)
+	(kill-buffer "*Deft*"))))
+
+  :bind
+  ("<f12>" . deft)
+  (:map deft-mode-map ("M-RET" . xorns-deft-open-file)))
 
 
 (defcustom xorns-org-confirm-babel-evaluate
@@ -214,14 +232,6 @@ surrounded with blanks."
   (xorns-set-values
     '(dictionary-server "localhost")
     '(dictionary-use-single-buffer t)))
-
-
-(when (featurep 'deft)
-                                        ; TODO: Remove all deft `.emacs.d' custom files
-  (xorns-set-value 'deft-auto-save-interval 60.0)
-  (add-to-list 'deft-extensions "rst" 'append)
-  (global-set-key (kbd "<f12>") 'deft)
-  (define-key deft-mode-map (kbd "M-RET") 'xorns-deft-open-file))
 
 
 (when (featurep 'rfcview)
