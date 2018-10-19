@@ -48,6 +48,18 @@
 (eval-when-compile
   (require 'use-package nil 'noerror))
 
+
+(defgroup xorns-prog nil
+  "Programming configurations for `xorns'."
+  :prefix "xorns-prog-"
+  :group 'xorns
+  :group 'programming)
+
+
+
+
+;; Emacs Lisp
+
 (use-package lisp-mode
   :custom
   (emacs-lisp-docstring-fill-column 78)
@@ -59,6 +71,23 @@
   ;; TODO: Conflict with 'pyls'
   (create-lockfiles nil)
   )
+
+
+
+
+;; Python
+
+(defgroup xorns-python nil
+  "Programming configurations for `xorns'."
+  :prefix "xorns-python-"
+  :group 'xorns-prog
+  :group 'python)
+
+
+(defcustom xorns-python-pyls-arguments nil
+  "Extra arguments for the python language server."
+  :group 'xorns-python
+  :type '(repeat string))
 
 
 (use-package python
@@ -88,15 +117,9 @@
   )
 
 
-(defcustom pyls-extra-arguments nil
-  "Extra arguments for the python language server."
-  :group 'lsp-python
-  :risky t
-  :type '(repeat string))
-
-
 (use-package lsp-mode
-  :ensure t
+  ;; TODO: Use :after when 'projectile' is configured with 'use-package'
+  :ensure projectile
   :functions (projectile-project-root lsp-python-enable)
 
   :config
@@ -109,7 +132,7 @@
     "python"
     #'projectile-project-root
     nil
-    :command-fn (lambda () `("pyls" ,@pyls-extra-arguments))
+    :command-fn (lambda () `("pyls" ,@xorns-python-pyls-arguments))
     :docstring "Enable Language Server Protocol for Python."
     )
 
