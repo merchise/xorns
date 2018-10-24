@@ -30,7 +30,6 @@
 
 
 (require 'python nil 'noerror)
-(require 'flycheck nil 'noerror)
 
 
 (defun xorns-python-shell ()
@@ -119,24 +118,6 @@ This simply calls `indent-rigidly' using ±4 spaces."
 (when (xorns-configure-p 'general)  ;; Make C-x C-tab indent rightly in Python
   (define-key python-mode-map (kbd "C-x <C-tab>") 'xorns-python-indent-rigidly)
   (define-key python-mode-map (kbd "C-x C-x <tab>") 'xorns-python-indent-rigidly))
-
-
-
-;;; flycheck
-
-(when nil    ;; (xorns-configure-p 'basic)
-  (if (featurep 'flycheck)
-    (progn
-      (add-hook 'after-init-hook
-        (lambda ()
-          (unless (tramp-connectable-p (buffer-file-name))
-
-            (global-flycheck-mode))))
-      (xorns-set-value 'flycheck-idle-change-delay 60)
-      )
-    ;; else
-    ;; (xorns-missing-feature 'flycheck)
-    ))
 
 
 
