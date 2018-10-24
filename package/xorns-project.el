@@ -182,6 +182,14 @@ Currently evaluated folder is considered a package base if the parent folder:
   file '\(setup\|install\)\([.][a-z]+\)?', 'makefile\([.][a-z]+\)?'.")
 
 
+(defun xorns-project-root (&optional dir)
+  "Retrieves the root directory of a project if available.
+If DIR is not supplied its set to the current directory by default.  Return
+current directory if no better candidate is found."
+  (or (projectile-project-root dir) default-directory))
+
+
+
 (defun xorns-get-mode-tag (tag &optional mode)
   "Return a named TAG for a given a MODE.
 
