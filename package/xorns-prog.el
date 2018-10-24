@@ -36,7 +36,6 @@
 
 ;;; Code:
 
-(require 'outline)
 (require 'comint nil 'noerror)
 (require 'cc-mode nil 'noerror)
 (require 'javadoc-lookup nil 'noerror)
@@ -129,7 +128,8 @@
   (lsp-define-stdio-client
     lsp-python
     "python"
-    #'projectile-project-root
+    #'xorns-project-root
+    ;;#'projectile-project-root
     nil
     :command-fn (lambda () `("pyls" ,@xorns-python-pyls-arguments))
     :docstring "Enable Language Server Protocol for Python."
