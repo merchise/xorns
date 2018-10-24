@@ -38,7 +38,6 @@
 
 (require 'outline)
 (require 'comint nil 'noerror)
-(require 'yasnippet nil 'noerror)
 (require 'cc-mode nil 'noerror)
 (require 'javadoc-lookup nil 'noerror)
 
@@ -176,17 +175,14 @@
     (declare-function global-flycheck-mode "flycheck.el"))
   (global-flycheck-mode t))
 
+
+(use-package yasnippet
+  :ensure t
+  :init
+  (yas-global-mode 1))
+
+
 ;;; Hooks
-
-
-(when (xorns-configure-p 'basic)
-  (if (featurep 'yasnippet)
-    (add-hook 'after-init-hook
-      (lambda ()
-        (yas-global-mode 1)))
-    ;; else
-    (xorns-missing-feature 'yasnippet)))
-
 
 (add-hook 'prog-mode-hook          ; run for all programming modes
   (lambda ()
