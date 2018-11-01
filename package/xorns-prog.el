@@ -36,7 +36,6 @@
 
 ;;; Code:
 
-(require 'comint nil 'noerror)
 (require 'cc-mode nil 'noerror)
 (require 'javadoc-lookup nil 'noerror)
 
