@@ -51,7 +51,6 @@
 (require 's nil 'noerror)
 (require 'term nil 'noerror)
 (require 'advice nil 'noerror)
-(require 'xorns-prog nil 'noerror)
 (require 'xorns-sketch nil 'noerror)
 (require 'xorns-utils nil 'noerror)
 

@@ -44,7 +44,6 @@
 (require 'paren)
 (require 'linum)
 
-(require 'fill-column-indicator nil 'noerror)
 (require 'auto-complete nil 'noerror)
 (require 'iso-transl nil 'noerror)
 (require 'google-translate nil 'noerror)
@@ -75,15 +74,6 @@
 
 
 ;; Fill Column Indicator parameters
-(when (featurep 'fill-column-indicator)
-  (xorns-set-values
-    '(fci-rule-width 1)
-    '(fci-rule-color "#cccccc"))
-  (set-default 'fill-column 78)
-  )
-
-
-;; Fill Column Indicator parameters
 (when (featurep 'linum)
   (global-linum-mode t)
   )
@@ -95,24 +85,10 @@
     '(ispell-silently-savep t)))
 
 
-(defun xorns-fci-mode-on ()
-  "Set `fci-mode' on.
-
-Don't fail if `'fill-column-indicator' is not available."
-  (if (featurep 'fill-column-indicator)
-    (fci-mode t)
-                                        ;else
-    (xorns-missing-feature 'fill-column-indicator)))
 
 
-(defun xorns-fci-mode-off ()
-  "Set `fci-mode' off.
 
-Don't fail if `'fill-column-indicator' is not available."
-  (if (featurep 'fill-column-indicator)
-    (fci-mode 0)
-                                        ;else
-    (xorns-missing-feature 'fill-column-indicator)))
+
 
 
 
@@ -158,8 +134,7 @@ Don't fail if `'fill-column-indicator' is not available."
         (flyspell-mode nil)             ; When used flyspell-prog-mode I
                                         ; can't see the errors while typing
         (xorns-set-value 'ispell-parser 'tex)
-	(xorns-set-value 'rst-new-adornment-down t)
-        (xorns-fci-mode-on))
+	(xorns-set-value 'rst-new-adornment-down t))
       (error (message "error@rst-mode-hook: %s" err)))))
 
 
@@ -196,7 +171,6 @@ If this feature is not installed don't fail and just report a message."
 ;;;###autoload
 (defun xorns-text-dependencies-install ()
   "Install all dependencies of text modes."
-  (xorns-dependency-install 'fill-column-indicator)
   (xorns-dependency-install 'auto-complete)
   )
 

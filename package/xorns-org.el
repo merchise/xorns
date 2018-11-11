@@ -261,8 +261,7 @@ surrounded with blanks."
       (progn
         (turn-on-auto-fill)
         (flyspell-mode nil)
-        (xorns-set-value 'ispell-parser 'tex)
-        (xorns-fci-mode-on))
+        (xorns-set-value 'ispell-parser 'tex))
       (error (message "error@org-mode-hook: %s" err)))))
 
 (provide 'xorns-org)

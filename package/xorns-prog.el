@@ -187,7 +187,6 @@
   (lambda ()
     (condition-case err
       (progn
-        (xorns-fci-mode-on)
         (unless (tramp-connectable-p (buffer-file-name))
           (xorns-auto-complete-mode)
           (flyspell-prog-mode))
@@ -198,34 +197,16 @@
       (error (message "error@prog-mode-hook: %s" err)))))
 
 
-;; FCI interacts badly with the Agda interactive features, so let's turn it
-;; off.
-(add-hook 'agda2-mode-hook
-  (lambda()
-    (xorns-fci-mode-off)))
-
-
 (add-hook 'conf-unix-mode-hook          ; For configuration files
   (lambda ()
     (condition-case err
       (progn
-        (xorns-fci-mode-on)
         (xorns-auto-complete-mode)
         (turn-on-auto-fill)
         (ispell-change-dictionary "english")
         (subword-mode nil)
         (xorns-try-linum-mode))
       (error (message "error@conf-unix-mode-hook: %s" err)))))
-
-
-
-;;; Python
-
-
-
-;; Python for reST
-
-
 
 
 

@@ -89,6 +89,9 @@
   (require 'xorns-term)
   (error (message "error loading xorns-term: %s" err)))
 (condition-case err
+  (require 'xorns-fci)
+  (error (message "error loading xorns-fci: %s" err)))
+(condition-case err
   (require 'xorns-prog)        ;; This requires `xorns-text'
   (error (message "error loading xorns-prog: %s" err)))
 (condition-case err
