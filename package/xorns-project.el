@@ -276,12 +276,14 @@ By convention, if the 'project-virtualenv-name is not present or is nil, the
 virtualenv name will be the name of the directory where the project definition
 file resides, or when any of the project file markers reside."
   (or
-    (-when-let (project-file-name (xorns-find-project-def-file
-                                    project-file-name sentinel buffer))
-      (let* ((project-locals-class (dir-locals-read-from-file
-                                     project-file-name))
-              (project-locals-alist (dir-locals-get-class-variables
-                                      project-locals-class)))
+    (-when-let (project-file-name
+		 (xorns-find-project-def-file
+		   project-file-name sentinel buffer))
+      (let* ((project-locals-class
+	       (dir-locals-read-from-dir
+		 (file-name-directory project-file-name)))
+              (project-locals-alist
+		(dir-locals-get-class-variables project-locals-class)))
         (cdr (assoc 'project-virtualenv-name project-locals-alist))))
     (let ((res nil))
       ;; TODO: Finish xorns-project-dir and use that
