@@ -94,20 +94,6 @@
     (xorns-set-value 'indent-tabs-mode nil)
     (linum-mode 0))
 
-  :custom
-  (python-shell-interpreter "ipython")
-  (python-shell-interpreter-args "-i --simple-prompt")
-  (python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: ")
-  (python-shell-prompt-pdb-regexp "i?pdb> ")
-  (python-shell-prompt-regexp "In \\[[0-9]+\\]: ")
-  (python-shell-completion-setup-code
-    "import sys; from IPython.core.completerlib import module_completion")
-  (python-shell-completion-string-code
-    (concat
-      "print(repr(str(';').join(str(ac) for ac in get_ipython()."
-      "Completer.all_completions('''%s''')).strip()))"
-      ""))
-
   :bind (:map python-mode-map ("C-m" . newline-and-indent))
   :hook ((python-mode . outline-minor-mode)
 	 (inferior-python-mode . -inferior-python-setup))
