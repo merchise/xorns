@@ -117,7 +117,7 @@
 (use-package lsp-mode
   ;; TODO: Use :after when 'projectile' is configured with 'use-package'
   :ensure projectile
-  :functions (projectile-project-root lsp-python-enable)
+  :functions (projectile-project-root lsp-python-enable xorns-project-root)
 
   :config
   (require 'lsp-imenu)
@@ -239,6 +239,7 @@
 ;; TODO: 'c-syntactic-element' is void
 (defun c-lineup-arglist-tabs-only (ignored)
   "Line up argument lists by tabs, not spaces.  IGNORED is ignored."
+  (defvar c-syntactic-element)    ;; Avoiding warning: ref to free variable
   (let* ((anchor (c-langelem-pos c-syntactic-element))
           (column (c-langelem-2nd-pos c-syntactic-element))
           (offset (- (1+ column) anchor))
