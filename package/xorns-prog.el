@@ -167,6 +167,18 @@
   (yas-global-mode 1))
 
 
+
+
+(use-package pipenv
+  :hook (python-mode . pipenv-mode)
+  :init
+  (eval-when-compile
+    (declare-function pipenv-projectile-after-switch-extended "pipenv.el"))
+  :custom (pipenv-projectile-after-switch-function
+	    #'pipenv-projectile-after-switch-extended))
+
+
+
 ;;; Hooks
 
 (add-hook 'prog-mode-hook          ; run for all programming modes
