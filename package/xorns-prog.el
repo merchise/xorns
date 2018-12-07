@@ -5,7 +5,7 @@
 ;; Author: Medardo Rodriguez <med@merchise.org>
 ;; URL: http://dev.merchise.org/emacs/xorns-prog
 ;; Keywords: initialization, merchise, convenience
-;; Version: 20150516.1620
+;; Version: 20181208.1210
 
 ;; This file is NOT part of GNU Emacs but I'd like it. ;)
 
@@ -99,6 +99,15 @@
 	 (inferior-python-mode . -inferior-python-setup))
   )
 
+(use-package flycheck
+  :ensure t
+  :functions global-flycheck-mode
+  :custom (flycheck-idle-change-delay 10)
+  :init
+  (eval-when-compile
+    (declare-function global-flycheck-mode "flycheck.el"))
+  (global-flycheck-mode t))
+
 
 (use-package lsp-mode
   ;; TODO: Use :after when 'projectile' is configured with 'use-package'
@@ -128,10 +137,13 @@
   ;; lsp extras
   (use-package lsp-ui
     :ensure t
+    ;; TODO: :after lsp-mode flycheck
     :functions (lsp--as-regex lsp--enable-stdio-client lsp--set-configuration)
     :config
     (setq lsp-ui-sideline-ignore-duplicate t)
-    (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+    (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+    ;; TODO: (flycheck-add-next-checker 'lsp-ui '(warning . python-pylint))
+    )
 
   (use-package company-lsp
     :config
@@ -149,16 +161,6 @@
       (lsp--set-configuration lsp-cfg)))
 
   (add-hook 'lsp-after-initialize-hook 'lsp-set-cfg))
-
-
-(use-package flycheck
-  :ensure t
-  :functions global-flycheck-mode
-  :custom (flycheck-idle-change-delay 10)
-  :init
-  (eval-when-compile
-    (declare-function global-flycheck-mode "flycheck.el"))
-  (global-flycheck-mode t))
 
 
 (use-package yasnippet
@@ -282,6 +284,7 @@
 
 
 (global-set-key (kbd "C-M-,") 'completion-at-point)
+
 
 (provide 'xorns-prog)
 ;;; xorns-prog.el ends here
