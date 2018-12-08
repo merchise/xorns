@@ -1,1 +1,1 @@
-elpa/README
+package/README
