@@ -29,7 +29,6 @@
 ;;    warning about changes from the old magit.
 (setq magit-last-seen-setup-instructions "1.4.0")
 
-(put 'magit-clean 'disabled nil)
 
 (let ((xorns-config-level 'maximum))    ;; 'basic, 'general
   ;; Start the server and initialize all common Merchise settings.
@@ -48,5 +47,10 @@
     (load-file (shell-command-to-string agda-locate))))
 
 
+(autoload 'po-mode "po-mode"
+          "Major mode for translators to edit PO files" t)
+
+
 (provide 'init)
 ;;; init.el ends here
+(put 'magit-clean 'disabled nil)
