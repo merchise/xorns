@@ -180,6 +180,12 @@
 	    #'pipenv-projectile-after-switch-extended))
 
 
+(use-package auto-virtualenv
+  :ensure t
+  :config
+  (add-hook 'python-mode-hook 'auto-virtualenv-set-virtualenv)
+)
+
 
 ;;; Hooks
 
