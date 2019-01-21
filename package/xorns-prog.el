@@ -278,17 +278,6 @@
 
 
 
-
-;;;###autoload
-(defun xorns-prog-dependencies-install ()
-  "Install all dependencies of text modes."
-  (xorns-dependency-install 'yasnippet)
-  (xorns-dependency-install 'js2-mode)
-  (xorns-dependency-install 'tern)
-  (xorns-dependency-install 'tern-auto-complete)
-  )
-
-
 (global-set-key (kbd "C-M-,") 'completion-at-point)
 
 
