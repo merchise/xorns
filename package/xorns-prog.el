@@ -110,57 +110,21 @@
 
 
 (use-package lsp-mode
-  ;; TODO: Use :after when 'projectile' is configured with 'use-package'
-  :ensure projectile
-  :functions (projectile-project-root lsp-python-enable xorns-project-root)
+  :commands lsp
+  :init
+  (add-hook 'prog-mode-hook #'lsp)
+  )
 
-  :config
-  (require 'lsp-imenu)
 
-  (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
+(use-package lsp-ui
+  :commands lsp-ui-mode
+  :init
+  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+  )
 
-  (lsp-define-stdio-client
-    lsp-python
-    "python"
-    #'xorns-project-root
-    ;;#'projectile-project-root
-    nil
-    :command-fn (lambda () `("pyls" ,@xorns-python-pyls-arguments))
-    :docstring "Enable Language Server Protocol for Python."
-    )
-
-  ;; make sure this is activated when python-mode is activated
-  ;; lsp-python-enable is created by macro above
-  (add-hook 'python-mode-hook #'lsp-python-enable)
-  ;; (add-hook 'python-mode-hook 'flycheck-mode)
-
-  ;; lsp extras
-  (use-package lsp-ui
-    :ensure t
-    ;; TODO: :after lsp-mode flycheck
-    :functions (lsp--as-regex lsp--enable-stdio-client lsp--set-configuration)
-    :config
-    (setq lsp-ui-sideline-ignore-duplicate t)
-    (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-    ;; TODO: (flycheck-add-next-checker 'lsp-ui '(warning . python-pylint))
-    )
-
-  (use-package company-lsp
-    :config
-    (push 'company-lsp company-backends))
-
-  ;; NB: only required if you prefer flake8 instead of the default
-  ;; send pyls config via lsp-after-initialize-hook -- harmless for
-  ;; other servers due to pyls key, but would prefer only sending this
-  ;; when pyls gets initialised (:initialize function in
-  ;; lsp-define-stdio-client is invoked too early (before server
-  ;; start)) -- cpbotha
-  (defun lsp-set-cfg ()
-    (let ((lsp-cfg '(:pyls (:configurationSources ("flake8")))))
-      ;; TODO: check lsp--cur-workspace here to decide per server / project
-      (lsp--set-configuration lsp-cfg)))
-
-  (add-hook 'lsp-after-initialize-hook 'lsp-set-cfg))
+(use-package company-lsp
+  :commands company-lsp
+)
 
 
 (use-package yasnippet
