@@ -120,6 +120,7 @@
   :commands lsp-ui-mode
   :init
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+  :custom (lsp-prefer-flymake nil)
   )
 
 (use-package company-lsp
