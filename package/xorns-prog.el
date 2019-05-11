@@ -245,6 +245,8 @@
 
 (global-set-key (kbd "C-M-,") 'completion-at-point)
 
+(when (featurep 'blacken)
+  (add-hook 'before-save-hook 'blacken-buffer))
 
 (provide 'xorns-prog)
 ;;; xorns-prog.el ends here
