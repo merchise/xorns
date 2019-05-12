@@ -96,7 +96,7 @@
 
   :bind (:map python-mode-map ("C-m" . newline-and-indent))
   :hook ((python-mode . outline-minor-mode)
-	 (inferior-python-mode . -inferior-python-setup))
+          (inferior-python-mode . -inferior-python-setup))
   )
 
 (use-package flycheck
@@ -246,7 +246,7 @@
 (global-set-key (kbd "C-M-,") 'completion-at-point)
 
 (when (featurep 'blacken)
-  (add-hook 'before-save-hook 'blacken-buffer))
+  (add-hook 'python-mode-hook 'blacken-mode))
 
 (provide 'xorns-prog)
 ;;; xorns-prog.el ends here
