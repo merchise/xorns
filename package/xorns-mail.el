@@ -62,23 +62,23 @@
   )
 
 (defgroup xorns-email nil
-   "Xorns Email"
-   :prefix "xorns-email-"
-   :group 'xorns)
+  "Xorns Email"
+  :prefix "xorns-email-"
+  :group 'xorns)
 
 
 (defcustom xorns-email-smtp-accounts nil
-"Several SMTP accounts."
-   :group 'xorns-email
-   :risky t
-   :type '(repeat xorns-smtp-account-line))
+  "Several SMTP accounts."
+  :group 'xorns-email
+  :risky t
+  :type '(repeat xorns-smtp-account-line))
 
 
 (defcustom xorns-email-debug nil
-   "Set to t for adding debuging messages to SMTP."
-   :group 'xorns-email
-   :risky t
-   :type 'boolean)
+  "Set to t for adding debuging messages to SMTP."
+  :group 'xorns-email
+  :risky t
+  :type 'boolean)
 
 
 (defun xorns-get-from-address ()

@@ -19,17 +19,16 @@
 
 ;;; Code:
 
-;; Activate ELPA packages.
-(load "~/.emacs.d/elpa/nxml-mode-20041004/rng-auto.el")
 
 (package-initialize)
+
+(require 'use-package)
 
 ;; Q: Why this is needed?
 ;; A: Because new magit versions check this to show a rather long message
 ;;    warning about changes from the old magit.
 (setq magit-last-seen-setup-instructions "1.4.0")
 
-(put 'magit-clean 'disabled nil)
 
 (let ((xorns-config-level 'maximum))    ;; 'basic, 'general
   ;; Start the server and initialize all common Merchise settings.
@@ -37,4 +36,21 @@
   ;; Require extra features
   (require 'xorns-extra))
 
+(let ((proof-general "~/.emacs.d/lisp/PG/generic/proof-site"))
+  (when (file-directory-p proof-general)
+    (load proof-general)))
+
+(when (null (functionp 'agda-mode))
+  (-when-let* ((agda-mode (xorns-executable-find "agda-mode"))
+               (agda-locate (concat agda-mode " locate"))
+               (coding-system-for-read 'utf-8))
+    (load-file (shell-command-to-string agda-locate))))
+
+
+(autoload 'po-mode "po-mode"
+          "Major mode for translators to edit PO files" t)
+
+
+(provide 'init)
 ;;; init.el ends here
+(put 'magit-clean 'disabled nil)

@@ -49,15 +49,15 @@
 
 
 (defcustom xorns-use-realgud nil
-   "Indicates whether to use realgud instead of the default `gud'.
+  "Indicates whether to use realgud instead of the default `gud'.
 
 Even if this set you must have `realgud', `dash' and `grizzl' installed for
 the `xorns' extensions to work.
 
 Currently there's only one extension to attach a source buffer to a command
 buffer."
-   :group 'xorns
-   :type 'boolean)
+  :group 'xorns
+  :type 'boolean)
 
 
 (defconst xorns-realgud-enabled
@@ -73,18 +73,18 @@ buffer."
 command buffer, in which case returns the buffer directly."
   (interactive)
   (when xorns-realgud-enabled
-    ; TODO: Generalize this to use `gud' if `realgud' is not present.
+                                        ; TODO: Generalize this to use `gud' if `realgud' is not present.
     (let ((cmdbuffers (-select #'realgud-cmdbuf? (buffer-list))))
       (if (> (length cmdbuffers) 1)
-	(let* ((cmdbuffers-names (-map #'buffer-name cmdbuffers))
-		(cmdbuffers-index (grizzl-make-index cmdbuffers-names))
-		(selection (grizzl-completing-read
-			     "Debugger Buffer: " cmdbuffers-index)))
-	  (when selection
-	    (message "Selected debugger %s" selection)
-	    (get-buffer selection)))
-	    ;; else (no buffer or a single one)
-	(car cmdbuffers)))))
+        (let* ((cmdbuffers-names (-map #'buffer-name cmdbuffers))
+                (cmdbuffers-index (grizzl-make-index cmdbuffers-names))
+                (selection (grizzl-completing-read
+                             "Debugger Buffer: " cmdbuffers-index)))
+          (when selection
+            (message "Selected debugger %s" selection)
+            (get-buffer selection)))
+        ;; else (no buffer or a single one)
+        (car cmdbuffers)))))
 
 (defun xorns-attach-to-cmdbuf ()
   "Attaches current buffer to a debugging session."
@@ -92,7 +92,7 @@ command buffer, in which case returns the buffer directly."
   (when xorns-realgud-enabled
     (-when-let (cmdbuf (xorns-grizzl-select-cmdbuf))
       (message "Attaching current buffer %s to command buffer %s"
-	(current-buffer) cmdbuf)
+        (current-buffer) cmdbuf)
       (realgud-srcbuf-init-or-update (current-buffer) cmdbuf))))
 
 

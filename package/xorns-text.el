@@ -44,7 +44,6 @@
 (require 'paren)
 (require 'linum)
 
-(require 'fill-column-indicator nil 'noerror)
 (require 'auto-complete nil 'noerror)
 (require 'iso-transl nil 'noerror)
 (require 'google-translate nil 'noerror)
@@ -59,28 +58,19 @@
 (xorns-set-value 'show-paren-mode t)
 
 (xorns-set-values
-  ; Consecutive years replaced with range
+                                        ; Consecutive years replaced with range
   '(copyright-year-ranges t)
-  ; Add a newline automatically at the end of the file
+                                        ; Add a newline automatically at the end of the file
   '(require-final-newline t)
-  ; Do not display continuation lines
+                                        ; Do not display continuation lines
   '(truncate-lines t)
-  ; Parenthesis matching style
+                                        ; Parenthesis matching style
   '(show-paren-style 'mixed)
   )
 
 
 ;; Typed text replaces the selection
 (delete-selection-mode 1)
-
-
-;; Fill Column Indicator parameters
-(when (featurep 'fill-column-indicator)
-  (xorns-set-values
-    '(fci-rule-width 1)
-    '(fci-rule-color "#cccccc"))
-  (set-default 'fill-column 78)
-  )
 
 
 ;; Fill Column Indicator parameters
@@ -95,24 +85,10 @@
     '(ispell-silently-savep t)))
 
 
-(defun xorns-fci-mode-on ()
-  "Set `fci-mode' on.
-
-Don't fail if `'fill-column-indicator' is not available."
-  (if (featurep 'fill-column-indicator)
-    (fci-mode t)
-    ;else
-    (xorns-missing-feature 'fill-column-indicator)))
 
 
-(defun xorns-fci-mode-off ()
-  "Set `fci-mode' off.
 
-Don't fail if `'fill-column-indicator' is not available."
-  (if (featurep 'fill-column-indicator)
-    (fci-mode 0)
-    ;else
-    (xorns-missing-feature 'fill-column-indicator)))
+
 
 
 
@@ -123,15 +99,15 @@ Don't fail if `'fill-column-indicator' is not available."
   (save-excursion
     (outline-back-to-heading)
     (if (not (outline-invisible-p (line-end-position)))
-	(hide-subtree)
-      (show-subtree)
-      (show-entry))))
+      (outline-hide-subtree)
+      (outline-show-subtree)
+      (outline-show-entry))))
 
 
 
 ;;; Hooks
 
-(add-hook 'before-save-hook 'copyright-update)
+;;(add-hook 'before-save-hook 'copyright-update)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 ;; TODO: (add-hook 'before-save-hook 'time-stamp)
 
@@ -139,7 +115,7 @@ Don't fail if `'fill-column-indicator' is not available."
 (add-hook 'text-mode-hook
   (lambda ()
     (condition-case err
-      (linum-mode 1)
+      (xorns-try-linum-mode)
       (error (message "error@text-mode-hook: %s" err)))))
 
 
@@ -158,7 +134,7 @@ Don't fail if `'fill-column-indicator' is not available."
         (flyspell-mode nil)             ; When used flyspell-prog-mode I
                                         ; can't see the errors while typing
         (xorns-set-value 'ispell-parser 'tex)
-        (xorns-fci-mode-on))
+	(xorns-set-value 'rst-new-adornment-down t))
       (error (message "error@rst-mode-hook: %s" err)))))
 
 
@@ -168,7 +144,7 @@ Don't fail if `'fill-column-indicator' is not available."
 If this feature is not installed don't fail and just report a message."
   (if (featurep 'auto-complete)
     (auto-complete-mode t)
-    ;else
+                                        ;else
     (xorns-missing-feature 'auto-complete)))
 
 
@@ -184,8 +160,8 @@ If this feature is not installed don't fail and just report a message."
 
 ;; For outline minor modes
 ;; TODO: This is defined by standard mode inner "C-c@'
-(define-key outline-minor-mode-map (kbd "C-=") 'show-subtree)
-(define-key outline-minor-mode-map (kbd "M-=") 'hide-subtree)
+(define-key outline-minor-mode-map (kbd "C-=") 'outline-show-subtree)
+(define-key outline-minor-mode-map (kbd "M-=") 'outline-hide-subtree)
 (define-key outline-minor-mode-map (kbd "C-+") 'xorns-toggle-subtree)
 
 
@@ -195,7 +171,6 @@ If this feature is not installed don't fail and just report a message."
 ;;;###autoload
 (defun xorns-text-dependencies-install ()
   "Install all dependencies of text modes."
-  (xorns-dependency-install 'fill-column-indicator)
   (xorns-dependency-install 'auto-complete)
   )
 
