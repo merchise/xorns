@@ -38,6 +38,7 @@
 
 (require 'cc-mode nil 'noerror)
 (require 'javadoc-lookup nil 'noerror)
+(require 'blacken nil 'noerror)
 
 ;(require 'xorns-text nil 'noerror)
 (require 'xorns-utils nil 'noerror)
@@ -246,6 +247,7 @@
 (global-set-key (kbd "C-M-,") 'completion-at-point)
 
 (when (featurep 'blacken)
+  (add-hook 'python-mode-hook 'turn-off-auto-fill)
   (add-hook 'python-mode-hook 'blacken-mode))
 
 (provide 'xorns-prog)
