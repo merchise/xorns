@@ -84,6 +84,8 @@ This patch avoid this."
 
 
 (use-package deft
+  :defer t
+  :commands (deft-filename-at-point deft-open-file)
   :custom
   (deft-extensions '("txt" "text" "md" "markdown" "org" "rst"))
   (deft-use-filter-string-for-filename t)
@@ -93,11 +95,7 @@ This patch avoid this."
   (deft-strip-summary-regexp "\\([
 	]\\|=\\{3,\\}\\|-\\{3,\\}\\|^#\\+[[:upper:]_]+:.*$\\)")
 
-  :config
-  (eval-when-compile
-    (declare-function deft-filename-at-point "deft.el")
-    (declare-function deft-open-file "deft.el"))
-
+  :init
   (defun xorns-deft-open-file (&optional arg)
     "When the point is at a widget, open the file in a new buffer.
 The argument ARG is passed to `deft-open-file' as SWITCH."
