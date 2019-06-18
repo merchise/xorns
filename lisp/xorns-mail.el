@@ -2,11 +2,6 @@
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
-;; Author: Medardo Rodriguez <med@merchise.org>
-;; URL: http://dev.merchise.org/emacs/xorns-mail
-;; Keywords: initialization, merchise, convenience
-;; Version: 20150516.1620
-
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or

@@ -2,11 +2,6 @@
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
-;; Author: Medardo Rodriguez <med@merchise.org>
-;; URL: http://dev.merchise.org/emacs/xorns-project
-;; Keywords: initialization, merchise, convenience
-;; Version: 20150516.1620
-
 ;; This file is NOT part of GNU Emacs but I'd like it. ;)
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -230,23 +225,6 @@ surrounded with blanks."
   (xorns-set-values
     '(dictionary-server "localhost")
     '(dictionary-use-single-buffer t)))
-
-
-(when (featurep 'rfcview)
-  (add-hook 'rfcview-mode-hook
-    (lambda ()
-      (condition-case err
-        (progn
-          (define-key rfcview-mode-map (kbd "l") 'pop-to-mark-command))
-        (error (message "error@rfcview-mode-hook: %s" err)))))
-  (let ((rfc-path "/usr/share/doc/RFC/links/"))
-    (if (file-directory-p rfc-path)
-      (xorns-set-values
-        '(rfcview-rfc-location-pattern (concat rfc-path "rfc%s.txt.gz"))
-        '(rfcview-std-location-pattern (concat rfc-path "rfc%s.txt.gz")))
-      ;; else
-      (warn "RFCs folder '%s' doesn't exists!" rfc-path))))
-
 
 (when (featurep 'wget)
   (xorns-set-value 'wget-download-directory

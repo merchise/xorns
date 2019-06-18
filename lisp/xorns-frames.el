@@ -2,12 +2,6 @@
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
-;; Author: Medardo Rodriguez <med@merchise.org>
-;; Created: 2014-02-05
-;; Keywords: merchise, extensions, tools
-;; URL: http://dev.merchise.org/emacs/xorns-frames
-;; Version: 20150516.1620
-
 ;; This file is NOT part of GNU Emacs.
 
 ;; This program is free software; you can redistribute it and/or modify

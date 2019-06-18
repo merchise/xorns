@@ -2,11 +2,6 @@
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
-;; Author: Medardo Rodriguez <med@merchise.org>
-;; URL: http://dev.merchise.org/emacs/xorns-prog
-;; Keywords: initialization, merchise, convenience
-;; Version: 20181208.1210
-
 ;; This file is NOT part of GNU Emacs but I'd like it. ;)
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -131,10 +126,9 @@
 
 (use-package yasnippet
   :ensure t
+  :commands yas-global-mode
   :init
   (yas-global-mode 1))
-
-
 
 
 (use-package pipenv

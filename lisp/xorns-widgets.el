@@ -2,11 +2,6 @@
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
-;; Author: Medardo Rodriguez <med@merchise.org>
-;; URL: http://dev.merchise.org/emacs/xorns-widgets
-;; Keywords: initialization, merchise, convenience
-;; Version: 20150516.1620
-
 ;; This file is NOT part of GNU Emacs but I'd like it. ;)
 
 ;; This program is free software: you can redistribute it and/or modify

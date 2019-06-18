@@ -2,12 +2,6 @@
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
-;; Author: Medardo Rodriguez <med@merchise.org>
-;; Created: 2014-03-11
-;; Keywords: merchise, extensions, tools
-;; URL: http://dev.merchise.org/xorns/xorns-package
-;; Version: 20150516.1620
-
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or

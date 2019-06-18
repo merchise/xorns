@@ -2,11 +2,6 @@
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
-;; Author: Medardo Rodriguez <med@merchise.org>
-;; URL: http://dev.merchise.org/emacs/xorns-fci
-;; Keywords: initialization, merchise, convenience
-;; Version: 20181025.1315
-
 ;; This file is NOT part of GNU Emacs but I'd like it. ;)
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -38,12 +33,13 @@
 
 
 (eval-when-compile
-  (require 'use-package nil 'noerror))
-
+  (defvar package--initialized t)
+  (require 'use-package))
 
 (use-package fill-column-indicator
   :defer t
-  :ensure t
+
+  :commands fci-mode
 
   :preface
 
