@@ -50,7 +50,7 @@
 (require 'ibuffer nil 'noerror)
 (require 'ibuf-ext nil 'noerror)
 (require 'grizzl nil 'noerror)
-(require 'xorns-utils nil 'noerror)
+(require 'xorns-utils)
 
 ;; Get rid of the startup screen and `*scratch*' buffer message
 (xorns-set-values

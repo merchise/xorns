@@ -31,7 +31,8 @@
 
 ;;; Code:
 
-(require 'projectile nil 'noerror)
+(require 'python)    ;; python-shell-completion-setup-code
+(require 'projectile)
 
 (require 'dash)
 (require 'xorns-utils)
@@ -389,7 +390,7 @@ xorns-find-project-virtualenv-dir."
         (setq unique (and (null (get-buffer name))
                        (not (string-match "__init__.py$" name)))))
       ;;; Then if not unique try prepending path components to buffer name
-      (when (not unique)
+      (unless unique
         (let ((path-components (-buffer-name-candidates)))
           (--take-while
             (let ((stop nil)

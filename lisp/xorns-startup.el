@@ -111,7 +111,7 @@
 ;; properly set.
 
 
-(when (not (version< emacs-version "24.3"))   ; Discover more of Emacs
+(unless (version< emacs-version "24.3")       ; Discover more of Emacs
   (require 'discover nil 'noerror)            ; See http://t.co/IwZnrqQBRO
   (when (functionp 'global-discover-mode)
     (global-discover-mode)))

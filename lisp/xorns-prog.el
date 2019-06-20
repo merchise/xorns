@@ -31,15 +31,22 @@
 
 ;;; Code:
 
+(require 'tramp)
+(require 'auto-complete)
+(require 'tern)
+(require 'tern-auto-complete)
 (require 'cc-mode nil 'noerror)
 (require 'javadoc-lookup nil 'noerror)
 (require 'blacken nil 'noerror)
 
-;(require 'xorns-text nil 'noerror)
-(require 'xorns-utils nil 'noerror)
+(require 'xorns-text nil 'noerror)
+(require 'xorns-utils)
 
 (eval-when-compile
-  (require 'use-package nil 'noerror))
+  ; needed to compile when `(package-initialize)' is not called in `init.el'
+  (unless (boundp 'package--initialized)
+    (defvar package--initialized t))
+  (require 'use-package))
 
 
 (defgroup xorns-prog nil
@@ -96,7 +103,6 @@
   )
 
 (use-package flycheck
-  :ensure t
   :functions global-flycheck-mode
   :custom (flycheck-idle-change-delay 10)
   :init
@@ -125,7 +131,6 @@
 
 
 (use-package yasnippet
-  :ensure t
   :commands yas-global-mode
   :init
   (yas-global-mode 1))
@@ -138,13 +143,6 @@
     (declare-function pipenv-projectile-after-switch-extended "pipenv.el"))
   :custom (pipenv-projectile-after-switch-function
 	    #'pipenv-projectile-after-switch-extended))
-
-
-(use-package auto-virtualenv
-  :ensure t
-  :config
-  (add-hook 'python-mode-hook 'auto-virtualenv-set-virtualenv)
-)
 
 
 ;;; Hooks

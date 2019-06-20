@@ -28,7 +28,7 @@
 ;;; Code:
 
 (require 'ido)
-(require 'xorns-utils nil 'noerror)
+(require 'xorns-utils)
 
 
 (defun -customize-vertical-ido ()

@@ -33,7 +33,9 @@
 
 
 (eval-when-compile
-  (defvar package--initialized t)
+  ; needed to compile when `(package-initialize)' is not called in `init.el'
+  (unless (boundp 'package--initialized)
+    (defvar package--initialized t))
   (require 'use-package))
 
 (use-package fill-column-indicator

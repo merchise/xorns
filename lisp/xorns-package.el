@@ -67,7 +67,7 @@
 (defun xorns-dependency-install (feature)
   "Install a dependency FEATURE if not installed."
   (condition-case err
-    (when (not (package-installed-p feature))
+    (unless (package-installed-p feature)
       (package-install feature))
     (error (message "error@dependency-install: %s" err))))
 

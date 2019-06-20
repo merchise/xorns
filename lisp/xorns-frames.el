@@ -39,7 +39,7 @@
 ;; can be executed with a DELAY specified in seconds; if none is given, `0.1'
 ;; is assumed."
 ;;   (interactive)
-;;   (when (not (null window-system))
+;;   (unless (null window-system)
 ;;     (run-with-idle-timer (or delay 0.1) nil
 ;;       (lambda (frame)
 ;;    (modify-frame-parameters frame '((fullscreen . maximized))))
@@ -53,7 +53,7 @@ If no frame is specified, current frame is assumed.  This functionality
 can be executed with a DELAY specified in seconds; if none is given, `0.1'
 is assumed."
   (interactive)
-  (when (not (null window-system))
+  (unless (null window-system)
     (run-with-idle-timer (or delay 0.1) nil
       (lambda (frame)
         (modify-frame-parameters frame '((fullscreen . fullboth))))

@@ -34,9 +34,7 @@
 
 ;;; Code:
 
-;; `xorns-dired-recursive-ignore-switches' variable.
-
-(require 'xorns-utils nil 'noerror)
+(require 'xorns-utils)
 (require 'dired)
 (require 'dired-x)
 (require 'dired-single nil 'noerror)

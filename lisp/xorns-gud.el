@@ -38,9 +38,9 @@
 ;;; Code:
 
 
-(require 'realgud nil 'noerror)
-(require 'dash nil 'noerror)
-(require 'grizzl nil 'noerror)
+(require 'realgud)
+(require 'dash)
+(require 'grizzl)
 
 
 (defcustom xorns-use-realgud nil

@@ -43,16 +43,40 @@
 (eval-when-compile
   (require 'cl))
 
-(require 's nil 'noerror)
-(require 'term nil 'noerror)
-(require 'advice nil 'noerror)
-(require 'xorns-sketch nil 'noerror)
-(require 'xorns-utils nil 'noerror)
+(require 's)
+(require 'term)
+(require 'advice)
+(require 'xorns-utils)
+
+
+(defun xorns-python-shell ()
+  "Return the command to use as python shell.
+
+To calculate the value, test first the custom value of equal name and
+if not valid, looks up in a list of alternatives (in order):
+`ipython', custom Emacs variable `python-command', environment
+variable `PYTHON' and custom variables `python-python-command' and
+`python-jython-command'."
+  (xorns-executable-find
+    (xorns-get-value 'python-shell-interpreter)
+    (getenv "PYTHON")
+    (xorns-get-original-value 'python-shell-interpreter)
+    "ipython" "python"))
+
+
+(defun xorns-python3-shell ()
+  "Command to use as python\-3 shell.
+
+In this case there is not a paired custom variable.  To calculate the
+value to return, this function tests first two alternatives:
+`ipython3' and `python3'.  If none is valid, use the logic for the
+python shell defined in function `xorns-python-shell'."
+  (let ((py3 (xorns-executable-find "ipython3" "python3")))
+    (or py3 (xorns-python-shell))))
 
 
 
 ;;; Remove in future version
-
 
 (defun xorns-get-ansi-term-shell-name (&optional arg)
   "Get the shell name for a `ansi-term' (based in ARG)."

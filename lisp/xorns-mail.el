@@ -37,14 +37,18 @@
 
 ;; Requires, auto-loads and declarations
 
+(eval-when-compile
+  (require 'cl))
+
 (require 'sendmail)
 (require 'smtpmail)
 (require 'message)
 
 (require 'cl-lib)
+(require 'string-utils)
 
-(require 'xorns-utils nil 'noerror)
-(require 'xorns-widgets nil 'noerror)
+(require 'xorns-utils)
+(require 'xorns-widgets)
 
 ;; TODO: Use 'xorns-set-value' and 'xorns-set-values' instead 'setq'
 

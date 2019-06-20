@@ -40,6 +40,13 @@
 ;;; Code:
 
 
+(eval-when-compile
+  ; needed to compile when `(package-initialize)' is not called in `init.el'
+  (unless (boundp 'package--initialized)
+    (defvar package--initialized t))
+  (require 'use-package))
+
+
 (defgroup xorns-org nil
   "Xorns outline-based organizer."
   :tag "xorns"
@@ -100,9 +107,8 @@ The argument ARG is passed to `deft-open-file' as SWITCH."
 	(deft-open-file file nil arg)
 	(kill-buffer "*Deft*"))))
 
-  :bind
-  ("<f12>" . deft)
-  (:map deft-mode-map ("M-RET" . xorns-deft-open-file)))
+  :bind (("<f12>" . deft)
+	 (:map deft-mode-map ("M-RET" . xorns-deft-open-file))))
 
 
 (defcustom xorns-org-confirm-babel-evaluate
@@ -168,7 +174,7 @@ surrounded with blanks."
 
 
 (when (featurep 'ob-shell)
-  (when (not (assoc 'shell org-babel-load-languages))
+  (unless (assoc 'shell org-babel-load-languages)
     (xorns-set-value 'org-babel-load-languages
       (cons '(shell . t) org-babel-load-languages)))
   (xorns-set-value 'org-babel-default-header-args:shell
@@ -185,7 +191,7 @@ surrounded with blanks."
           (xorns-file-path-join (getenv "HOME") ".local/bin/asksp")
           "\n")))
     (if shebang
-      (when (not (string-prefix-p prefix (cdr shebang)))
+      (unless (string-prefix-p prefix (cdr shebang))
         (setcdr shebang (concat full-prefix (cdr shebang))))
                                         ; else
       (setq shebang (cons :shebang full-prefix)))
@@ -195,7 +201,7 @@ surrounded with blanks."
 
 
 (when (featurep 'ob-python)
-  (when (not (assoc 'python org-babel-load-languages))
+  (unless (assoc 'python org-babel-load-languages)
     (xorns-set-value 'org-babel-load-languages
       (cons '(python . t) org-babel-load-languages)))
   (xorns-set-value 'org-babel-default-header-args:python
@@ -211,7 +217,7 @@ surrounded with blanks."
           prefix
           "division, print_function, absolute_import\n")))
     (if preamble
-      (when (not (string-prefix-p prefix (cdr preamble)))
+      (unless (string-prefix-p prefix (cdr preamble))
         (setcdr preamble (concat full-prefix (cdr preamble))))
                                         ; else
       (setq preamble (cons :preamble full-prefix)))

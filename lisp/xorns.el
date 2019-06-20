@@ -46,9 +46,13 @@
 ;;; Code:
 
 
+(require 'package)
 (require 'env nil 'noerror)
-(require 'xorns-utils nil 'noerror)
+(require 'xorns-utils)
 
+
+;; TODO: (defvar xorns-version 'undefined
+;; TODO: (defun xorns-version (&optional print-dest)
 
 (let* ((current (getenv "PATH"))
         (ok
