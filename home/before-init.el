@@ -64,49 +64,6 @@
 (set-variable 'wdired-allow-to-change-permissions t)
 
 
-; (setq muse-project-alist '(("planner" ("~/.pim/planner/"))))
-
-
-(defun -set-faces (family height)
-  "Initialize faces for theme \"'user\".
-
-The arguments should be a string with the FAMILY name and an integer with the
-HEIGHT.
-
-Argument FAMILY could be for example \"Monospace\" for Ubuntu or
-\"Lucida Sans Typewriter\". HEIGHT 94 or 115.
-
-Maybe, this function must be migrated to be integral part of `xorns'."
-  (condition-case err
-    (let* ( (theme 'user)
-	    (face 'default)
-	    (spec
-	      `((t
-		  ( :family ,family
-		    :foundry "unknown"
-		    :slant normal
-		    :weight normal
-		    :height ,height
-		    :width normal))))
-	    (comment "Defined internally in `xorns'.")
-	    (oldspec nil)
-	    (theme-settings
-	      (get theme 'theme-settings)))
-      (put face 'saved-face spec)
-      (put face 'saved-face-comment comment)
-      (put face 'theme-face (cons (list theme spec) oldspec))
-      (put theme 'theme-settings
-	(cons (list 'theme-face face theme spec) theme-settings))
-      (put face 'face-comment comment)
-      (put face 'face-override-spec nil)
-      (face-spec-set face spec t))    ; <-- let*
-    (error (message "error@-set-faces: %s" err))))
-
-
-(require 'ns nil 'noerror)
-(if (not (featurep 'ns))
-  (-set-faces "Monospace" 94)
-  ;; Mac
-  (-set-faces "Lucida Sans Typewriter" 115))
+;; (custom-set-faces '(default ((t (:height 136)))))
 
 ;;; before-init.el ends here

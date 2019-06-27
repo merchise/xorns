@@ -15,3 +15,4 @@
 /lisp/xorns-autoloads.el
 /lisp/xorns-version.el
 /lisp/xorns-pkg.el
+/xorns-[0-9]*/
