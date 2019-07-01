@@ -1,0 +1,210 @@
+#+TITLE: Xorns User Manual
+:PREAMBLE:
+#+AUTHOR: Medardo Antonio Rodriguez
+#+EMAIL: med@merchise.org
+#+DATE: 2014-2019
+#+LANGUAGE: en
+
+#+TEXINFO_DIR_CATEGORY: Emacs
+#+TEXINFO_DIR_TITLE: Xorns: (xorns).
+#+TEXINFO_DIR_DESC: Merchise extensions for Emacs.
+#+SUBTITLE: for version 0.1.8 (0.1.8-9-g587366c+1)
+
+#+TEXINFO_DEFFN: t
+#+OPTIONS: H:4 num:3 toc:2
+#+PROPERTY: header-args :eval never
+#+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-copyright-years
+#+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
+
+Xorns provides a way to configure (or use) Emacs in a better way, mostly
+according to Merchise's best practices.
+
+#+TEXINFO: @noindent
+This manual is for Xorns version 0.1.8 (0.1.8-9-g587366c+1).
+
+#+BEGIN_QUOTE
+Copyright (C) 2014-2019 Merchise Autrement [~º/~]
+
+You can redistribute this document and/or modify it under the terms of
+the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This document is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE@.  See the GNU
+General Public License for more details.
+#+END_QUOTE
+:END:
+* Introduction
+
+Xorns automates Emacs configurations for those packages commonly used for
+Merchise members for documentation management, and software development.
+
+The name "xorns" comes from "horns" as a metaphor in the sense that "Emacs" is
+the "Gnu's head" and our framework would be the "horns" of that "head".  The
+"X" instead the "H" is due to most Merchise project names start with that
+letter looking for words in Nahuatl or sometimes in English replacing "H" by
+"X".
+
+Xorns configures all packages using ~use-package~ and related tools.  Generic
+most important are ~deft~, ~dired~, and ~magit~.
+
+Enjoy Emacs and this package as our first and small gift!
+
+* Installation
+** _ :ignore:
+
+Xorns can be installed using Emacs' Package Manager or manually from
+its development repository.
+
+** Installing from ELPA
+
+ELPA is "GNU Emacs Lisp Package Archive".
+
+This is a pending task, Xorns is not yet in any ELPA repository, but it will
+be available eventually ASAP.  If you haven't used Emacs' Package Manager
+before, then it's a good time you familiarize yourself with it by reading the
+documentation in the Emacs Info Page.
+
+We already started to use "use-package" and we will automate all
+package dependencies management in the future using it.
+
+You can familiarize with Emacs' package manager by reading the documentation
+in the Emacs manual, see [[info:emacs#Packages]].  Then add the archives to
+~package-archives~:
+
+- To use Melpa and Marmalade:
+
+#+BEGIN_SRC emacs-lisp
+  (require 'package)
+  (add-to-list 'package-archives
+    '("melpa" . "https://melpa.org/packages/") t)
+  (add-to-list 'package-archives
+    '("marmalade" . "https://marmalade-repo.org/packages/") t)
+#+END_SRC
+
+- To use Melpa-Stable, replace ~"melpa"~ definition, for:
+
+#+BEGIN_SRC emacs-lisp
+  (require 'package)
+  (add-to-list 'package-archives
+    '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+#+END_SRC
+
+Once you have added your preferred archive, you need to update the
+local package list using:
+
+#+BEGIN_EXAMPLE
+  M-x package-refresh-contents RET
+#+END_EXAMPLE
+
+Once "xorns" has been deployed in any ELPA repository, and you have
+done that above, you can install it using:
+
+#+BEGIN_EXAMPLE
+  M-x package-install RET xorns RET
+#+END_EXAMPLE
+
+Now see [[*Post-Installation Tasks][*Post-Installation Tasks]].
+
+** Installing from the GIT repository
+
+Xorns depends on many packages (see main "default.mk" variable "DEPENDENCIES")
+which are available from Melpa and Melpa-Stable.  Install them using ~M-x
+package-install RET <package> RET~.  Of course you may also install them
+manually from their repository.
+
+Then clone the Xorns repository to your softlib dir, (for example
+~\~/.emacs.d/site-lisp/~):
+
+#+BEGIN_SRC shell-script
+  $ cd <your/softlib/dir>
+  $ git clone https://github.com/merchise/xorns.git
+  $ cd xorns
+#+END_SRC
+
+Then compile emacs-lisp libraries and generate the info manuals:
+
+#+BEGIN_SRC shell-script
+  $ make
+#+END_SRC
+
+Any dependency you haven't installed from ELPA or at
+~/path/to/emacs/softlib/<package>~, then you have to tell ~make~
+where to find them.  To do so create the file ~/path/to/xorns/config.mk~
+with the following content before running ~make~:
+
+#+BEGIN_SRC makefile
+  LOAD_PATH  = -L /path/to/xorns/lisp
+  LOAD_PATH += -L /path/to/<dependency-1>
+  ...
+  LOAD_PATH += -L /path/to/<dependency-n>
+#+END_SRC
+
+Finally add your Xorns paths to your ~init.el~ file (for example):
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path "~/.emacs.d/site-lisp/xorns/lisp")
+  (require 'xorns)
+
+  (with-eval-after-load 'info
+    (info-initialize)
+    (add-to-list 'Info-directory-list
+                 "~/.emacs.d/site-lisp/xorns/docs/"))
+#+END_SRC
+
+Note: you have to add the library subdirectory (~lisp~) to the ~load-path~,
+not the top-level of the repository.
+
+If you are using "package-el", you can automate all above with a single make
+command (just clone Xorns to any softlib folder different of
+~\~/.emacs.d/site-lisp/~):
+
+#+BEGIN_SRC shell-script
+  $ cd /path/to/xorns
+  $ make local-install
+#+END_SRC
+
+To view all available targets use ~make help~.
+
+** Post-Installation Tasks
+
+After installing Xorns you should verify that you are indeed using the correct
+releases for Emacs, Xorns, and all its dependencies.  It's best to restart
+Emacs before doing so, to make sure you are not using an outdated value for
+~load-path~.
+
+After installing Magit you should verify that you are indeed using the
+Magit, Git, and Emacs releases you think you are using.  It's best to
+restart Emacs before doing so, to make sure you are not using an
+outdated value for ~load-path~.
+
+#+BEGIN_EXAMPLE
+  M-x magit-version RET
+#+END_EXAMPLE
+
+should display something like
+
+#+BEGIN_EXAMPLE
+  Magit 2.8.0, Git 2.10.2, Emacs 25.1.1, gnu/linux
+#+END_EXAMPLE
+
+* Getting Started
+
+This short tutorial describes the most essential features that most
+Merchisians use on a daily basis.  It only scratches the surface but
+should be enough to get you started.
+
+To be continued ...
+
+* _ :ignore:
+
+# Local Variables:
+# eval: (require 'org-man     nil t)
+# eval: (require 'ox-extra    nil t)
+# eval: (require 'ox-texinfo+ nil t)
+# eval: (and (featurep 'ox-extra) (ox-extras-activate '(ignore-headlines)))
+# indent-tabs-mode: nil
+# org-src-preserve-indentation: nil
+# End:

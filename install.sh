@@ -1,3 +1,3 @@
 #!/bin/sh
 
-emacs --batch --debug --load=install.el
+make local-install

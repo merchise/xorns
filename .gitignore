@@ -2,6 +2,7 @@
 *~
 /*.tar
 /*.tar.gz
+/docs/*.texi
 /docs/*.html
 /docs/*.info
 /docs/*.pdf
