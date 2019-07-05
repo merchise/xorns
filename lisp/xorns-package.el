@@ -43,14 +43,6 @@
 
 (require 'package nil 'noerror)
 
-(defun xorns-dependency-install (feature)
-  "Install a dependency FEATURE if not installed."
-  (condition-case err
-    (unless (package-installed-p feature)
-      (package-install feature))
-    (error (message "error@dependency-install: %s" err))))
-
-
 (add-to-list 'package-archives    ;; "http://melpa.milkbox.net/packages/" ?
   '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives

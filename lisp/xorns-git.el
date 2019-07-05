@@ -56,11 +56,5 @@
     (xorns-missing-feature 'magit)))
 
 
-;;;###autoload
-(defun xorns-git-dependencies-install ()
-  "Install all dependencies for `git' modes."
-  (xorns-dependency-install 'magit))
-
-
 (provide 'xorns-git)
 ;;; xorns-git.el ends here

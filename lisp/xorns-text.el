@@ -161,15 +161,5 @@ If this feature is not installed don't fail and just report a message."
 (define-key outline-minor-mode-map (kbd "C-+") 'xorns-toggle-subtree)
 
 
-
-;;; Install text dependencies
-
-;;;###autoload
-(defun xorns-text-dependencies-install ()
-  "Install all dependencies of text modes."
-  (xorns-dependency-install 'auto-complete)
-  )
-
-
 (provide 'xorns-text)
 ;;; xorns-text.el ends here
