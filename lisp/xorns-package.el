@@ -26,10 +26,7 @@
 ;; - melpa: https://melpa.org/packages/
 ;; - marmalade: https://marmalade-repo.org/packages/
 ;;
-;; Extra package archives (see below) are configured while starting Emacs if
-;; `xorns-extra-package-archives' variable is t, or at any time calling
-;; `xorns-configure-extra-package-archives' function:
-;;
+;; Extra package archives could be configured:
 ;; - elpa: https://tromey.com/elpa/
 ;; - melpa-stable: https://stable.melpa.org/packages/
 ;; - elpy: https://jorgenschaefer.github.io/packages/
@@ -46,24 +43,6 @@
 
 (require 'package nil 'noerror)
 
-
-(defcustom xorns-extra-package-archives nil
-  "If t, extra package archives are configured while starting Emacs."
-  :group 'xorns
-  :type 'boolean)
-
-
-(defun xorns-configure-extra-package-archives ()
-  "Configure extra `package-archives'."
-  (interactive)
-  (add-to-list 'package-archives
-    '("elpa" . "https://tromey.com/elpa/") t)
-  (add-to-list 'package-archives
-    '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-  (add-to-list 'package-archives
-    '("elpy" . "https://jorgenschaefer.github.io/packages/") t))
-
-
 (defun xorns-dependency-install (feature)
   "Install a dependency FEATURE if not installed."
   (condition-case err
@@ -76,10 +55,6 @@
   '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives
   '("marmalade" . "https://marmalade-repo.org/packages/") t)
-
-
-(if xorns-extra-package-archives
-  (xorns-configure-extra-package-archives))
 
 
 (provide 'xorns-package)
