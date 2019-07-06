@@ -111,11 +111,6 @@
   (require 'xorns-xml)
   (error (message "error loading xorns-xml: %s" err)))
 
-;; Configure preferred package repositories
-(condition-case err
-  (require 'xorns-package)
-  (error (message "error loading xorns-package: %s" err)))
-
 
 
 (defun xorns-manage-user-custom-files (&optional force)

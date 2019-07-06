@@ -44,7 +44,6 @@
 (require 'google-translate nil 'noerror)
 (require 'google-translate-smooth-ui nil 'noerror)
 (require 'xorns-utils nil 'noerror)
-(require 'xorns-package)
 
 
 ;;; Custom Variables and Settings

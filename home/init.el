@@ -20,6 +20,11 @@
 (require 'package)
 (package-initialize)
 
+(add-to-list 'package-archives    ;; "http://melpa.milkbox.net/packages/" ?
+  '("melpa" . "https://melpa.org/packages/") t)
+(add-to-list 'package-archives
+  '("marmalade" . "https://marmalade-repo.org/packages/") t)
+
 (require 'use-package)
 
 (let ((xorns-config-level 'maximum))    ;; 'basic, 'general
