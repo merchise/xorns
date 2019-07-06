@@ -25,7 +25,7 @@ install: lisp
 
 local-install: pkgdef
 	@printf "Local installing '$(PKG)'\n"
-	@$(EMACSBIN) --batch --debug --load=$(TOP)/etc/elpa-install.el
+	@$(EMACSBIN) --batch --debug --load=$(TOP)/etc/local-install.el
 
 %.elc: %.el
 	@printf "Compiling $<\n"

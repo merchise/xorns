@@ -1,3 +1,6 @@
+;;; local-install --- Install Xorns in local ELPA directory
+
+;;; Code:
 (progn
   (require 'env)
   (require 'package)
@@ -19,3 +22,5 @@
     (package-install-file (file-name-as-directory tmp))
     (message "Deleting symbolic link: %s" tmp)
     (delete-file tmp)))
+(provide 'local-install)
+;;; local-install.el ends here
