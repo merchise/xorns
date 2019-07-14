@@ -73,7 +73,9 @@ DEPENDENCIES = \
 	deft:0.8:20181226\
 	realgud:1.4:20190504\
 	load-relative:1.3:20170526\
-	loc-changes:1.2:20160801
+	loc-changes:1.2:20160801\
+	proof-general:20190618:4.5
+
 
 pkg_name = $(firstword $(subst :, ,$(1)))
 
