@@ -18,12 +18,19 @@
 ;;; Code:
 
 (require 'package)
+
+;; (require 'xorns-package-archives)
+
+(setq package-archives
+  '(("melpa" . "https://melpa.org/packages/")
+    ("org" . "https://orgmode.org/elpa/")
+    ("gnu" . "https://elpa.gnu.org/packages/")))
+
 (package-initialize)
 
-(add-to-list 'package-archives    ;; "http://melpa.milkbox.net/packages/" ?
-  '("melpa" . "https://melpa.org/packages/") t)
-(add-to-list 'package-archives
-  '("marmalade" . "https://marmalade-repo.org/packages/") t)
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 
 (require 'use-package)
 
