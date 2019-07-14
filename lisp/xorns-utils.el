@@ -34,9 +34,6 @@
   (require 'cl))
 
 
-;; TODO: How to auto-load other stuff but functions.
-
-;;;###autoload
 (defgroup xorns nil
   "Merchise extensions for Emacs."
   :prefix "xorns-"
@@ -53,21 +50,18 @@
 
 ;;; Symbols and variables
 
-;;;###autoload
 (defun xorns-get-value (symbol)
   "Return SYMBOL's value or nil if that is void."
   (if (boundp symbol)
     (symbol-value symbol)))
 
 
-;;;###autoload
 (defun xorns-get-original-value (symbol)
   "Return SYMBOL's original value or nil if that is void."
   (if (boundp symbol)
     (eval (car (get symbol 'standard-value)))))
 
 
-;;;###autoload
 (defun xorns-set-value (symbol value)
   "Initialize a SYMBOL (variable name) with an expression (VALUE)."
   (unless (or (get symbol 'standard-value)
@@ -77,7 +71,6 @@
   (set symbol value))
 
 
-;;;###autoload
 (defun xorns-set-values (&rest args)
   "Install user customizations of variable values specified in ARGS.
 
@@ -97,7 +90,6 @@ This stores EXP (after evaluating it) as the saved value for SYMBOL."
 
 ;;; Strings
 
-;;;###autoload
 (defun xorns-str-trim (s)
   "Remove white-spaces at start and end of the string S."
   (let ((blanks split-string-default-separators))
@@ -120,7 +112,6 @@ This stores EXP (after evaluating it) as the saved value for SYMBOL."
   "Director separator.")
 
 
-;;;###autoload
 (defun xorns-file-path-join (base &rest args)
   "Join BASE and ARGS to a single file path.
 The empty string or nil could be used as BASE in order to define root
@@ -136,7 +127,6 @@ final separator."
     res))
 
 
-;;;###autoload
 (defun xorns-preferred-directory (&rest dirs)
   "Return name of preferred directory (the first that exists in DIRS.
 
@@ -151,7 +141,6 @@ If no item is given in DIRS, return $HOME."
       "~")))
 
 
-;;;###autoload
 (defun xorns-preferred-default-directory ()
   "Return name of preferred default directory when start a new session."
   (xorns-preferred-directory
@@ -163,14 +152,12 @@ If no item is given in DIRS, return $HOME."
     "~"))
 
 
-;;;###autoload
 (defun xorns-set-default-directory ()
   "Set the default directory to its original value."
   (if (equal (xorns-default-directory) xorns-home-dir)
     (xorns-set-value 'default-directory (xorns-preferred-default-directory))))
 
 
-;;;###autoload
 (defun xorns-locate-emacs-file (&rest args)
   "Return an absolute per-user Emacs-specific file-name.
 
@@ -202,7 +189,6 @@ returned."
     (locate-user-emacs-file "init.el" ".emacs")))
 
 
-;;;###autoload
 (defun xorns-executable-find (command &rest other-commands)
   "Search for COMMAND in `exec-path' and return the absolute file name.
 
@@ -215,7 +201,6 @@ is returned."
     (push command other-commands)))
 
 
-;;;###autoload
 (defun xorns-default-directory ()
   "Name of default directory of current buffer.
 
@@ -225,9 +210,16 @@ use command `cd'."
   (file-name-as-directory (abbreviate-file-name default-directory)))
 
 
-;;;###autoload
-(defun xorns-pwd (&optional no-show)
-  "Show and put in the kill ring the current directory.
+(defun xorns-buffer-file-name ()
+  "Name of file visited in current buffer, or nil if not visiting a file.
+
+This should be an abbreviated file name."
+  (let ((aux buffer-file-name))
+    (and aux (abbreviate-file-name aux))))
+
+
+(defun xorns-kill-ring-save-directory (&optional no-show)
+  "Show and put in the kill ring current directory.
 
 If optional argument NO-SHOW is not nil, the message is not shown.  The
 format for the message is: The first position is used as `<0>' for the
@@ -235,23 +227,43 @@ first time this command is executed for each directory, and `<+>' when
 repeated; next is printed `$' for an ordinary user or `#' for `root';
 then a space and the value of `default-directory'."
   (interactive "P")
-  (let* ((pwd (xorns-default-directory))
-          (last (if kill-ring (car kill-ring)))
-          (new (not (equal last pwd)))
-          (sudo (equal user-real-login-name "root"))
-          (prompt (format "%s%s" (if new "<0>" "<+>") (if sudo "#" "$"))))
+  (let* ((name (xorns-default-directory))
+         (last (if kill-ring (car kill-ring)))
+         (new (not (equal last name)))
+         (sudo (equal user-real-login-name "root"))
+         (prompt (format "%s%s" (if new "<0>" "<+>") (if sudo "#" "$"))))
     (if new
-      (kill-new pwd))
+      (kill-new name))
     (unless no-show
-      (message "%s %s" prompt pwd))))
+      (message "%s %s" prompt name))))
 
 
-;;;###autoload
+(defun xorns-kill-ring-save-filename (&optional no-show)
+  "Show and put in the kill ring current file-name.
+
+If optional argument NO-SHOW is not nil, the message is not shown.  The
+format for the message is: The first position is used as `<0>' for the
+first time this command is executed for each directory, and `<+>' when
+repeated; next is printed `$' for an ordinary user or `#' for `root';
+then a space and the value of `default-directory'."
+  (interactive "P")
+  (let* ((name (xorns-buffer-file-name))
+         (last (if kill-ring (car kill-ring)))
+         (new (not (equal last name)))
+         (sudo (equal user-real-login-name "root"))
+         (prompt (format "%s%s" (if new "<0>" "<+>") (if sudo "#" "$"))))
+    (if new
+      (kill-new name))
+    (unless no-show
+      (message "%s %s" prompt name))))
+
+
 (defun xorns-try-linum-mode ()
   "Enable line numbers in the left margin but only if buffer is not big.
 
 A buffer is considered big if buffer size is less that
 `xorns-big-buffer-size-limit'."
+;; TODO: line-number-display-limit
   (let ((buffer-size (/ (buffer-size) 1024)))
     (if (< buffer-size xorns-big-buffer-size-limit)
       (linum-mode 1)
@@ -371,7 +383,6 @@ See `read-from-minibuffer' for more information on all arguments."
     (or (unless (equal res "") res) default-value "")))
 
 
-;;;###autoload
 (defun xorns-configure-p (&optional arg)
   "Return if a configuration level could be executed.
 
@@ -392,7 +403,6 @@ initialization process (See README file and documentation of
 
 ;;; Features
 
-;;;###autoload
 (defun xorns-missing-feature (feature)
   "Report a message about a missing recommended FEATURE."
   (message "Recommended feature `%s' is not installed." feature))

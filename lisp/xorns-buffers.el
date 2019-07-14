@@ -236,7 +236,6 @@ window.  After that standard behaviour, this function kills the `ibuffer'."
 
 ;;; Buffers
 
-;;;###autoload
 (defun xorns-force-scratch (&optional arg)
   "Switch to `*scratch*` buffer, creating a new one if needed.
 

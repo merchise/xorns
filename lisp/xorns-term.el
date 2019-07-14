@@ -429,7 +429,6 @@ index 0."
   )
 
 
-;;;###autoload
 (defun xorns-ansi-term* (&optional arg)
   "Launch or select a terminal shell in a buffer.
 
@@ -459,7 +458,6 @@ The prefix ARG could be:
     ))
 
 
-;;;###autoload
 (defun xorns-ansi-term (&optional arg)
   "Start a terminal\-emulator in a new buffer (based in ARG)."
   (interactive "P")
@@ -494,7 +492,6 @@ The prefix ARG could be:
       cur-buf)))
 
 
-;;;###autoload
 (defun xorns-ansi-term-paste (&optional arg)
   "Paste content into a `ansi-term' shell (based in ARG)."
   (interactive "P")
@@ -507,7 +504,6 @@ The prefix ARG could be:
 ;;       (list nil nil arg))))
 
 
-;;;###autoload
 (defun xorns-toggle-term-mode ()
   "Toggle term-mode between `term-line-mode' and `term-char-mode'."
   (interactive)

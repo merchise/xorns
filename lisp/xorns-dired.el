@@ -135,7 +135,6 @@ With a prefix ARG, print a message with ctual parameters."
     (dired-sort-other params)))
 
 
-;;;###autoload
 (defun xorns-dired-single-buffer (&optional default-dirname)
   "Visit selected directory in current buffer.
 Improve default `dired-single-buffer' by remembering parent position for
