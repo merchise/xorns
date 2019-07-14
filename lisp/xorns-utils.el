@@ -117,14 +117,7 @@ This stores EXP (after evaluating it) as the saved value for SYMBOL."
 The empty string or nil could be used as BASE in order to define root
 directory, one of these values at the end make the returned value to have the
 final separator."
-  (let ((res base))
-    (if (or (null res) (equal res ""))
-      (setq res xorns-directory-separator))
-    (mapc
-      (lambda (arg)
-        (setq res (concat (file-name-as-directory res) (or arg ""))))
-      args)
-    res))
+  (apply 'concat (mapcar 'file-name-as-directory (cons base args))))
 
 
 (defun xorns-preferred-directory (&rest dirs)
