@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Xorns: (xorns).
 #+TEXINFO_DIR_DESC: Merchise extensions for Emacs.
-#+SUBTITLE: for version 0.1.8 (0.1.8-9-g587366c+1)
+#+SUBTITLE: for version 0.1.9 (0.1.9-8-g3df7dff+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -20,7 +20,7 @@ Xorns provides a way to configure (or use) Emacs in a better way, mostly
 according to Merchise's best practices.
 
 #+TEXINFO: @noindent
-This manual is for Xorns version 0.1.8 (0.1.8-9-g587366c+1).
+This manual is for Xorns version 0.1.9 (0.1.9-8-g3df7dff+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2014-2019 Merchise Autrement [~º/~]
