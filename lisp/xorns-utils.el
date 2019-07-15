@@ -240,15 +240,17 @@ first time this command is executed for each directory, and `<+>' when
 repeated; next is printed `$' for an ordinary user or `#' for `root';
 then a space and the value of `default-directory'."
   (interactive "P")
-  (let* ((name (xorns-buffer-file-name))
-         (last (if kill-ring (car kill-ring)))
+  (let ((name (xorns-buffer-file-name)))
+    (when name
+      (let*
+	((last (if kill-ring (car kill-ring)))
          (new (not (equal last name)))
          (sudo (equal user-real-login-name "root"))
          (prompt (format "%s%s" (if new "<0>" "<+>") (if sudo "#" "$"))))
-    (if new
-      (kill-new name))
-    (unless no-show
-      (message "%s %s" prompt name))))
+	(if new
+	  (kill-new name))
+	(unless no-show
+	  (message "%s %s" prompt name))))))
 
 
 (defun xorns-try-linum-mode ()
