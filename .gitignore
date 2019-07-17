@@ -1,7 +1,27 @@
+# Compiled
 *.elc
-*~
+
+# Lisp generated
+/lisp/xorns-autoloads.el
+/lisp/xorns-version.el
+/lisp/xorns-pkg.el
+
+# Packaging
+.cask
 /*.tar
 /*.tar.gz
+/xorns-[0-9]*/
+
+# Backup files
+*~
+
+# Undo-tree save-files
+*.~undo-tree
+
+# Make user configurations
+/config.mk
+
+# Documentation generated
 /docs/*.texi
 /docs/*.html
 /docs/*.info
@@ -12,8 +32,13 @@
 /docs/xorns/
 /docs/mimetype
 /docs/stats/
-/config.mk
-/lisp/xorns-autoloads.el
-/lisp/xorns-version.el
-/lisp/xorns-pkg.el
-/xorns-[0-9]*/
+
+# User private directory
+usr/
+
+# Managed by Emacs in initialization folder (".emacs.d").
+auto-save-list/
+elpa/
+/session.*
+tramp
+/network-security.data
