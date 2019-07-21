@@ -74,8 +74,7 @@ See `frame-title-format' variable."
   (unless (package-installed-p 'use-package)
     (package-refresh-contents)
     (package-install 'use-package))
-  (require 'use-package)
-  (setq use-package-always-ensure t))
+  (require 'use-package))
 
 
 (defun >>=setup-emacs-startup-hook ()
