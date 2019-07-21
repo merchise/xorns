@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Intended to be copied in '~/.local/bin'
+
+export HOME=$HOME/.emacs-venvs/
+
+if [ -d "$HOME" ]
+then
+    echo "Using HOME: $HOME"
+else
+    echo "Creating HOME: $HOME"
+    mkdir $HOME
+fi
+
+
+if [[ -L $HOME/.emacs.d ]]; then rm $HOME/.emacs.d; fi
+ln -sf $PWD/$1 $HOME/.emacs.d
+
+shift
+
+emacs $@
