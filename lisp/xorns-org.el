@@ -1,4 +1,4 @@
-;;; xorns-org --- Manage miscellaneous organization stuffs.
+;;; xorns-org.el --- Manage miscellaneous organization stuffs
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

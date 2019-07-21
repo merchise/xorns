@@ -1,4 +1,4 @@
-;;; xorns-gud --- Merchise extensions for "Grand Unified Debugger mode"
+;;; xorns-gud.el --- Merchise extensions for "Grand Unified Debugger mode"
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

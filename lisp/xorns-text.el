@@ -1,4 +1,4 @@
-;;; xorns-text --- Merchise text modes, and its idiosyncratic commands
+;;; xorns-text.el --- Merchise text modes, and its idiosyncratic commands
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

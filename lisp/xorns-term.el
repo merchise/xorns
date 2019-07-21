@@ -1,4 +1,4 @@
-;;; xorns-term --- Terminal support
+;;; xorns-term.el --- Terminal support
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

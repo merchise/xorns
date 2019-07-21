@@ -1,4 +1,4 @@
-;;; xorns --- Execute all Merchise preferred initialization
+;;; xorns-xml.el --- Execute all Merchise preferred initialization
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

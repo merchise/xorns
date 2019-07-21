@@ -1,4 +1,4 @@
-;;; xorns-ido ---  Configuration for ido
+;;; xorns-ido.el ---  Configuration for ido
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

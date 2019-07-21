@@ -1,4 +1,4 @@
-;;; xorns-widgets --- Functions for creating and using widgets
+;;; xorns-widgets.el --- Functions for creating and using widgets
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

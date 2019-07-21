@@ -17,6 +17,8 @@
 
 ;;; Code:
 
+(defconst emacs-start-time (current-time))
+
 (require 'package)
 
 ;; (require 'xorns-package-archives)
@@ -49,6 +51,10 @@
 
 (autoload 'po-mode "po-mode"
           "Major mode for translators to edit PO files" t)
+
+(defconst xorns-init-elapsed-time
+  (float-time (time-subtract nil emacs-start-time))
+    "Time (seconds) spent in Emacs initialization process.")
 
 
 (provide 'init)

@@ -1,4 +1,4 @@
-;;; xorns-buffers --- Buffers management
+;;; xorns-buffers.el --- Buffers management
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
@@ -53,7 +53,7 @@
 (require 'xorns-utils)
 
 ;; Get rid of the startup screen and `*scratch*' buffer message
-;; new-age
+;; >>=
 (xorns-set-values
   '(inhibit-startup-screen t)
   '(initial-scratch-message nil))

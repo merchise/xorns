@@ -1,6 +1,7 @@
-;;; xorns --- Execute all Merchise preferred initialization
+;;; xorns.el --- Merchise extensions for Emacs
 
 ;; Copyright (c) Merchise Autrement [~º/~]
+;; Version: 0.1.9
 
 ;; This file is NOT part of GNU Emacs but I'd like it. ;)
 
@@ -75,8 +76,8 @@
 
 ;; Basic initialization
 (condition-case err
-  (require 'xorns-startup)
-  (error (message "error loading xorns-startup: %s" err)))
+  (require 'xorns-init)
+  (error (message "error loading xorns-init: %s" err)))
 (condition-case err
   (require 'xorns-buffers)
   (error (message "error loading xorns-buffers: %s" err)))

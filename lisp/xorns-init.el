@@ -1,4 +1,4 @@
-;;; xorns-startup --- Basic initialization
+;;; xorns-init.el --- Basic initialization
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
@@ -68,6 +68,7 @@
 
 
 ;; Show current directory in title bar
+;; >>=
 (xorns-set-value 'frame-title-format
   ; Original value was::
   ;    '(multiple-frames "%b" ("" invocation-name "@" system-name))
@@ -150,5 +151,5 @@
       (error (message "error@after-init-hook: %s" err)))))
 
 
-(provide 'xorns-startup)
-;;; xorns-startup.el ends here
+(provide 'xorns-init)
+;;; xorns-init.el ends here

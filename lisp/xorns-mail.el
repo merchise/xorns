@@ -1,4 +1,4 @@
-;;; xorns-mail --- Merchise extensions for sending and receiving mail
+;;; xorns-mail.el --- Merchise extensions for sending and receiving mail
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

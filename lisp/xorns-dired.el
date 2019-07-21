@@ -1,4 +1,4 @@
-;;; xorns-dired --- Merchise extensions for `dired'
+;;; xorns-dired.el --- Merchise extensions for `dired'
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

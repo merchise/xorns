@@ -1,4 +1,4 @@
-;;; xorns-sketch --- Structures that are pending of review.
+;;; xorns-sketch.el --- Structures that are pending of review
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

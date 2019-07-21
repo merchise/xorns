@@ -1,4 +1,4 @@
-;;; xorns-git --- Integrate Emacs with GIT using `magit'
+;;; xorns-git.el --- Integrate Emacs with GIT using `magit'
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

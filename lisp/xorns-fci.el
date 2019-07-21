@@ -1,4 +1,4 @@
-;;; xorns-fci --- Fill Column Indicator
+;;; xorns-fci.el --- Fill Column Indicator
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

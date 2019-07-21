@@ -1,7 +1,7 @@
 export TOP := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 export PKG := $(lastword $(subst /, ,$(TOP)))
 
-PKG_DESC   := Merchise extensions for Emacs.
+PKG_DESC   := Merchise extensions for Emacs
 PKG_KWORDS := initialization convenience merchise
 
 prefix   ?= /usr/local

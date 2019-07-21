@@ -1,4 +1,4 @@
-;;; xorns-prog --- Programming language source code editing
+;;; xorns-prog.el --- Programming language source code editing
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

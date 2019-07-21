@@ -1,4 +1,4 @@
-;;; xorns-package-archives --- ELPA repository for packages supported by Xorns
+;;; xorns-package-archives.el --- ELPA repository for packages supported by Xorns
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

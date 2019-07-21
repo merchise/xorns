@@ -1,4 +1,4 @@
-;;; xorns-extra --- Some extra features
+;;; xorns-extra.el --- Some extra features
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

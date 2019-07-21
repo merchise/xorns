@@ -1,4 +1,4 @@
-;;; xorns-utils --- Common manipulation utility functions
+;;; xorns-utils.el --- Common manipulation utility functions
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

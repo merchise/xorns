@@ -1,4 +1,4 @@
-;;; xorns-simple --- Merchise basic editing commands for Emacs
+;;; xorns-simple.el --- Merchise basic editing commands for Emacs
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

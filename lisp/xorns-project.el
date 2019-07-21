@@ -1,4 +1,4 @@
-;;; xorns-project --- Manage and navigate projects in Emacs easily
+;;; xorns-project.el --- Manage and navigate projects in Emacs easily
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
