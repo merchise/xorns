@@ -18,12 +18,21 @@
 # that target.
 
 
-if [ -d $1 ]
+if [ -z "$1" ]
+then
+    PROJECT_NAME=`basename $PWD`
+    cd ..
+else
+    PROJECT_NAME=$1
+    shift
+fi
+
+if [ -d $PROJECT_NAME ]
 then
     WORKON_HOME=$HOME/.emacs-virtualenvs/
 else
     STATUS=$?
-    echo "$1 is not a valid directory."
+    echo "$PROJECT_NAME is not a valid directory."
     exit $STATUS
 fi
 
@@ -36,14 +45,12 @@ else
 fi
 
 # Change HOME to local virtual environment
-HOME="$WORKON_HOME/$1/"
+HOME="$WORKON_HOME/$PROJECT_NAME/"
 
 # Creating virtual-env folder
 mkdir $HOME/ 2> /dev/null
 
 if [[ -L $HOME/.emacs.d ]]; then rm $HOME/.emacs.d; fi
-ln -sf $PWD/$1 $HOME/.emacs.d
-
-shift
+ln -sf $PWD/$PROJECT_NAME $HOME/.emacs.d
 
 emacs $@
