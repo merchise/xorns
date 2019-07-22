@@ -17,16 +17,29 @@
 # some extra $HOME resources, sym-link the original files or directories to
 # that target.
 
-export HOME=$HOME/.emacs-venvs/
 
-if [ -d "$HOME" ]
+if [ -d $1 ]
 then
-    echo "Using HOME: $HOME"
+    WORKON_HOME=$HOME/.emacs-virtualenvs/
 else
-    echo "Creating HOME: $HOME"
-    mkdir $HOME
+    STATUS=$?
+    echo "$1 is not a valid directory."
+    exit $STATUS
 fi
 
+if [ -d "$WORKON_HOME" ]
+then
+    echo "Using work-on home folder: $WORKON_HOME"
+else
+    echo "Creating work-on home folder: $WORKON_HOME"
+    mkdir "$WORKON_HOME"
+fi
+
+# Change HOME to local virtual environment
+HOME="$WORKON_HOME/$1/"
+
+# Creating virtual-env folder
+mkdir $HOME/ 2> /dev/null
 
 if [[ -L $HOME/.emacs.d ]]; then rm $HOME/.emacs.d; fi
 ln -sf $PWD/$1 $HOME/.emacs.d
