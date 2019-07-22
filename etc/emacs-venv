@@ -1,6 +1,21 @@
 #!/bin/sh
 
-# Intended to be copied in '~/.local/bin'
+# author: Medardo Antonio Rodriguez, @med_merchise
+
+# To use this script, cd to your project directory, for example if your
+# project is located in "~/work/emacs/xorns" to try xorns on execute:
+#
+#  $ cd ~/work/emacs/
+#  $ source xorns/etc/emacs-venv xorns
+#
+# All extra-arguments will be used when executing 'emacs' itself.
+#
+# This script can be copied to any place in your $PATH, for example
+# '~/.local/bin' in my case.
+#
+# It works by simulated a virtual $HOME in '$HOME/.emacs-venvs/', if you need
+# some extra $HOME resources, sym-link the original files or directories to
+# that target.
 
 export HOME=$HOME/.emacs-venvs/
 
