@@ -44,3 +44,7 @@ git clone -b feature-new-age https://github.com/merchise/xorns.git ~/.emacs.d
 Most Xorns structures are prefixed with ">>=", configuration variables with
 ">>=|", constants with ">>=!", module internals with ">>=-", sub-levels are
 joined with "/", ...
+
+Standard modules will use "-" separator in its names (for example
+"xorns-startup.el").  Building-block modules will use "+" instead (for example
+"xorns+base.el").
