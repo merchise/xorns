@@ -53,13 +53,13 @@
 (xorns-set-value 'show-paren-mode t)
 
 (xorns-set-values
-                                        ; Consecutive years replaced with range
+  ; Consecutive years replaced with range
   '(copyright-year-ranges t)
-                                        ; Add a newline automatically at the end of the file
-  '(require-final-newline t)
-                                        ; Do not display continuation lines
+  ; Add a newline automatically at the end of the file
+  '(require-final-newline t)    ; >>=
+  ; Do not display continuation lines
   '(truncate-lines t)
-                                        ; Parenthesis matching style
+  ; Parenthesis matching style
   '(show-paren-style 'mixed)
   )
 
@@ -103,7 +103,7 @@
 ;;; Hooks
 
 ;;(add-hook 'before-save-hook 'copyright-update)
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
+(add-hook 'before-save-hook 'delete-trailing-whitespace)    ; >>=
 ;; TODO: (add-hook 'before-save-hook 'time-stamp)
 
 

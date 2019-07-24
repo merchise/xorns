@@ -21,8 +21,6 @@ ARGS."
     (message (concat ">>= " ,format-string) ,@args)))
 
 
-
-
 (defun plist-exclude (plist &rest props)
   "Return a copy of PLIST with all PROPS excluded.
 PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
@@ -35,9 +33,6 @@ PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
 	  (push key res))))
     res))
 
-
-
-;; Basic utility functions needed probably before package-system is setup
 
 (defun dir-join (&rest parts)
   "Join PARTS to a single path."
@@ -52,6 +47,7 @@ PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
 	(if (and (stringp dir) (file-directory-p dir))
 	  (setq res dir))))
     res))
+
 
 
 (provide 'xorns-tools)

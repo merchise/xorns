@@ -25,7 +25,7 @@ This is set to true when executing `emacs-startup-hook'.")
 
 
 (defun >>=init ()
-  "Perform startup initialization."
+  "General startup initialization."
   (hidden-mode-line-mode)    ;; xorns-ui
   (>>=ui/remove-rubbish)
   (prefer-coding-system 'utf-8)
@@ -40,6 +40,7 @@ This is set to true when executing `emacs-startup-hook'.")
   (setq
     inhibit-startup-screen t
     initial-scratch-message nil)
+  (require 'xorns-packages)
   ; (>>=building-blocks/load)
   )
 
