@@ -5,6 +5,9 @@
 
 ;;; Code:
 
+;; Without this comment emacs25 adds (package-initialize) here
+;; (package-initialize)
+
 (defconst emacs-start-time (current-time))
 
 (defconst >>=!base-directory
@@ -22,8 +25,7 @@
       (gc-cons-percentage 0.6)
       (file-name-handler-alist nil))
   (require 'xorns-startup)
-  (>>=setup-package-system)
-  (>>=init)
+  (>>=xorns/init)
   (>>=setup-emacs-startup-hook)
   (when >>=|enable-server
     (require 'server)

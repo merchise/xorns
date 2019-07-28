@@ -24,7 +24,10 @@
 This is set to true when executing `emacs-startup-hook'.")
 
 
-(defun >>=init ()
+
+
+
+(defun >>=xorns/init ()
   "General startup initialization."
   (hidden-mode-line-mode)    ;; xorns-ui
   (>>=ui/remove-rubbish)
