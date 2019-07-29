@@ -18,7 +18,7 @@
     ;; It should only modify building-block setting-variables (those prefixed
     ;; with ">>=+") when their default values are not suitable for your
     ;; configuration.  For example:
-    ; >>=+programming/extra-languages '(haskell ruby)
+    ; >>=|base/extra-packages '(autorevert recentf gcmh)
     ))
 
 
@@ -29,7 +29,7 @@
     ;; blocks configuration.  It should only modify modify setting-variables
     ;; (those prefixed with ">>=|") when their default values are not suitable
     ;; for your configuration.  For example:
-    ; >>=|enable-server nil
+    ; >>=|default-font '(:size 13.5 :weight normal :width normal)
     ))
 
 
