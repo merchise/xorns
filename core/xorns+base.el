@@ -190,7 +190,7 @@ if (>>=-base/configure? autorevert)
 
 ;; Garbage Collector Magic Hack (https://gitlab.com/koral/gcmh)
 
-(defun >>=+init-gc ()
+(defun >>=gc/init ()
   "Initialize Garbage Collector Magic Hack."
   (use-package gcmh
     :ensure t

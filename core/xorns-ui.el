@@ -15,7 +15,32 @@
 (require 'easy-mmode)
 
 
-(defun >>=ui/remove-rubbish ()
+(defvar >>=|frame-title-format
+  '(multiple-frames "%b"
+     ("" invocation-name " -- "
+       (:eval (abbreviate-file-name default-directory))))
+  "Template for displaying the title bar of visible frames.")
+
+
+(defun >>=configure-default-user-interface ()
+  )
+
+
+(defun >>=ui/header-mode-line ()
+  (interactive)
+  (if (not header-line-format)
+      (setq header-line-format
+	'(multiple-frames "%b"
+     ("" invocation-name " -- "
+       (:eval (abbreviate-file-name default-directory)))))
+    ;; mode-line-modified mode-line-remote mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position
+    ;; (vc-mode vc-mode)
+    ;;"  " mode-line-modes mode-line-misc-info mode-line-end-spaces))
+    (setq header-line-format nil))
+  (force-mode-line-update))
+
+
+(defun >>=ui/remove-useless-bars ()
   "Remove tool bar, menu bar, and scroll bars."
   (mapcar
     (lambda (name)
@@ -23,6 +48,15 @@
 	(when (and (fboundp mode) (symbol-value mode))
 	  (funcall mode -1))))
     '(tool-bar menu-bar scroll-bar tooltip)))
+
+
+(defun >>=frame-title-init ()
+  "Configure template for displaying the title bar of visible frames.
+See `frame-title-format' variable."
+  ;; TODO: Spacemacs uses a function to prepare variable value
+  (when (and (display-graphic-p) >>=|frame-title-format)
+    (require 'format-spec)
+    (setq frame-title-format >>=|frame-title-format)))
 
 
 

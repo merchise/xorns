@@ -17,22 +17,40 @@
 (require 'xorns-tools)
 (require 'xorns-ui)
 (require 'xorns-fonts)
+(require 'xorns-packages)
 
 
 (defvar >>=!emacs-initialized nil
   "Whether or not Xorns has finished the startup process.
 This is set to true when executing `emacs-startup-hook'.")
 
+
+;; Configuration Variables
 
+(defvar >>=|mode-line-unicode-symbols t
+  "If non nil unicode symbols are displayed in the mode-line.
+If you use Emacs as a daemon and wants unicode characters only in GUI set
+the value to quoted `display-graphic-p'.")
+
+
+(defvar >>=|enable-server t
+  "If non-nil, start an Emacs server if one is not already running.")
+
+
+(defvar >>=|server-socket-dir nil
+  "Set the Emacs server socket location.
+If nil, uses whatever the Emacs default is, otherwise a directory path like
+'~/.emacs.d/server'.  Has no effect if `>>=|enable-server' is nil.")
 
 
 
 (defun >>=xorns/init ()
   "General startup initialization."
-  (hidden-mode-line-mode)    ;; xorns-ui
-  (>>=ui/remove-rubbish)
+  (>>=setup-package-system)
+  (hidden-mode-line-mode)
+  (>>=ui/remove-useless-bars)
   (prefer-coding-system 'utf-8)
-  (>>=user-config/load)  ; calls `>>=settings/init'
+  (>>=user-config/load)
   (>>=-start-maximized)
   (->? >>=custom/user-init)
   ; (>>=initialize-building-blocks)
@@ -43,9 +61,9 @@ This is set to true when executing `emacs-startup-hook'.")
   (setq
     inhibit-startup-screen t
     initial-scratch-message nil)
-  (require 'xorns-packages)
-  ; (>>=building-blocks/load)
-  )
+  (>>=package-system/install-dependencies)
+  (require 'xorns-building-blocks)
+  (>>=building-blocks/load))
 
 
 (defun >>=-start-maximized ()
@@ -55,30 +73,6 @@ This is set to true when executing `emacs-startup-hook'.")
   (unless (frame-parameter nil 'fullscreen)
     (toggle-frame-maximized))
   (add-to-list 'default-frame-alist '(fullscreen . maximized)))
-
-
-(defun >>=frame-title-init ()
-  "Configure template for displaying the title bar of visible frames.
-See `frame-title-format' variable."
-  ;; TODO: Spacemacs uses a function to prepare variable value
-  (when (and (display-graphic-p) >>=|frame-title-format)
-    (require 'format-spec)
-    (setq frame-title-format >>=|frame-title-format)))
-
-
-(defun >>=setup-package-system ()
-  "Initialize `package.el' and bootstrap `use-package' if needed."
-  (unless (boundp 'package--initialized)
-    (require 'package)
-    (setq package-archives
-      '(("melpa" . "https://melpa.org/packages/")
-	("org" . "https://orgmode.org/elpa/")
-	("gnu" . "https://elpa.gnu.org/packages/"))))
-  (package-initialize)
-  (unless (package-installed-p 'use-package)
-    (package-refresh-contents)
-    (package-install 'use-package))
-  (require 'use-package))
 
 
 (defun >>=setup-emacs-startup-hook ()
@@ -95,14 +89,6 @@ See `frame-title-format' variable."
 
 
 ;; User Customization
-;; configurations.  Xorns looks for its user configuration file in the
-;; following order: "$XDG_CONFIG_HOME" (defaults to "~/.config/"), "$HOME"
-;; user directory ("~").
-;;
-;; The file-name in the destination folder will be "xorns" (without
-;; extension), but when the "$HOME" user directory is used, it is prefixed
-;; with a dot ".").
-
 
 (defconst >>=!xdg-config-home
   (find-dir (getenv "XDG_CONFIG_HOME") (dir-join "~" ".config"))
@@ -123,7 +109,13 @@ See `frame-title-format' variable."
 
 
 (defun >>=user-config/load ()
-  "Load user private configuration init file if it exists."
+  "Load user private configuration init file if it exists.
+
+Looks first for the configurations system directory ($XDG_CONFIG_HOME,
+defaults to '~/.config/'), if it does not exist, use the user's $HOME
+directory ('~').  The file-name in the destination folder will be
+'xorns' (without the '.el' extension), but when the $HOME user directory is
+used, it is prefixed with a dot ('.')."
   (>>=-user-config//ensure-file)
   (if (not custom-file)
     (setq custom-file >>=!config/location))
@@ -152,33 +144,6 @@ See `frame-title-format' variable."
        (error
 	 (message "Xorns Error in '%s': %s\n"
 	   ',(symbol-name func) (error-message-string err))))))
-
-
-
-;; Configuration Variables
-
-(defvar >>=|frame-title-format
-  '(multiple-frames "%b"
-     ("" invocation-name " -- "
-       (:eval (abbreviate-file-name default-directory))))
-  "Template for displaying the title bar of visible frames.")
-
-(defvar >>=|default-font
-  '("Source Code Pro" :size 13.5 :weight normal :width normal)
-  "Default font or prioritized list of fonts.")
-
-(defvar >>=|mode-line-unicode-symbols t
-  "If non nil unicode symbols are displayed in the mode-line.
-If you use Emacs as a daemon and wants unicode characters only in GUI set
-the value to quoted `display-graphic-p'.")
-
-(defvar >>=|enable-server t
-  "If non-nil, start an Emacs server if one is not already running.")
-
-(defvar >>=|server-socket-dir nil
-  "Set the Emacs server socket location.
-If nil, uses whatever the Emacs default is, otherwise a directory path like
-'~/.emacs.d/server'.  Has no effect if `>>=|enable-server' is nil.")
 
 
 (provide 'xorns-startup)
