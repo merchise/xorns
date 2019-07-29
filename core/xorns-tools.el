@@ -21,6 +21,16 @@ ARGS."
     (message (concat ">>= " ,format-string) ,@args)))
 
 
+(defsubst >>=intern (string)
+  "Return STRING\'s canonical symbol (safe if it is already a symbol)."
+  (if (symbolp string) string (intern string)))
+
+
+(defsubst >>=symbol-name (symbol)
+  "Return SYMBOL\'s name, a string (safe if it is already a string)."
+  (if (stringp symbol) symbol (symbol-name symbol)))
+
+
 (defun plist-exclude (plist &rest props)
   "Return a copy of PLIST with all PROPS excluded.
 PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
