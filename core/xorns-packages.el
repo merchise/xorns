@@ -14,8 +14,6 @@
 ;;; Code:
 
 
-
-
 (defun >>=setup-package-system ()
   "Initialize `package.el' and bootstrap `use-package' if needed."
   (require 'package)
@@ -31,15 +29,8 @@
     (package-install 'use-package)))
 
 
-(defmacro >>=-check-package-system ()
-  "Check if package-system is properly initialized."
-  (if (not (and (boundp 'package--initialized) package--initialized))
-    (error ">>= package-system is not initialized")))
-
-
 (defun >>=package-system/install-dependencies ()
   "Install required dependencies for `use-package' use."
-  (>>=-check-package-system)
   (use-package diminish
     :ensure t)
   (use-package delight
