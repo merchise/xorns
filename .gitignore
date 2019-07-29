@@ -42,3 +42,4 @@ elpa/
 /session.*
 tramp
 /network-security.data
+/.backups/
