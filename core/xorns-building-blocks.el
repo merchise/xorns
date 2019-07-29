@@ -20,7 +20,9 @@
 
 (defun >>=building-blocks/load ()
   "Load configured building-blocks."
-  )
+  ; There are several building-blocks that are always loaded
+  (require 'xorns+base)
+  (>>+base/init))
 
 
 (provide 'xorns-building-blocks)

@@ -43,3 +43,6 @@ elpa/
 tramp
 /network-security.data
 /.backups/
+.recentf
+.recentf~
+/recentf

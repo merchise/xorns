@@ -63,6 +63,7 @@ If nil, uses whatever the Emacs default is, otherwise a directory path like
     initial-scratch-message nil)
   (>>=package-system/install-dependencies)
   (require 'xorns-building-blocks)
+  (->? >>=building-blocks/configuration)
   (>>=building-blocks/load))
 
 
@@ -130,7 +131,7 @@ used, it is prefixed with a dot ('.')."
       (if (not (file-directory-p dir))
 	(make-directory dir 'parents))
       (copy-file >>=!config//template-location >>=!config/location t)
-      (message "%s has been installed." >>=!config/location))))
+      (message ">>= %s has been installed." >>=!config/location))))
 
 
 (defmacro ->? (func &rest args)
