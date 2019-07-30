@@ -54,15 +54,15 @@ to configure for yourself: see `save-buffer' function for more information.")
   "Initialize 'base' building-block."
   (require 'use-package)
   ; window tree functions
-  (>>=base/install-message window)
   (use-package window
     :no-require t
     :custom
     (split-width-threshold 120)
     :chords
-    ("xk" . kill-buffer-and-window))
+    ("xk" . kill-buffer-and-window)
+    :init
+    (>>=base/install-message window))
   ; file input and output commands
-  (>>=base/install-message files)
   (use-package files
     :bind (("C-c f /" . revert-buffer)
 	   ("C-c f n" . normal-mode))
@@ -70,6 +70,8 @@ to configure for yourself: see `save-buffer' function for more information.")
     (before-save . delete-trailing-whitespace)
     :custom
     (require-final-newline t)
+    :init
+    (>>=base/install-message files)
     :config
     (if >>=|base/make-backup-files
       (setq
@@ -84,38 +86,41 @@ to configure for yourself: see `save-buffer' function for more information.")
       ; else
       (setq make-backup-files nil)))
   ; Automatically reload files was modified by external program
-  (when (>>=-base/configure? autorevert)
-    (>>=base/install-message autorevert)
-    (use-package autorevert
-      :init
-      (defun >>=-auto-revert? ()
-	(unless (>>=current-buffer-remote?)
-	  (auto-revert-mode)))
-      :defer t
-      :diminish (auto-revert-mode . " ⟲")
-      :custom
-      (auto-revert-verbose nil)
-      (auto-revert-check-vc-info nil)
-      :hook
-      (find-file . >>=-auto-revert?)
-      (dired-mode . auto-revert-mode)))
+  (use-package autorevert
+    :when (>>=-base/configure? autorevert)
+    :init
+    (defun >>=-auto-revert? ()
+      (unless (>>=current-buffer-remote?)
+	(auto-revert-mode)))
+    :defer t
+    :diminish (auto-revert-mode . " ⟲")
+    :custom
+    (auto-revert-verbose nil)
+    (auto-revert-check-vc-info nil)
+    :hook
+    (find-file . >>=-auto-revert?)
+    (dired-mode . auto-revert-mode)
+    :init
+    (>>=base/install-message autorevert))
   ; setup a menu of recently opened files
-  (when (>>=-base/configure? recentf)
+  (use-package recentf
+    :when (>>=-base/configure? recentf)
+    :defer 0.1
+    :custom
+    (recentf-auto-cleanup 30)
+    :init
     (>>=base/install-message recentf)
-    (use-package recentf
-      :defer 0.1
-      :custom
-      (recentf-auto-cleanup 30)
-      :config
-      (run-with-idle-timer 30 t 'recentf-save-list)))
+    :config
+    (run-with-idle-timer 30 t 'recentf-save-list))
   ; garbage collector magic hack
-  (when (>>=-base/configure? gcmh)
-    (>>=base/install-message gcmh)
-    (use-package gcmh
-      :ensure t
-      :diminish " ♻"
-      :init
-      (gcmh-mode 1))))
+  (use-package gcmh
+    :when (>>=-base/configure? gcmh)
+    :ensure t
+    :diminish " ♻"
+    :init
+    (progn
+      (gcmh-mode 1)
+      (>>=base/install-message gcmh))))
 
 
 (provide 'xorns+base)
