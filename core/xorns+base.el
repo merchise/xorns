@@ -53,6 +53,13 @@ to configure for yourself: see `save-buffer' function for more information.")
 (defun >>+base/init ()
   "Initialize 'base' building-block."
   (require 'use-package)
+  (use-package startup
+    :defer
+    :custom
+    (inhibit-startup-screen t)
+    (initial-scratch-message nil)
+    ; (inhibit-startup-echo-area-message (or (getenv "USER") ""))
+    )
   ; window tree functions
   (use-package window
     :no-require t

@@ -57,10 +57,6 @@ If nil, uses whatever the Emacs default is, otherwise a directory path like
   (>>=frame-title-init)
   ; load-default-theme
   (>>=configure-font)
-  (setq inhibit-startup-screen t)
-  (setq
-    inhibit-startup-screen t
-    initial-scratch-message nil)
   (>>=package-system/install-dependencies)
   (require 'xorns-building-blocks)
   (->? >>=building-blocks/configuration)
