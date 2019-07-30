@@ -29,6 +29,14 @@ There is a fix list (window files), that are always configured by default.
 See `>>=!base/extra-packages-full-list' for a full list.")
 
 
+(defvar >>=|base/make-backup-files nil
+  "Non-nil means make a backup of a file the first time it is saved.
+In this package, the default value is nil (negating taht used in Emacs
+`make-backup-files').  In case to use a non-nil value to this variable, a
+minimum configuration is done, but you may like to review some extra variables
+to configure for yourself: see `save-buffer' function for more information.")
+
+
 (defmacro >>=-base/configure? (pkg)
   "True if extra PKG must be configured."
   `(memq ',pkg >>=|base/extra-packages))
@@ -50,7 +58,7 @@ See `>>=!base/extra-packages-full-list' for a full list.")
   (use-package window
     :no-require t
     :custom
-    (split-width-threshold nil)
+    (split-width-threshold 120)
     :chords
     ("xk" . kill-buffer-and-window))
   ; file input and output commands
@@ -62,14 +70,19 @@ See `>>=!base/extra-packages-full-list' for a full list.")
     (before-save . delete-trailing-whitespace)
     :custom
     (require-final-newline t)
-    ;; backup settings
-    (backup-by-copying t)
-    (backup-directory-alist
-      `((".*" . ,(expand-file-name ".backups" user-emacs-directory))))
-    (delete-old-versions t)
-    (kept-new-versions 6)
-    (kept-old-versions 0)    ; check this
-    (version-control t))
+    :config
+    (if >>=|base/make-backup-files
+      (setq
+	make-backup-files t
+	backup-by-copying t
+	backup-directory-alist
+	  `((".*" . ,(expand-file-name ".backups" user-emacs-directory)))
+	delete-old-versions t
+	kept-new-versions 6
+	kept-old-versions 0    ; check this
+	version-control t)
+      ; else
+      (setq make-backup-files nil)))
   ; Automatically reload files was modified by external program
   (when (>>=-base/configure? autorevert)
     (>>=base/install-message autorevert)

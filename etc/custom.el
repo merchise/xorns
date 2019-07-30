@@ -29,15 +29,16 @@
     ;; blocks configuration.  It should only modify modify setting-variables
     ;; (those prefixed with ">>=|") when their default values are not suitable
     ;; for your configuration.  For example:
-    ; >>=|default-font '(:size 13.5 :weight normal :width normal)
+    ; >>=|default-font '(:size 12 :weight normal :width normal)
+    ; >>=|base/make-backup-files t
     ))
 
 
-; This function is called immediately after `>>=settings/init', before
-; building-blocks configuration.  It''s mostly for variables that should be
-; set before package-system is loaded.
 (defun >>=custom/user-init ()
   "User-code as part of initialization process."
+  ; This function is called immediately after `>>=settings/init', before
+  ; building-blocks configuration.  It''s mostly for variables that should be
+  ; set before package-system is loaded.
   )
 
 

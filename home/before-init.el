@@ -26,8 +26,7 @@
 
 (setq
    safe-local-variable-values
-     '( (require-final-newline . t)
-	(py-indent-offset . 4)
+     '( (py-indent-offset . 4)
 	(nxml-child-indent . 2)
 	(css-indent-offset . 2)
 	(css-indent-offset . 4)
