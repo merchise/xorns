@@ -31,6 +31,7 @@
     ;; for your configuration.  For example:
     ; >>=|default-font '(:size 12 :weight normal :width normal)
     ; >>=|base/make-backup-files t
+    ; >>=|base/user-mail-address-template "${USER}@gmail.com"
     ))
 
 

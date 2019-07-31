@@ -23,6 +23,14 @@
   "All possible extra packages that can be configured in the base module.")
 
 
+(defvar >>=|base/user-mail-address-template nil
+  "Template to set `user-mail-address'.
+If non-nil must be a string to use `substitute-env-vars' function (t is
+converted to \"${USER}@merchise.org\").  The value of EMAIL environment
+variable is the best way to configure this leaving this value unchanged as
+nil).")
+
+
 (defvar >>=|base/extra-packages '()
   "List of optional base packages to install.
 There is a fix list (window files), that are always configured by default.
@@ -59,7 +67,12 @@ to configure for yourself: see `save-buffer' function for more information.")
     (inhibit-startup-screen t)
     (initial-scratch-message nil)
     ; (inhibit-startup-echo-area-message (or (getenv "USER") ""))
-    )
+    :init
+    (when >>=|base/user-mail-address-template
+      (if (eq >>=|base/user-mail-address-template t)
+	(setq >>=|base/user-mail-address-template "${USER}@merchise.org"))
+      (setq user-mail-address
+	(substitute-env-vars >>=|base/user-mail-address-template))))
   ; window tree functions
   (use-package window
     :no-require t

@@ -40,6 +40,7 @@
 
 
 (setq
+  ; >>=
   user-mail-address (substitute-env-vars "${USER}@merchise.org")
   ; >>=
   split-width-threshold 120)
