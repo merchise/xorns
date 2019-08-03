@@ -12,18 +12,14 @@
 ;; initialization process, which is done automatically.
 
 ;;; Code:
-
+(eval-when-compile
+  (require 'use-package))
 (require 'xorns-tools)
 
-
+
 ;; Configuration variables
 
-(defconst >>=!base/extra-packages-full-list
-  '(autorevert recentf gcmh)
-  "All possible extra packages that can be configured in the base module.")
-
-
-(defvar >>=|base/user-mail-address-template nil
+(defvar >>=|user-mail-address-template nil
   "Template to set `user-mail-address'.
 If non-nil must be a string to use `substitute-env-vars' function (t is
 converted to \"${USER}@merchise.org\").  The value of EMAIL environment
@@ -34,10 +30,10 @@ nil).")
 (defvar >>=|base/extra-packages '()
   "List of optional base packages to install.
 There is a fix list (window files), that are always configured by default.
-See `>>=!base/extra-packages-full-list' for a full list.")
+Here is the full list (autorevert recentf gcmh).")
 
 
-(defvar >>=|base/make-backup-files nil
+(defvar >>=|make-backup-files nil
   "Non-nil means make a backup of a file the first time it is saved.
 In this package, the default value is nil (negating taht used in Emacs
 `make-backup-files').  In case to use a non-nil value to this variable, a
@@ -58,9 +54,21 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 ;; Default base packages (always configured)
 
-(defun >>+base/init ()
-  "Initialize 'base' building-block."
-  (require 'use-package)
+(defun >>=+base/init ()
+  "Initialize 'base' building-block (unit)."
+  (>>=-base/init-startup)
+  (>>=-base/init-window)
+  (>>=-base/init-files)
+  (>>=-base/init-autorevert)
+  (>>=-base/init-recentf)
+  (>>=-base/init-gcmh))
+
+
+
+;; Component packages
+
+(defun >>=-base/init-startup ()
+  "Initialize base unit 'startup' package."
   (use-package startup
     :defer
     :custom
@@ -68,12 +76,15 @@ to configure for yourself: see `save-buffer' function for more information.")
     (initial-scratch-message nil)
     ; (inhibit-startup-echo-area-message (or (getenv "USER") ""))
     :init
-    (when >>=|base/user-mail-address-template
-      (if (eq >>=|base/user-mail-address-template t)
-	(setq >>=|base/user-mail-address-template "${USER}@merchise.org"))
+    (when >>=|user-mail-address-template
+      (if (eq >>=|user-mail-address-template t)
+	(setq >>=|user-mail-address-template "${USER}@merchise.org"))
       (setq user-mail-address
-	(substitute-env-vars >>=|base/user-mail-address-template))))
-  ; window tree functions
+	(substitute-env-vars >>=|user-mail-address-template)))))
+
+
+(defun >>=-base/init-window ()
+  "Initialize base unit 'window' package."
   (use-package window
     :no-require t
     :custom
@@ -81,8 +92,11 @@ to configure for yourself: see `save-buffer' function for more information.")
     :chords
     ("xk" . kill-buffer-and-window)
     :init
-    (>>=base/install-message window))
-  ; file input and output commands
+    (>>=base/install-message window)))
+
+
+(defun >>=-base/init-files ()
+  "Initialize base unit 'files' package (file input and output commands)."
   (use-package files
     :bind (("C-c f /" . revert-buffer)
 	   ("C-c f n" . normal-mode))
@@ -93,7 +107,7 @@ to configure for yourself: see `save-buffer' function for more information.")
     :init
     (>>=base/install-message files)
     :config
-    (if >>=|base/make-backup-files
+    (if >>=|make-backup-files
       (setq
 	make-backup-files t
 	backup-by-copying t
@@ -104,8 +118,12 @@ to configure for yourself: see `save-buffer' function for more information.")
 	kept-old-versions 0    ; check this
 	version-control t)
       ; else
-      (setq make-backup-files nil)))
-  ; Automatically reload files was modified by external program
+      (setq make-backup-files nil))))
+
+
+(defun >>=-base/init-autorevert ()
+  "Initialize base unit 'autorevert' package.
+Automatically reload files was modified by external program."
   (use-package autorevert
     :when (>>=-base/configure? autorevert)
     :init
@@ -121,8 +139,12 @@ to configure for yourself: see `save-buffer' function for more information.")
     (find-file . >>=-auto-revert?)
     (dired-mode . auto-revert-mode)
     :init
-    (>>=base/install-message autorevert))
-  ; setup a menu of recently opened files
+    (>>=base/install-message autorevert)))
+
+
+(defun >>=-base/init-recentf ()
+  "Initialize base unit 'recentf' package.
+Setup a menu of recently opened files."
   (use-package recentf
     :when (>>=-base/configure? recentf)
     :defer 0.1
@@ -131,8 +153,12 @@ to configure for yourself: see `save-buffer' function for more information.")
     :init
     (>>=base/install-message recentf)
     :config
-    (run-with-idle-timer 30 t 'recentf-save-list))
-  ; garbage collector magic hack
+    (run-with-idle-timer 30 t 'recentf-save-list)))
+
+
+(defun >>=-base/init-gcmh ()
+  "Initialize base unit 'gcmh' package.
+Garbage collector magic hack."
   (use-package gcmh
     :when (>>=-base/configure? gcmh)
     :ensure t

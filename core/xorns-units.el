@@ -20,7 +20,7 @@
   "Load configured units."
   ; There are several units that are always loaded
   (require 'xorns+base)
-  (>>+base/init))
+  (>>=+base/init))
 
 
 (provide 'xorns-units)
