@@ -53,14 +53,13 @@ If nil, uses whatever the Emacs default is, otherwise a directory path like
   (>>=user-config/load)
   (>>=-start-maximized)
   (->? >>=custom/user-init)
-  ; (>>=initialize-building-blocks)
   (>>=frame-title-init)
   ; load-default-theme
   (>>=configure-font)
   (>>=package-system/install-dependencies)
-  (require 'xorns-building-blocks)
-  (->? >>=building-blocks/configuration)
-  (>>=building-blocks/load))
+  (require 'xorns-units)
+  (->? >>=units/configuration)
+  (>>=units/load))
 
 
 (defun >>=-start-maximized ()

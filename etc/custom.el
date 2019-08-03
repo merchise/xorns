@@ -12,8 +12,8 @@
 
 ;;; Code:
 
-(defun >>=building-blocks/configuration ()
-  "Initialization code for building-blocks configuration."
+(defun >>=units/configuration ()
+  "Initialization code for building-blocks (units) configuration."
   (setq-default
     ;; It should only modify building-block setting-variables (those prefixed
     ;; with ">>=+") when their default values are not suitable for your
@@ -38,8 +38,8 @@
 (defun >>=custom/user-init ()
   "User-code as part of initialization process."
   ; This function is called immediately after `>>=settings/init', before
-  ; building-blocks configuration.  It''s mostly for variables that should be
-  ; set before package-system is loaded.
+  ; building-blocks (units) configuration.  It''s mostly for variables that
+  ; should be set before package-system is loaded.
   )
 
 
