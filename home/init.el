@@ -42,6 +42,7 @@
   ;; Require extra features
   (require 'xorns-extra))
 
+
 (when (null (functionp 'agda-mode))
   (-when-let* ((agda-mode (xorns-executable-find "agda-mode"))
                (agda-locate (concat agda-mode " locate"))

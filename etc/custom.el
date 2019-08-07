@@ -29,9 +29,13 @@
     ;; blocks configuration.  It should only modify modify setting-variables
     ;; (those prefixed with ">>=|") when their default values are not suitable
     ;; for your configuration.  For example:
-    ; >>=|default-font '(:size 12 :weight normal :width normal)
+    ; >>=|default-font '(:size 12.0 :weight normal :width normal)
     ; >>=|make-backup-files t
     ; >>=|user-mail-address-template "${USER}@gmail.com"
+    ; >>=|show-title-in-header-line t
+    ;
+    ;; Also, you can configure here most user customizations, for example:
+    ; frame-title-format
     ))
 
 

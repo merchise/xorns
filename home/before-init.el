@@ -38,7 +38,6 @@
 	(encoding . utf-8))
    )
 
-
 (setq
   ; >>=
   user-mail-address (substitute-env-vars "${USER}@merchise.org")

@@ -43,6 +43,7 @@ If nil, uses whatever the Emacs default is, otherwise a directory path like
 '~/.emacs.d/server'.  Has no effect if `>>=|enable-server' is nil.")
 
 
+;; Configuration functions
 
 (defun >>=xorns/init ()
   "General startup initialization."
@@ -54,7 +55,7 @@ If nil, uses whatever the Emacs default is, otherwise a directory path like
   (>>=-start-maximized)
   (->? >>=custom/user-init)
   (>>=frame-title-init)
-  ; load-default-theme
+  ; TODO: load-default-theme
   (>>=configure-font)
   (>>=package-system/install-dependencies)
   (require 'xorns-units)
