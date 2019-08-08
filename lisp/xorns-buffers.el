@@ -173,6 +173,18 @@
         (error (message "error@ibuffer-mode-hook: %s" err))))))
 
 
+(defun xorns-toggle-header-mode-line ()
+  "Toggle visibility of header mode-line."
+  (interactive)
+  (if (not header-line-format)
+      (setq header-line-format
+	'(multiple-frames "%b"
+	   (" " (:eval (abbreviate-file-name default-directory)))))
+    ; else
+    (setq header-line-format nil))
+  (force-mode-line-update 'all))
+
+
 (defun xorns-ibuffer-visit-buffer (&optional single)
   "Visit the buffer on this line.
 If optional argument SINGLE is non-nil, then also ensure there is only one
@@ -252,7 +264,8 @@ An optional argument ARG could be given to delete other windows; if
 
 
 (when (xorns-configure-p 'basic)
-  (global-set-key (kbd "C-c s") 'xorns-force-scratch))
+  (global-set-key (kbd "C-c s") 'xorns-force-scratch)
+  (global-set-key (kbd "C-c h") 'xorns-toggle-header-mode-line))
 
 
 
