@@ -431,10 +431,10 @@ the python shell."
 
 ;;  Standard hooks for project integration
 
-(when (xorns-configure-p 'minimum)
-  (add-hook 'find-file-hook  ;; after a buffer is loaded from a file
-    (lambda ()
-      (xorns-find-better-unique-buffer-name))))
+;; (when (xorns-configure-p 'minimum)
+;;  (add-hook 'find-file-hook  ;; after a buffer is loaded from a file
+;;    (lambda ()
+;;      (xorns-find-better-unique-buffer-name))))
 
 
 
