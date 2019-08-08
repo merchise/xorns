@@ -8,36 +8,101 @@
 
 ;;; Commentary:
 
-;; This library defines several utilities used to configure GUI stuffs.
+;; This library defines several utilities used to configure UI stuffs,
+;; specially mode-lines.
+;;
+;; Pending tasks
+;; - spaceline segments vs packages must be configured:
+;;   - window-number: `winum'
+;;   - python-env: `pyvenv', `pyenv' or `conda'
+;;   - python-pyvenv: `pyvenv'
+;;   - python-pyenv: `pyenv'
 
 ;;; Code:
 
 (require 'easy-mmode)
 
 
-(defvar >>=|frame-title-format
+(setq-default frame-title-format
   '(multiple-frames "%b"
      ("" invocation-name " -- "
-       (:eval (abbreviate-file-name default-directory))))
-  "Template for displaying the title bar of visible frames.")
+       (:eval (abbreviate-file-name default-directory)))))
+
+
+(defvar >>=|show-title-in-header-line nil
+  "If non-nil, assign `frame-title-format' to `header-line-format'.")
 
 
 (defun >>=configure-default-user-interface ()
   )
 
 
-(defun >>=ui/header-mode-line ()
+(defun >>=ui/configure-mode-line ()
+  "Configure mode-line using `minions' and `spaceline'."
+  (require 'use-package)
+  (use-package minions
+  :ensure t
+  :demand t
+  :config
+  (unless minions-mode
+    (minions-mode)))
+  (use-package spaceline-config
+    :ensure spaceline
+    :init
+    (require 'spaceline)
+    (setq spaceline-highlight-face-func 'spaceline-highlight-face-modified)
+
+    (spaceline-define-segment narrow
+      "Show when buffer is narrowed."
+      (when (buffer-narrowed-p)
+	"Narrowed"))
+
+    (spaceline-define-segment minions
+      "A minions menu for minor modes."
+      (if (bound-and-true-p minions-mode)
+	(format-mode-line minions-mode-line-modes)
+	; else
+	(spaceline-minor-modes-default)))
+
+    (defun spaceline-xorns-theme ()
+      "Install a variation of `spaceline-emacs-theme'."
+      (spaceline-install
+	`((((persp-name :fallback workspace-number)
+	     window-number) :separator "|")
+	  ((buffer-modified) :face highlight-face)
+	  ((buffer-id which-function)
+	    :separator " @ " :face highlight-face :tight-left t)
+	  remote-host
+	  projectile-root
+	  ((buffer-size) :separator " | " :when active)
+	  (version-control :when active))
+	`(selection-info
+	  ((process minions) :when active)
+	  ((,(if nil 'buffer-encoding 'buffer-encoding-abbrev)
+	    macrodef
+	    point-position
+	    line-column)
+	   :separator " | " :when active)
+	   ((narrow buffer-position hud) :face highlight-face)
+	  )
+	)
+
+      (setq-default spaceline-buffer-encoding-abbrev-p t)
+      (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main)))))
+
+    (add-hook 'after-init-hook #'spaceline-xorns-theme))
+  )
+
+
+(defun >>=ui/toggle-header-mode-line ()
   (interactive)
   (if (not header-line-format)
       (setq header-line-format
 	'(multiple-frames "%b"
-     ("" invocation-name " -- "
-       (:eval (abbreviate-file-name default-directory)))))
-    ;; mode-line-modified mode-line-remote mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position
-    ;; (vc-mode vc-mode)
-    ;;"  " mode-line-modes mode-line-misc-info mode-line-end-spaces))
+	   (" " (:eval (abbreviate-file-name default-directory)))))
+    ; else
     (setq header-line-format nil))
-  (force-mode-line-update))
+  (force-mode-line-update 'all))
 
 
 (defun >>=ui/remove-useless-bars ()
@@ -54,9 +119,11 @@
   "Configure template for displaying the title bar of visible frames.
 See `frame-title-format' variable."
   ;; TODO: Spacemacs uses a function to prepare variable value
-  (when (and (display-graphic-p) >>=|frame-title-format)
-    (require 'format-spec)
-    (setq frame-title-format >>=|frame-title-format)))
+  (require 'format-spec)
+  ;; TODO: Check (display-graphic-p)
+  (when (and >>=|show-title-in-header-line frame-title-format)
+    (setq header-line-format frame-title-format)
+    ))
 
 
 

@@ -56,6 +56,7 @@ If nil, uses whatever the Emacs default is, otherwise a directory path like
   (->? >>=custom/user-init)
   (>>=frame-title-init)
   ; TODO: load-default-theme
+  (>>=ui/configure-mode-line)
   (>>=configure-font)
   (>>=package-system/install-dependencies)
   (require 'xorns-units)
