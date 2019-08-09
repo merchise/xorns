@@ -42,6 +42,21 @@ the value to quoted `display-graphic-p'.")
 If nil, uses whatever the Emacs default is, otherwise a directory path like
 '~/.emacs.d/server'.  Has no effect if `>>=|enable-server' is nil.")
 
+
+
+(defmacro ->? (func &rest args)
+  "Call FUNC with our remaining ARGS, only if it is bound."
+  `(when (fboundp ',func)
+     (if init-file-debug
+       (message ">>= calling: %s"
+	 (or (documentation ',func) ,(symbol-name func))))
+     (condition-case-unless-debug err
+       (,func ,@args)
+       (error
+	 (message "Xorns Error in '%s': %s\n"
+	   ',(symbol-name func) (error-message-string err))))))
+
+
 
 ;; Configuration functions
 
@@ -101,8 +116,11 @@ If nil, uses whatever the Emacs default is, otherwise a directory path like
     (expand-file-name name dir))
   "User specific configuration file location.")
 
+
 (defconst >>=!config//template-location
-  (expand-file-name "custom.el" (dir-join >>=!base-directory "etc"))
+  (expand-file-name "custom.el"
+    (dir-join
+      (file-name-directory (or load-file-name default-directory)) ".." "etc"))
   "User specific configuration template file location.")
 
 
@@ -129,19 +147,6 @@ used, it is prefixed with a dot ('.')."
 	(make-directory dir 'parents))
       (copy-file >>=!config//template-location >>=!config/location t)
       (message ">>= %s has been installed." >>=!config/location))))
-
-
-(defmacro ->? (func &rest args)
-  "Call FUNC with our remaining ARGS, only if it is bound."
-  `(when (fboundp ',func)
-     (if init-file-debug
-       (message ">>= calling: %s"
-	 (or (documentation ',func) ,(symbol-name func))))
-     (condition-case-unless-debug err
-       (,func ,@args)
-       (error
-	 (message "Xorns Error in '%s': %s\n"
-	   ',(symbol-name func) (error-message-string err))))))
 
 
 (provide 'xorns-startup)
