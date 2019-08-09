@@ -8,9 +8,9 @@
 
 ;;; Commentary:
 
-;; This library defines several utility functions used in Emacs main
-;; initialization process.  Including all definitions for user custom
-;; configuration.
+;; This is a new-age (>>=) module.  This library defines several utility
+;; functions used in Emacs main initialization process.  Including all
+;; definitions for user custom configuration.
 
 ;;; Code:
 

@@ -8,10 +8,10 @@
 
 ;;; Commentary:
 
-;; Building-Blocks (units) are components, usually optional, installed by user
-;; demands specified in the local site configuration.  There are some default
-;; units (like `xorns+base', `xorns+text', `xorns+vc', and `xorns+prog') that
-;; are always configured.
+;; This is a new-age (>>=) module.  Building-Blocks (units) are components,
+;; usually optional, installed by user demands specified in the local site
+;; configuration.  There are some default units (like `xorns+base',
+;; `xorns+text', `xorns+vc', and `xorns+prog') that are always configured.
 
 ;;; Code:
 

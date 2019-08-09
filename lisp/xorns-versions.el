@@ -8,8 +8,8 @@
 
 ;;; Commentary:
 
-;; This library defines this package version and the required minimal version
-;; of Emacs.
+;; This is a new-age (>>=) module.  This library defines this package version
+;; and the required minimal version of Emacs.
 
 ;;; Code:
 

@@ -8,7 +8,8 @@
 
 ;;; Commentary:
 
-;; This library defines several utilities used to configure default fonts.
+;; This is a new-age (>>=) module.  This library defines several utilities
+;; used to configure default fonts.
 
 ;;; Code:
 

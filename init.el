@@ -13,10 +13,10 @@
 (defconst >>=!base-directory
   (file-name-directory (or load-file-name default-directory)))
 
-(defconst >>=!core-directory
-  (concat >>=!base-directory (file-name-as-directory "core")))
+(defconst >>=!code-directory
+  (concat >>=!base-directory (file-name-as-directory "lisp")))
 
-(add-to-list 'load-path >>=!core-directory)
+(add-to-list 'load-path >>=!code-directory)
 
 (require 'xorns-versions)
 

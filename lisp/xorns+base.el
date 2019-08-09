@@ -8,8 +8,9 @@
 
 ;;; Commentary:
 
-;; This module is installed just by calling `(require 'xorns-packages)' in the
-;; initialization process, which is done automatically.
+;; This is a new-age (>>=) module.  It's installed just by calling `(require
+;; 'xorns-packages)' in the initialization process, which is done
+;; automatically.
 
 ;;; Code:
 (eval-when-compile
@@ -162,6 +163,7 @@ Garbage collector magic hack."
   (use-package gcmh
     :when (>>=-base/configure? gcmh)
     :ensure t
+    :commands gcmh-mode
     :diminish " ♻"
     :init
     (progn

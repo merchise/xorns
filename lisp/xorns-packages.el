@@ -8,8 +8,9 @@
 
 ;;; Commentary:
 
-;; This module is installed just by calling `(require 'xorns-packages)' in the
-;; initialization process, which is done automatically.
+;; This is a new-age (>>=) module.  It's installed just by calling `(require
+;; 'xorns-packages)' in the initialization process, which is done
+;; automatically.
 
 ;;; Code:
 

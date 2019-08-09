@@ -8,8 +8,8 @@
 
 ;;; Commentary:
 
-;; This library defines several utilities used to configure UI stuffs,
-;; specially mode-lines.
+;; This is a new-age (>>=) module.  This library defines several utilities
+;; used to configure UI stuffs, specially mode-lines.
 ;;
 ;; Pending tasks
 ;; - spaceline segments vs packages must be configured:

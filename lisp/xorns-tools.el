@@ -8,8 +8,8 @@
 
 ;;; Commentary:
 
-;; This library defines several general utilities than can be used in any
-;; context.
+;; This is a new-age (>>=) module.  This library defines several general
+;; utilities than can be used in any context.
 
 ;;; Code:
 
