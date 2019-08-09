@@ -122,7 +122,6 @@
 ;;; Custom key-bindings
 
 (global-set-key (kbd "C-x <f2>") 'rename-buffer)
-(global-set-key (kbd "C-c f /") 'revert-buffer)    ; >>=
 (global-set-key (kbd "C-c r") 'rgrep)
 (global-set-key (kbd "C-c k d") 'xorns-kill-ring-save-directory)
 (global-set-key (kbd "C-c k f") 'xorns-kill-ring-save-filename)

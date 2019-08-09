@@ -63,10 +63,6 @@
   :custom
   (emacs-lisp-docstring-fill-column 78)
   (lisp-indent-offset 2)
-  ;; See alternatives in:
-  ;; https://www.emacswiki.org/emacs/Auto Save
-  ;; https://www.emacswiki.org/emacs/BackupFiles
-  (make-backup-files nil)
   ;; TODO: Conflict with 'pyls'
   (create-lockfiles nil)
   )
