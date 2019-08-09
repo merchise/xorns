@@ -34,6 +34,7 @@
 
 
 (defun >>=configure-default-user-interface ()
+  "This is a WIP function."
   )
 
 

@@ -111,6 +111,11 @@
 (condition-case err
   (require 'xorns-xml)
   (error (message "error loading xorns-xml: %s" err)))
+(condition-case err
+  (progn
+    (require 'xorns-ui)
+    (>>=ui/configure-mode-line))
+  (error (message "error loading xorns-xml: %s" err)))
 
 
 
