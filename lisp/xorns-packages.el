@@ -32,12 +32,14 @@
 
 (defun >>=package-system/install-dependencies ()
   "Install required dependencies for `use-package' use."
+  (require 'use-package)
   (use-package diminish
     :ensure t)
   (use-package delight
     :ensure t)
   (use-package use-package-chords
     :ensure t
+    :commands key-chord-mode
     :config
     (key-chord-mode 1))
   (use-package system-packages
@@ -52,27 +54,6 @@
     (quelpa-update-melpa-p nil "Don't update the MELPA git repo."))
   (use-package quelpa-use-package
     :ensure t))
-
-
-(defun >>=ensure-package (pkg)
-  "Ensure the package PKG is installed."
-  (unless (package-installed-p pkg)
-    (condition-case-unless-debug err
-      (progn
-	(when (assoc pkg (bound-and-true-p package-pinned-packages))
-	  (package-read-all-archive-contents))
-	(if (assoc pkg package-archive-contents)
-	  (package-install pkg)
-	  ; else
-	  (package-refresh-contents)
-	  (when (assoc pkg (bound-and-true-p package-pinned-packages))
-	    (package-read-all-archive-contents))
-	  (package-install pkg))
-	pkg)
-      (error
-	(display-warning 'xorns-packages
-	  (format "Failed to install %s: %s" name (error-message-string err))
-	  :error)))))
 
 
 (defun >>=package-install (pkg &optional archive)
