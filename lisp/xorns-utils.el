@@ -191,7 +191,7 @@ This function is safe avoiding nil commands.  If none is found, nil
 is returned."
   (cl-some
     #'(lambda (cmd) (if cmd (executable-find cmd)))
-    (push command other-commands)))
+    (cons command other-commands)))
 
 
 (defun xorns-default-directory ()
