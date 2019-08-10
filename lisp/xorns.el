@@ -48,7 +48,7 @@
 
 
 (require 'package)
-(require 'env nil 'noerror)
+(require 'env)
 (require 'xorns-utils)
 
 
@@ -74,56 +74,32 @@
 (when (xorns-configure-p 'basic)
   (xorns-load-user-file "before-init-${USER}.el"))
 
-;; Basic initialization
-(condition-case err
-  (require 'xorns-init)
-  (error (message "error loading xorns-init: %s" err)))
-(condition-case err
-  (require 'xorns-buffers)
-  (error (message "error loading xorns-buffers: %s" err)))
-(condition-case err
-  (require 'xorns-dired)
-  (error (message "error loading xorns-dired: %s" err)))
-(condition-case err
-  (require 'xorns-simple)
-  (error (message "error loading xorns-simple: %s" err)))
-(condition-case err
-  (require 'xorns-term)
-  (error (message "error loading xorns-term: %s" err)))
-(condition-case err
-  (require 'xorns-fci)
-  (error (message "error loading xorns-fci: %s" err)))
-(condition-case err
-  (require 'xorns-prog)        ;; This requires `xorns-text'
-  (error (message "error loading xorns-prog: %s" err)))
-(condition-case err
-  (require 'xorns-git)
-  (error (message "error loading xorns-git: %s" err)))
-(condition-case err
-  (require 'xorns-project)
-  (error (message "error loading xorns-project: %s" err)))
-(condition-case err
-  (require 'xorns-org)
-  (error (message "error loading xorns-org: %s" err)))
-(condition-case err
-  (require 'xorns-apt)
-  (error (message "error loading xorns-apt: %s" err)))
-(condition-case err
-  (require 'xorns-xml)
-  (error (message "error loading xorns-xml: %s" err)))
-(condition-case err
-  ; <<=
-  (progn
-    (require 'xorns+base)
-    (>>=-base/init-files))
-  (error (message "error loading xorns-xml: %s" err)))
-(condition-case err
-  ; <<=
-  (progn
-    (require 'xorns-ui)
-    (>>=ui/configure-mode-line))
-  (error (message "error loading xorns-xml: %s" err)))
 
+
+;; Basic initialization
+(require 'use-package)
+
+(use-package xorns-init)
+(use-package xorns-buffers)
+(use-package xorns-dired)
+(use-package xorns-simple)
+(use-package xorns-term)
+(use-package xorns-fci)
+(use-package xorns-prog)        ;; This requires `xorns-text'
+(use-package xorns-git)
+(use-package xorns-project)
+(use-package xorns-org)
+(use-package xorns-xml)
+
+; <<=
+(use-package xorns+base
+  :config
+  (>>=-base/init-files))
+
+; <<=
+(use-package xorns-ui
+  :config
+  (>>=ui/configure-mode-line))
 
 
 
