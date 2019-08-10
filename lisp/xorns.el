@@ -55,13 +55,6 @@
 ;; TODO: (defvar xorns-version 'undefined
 ;; TODO: (defun xorns-version (&optional print-dest)
 
-(let* ((current (getenv "PATH"))
-        (ok
-          (let ((inhibit-changing-match-data t))
-            (string-match "/\\.local/bin" current))))
-  (if (not ok)
-    (setenv "PATH" (concat current ":" (expand-file-name "~/.local/bin")))))
-
 
 (defun xorns-load-user-file (name)
   "Load user initialization file NAME."

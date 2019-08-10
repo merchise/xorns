@@ -137,18 +137,5 @@
 (put 'narrow-to-region 'disabled nil)
 (put 'set-goal-column 'disabled nil)
 
-
-
-;;; Hooks
-
-(add-hook 'after-init-hook
-  (lambda ()
-    (condition-case err
-      (progn
-        (add-to-list 'exec-path "~/.local/bin")
-        (add-to-list 'exec-path "~/bin"))
-      (error (message "error@after-init-hook: %s" err)))))
-
-
 (provide 'xorns-init)
 ;;; xorns-init.el ends here
