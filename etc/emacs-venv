@@ -18,21 +18,21 @@
 # that target.
 
 
-if [ -z "$1" ]
+if [ -d "$1" ]
 then
-    PROJECT_NAME=`basename $PWD`
-    cd ..
-else
     PROJECT_NAME=$1
     shift
+else
+    PROJECT_NAME=`basename $PWD`
+    cd ..
 fi
 
-if [ -d $PROJECT_NAME ]
+if [ -f "$PROJECT_NAME/init.el" ]
 then
     WORKON_HOME=$HOME/.emacs-virtualenvs
 else
     STATUS=$?
-    echo "$PROJECT_NAME is not a valid directory."
+    echo "$PROJECT_NAME is not valid."
     exit $STATUS
 fi
 
