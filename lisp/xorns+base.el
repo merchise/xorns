@@ -93,7 +93,7 @@ to configure for yourself: see `save-buffer' function for more information.")
 (defun >>=-base/init-window ()
   "Initialize base unit 'window' package."
   (use-package window
-    :no-require t
+    :preface (provide 'window)
     :custom
     (split-width-threshold 120)
     :chords
