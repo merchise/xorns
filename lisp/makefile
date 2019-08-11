@@ -33,7 +33,7 @@ local-install: pkgdef
 	(when (file-exists-p \"$@\") (delete-file \"$@\"))\
 	(setq with-editor-emacsclient-executable nil)\
 	(setq package-enable-at-startup nil))" \
-	--load=$(TOP)/lisp/xorns-package-archives.el \
+	--load=$(TOP)/package-archives \
 	-f batch-byte-compile $<
 
 $(PKG)-autoloads.el: $(ELS)
