@@ -2,18 +2,23 @@
 
 # author: Medardo Antonio Rodriguez, @med_merchise
 
-# To use this script, cd to your project directory, for example if your
-# project is located in "~/work/emacs/xorns" to try xorns on execute:
+# It's advised to create a sym-link of this script (or copy it) in some folder
+# include in the exec-path:
+#   $ ln -s $PWD/vemacs ~/.local/bin/
 #
-#  $ cd ~/work/emacs/
-#  $ source xorns/etc/emacs-venv xorns
+# An Emacs Virtual Environment (EVE) is a folder that meets all the necessary
+# requirements to be in place of '~/.emacs.d/'.
 #
-# All extra-arguments will be used when executing 'emacs' itself.
+# This script can be executed from within an EVE or from the parent folder by
+# specifying its name as the first parameter.
 #
-# This script can be copied to any place in your $PATH, for example
-# '~/.local/bin' in my case.
+# All extra-arguments will be used when executing ''emacs' itself.
 #
-# It works by simulated a virtual $HOME in '$HOME/.emacs-venvs/', if you need
+# For example:
+#   $ cd <xorns-path>
+#   $ venv --debug-init
+#
+# It simulates a virtual $HOME in '$HOME/.emacs-virtualenvs/', if you need
 # some extra $HOME resources, sym-link the original files or directories to
 # that target.
 
