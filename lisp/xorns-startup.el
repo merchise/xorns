@@ -14,13 +14,15 @@
 
 ;;; Code:
 
+(require 'xorns-packages)
+
 (require 'xorns-tools)
 (require 'xorns-ui)
 (require 'xorns-fonts)
-(require 'xorns-packages)
 
 
-(defvar >>=!emacs-initialized nil
+
+(defvar >>=xorns-initialized nil
   "Whether or not Xorns has finished the startup process.
 This is set to true when executing `emacs-startup-hook'.")
 
@@ -62,7 +64,6 @@ If nil, uses whatever the Emacs default is, otherwise a directory path like
 
 (defun >>=xorns/init ()
   "General startup initialization."
-  (>>=setup-package-system)
   (hidden-mode-line-mode)
   (>>=ui/remove-useless-bars)
   (prefer-coding-system 'utf-8)
@@ -73,10 +74,10 @@ If nil, uses whatever the Emacs default is, otherwise a directory path like
   ; TODO: load-default-theme
   (>>=ui/configure-mode-line)
   (>>=configure-font)
-  (>>=package-system/install-dependencies)
   (require 'xorns-units)
   (->? >>=units/configuration)
-  (>>=units/load))
+  (>>=units/load)
+  (>>=setup-emacs-startup-hook))
 
 
 (defun >>=-start-maximized ()
@@ -96,8 +97,9 @@ If nil, uses whatever the Emacs default is, otherwise a directory path like
      (->? >>=user-config)
      ; TODO: initialize-custom-file-sync
      (>>=configure-font)
-     (setq >>=!emacs-initialized
-       (float-time (time-subtract nil emacs-start-time))))))
+     (setq >>=xorns-initialized
+       (float-time (time-subtract nil emacs-start-time)))
+     (message ">>= xorns initialized in %s seconds." >>=xorns-initialized))))
 
 
 
