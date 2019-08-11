@@ -10,23 +10,48 @@
 
 (defconst emacs-start-time (current-time))
 
-(defconst >>=!base-directory
-  (file-name-directory (or load-file-name default-directory)))
+; Setup package-system
 
-(defconst >>=!code-directory
-  (concat >>=!base-directory (file-name-as-directory "lisp")))
+(require 'package)
+(setq package-enable-at-startup nil)
+(setq package-archives
+  '(("gnu" . "http://elpa.gnu.org/packages/")
+    ("melpa" . "https://melpa.org/packages/")
+    ("org" . "https://orgmode.org/elpa/")))
+(package-initialize)
 
-(add-to-list 'load-path >>=!code-directory)
 
-(require 'xorns-versions)
+; Check required minimum Emacs version
 
+(let ((emacs-min-version "26.1"))
+  (if (not (version<= emacs-min-version emacs-version))
+    (error "This xorns version requires Emacs version >='%s'"
+      emacs-min-version)))
+
+
+; Define how xorns is being used
+
+(defconst >>=standalone-mode
+  (not (package-installed-p 'xorns))
+  "Not-nil when started in standalone mode.
+
+If `xorns' is installed as a standard `package', it will be used without the
+need to modify the `load-path' manually.  New-age version encourages to use
+the standalone mode by cloning the repository into '~/.emacs.d/' folder.")
+
+(if >>=standalone-mode
+  (add-to-list 'load-path
+    (concat (file-name-directory (or load-file-name default-directory))
+      (file-name-as-directory "lisp"))))
+
+
 ; Change some variables to speed boost during 'init'
 (let ((gc-cons-threshold 134217728)  ; (* 128 1024 1024)
       (gc-cons-percentage 0.6)
       (file-name-handler-alist nil))
+  ; General initialization
   (require 'xorns-startup)
   (>>=xorns/init)
-  (>>=setup-emacs-startup-hook)
   (when >>=|enable-server
     (require 'server)
     (if >>=|server-socket-dir
