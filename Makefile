@@ -119,7 +119,7 @@ check-clean-git:
 	  $(error GIT tree not clean, commit changes first))
 
 set-package-version:
-	@$(BATCH) --eval "(let ((xorns-version \"$(VERSION)\"))\
+	@$(BATCH) --eval "(let ((pkg-version \"$(VERSION)\"))\
 	$$SET_PACKAGE_VERSION)"
 
 
@@ -134,10 +134,10 @@ release: git-tag-version set-package-version
 
 
 define SET_PACKAGE_VERSION
-(with-temp-file "lisp/xorns.el"
-  (insert-file-contents "lisp/xorns.el")
+(with-temp-file "lisp/$(PKG).el"
+  (insert-file-contents "lisp/$(PKG).el")
   (re-search-forward "^;; Version: ")
   (delete-region (point) (line-end-position))
-  (insert xorns-version))
+  (insert pkg-version))
 endef
 export SET_PACKAGE_VERSION
