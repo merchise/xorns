@@ -118,7 +118,26 @@ check-clean-git:
 	$(if $(shell git status --porcelain 2>/dev/null),\
 	  $(error GIT tree not clean, commit changes first))
 
-release: check-not-melpa check-new-release check-clean-git
+set-package-version:
+	@$(BATCH) --eval "(let ((xorns-version \"$(VERSION)\"))\
+	$$SET_PACKAGE_VERSION)"
+
+
+git-tag-version: check-not-melpa check-new-release check-clean-git
 	$(eval NEWREL = $(call nversion,$(VERSION)))
 	@printf "Tagging new release $(NEWREL)\n"
 	@git tag $(NEWREL)
+
+release: git-tag-version set-package-version
+	@printf "Commiting new release $(NEWREL)\n"
+	@git commit -am "Set new release to $(NEWREL)"
+
+
+define SET_PACKAGE_VERSION
+(with-temp-file "lisp/xorns.el"
+  (insert-file-contents "lisp/xorns.el")
+  (re-search-forward "^;; Version: ")
+  (delete-region (point) (line-end-position))
+  (insert xorns-version))
+endef
+export SET_PACKAGE_VERSION
