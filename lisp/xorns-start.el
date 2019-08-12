@@ -1,4 +1,4 @@
-;;; xorns-init.el --- Basic initialization
+;;; xorns-start.el --- Basic initialization
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
@@ -137,5 +137,5 @@
 (put 'narrow-to-region 'disabled nil)
 (put 'set-goal-column 'disabled nil)
 
-(provide 'xorns-init)
-;;; xorns-init.el ends here
+(provide 'xorns-start)
+;;; xorns-start.el ends here

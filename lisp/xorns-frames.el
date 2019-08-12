@@ -24,7 +24,7 @@
 ;;
 ;; This module is not being used because is a better way to maximize
 ;; frames at its initialization (See `default-frame-alist' at
-;; `xorns-init.el').
+;; `xorns-start.el').
 
 ;; Enjoy!
 

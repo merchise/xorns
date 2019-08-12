@@ -72,7 +72,7 @@
 ;; Basic initialization
 (require 'use-package)
 
-(use-package xorns-init)
+(use-package xorns-start)
 (use-package xorns-buffers)
 (use-package xorns-dired)
 (use-package xorns-simple)
