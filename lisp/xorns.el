@@ -1,6 +1,7 @@
 ;;; xorns.el --- Merchise extensions for Emacs
 
 ;; Copyright (c) Merchise Autrement [~º/~]
+;; URL: https://github.com/merchise/xorns
 ;; Version: 0.5.2
 
 ;; This file is NOT part of GNU Emacs but I'd like it. ;)
