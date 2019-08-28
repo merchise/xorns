@@ -8,8 +8,8 @@
 
 ;;; Commentary:
 
-;; This is a new-age (>>=) module.  This library defines several utilities
-;; used to configure UI stuffs, specially mode-lines.
+;; New-age (>>=) module.  This library defines several utilities used to
+;; configure UI stuffs, specially mode-lines.
 ;;
 ;; Pending tasks
 ;; - spaceline segments vs packages must be configured:
@@ -31,11 +31,6 @@
 
 (defvar >>=|show-title-in-header-line nil
   "If non-nil, assign `frame-title-format' to `header-line-format'.")
-
-
-(defun >>=configure-default-user-interface ()
-  "This is a WIP function."
-  )
 
 
 (defun >>=ui/configure-mode-line ()
@@ -115,7 +110,6 @@ See `frame-title-format' variable."
   (when (and >>=|show-title-in-header-line frame-title-format)
     (setq header-line-format frame-title-format)
     ))
-
 
 
 (provide 'xorns-ui)

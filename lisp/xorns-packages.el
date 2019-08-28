@@ -8,9 +8,8 @@
 
 ;;; Commentary:
 
-;; This is a new-age (>>=) module.  Must be required in the start of the
-;; initialization process just by calling '(require 'xorns-packages)' in
-;; `xorns-startup'.
+;; New-age (>>=) module.  Must be required in the start of the initialization
+;; process just by calling '(require 'xorns-packages)' in `xorns-startup'.
 ;;
 ;; Pending tasks:
 ;; - Use `quelpa' and `quelpa-use-package'.
