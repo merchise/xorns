@@ -64,9 +64,7 @@ If nil, uses whatever the Emacs default is, otherwise a directory path like
 
 (defun >>=xorns/init ()
   "General startup initialization."
-  (hidden-mode-line-mode)
-  (>>=ui/remove-useless-bars)
-  (prefer-coding-system 'utf-8)
+  (require 'xorns-preface)
   (>>=user-config/load)
   (>>=-start-maximized)
   (->? >>=custom/user-init)
