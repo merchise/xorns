@@ -136,7 +136,7 @@ where to find them.  To do so create the file ~/path/to/xorns/config.mk~
 with the following content before running ~make~:
 
 #+BEGIN_SRC makefile
-  LOAD_PATH  = -L /path/to/xorns/lisp
+  LOAD_PATH  = -L /path/to/xorns/horns
   LOAD_PATH += -L /path/to/<dependency-1>
   ...
   LOAD_PATH += -L /path/to/<dependency-n>
@@ -145,7 +145,7 @@ with the following content before running ~make~:
 Finally add your Xorns paths to your ~init.el~ file (for example):
 
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path "~/.emacs.d/site-lisp/xorns/lisp")
+  (add-to-list 'load-path "~/.emacs.d/site-lisp/xorns/horns")
   (require 'xorns)
 
   (with-eval-after-load 'info
@@ -154,7 +154,7 @@ Finally add your Xorns paths to your ~init.el~ file (for example):
                  "~/.emacs.d/site-lisp/xorns/docs/"))
 #+END_SRC
 
-Note: you have to add the library subdirectory (~lisp~) to the ~load-path~,
+Note: you have to add the library subdirectory (~horns~) to the ~load-path~,
 not the top-level of the repository.
 
 If you are using "package-el", you can automate all above with a single make

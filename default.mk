@@ -103,7 +103,7 @@ $(or
   $(wildcard $(EMACS_GITHUB_DIR)/$(1)))
 endef
 
-LOAD_PATH = -L $(TOP)/lisp $(foreach pkg,$(DEPENDENCIES),\
+LOAD_PATH = -L $(TOP)/horns $(foreach pkg,$(DEPENDENCIES),\
 	-L $(call dependency_dir,$(call pkg_name,$(pkg))))
 
 endif # LOAD_PATH

@@ -43,7 +43,7 @@ help:
 ## Build
 
 lisp:
-	@$(MAKE) -C lisp lisp
+	@$(MAKE) -C horns lisp
 
 docs:
 	@$(MAKE) -C docs all
@@ -57,13 +57,13 @@ info:
 install: install-lisp install-info
 
 install-lisp: lisp
-	@$(MAKE) -C lisp install
+	@$(MAKE) -C horns install
 
 install-info: info
 	@$(MAKE) -C docs install
 
 local-install:
-	@$(MAKE) -C lisp local-install
+	@$(MAKE) -C horns local-install
 
 
 ## Clean
@@ -71,7 +71,7 @@ local-install:
 clean: clean-lisp clean-docs clean-archives
 
 clean-lisp:
-	@$(MAKE) -C lisp clean
+	@$(MAKE) -C horns clean
 
 clean-docs: clean-info
 
@@ -79,7 +79,7 @@ clean-info:
 	@$(MAKE) -C docs clean
 
 clean-archives:
-	@$(RM) *.tar.gz *.tar lisp/$(PKG)-version.el
+	@$(RM) *.tar.gz *.tar horns/$(PKG)-version.el
 	@$(RMDIR) $(PKG)-$(VERSION)
 
 
@@ -93,7 +93,7 @@ prepare-dist:
 	$(eval distfiles = LICENSE default.mk Makefile README.md)
 	@$(MKDIR) $(distname)
 	@$(CP) $(distfiles) $(distname)
-	@$(MAKE) distdir=$(TOP)/$(distname) -C lisp prepare-dist
+	@$(MAKE) distdir=$(TOP)/$(distname) -C horns prepare-dist
 	@$(MAKE) distdir=$(TOP)/$(distname) -C docs prepare-dist
 
 $(PKG)-$(VERSION).tar.gz:
@@ -134,8 +134,8 @@ release: git-tag-version set-package-version
 
 
 define SET_PACKAGE_VERSION
-(with-temp-file "lisp/$(PKG).el"
-  (insert-file-contents "lisp/$(PKG).el")
+(with-temp-file "horns/$(PKG).el"
+  (insert-file-contents "horns/$(PKG).el")
   (re-search-forward "^;; Version: ")
   (delete-region (point) (line-end-position))
   (insert pkg-version))

@@ -8,7 +8,7 @@
   (let* ((pkg (intern (or (getenv "PKG") "xorns")))
 	 (pkg-dir (or (getenv "TOP") "./"))
 	 (pkg-desc (cadr (assq pkg package-alist)))
-	 (src (expand-file-name "lisp" pkg-dir))
+	 (src (expand-file-name "horns" pkg-dir))
 	 (tmp (expand-file-name (symbol-name pkg) temporary-file-directory)))
     (if pkg-desc
       (progn

@@ -42,7 +42,7 @@ the standalone mode by cloning the repository into '~/.emacs.d/' folder.")
 (if >>=standalone-mode
   (add-to-list 'load-path
     (concat (file-name-directory (or load-file-name default-directory))
-      (file-name-as-directory "lisp"))))
+      (file-name-as-directory "horns"))))
 
 
 ; Change some variables to speed boost during 'init'

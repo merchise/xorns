@@ -2,9 +2,9 @@
 *.elc
 
 # Lisp generated
-/lisp/xorns-autoloads.el
-/lisp/xorns-version.el
-/lisp/xorns-pkg.el
+/horns/xorns-autoloads.el
+/horns/xorns-version.el
+/horns/xorns-pkg.el
 
 # Packaging
 .cask
