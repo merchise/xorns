@@ -17,9 +17,7 @@
 (require 'xorns-packages)
 
 (require 'xorns-tools)
-(require 'xorns-ui)
 (require 'xorns-fonts)
-
 
 
 (defvar >>=xorns-initialized nil
@@ -65,12 +63,16 @@ If nil, uses whatever the Emacs default is, otherwise a directory path like
 (defun >>=xorns/init ()
   "General startup initialization."
   (require 'xorns-preface)
+  (require 'use-package)
   (>>=user-config/load)
   (>>=-start-maximized)
   (->? >>=custom/user-init)
-  (>>=frame-title-init)
   ; TODO: load-default-theme
-  (>>=ui/configure-mode-line)
+  (use-package xorns-ui
+    :hook
+    (after-init . spaceline-xorns-theme)
+    :config
+    (>>=frame-title-init))
   (>>=configure-font)
   (require 'xorns-units)
   (->? >>=units/configuration)

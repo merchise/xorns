@@ -92,8 +92,9 @@
 
 ; <<=
 (use-package xorns-ui
-  :config
-  (>>=ui/configure-mode-line))
+  :hook
+  (after-init . spaceline-xorns-theme))
+
 
 
 

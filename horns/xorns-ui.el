@@ -11,6 +11,12 @@
 ;; New-age (>>=) module.  This library defines several utilities used to
 ;; configure UI stuffs, specially mode-lines.
 ;;
+;; A common setup for this module is:
+;;
+;;   (use-package xorns-ui
+;;     :hook
+;;     (after-init . spaceline-xorns-theme))
+;;
 ;; Pending tasks
 ;; - spaceline segments vs packages must be configured:
 ;;   - window-number: `winum'
@@ -20,8 +26,9 @@
 
 ;;; Code:
 
-(require 'easy-mmode)
+; (require 'easy-mmode)
 
+(require 'use-package)
 
 (setq-default frame-title-format
   '(multiple-frames "%b"
@@ -33,60 +40,58 @@
   "If non-nil, assign `frame-title-format' to `header-line-format'.")
 
 
-(defun >>=ui/configure-mode-line ()
-  "Configure mode-line using `minions' and `spaceline'."
-  (require 'use-package)
-  (use-package minions
+(use-package minions
   :ensure t
   :demand t
   :config
   (unless minions-mode
     (minions-mode)))
-  (use-package spaceline-config
-    :ensure spaceline
-    :init
-    (require 'spaceline)
-    (setq spaceline-highlight-face-func 'spaceline-highlight-face-modified)
 
-    (spaceline-define-segment narrow
-      "Show when buffer is narrowed."
-      (when (buffer-narrowed-p)
-	"Narrowed"))
 
-    (spaceline-define-segment minions
-      "A minions menu for minor modes."
-      (if (bound-and-true-p minions-mode)
-	(format-mode-line minions-mode-line-modes)
-	; else
-	(spaceline-minor-modes-default)))
+(use-package spaceline-config
+  :ensure spaceline
+  :init
+  (require 'spaceline)
+  (setq spaceline-highlight-face-func 'spaceline-highlight-face-modified)
 
-    (defun spaceline-xorns-theme ()
-      "Install a variation of `spaceline-emacs-theme'."
-      (spaceline-install
-	`((((persp-name :fallback workspace-number)
-	     window-number) :separator "|")
-	  ((buffer-modified) :face highlight-face)
-	  ((buffer-id which-function)
-	    :separator " @ " :face highlight-face :tight-left t)
-	  remote-host
-	  projectile-root
-	  ((buffer-size) :separator " | " :when active)
-	  (version-control :when active))
-	`(selection-info
-	  ((process minions) :when active)
-	  ((,(if nil 'buffer-encoding 'buffer-encoding-abbrev)
-	    macrodef
-	    point-position
-	    line-column)
-	   :separator " | " :when active)
-	   ((narrow buffer-position hud) :face highlight-face)
-	  )
-	)
+  (spaceline-define-segment narrow
+    "Show when buffer is narrowed."
+    (when (buffer-narrowed-p)
+      "Narrowed"))
 
-      (setq-default spaceline-buffer-encoding-abbrev-p t)
-      (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main)))))
+  (spaceline-define-segment minions
+    "A minions menu for minor modes."
+    (if (bound-and-true-p minions-mode)
+      (format-mode-line minions-mode-line-modes)
+      ; else
+      (spaceline-minor-modes-default)))
+  )
 
-    (add-hook 'after-init-hook #'spaceline-xorns-theme))
+(defun spaceline-xorns-theme ()
+  "Install a variation of `spaceline-emacs-theme'."
+  (spaceline-install
+    `((((persp-name :fallback workspace-number)
+	 window-number) :separator "|")
+      ((buffer-modified) :face highlight-face)
+      ((buffer-id which-function)
+	:separator " @ " :face highlight-face :tight-left t)
+      remote-host
+      projectile-root
+      ((buffer-size) :separator " | " :when active)
+      (version-control :when active))
+    `(selection-info
+      ((process minions) :when active)
+      ((,(if nil 'buffer-encoding 'buffer-encoding-abbrev)
+	macrodef
+	point-position
+	line-column)
+       :separator " | " :when active)
+       ((narrow buffer-position hud) :face highlight-face)
+      )
+    )
+
+  (setq-default spaceline-buffer-encoding-abbrev-p t)
+  (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main))))
   )
 
 
