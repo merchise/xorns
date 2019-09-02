@@ -10,6 +10,7 @@
   (defconst emacs-start-time (current-time)
     "Define this in 'init.el' file first statement."))
 
+
 ; Check required minimum Emacs version
 
 (let ((emacs-min-version "26.1"))

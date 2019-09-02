@@ -14,7 +14,20 @@
 ;;; Code:
 
 
-;; Debug
+;; General
+
+(defmacro ->? (func &rest args)
+  "Call FUNC with our remaining ARGS, only if it is bound."
+  `(when (fboundp ',func)
+     (if init-file-debug
+       (message ">>= calling: %s"
+	 (or (documentation ',func) ,(symbol-name func))))
+     (condition-case-unless-debug err
+       (,func ,@args)
+       (error
+	 (message "Xorns Error in '%s': %s\n"
+	   ',(symbol-name func) (error-message-string err))))))
+
 
 (defmacro >>=on-debug-message (format-string &rest args)
   "Display a message only when `init-file-debug' is active.
@@ -59,6 +72,13 @@ PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
 (defun dir-join (&rest parts)
   "Join PARTS to a single path."
   (mapconcat 'file-name-as-directory parts ""))
+
+
+(defun file-expand (file-name &rest dir-parts)
+  "Convert FILE-NAME to absolute using `expand-file-name' function.
+The rest of the arguments from the second (DIR-PARTS) are considered parts to
+build the default directory using `dir-join' function."
+(expand-file-name file-name (apply 'dir-join dir-parts)))
 
 
 (defun find-dir (&rest dirs)

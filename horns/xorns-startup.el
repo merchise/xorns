@@ -44,27 +44,13 @@ If nil, uses whatever the Emacs default is, otherwise a directory path like
 
 
 
-(defmacro ->? (func &rest args)
-  "Call FUNC with our remaining ARGS, only if it is bound."
-  `(when (fboundp ',func)
-     (if init-file-debug
-       (message ">>= calling: %s"
-	 (or (documentation ',func) ,(symbol-name func))))
-     (condition-case-unless-debug err
-       (,func ,@args)
-       (error
-	 (message "Xorns Error in '%s': %s\n"
-	   ',(symbol-name func) (error-message-string err))))))
-
-
-
 ;; Configuration functions
 
 (defun >>=xorns/init ()
   "General startup initialization."
   (require 'xorns-preface)
   (require 'use-package)
-  (>>=user-config/load)
+  (require 'xorns-config)
   (>>=-start-maximized)
   (->? >>=custom/user-init)
   ; TODO: load-default-theme
@@ -100,55 +86,6 @@ If nil, uses whatever the Emacs default is, otherwise a directory path like
      (setq >>=xorns-initialized
        (float-time (time-subtract nil emacs-start-time)))
      (message ">>= xorns initialized in %s seconds." >>=xorns-initialized))))
-
-
-
-;; User Customization
-
-(defconst >>=!xdg-config-home
-  (find-dir (getenv "XDG_CONFIG_HOME") (dir-join "~" ".config"))
-  "Default directory for user configurations.")
-
-(defconst >>=!config/location
-  (let ((dir >>=!xdg-config-home)
-	(name "xorns"))
-    (if (not dir)
-      (setq dir "~"
-	    name (format ".%s" name)))
-    (expand-file-name name dir))
-  "User specific configuration file location.")
-
-
-(defconst >>=!config//template-location
-  (expand-file-name "custom.el"
-    (dir-join
-      (file-name-directory (or load-file-name default-directory)) ".." "etc"))
-  "User specific configuration template file location.")
-
-
-(defun >>=user-config/load ()
-  "Load user private configuration init file if it exists.
-
-Looks first for the configurations system directory ($XDG_CONFIG_HOME,
-defaults to '~/.config/'), if it does not exist, use the user's $HOME
-directory ('~').  The file-name in the destination folder will be
-'xorns' (without the '.el' extension), but when the $HOME user directory is
-used, it is prefixed with a dot ('.')."
-  (>>=-user-config//ensure-file)
-  (if (not custom-file)
-    (setq custom-file >>=!config/location))
-  (load >>=!config/location)
-  (->? >>=settings/init))
-
-
-(defun >>=-user-config//ensure-file ()
-  "Ensure user private configuration file properly exists."
-  (if (not (file-exists-p >>=!config/location))
-    (let ((dir (file-name-directory >>=!config/location)))
-      (if (not (file-directory-p dir))
-	(make-directory dir 'parents))
-      (copy-file >>=!config//template-location >>=!config/location t)
-      (message ">>= %s has been installed." >>=!config/location))))
 
 
 (provide 'xorns-startup)
