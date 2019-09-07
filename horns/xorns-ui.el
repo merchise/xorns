@@ -50,7 +50,7 @@
 
 (use-package spaceline-config
   :ensure spaceline
-  :init
+  :config
   (require 'spaceline)
   (setq spaceline-highlight-face-func 'spaceline-highlight-face-modified)
 
