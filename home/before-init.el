@@ -24,20 +24,6 @@
 ;; '(dired-listing-switches "-l --group-directories-first -h")
 
 (setq
-   safe-local-variable-values
-     '( (py-indent-offset . 4)
-	(nxml-child-indent . 2)
-	(css-indent-offset . 2)
-	(css-indent-offset . 4)
-	(js-indent-level . 2)
-	(nxml-child-indent . 4)
-	(ispell-dictionary . "en")
-	(ispell-dictionary . "fr")
-	(ispell-dictionary . "es")
-	(encoding . utf-8))
-   )
-
-(setq
   ; >>=
   user-mail-address (substitute-env-vars "${USER}@merchise.org")
   ; >>=
