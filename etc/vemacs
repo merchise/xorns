@@ -18,9 +18,8 @@
 #   $ cd <xorns-path>
 #   $ venv --debug-init
 #
-# It simulates a virtual $HOME in '$HOME/.emacs-virtualenvs/', if you need
-# some extra $HOME resources, sym-link the original files or directories to
-# that target.
+# It simulates a virtual $HOME in '$HOME/.vemacs/', if you need some extra
+# $HOME resources, sym-link the original files or directories to that target.
 
 
 if [ -d "$1" ]
@@ -34,7 +33,7 @@ fi
 
 if [ -f "$PROJECT_NAME/init.el" ]
 then
-    WORKON_HOME=$HOME/.emacs-virtualenvs
+    WORKON_HOME=$HOME/.vemacs
 else
     STATUS=$?
     echo "$PROJECT_NAME is not valid."
