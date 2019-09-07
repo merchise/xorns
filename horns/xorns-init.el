@@ -18,18 +18,6 @@
     (error "This xorns version requires Emacs version >='%s'"
       emacs-min-version)))
 
-
-; Setup package-system
-
-(require 'package)
-(setq package-enable-at-startup nil)
-(setq package-archives
-  '(("gnu" . "http://elpa.gnu.org/packages/")
-    ("melpa" . "https://melpa.org/packages/")
-    ("org" . "https://orgmode.org/elpa/")))
-(package-initialize)
-
-
 ; TODO: templates folder: package-unpack, package-user-dir
 ; (pkg-desc (cadr (assq pkg package-alist)))
 

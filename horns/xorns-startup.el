@@ -14,8 +14,6 @@
 
 ;;; Code:
 
-(require 'xorns-packages)
-
 (require 'xorns-tools)
 (require 'xorns-fonts)
 

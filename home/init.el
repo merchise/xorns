@@ -19,19 +19,8 @@
 (defconst emacs-start-time (current-time))
 
 (require 'package)
-
-(setq package-archives
-  '(("melpa" . "https://melpa.org/packages/")
-    ("org" . "https://orgmode.org/elpa/")
-    ("gnu" . "https://elpa.gnu.org/packages/")))
-
 (package-initialize)
-
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-
-(require 'use-package)
+(require 'xorns-packages)
 
 (let ((xorns-config-level 'maximum))    ;; 'basic, 'general
   ;; Start the server and initialize all common Merchise settings.

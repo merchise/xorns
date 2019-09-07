@@ -11,23 +11,24 @@
 
 (defconst emacs-start-time (current-time))
 
-; Initialize Xorns in standalone mode or as an installed package
+(require 'package)
+(package-initialize)
 
 (defconst >>=standalone-startup
-  (let ((pkg-dir
-	  (concat
-	    (if load-file-name
-	      (file-name-directory load-file-name)
-	      ; else
-	      default-directory)
-	    (file-name-as-directory "horns"))))
-    (if (file-directory-p pkg-dir) pkg-dir))
+  (if (not (package-installed-p 'xorns))
+    (concat
+      (if load-file-name
+	(file-name-directory load-file-name)
+	; else
+	default-directory)
+      (file-name-as-directory "horns")))
   "If nil, Xorns Started up as an installed package.")
 
 
 (if >>=standalone-startup
   (add-to-list 'load-path >>=standalone-startup))
 
+(require 'xorns-packages)
 (require 'xorns-init)
 
 (provide 'init)
