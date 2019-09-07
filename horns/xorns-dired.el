@@ -207,13 +207,13 @@ If `dired-single' is not installed, does nothing."
     )
   )
 
-(when (xorns-configure-p 'basic)
-  (if (boundp 'dired-mode-map)
-    (xorns-dired-setup)
-                                        ; else
-    (add-hook 'dired-load-hook 'xorns-dired-setup))
-  (add-hook 'dired-load-hook
-    (lambda () (load "dired-x"))))
+(if (boundp 'dired-mode-map)
+  (xorns-dired-setup)
+  ; else
+  (add-hook 'dired-load-hook 'xorns-dired-setup))
+
+(add-hook 'dired-load-hook
+  (lambda () (load "dired-x")))
 
 
 ;; ;; TODO: To preserve positions, use::

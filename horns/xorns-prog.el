@@ -172,18 +172,15 @@
 
 ;;; Javascript, CoffeeScript and LiveScript
 
-(when (xorns-configure-p 'general)
-  (progn
-    ;; This requires you have the tern program installed in your system and in
-    ;; the exec-path.
-    (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-    (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
-    (add-hook 'js-mode-hook (lambda () (tern-mode t)))
-    (eval-after-load 'tern
-      '(progn
-         (require 'tern-auto-complete)
-         (tern-ac-setup)))))
-
+;; This requires you have the tern program installed in your system and in the
+;; exec-path.
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+(add-to-list 'interpreter-mode-alist '("node" . js2-mode))
+(add-hook 'js-mode-hook (lambda () (tern-mode t)))
+(eval-after-load 'tern
+  '(progn
+     (require 'tern-auto-complete)
+     (tern-ac-setup)))
 
 
 
@@ -206,29 +203,27 @@
     (* (max steps 1)
       c-basic-offset)))
 
-(when (xorns-configure-p 'general)
-  (add-hook 'c-mode-common-hook
-    (lambda ()
-      ;; Add kernel style
-      (c-add-style
-        "linux-tabs-only"
-        '("linux" (c-offsets-alist
-                    (arglist-cont-nonempty
-                      c-lineup-gcc-asm-reg
-                      c-lineup-arglist-tabs-only))))))
+(add-hook 'c-mode-common-hook
+  (lambda ()
+    ;; Add kernel style
+    (c-add-style
+      "linux-tabs-only"
+      '("linux" (c-offsets-alist
+		  (arglist-cont-nonempty
+		    c-lineup-gcc-asm-reg
+		    c-lineup-arglist-tabs-only))))))
 
-  (add-hook 'c-mode-hook
-    (lambda ()
-      (let ((filename (buffer-file-name)))
-        ;; Enable kernel mode for the appropriate files
-        (when (and filename
-                (string-match (expand-file-name xorns-linux-kernel-trees-path)
-                  filename))
-          (xorns-set-values
-            '(indent-tabs-mode t)
-            '(show-trailing-whitespace t))
-          (c-set-style "linux-tabs-only"))))) )
-
+(add-hook 'c-mode-hook
+  (lambda ()
+    (let ((filename (buffer-file-name)))
+      ;; Enable kernel mode for the appropriate files
+      (when (and filename
+	      (string-match (expand-file-name xorns-linux-kernel-trees-path)
+		filename))
+	(xorns-set-values
+	  '(indent-tabs-mode t)
+	  '(show-trailing-whitespace t))
+	(c-set-style "linux-tabs-only")))))
 
 
 (global-set-key (kbd "C-M-,") 'completion-at-point)
@@ -236,6 +231,7 @@
 (when (featurep 'blacken)
   (add-hook 'python-mode-hook 'turn-off-auto-fill)
   (add-hook 'python-mode-hook 'blacken-mode))
+
 
 (provide 'xorns-prog)
 ;;; xorns-prog.el ends here

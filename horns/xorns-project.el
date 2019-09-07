@@ -38,7 +38,7 @@
 (require 'xorns-utils)
 
 
-(when (and (featurep 'projectile) (xorns-configure-p 'general))
+(when (featurep 'projectile)
   (add-to-list 'projectile-project-root-files "setup.py"))
 
 
@@ -431,10 +431,9 @@ the python shell."
 
 ;;  Standard hooks for project integration
 
-;; (when (xorns-configure-p 'minimum)
-;;  (add-hook 'find-file-hook  ;; after a buffer is loaded from a file
-;;    (lambda ()
-;;      (xorns-find-better-unique-buffer-name))))
+(add-hook 'find-file-hook
+  (lambda ()
+    (xorns-find-better-unique-buffer-name)))
 
 
 
@@ -442,13 +441,12 @@ the python shell."
 ;; are project configuration for programming in python the belong to the
 ;; general level.
 
-(when (xorns-configure-p 'general)
-  (dolist
-    (hook '(prog-mode-hook text-mode-hook))
-    (add-hook hook
-      (lambda ()
-        (unless (tramp-connectable-p (buffer-file-name))
-          (xorns-exec-path-setup))))))
+(dolist
+  (hook '(prog-mode-hook text-mode-hook))
+  (add-hook hook
+    (lambda ()
+      (unless (tramp-connectable-p (buffer-file-name))
+	(xorns-exec-path-setup)))))
 
 
 

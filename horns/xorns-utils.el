@@ -378,23 +378,6 @@ See `read-from-minibuffer' for more information on all arguments."
     (or (unless (equal res "") res) default-value "")))
 
 
-(defun xorns-configure-p (&optional arg)
-  "Return if a configuration level could be executed.
-
-Optional argument ARG specifies the level to match with the value of
-`xorns-config-level' variable; if nil `maximum' is assumed.
-
-Variable `xorns-config-level' only must be defined in the scope of
-initialization process (See README file and documentation of
-`xorns-get-config-level' function)."
-  (let ((conf
-          (xorns-get-config-level
-            (if (boundp 'xorns-config-level)
-              (symbol-value 'xorns-config-level))))
-         (level (xorns-get-config-level arg 'strict)))
-    (if conf (<= level conf))))
-
-
 
 ;;; Features
 

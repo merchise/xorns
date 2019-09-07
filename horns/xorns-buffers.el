@@ -62,115 +62,114 @@
 
 ;;; IBuffer
 
-(when (xorns-configure-p 'basic)
-  (global-set-key (kbd "C-x C-b") 'ibuffer))
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+
+;; Set `ibuffer' to loads some preferred groups.
+(xorns-set-values
+  '(ibuffer-saved-filter-groups
+     (quote (("xorns-ibuffer-groups"
+	       ("System"
+		 (or
+		   (name . "*scratch*")
+		   (name . "*Messages*")
+		   (mode . Custom-mode)))
+	       ("Shell" (mode . term-mode))
+	       ("Dired"
+		 (or
+		   (mode . dired-omit-mode)
+		   (mode . dired-mode)))
+	       ("Web"
+		 (or
+		   (mode . w3m-mode)))
+	       ("Org"
+		 (or
+		   (mode . org-mode)
+		   (mode . org-agenda-mode)
+		   (mode . diary-mode)
+		   (mode . calendar-mode)
+		   (mode . bbdb-mode)
+		   (name . "*Deft*")
+		   (name . "bbdb")))
+	       ("Configuration" (mode . conf-unix-mode))
+	       ("Python" (mode . python-mode))
+	       ("Haskell/Agda/Coq"
+		 (or
+		   (mode . haskell-mode)
+		   (mode . agda2-mode)
+		   (mode . coq-mode)))
+	       ("Lisp"
+		 (or
+		   (mode . emacs-lisp-mode)
+		   (mode . lisp-interaction-mode)
+		   (mode . lisp-mode)))
+	       ("C" (or (mode . c-mode) (mode . cc-mode)))
+	       ("Scala/Java"
+		 (or
+		   (mode . scala-mode)
+		   (mode . java-mode)
+		   (mode . scala-mode-inf)))
+	       ("RST/Markdown"
+		 (or
+		   (mode . rst-mode)
+		   (mode . markdown-mode)))
+	       ("XML/HTML/CSS"
+		 (or
+		   (mode . nxml-mode)
+		   (mode . html-mode)
+		   (mode . css-mode)
+		   (mode . less-mode)
+		   (mode . sass-mode)))
+	       ("Version Control"
+		 (or
+		   (mode . git-commit-mode)
+		   (mode . git-commit-major-mode)
+		   (mode . git-rebase-mode)
+		   (mode . magit-mode)
+		   (mode . magit-cherry-mode)
+		   (mode . magit-diff-mode)
+		   (mode . magit-log-mode)
+		   (mode . magit-log-select-mode)
+		   (mode . magit-merge-preview-mode)
+		   (mode . magit-popup-mode)
+		   (mode . magit-process-mode)
+		   (mode . magit-refs-mode)
+		   (mode . magit-reflog-mode)
+		   (mode . magit-revision-mode)
+		   (mode . magit-stash-mode)
+		   (mode . magit-stashes-mode)
+		   (mode . magit-status-mode)
+		   (mode . diff-mode)))
+	       ("Help/Info/Completions"
+		 (or
+		   (mode . help-mode)
+		   (mode . Info-mode)
+		   (mode . Man-mode)
+		   (mode . woman-mode)
+		   (mode . rfcview-mode)
+		   (mode . completion-list-mode)))
+	       )))
+     )
+  '(ibuffer-formats
+     (quote ((mark modified read-only " "
+	       (name 22 22 :left :elide)
+	       " "
+	       (size 9 -1 :right)
+	       " "
+	       (mode 16 16 :left :elide)
+	       " "
+	       filename-and-process)
+	      (mark " "
+		(name 16 -1)
+		" "
+		filename))))
+  )
 
 
-(when (xorns-configure-p 'general)
-  ;; Set `ibuffer' to loads some preferred groups.
-  (xorns-set-values
-    '(ibuffer-saved-filter-groups
-       (quote (("xorns-ibuffer-groups"
-                 ("System"
-                   (or
-                     (name . "*scratch*")
-                     (name . "*Messages*")
-                     (mode . Custom-mode)))
-                 ("Shell" (mode . term-mode))
-                 ("Dired"
-                   (or
-                     (mode . dired-omit-mode)
-                     (mode . dired-mode)))
-		 ("Web"
-                   (or
-                     (mode . w3m-mode)))
-                 ("Org"
-                   (or
-                     (mode . org-mode)
-                     (mode . org-agenda-mode)
-                     (mode . diary-mode)
-                     (mode . calendar-mode)
-                     (mode . bbdb-mode)
-                     (name . "*Deft*")
-                     (name . "bbdb")))
-                 ("Configuration" (mode . conf-unix-mode))
-                 ("Python" (mode . python-mode))
-                 ("Haskell/Agda/Coq"
-                   (or
-                     (mode . haskell-mode)
-                     (mode . agda2-mode)
-                     (mode . coq-mode)))
-                 ("Lisp"
-                   (or
-                     (mode . emacs-lisp-mode)
-                     (mode . lisp-interaction-mode)
-                     (mode . lisp-mode)))
-                 ("C" (or (mode . c-mode) (mode . cc-mode)))
-                 ("Scala/Java"
-                   (or
-                     (mode . scala-mode)
-                     (mode . java-mode)
-                     (mode . scala-mode-inf)))
-                 ("RST/Markdown"
-                   (or
-                     (mode . rst-mode)
-                     (mode . markdown-mode)))
-                 ("XML/HTML/CSS"
-                   (or
-                     (mode . nxml-mode)
-                     (mode . html-mode)
-                     (mode . css-mode)
-                     (mode . less-mode)
-                     (mode . sass-mode)))
-                 ("Version Control"
-                   (or
-                     (mode . git-commit-mode)
-                     (mode . git-commit-major-mode)
-                     (mode . git-rebase-mode)
-                     (mode . magit-mode)
-                     (mode . magit-cherry-mode)
-                     (mode . magit-diff-mode)
-                     (mode . magit-log-mode)
-                     (mode . magit-log-select-mode)
-                     (mode . magit-merge-preview-mode)
-                     (mode . magit-popup-mode)
-                     (mode . magit-process-mode)
-                     (mode . magit-refs-mode)
-                     (mode . magit-reflog-mode)
-                     (mode . magit-revision-mode)
-                     (mode . magit-stash-mode)
-                     (mode . magit-stashes-mode)
-                     (mode . magit-status-mode)
-                     (mode . diff-mode)))
-                 ("Help/Info/Completions"
-                   (or
-                     (mode . help-mode)
-                     (mode . Info-mode)
-                     (mode . Man-mode)
-                     (mode . woman-mode)
-                     (mode . rfcview-mode)
-                     (mode . completion-list-mode)))
-                 )))
-       )
-    '(ibuffer-formats
-       (quote ((mark modified read-only " "
-                 (name 22 22 :left :elide)
-                 " "
-                 (size 9 -1 :right)
-                 " "
-                 (mode 16 16 :left :elide)
-                 " "
-                 filename-and-process)
-                (mark " "
-                  (name 16 -1)
-                  " "
-                  filename))))
-    )
-  (add-hook 'ibuffer-mode-hook
-    (lambda ()
-      (condition-case err
-        (ibuffer-switch-to-saved-filter-groups "xorns-ibuffer-groups")
-        (error (message "error@ibuffer-mode-hook: %s" err))))))
+(add-hook 'ibuffer-mode-hook
+  (lambda ()
+    (condition-case err
+      (ibuffer-switch-to-saved-filter-groups "xorns-ibuffer-groups")
+      (error (message "error@ibuffer-mode-hook: %s" err)))))
 
 
 (defun xorns-toggle-header-mode-line ()
@@ -233,9 +232,7 @@ window.  After that standard behaviour, this function kills the `ibuffer'."
 
 ;; TODO: Prepare a function (not a lambda) in order to see the help with
 ;; `describe-key'.
-(when (and
-        (xorns-configure-p 'basic)
-        xorns-grizzl-select-buffer-enabled)
+(when xorns-grizzl-select-buffer-enabled
   (lexical-let ((previous-binding (global-key-binding (kbd "C-x b"))))
     (message "The C-x b previous binding was %s" previous-binding)
     (global-set-key (kbd "C-x b")
@@ -263,21 +260,19 @@ An optional argument ARG could be given to delete other windows; if
     (if arg (delete-other-windows))))
 
 
-(when (xorns-configure-p 'basic)
-  (global-set-key (kbd "C-c s") 'xorns-force-scratch)
-  (global-set-key (kbd "C-c h") 'xorns-toggle-header-mode-line))
+(global-set-key (kbd "C-c s") 'xorns-force-scratch)
+(global-set-key (kbd "C-c h") 'xorns-toggle-header-mode-line)
 
 
 
 ;;; Hooks
 
-(when (xorns-configure-p 'general)
-  (add-hook 'after-init-hook
-    (lambda ()
-      (condition-case err
-        ;; Set initial default directory for `*scratch*' buffer
-        (xorns-set-default-directory)
-        (error (message "error@after-init-hook: %s" err))))))
+(add-hook 'after-init-hook
+  (lambda ()
+    (condition-case err
+      ;; Set initial default directory for `*scratch*' buffer
+      (xorns-set-default-directory)
+      (error (message "error@after-init-hook: %s" err)))))
 
 
 (provide 'xorns-buffers)

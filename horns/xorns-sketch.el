@@ -63,13 +63,12 @@
       (error (message "error@python-mode-hook: %s" err)))))
 
 
-(when (xorns-configure-p 'maximum)
-  (add-hook 'text-mode-hook
-    (lambda ()
-      (define-key rst-mode-map (kbd "C-c C-r !")
-        'xorns-python-shell-send-paste)
-      (define-key rst-mode-map (kbd "C-c C-r C-r")
-        'xorns-python-shell-send-cpaste))))
+(add-hook 'text-mode-hook
+  (lambda ()
+    (define-key rst-mode-map (kbd "C-c C-r !")
+      'xorns-python-shell-send-paste)
+    (define-key rst-mode-map (kbd "C-c C-r C-r")
+      'xorns-python-shell-send-cpaste)))
 
 
 (defun xorns-python-indent-rigidly (start end arg)
@@ -87,10 +86,8 @@ This simply calls `indent-rigidly' using ±4 spaces."
     (indent-rigidly start end -4)))
 
 
-(when (xorns-configure-p 'general)  ;; Make C-x C-tab indent rightly in Python
-  (define-key python-mode-map (kbd "C-x <C-tab>") 'xorns-python-indent-rigidly)
-  (define-key python-mode-map (kbd "C-x C-x <tab>") 'xorns-python-indent-rigidly))
-
+(define-key python-mode-map (kbd "C-x <C-tab>") 'xorns-python-indent-rigidly)
+(define-key python-mode-map (kbd "C-x C-x <tab>") 'xorns-python-indent-rigidly)
 
 
 (provide 'xorns-sketch)

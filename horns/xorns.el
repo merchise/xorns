@@ -29,13 +29,6 @@
 ;;     (package-initialize)
 ;;     (require 'xorns)
 ;;
-;; You may configure how much does xorns mess with your Emacs configuration.
-;; By requiring `xorns' (or any `xorns' package) enclosed with a bind to
-;; `xorns-config-level' to upper levels::
-;;
-;;     (let ((xorns-config-level 'maximum))
-;;       (require 'xorns))
-;;
 ;; There are some extra features that are not included in basic
 ;; `xorns'; if required, configure in the selected initialization
 ;; file::
@@ -65,9 +58,7 @@
       (load init-file 'noerror))))
 
 
-(when (xorns-configure-p 'basic)
-  (xorns-load-user-file "before-init-${USER}.el"))
-
+(xorns-load-user-file "before-init-${USER}.el")
 
 
 ;; Basic initialization
@@ -126,10 +117,8 @@ is given."
           (message "Using new `custom-file': %s" file-name))))))
 
 
-(when (xorns-configure-p 'basic)
-  (xorns-manage-user-custom-files)
-  (xorns-load-user-file "after-init-${USER}.el"))
-
+(xorns-manage-user-custom-files)
+(xorns-load-user-file "after-init-${USER}.el")
 
 
 (provide 'xorns)

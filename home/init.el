@@ -22,11 +22,10 @@
 (package-initialize)
 (require 'xorns-packages)
 
-(let ((xorns-config-level 'maximum))    ;; 'basic, 'general
-  ;; Start the server and initialize all common Merchise settings.
-  (require 'xorns)
-  ;; Require extra features
-  (require 'xorns-extra))
+;; Start the server and initialize all common Merchise settings.
+(require 'xorns)
+;; Require extra features
+(require 'xorns-extra)
 
 
 (when (null (functionp 'agda-mode))

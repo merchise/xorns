@@ -50,8 +50,8 @@
   (add-hook 'ido-setup-hook 'ido-define-keys))
 
 
-(when (xorns-configure-p 'experimental)
-  (-customize-vertical-ido))
+;; TODO: experimental
+;;   (-customize-vertical-ido)
 
 
 (provide 'xorns-ido)

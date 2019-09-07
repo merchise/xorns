@@ -15,7 +15,7 @@
 (package-initialize)
 
 (defconst >>=standalone-startup
-  (if (not (package-installed-p 'xorns))
+  (if (not (package-installed-p 'xorns))    ; TODO: Try (featurep 'xorns)
     (concat
       (if load-file-name
 	(file-name-directory load-file-name)
