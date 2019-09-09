@@ -23,27 +23,12 @@
 ;; Remove "--group-directories-first" in Mac
 ;; '(dired-listing-switches "-l --group-directories-first -h")
 
-(setq
-  ; >>=
-  user-mail-address (substitute-env-vars "${USER}@merchise.org")
-  ; >>=
-  split-width-threshold 120)
-
 ;; TODO: Check this very well all these
 (condition-case err
   (progn
     (require 'electric nil 'noerror)
     (electric-pair-mode t))
   (error (message "error@prog-mode-hook: %s" err)))
-
-
-(set-variable 'dired-isearch-filenames t)
-(set-variable 'dired-isearch-filenames-regexp t)
-(set-variable 'doc-view-continuous t)
-(set-variable 'inferior-lisp-program "clisp")
-(set-variable 'list-command-history-max 128)
-(set-variable 'term-input-autoexpand t)
-(set-variable 'wdired-allow-to-change-permissions t)
 
 
 ;; (custom-set-faces '(default ((t (:height 136)))))
