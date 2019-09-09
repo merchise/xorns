@@ -37,9 +37,6 @@
   (error (message "error@prog-mode-hook: %s" err)))
 
 
-;; TODO: Check all these
-(set-variable 'clean-buffer-list-delay-general 1)
-(set-variable 'clean-buffer-list-delay-special 900)
 (set-variable 'dired-isearch-filenames t)
 (set-variable 'dired-isearch-filenames-regexp t)
 (set-variable 'doc-view-continuous t)
