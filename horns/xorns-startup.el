@@ -49,6 +49,7 @@ If nil, uses whatever the Emacs default is, otherwise a directory path like
   (require 'xorns-preface)
   (require 'use-package)
   (require 'xorns-config)
+  (require 'xorns-migration)
   (>>=-start-maximized)
   (->? >>=custom/user-init)
   ; TODO: load-default-theme

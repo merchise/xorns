@@ -49,16 +49,16 @@
 ;; TODO: (defvar xorns-version 'undefined
 ;; TODO: (defun xorns-version (&optional print-dest)
 
+;;; TODO: Remove
+;; (defun xorns-load-user-file (name)
+;;   "Load user initialization file NAME."
+;;   (let ((init-file
+;;           (xorns-locate-emacs-file name nil)))
+;;     (if init-file
+;;       (load init-file 'noerror))))
 
-(defun xorns-load-user-file (name)
-  "Load user initialization file NAME."
-  (let ((init-file
-          (xorns-locate-emacs-file name nil)))
-    (if init-file
-      (load init-file 'noerror))))
 
-
-(xorns-load-user-file "before-init-${USER}.el")
+;; TODO: (xorns-load-user-file "before-init-${USER}.el")
 
 
 ;; Basic initialization
@@ -70,6 +70,7 @@
 (use-package xorns-simple)
 (use-package xorns-term)
 (use-package xorns-fci)
+(use-package xorns-migration)
 (use-package xorns-prog)        ;; This requires `xorns-text'
 (use-package xorns-git)
 (use-package xorns-project)
@@ -118,7 +119,8 @@ is given."
 
 
 (xorns-manage-user-custom-files)
-(xorns-load-user-file "after-init-${USER}.el")
+
+;; TODO: (xorns-load-user-file "after-init-${USER}.el")
 
 
 (provide 'xorns)
