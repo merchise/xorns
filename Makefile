@@ -4,8 +4,8 @@ include default.mk
 .PHONY: all help lisp docs info \
 	install install-lisp install-docs install-info local-install \
 	clean clean-lisp clean-info clean-archives \
-	release dist prepare-dist $(PKG)-$(VERSION).tar.gz
-
+	release dist prepare-dist $(PKG)-$(VERSION).tar.gz \
+	before-init after-init init-el
 
 all: lisp docs
 
@@ -56,17 +56,13 @@ info:
 
 before-init:
 	$(call prompt_delfile,$(USER_EMACS_DIR)before-init-${USER}.el)
-	@printf ""
 
 after-init:
-	$(call prompt_delfile,"$(USER_EMACS_DIR)after-init-${USER}.el")
-	@printf ""
+	$(call prompt_delfile,$(USER_EMACS_DIR)after-init-${USER}.el)
 
 init-el:
-	$(info "init.el: ---------")
-	@printf "\n"
-
-check-init-files: before-init after-init init-el
+	@printf "Installing 'init.el' file\n"
+	$(shell cp -i $(TOP)/init.el $(USER_EMACS_DIR))
 
 install: install-lisp install-info
 
@@ -76,7 +72,7 @@ install-lisp: lisp
 install-info: info
 	@$(MAKE) -C docs install
 
-local-install: check-init-files
+local-install: init-el before-init after-init
 	@$(MAKE) -C horns local-install
 
 
