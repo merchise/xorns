@@ -2,7 +2,7 @@
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 ;; URL: https://github.com/merchise/xorns
-;; Version: 0.5.2
+;; Version: 0.5.3
 
 ;; This file is NOT part of GNU Emacs but I'd like it. ;)
 
