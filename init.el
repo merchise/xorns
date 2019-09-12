@@ -29,7 +29,16 @@
   (add-to-list 'load-path >>=standalone-startup))
 
 (require 'xorns-packages)
-(require 'xorns-init)
+
+(if >>=standalone-startup
+  (require 'xorns-init)
+  ; else
+  (require 'xorns)
+  (require 'xorns-extra)
+  ; # TODO: Check next
+  (autoload 'po-mode "po-mode"
+    "Major mode for translators to edit PO files" t)
+  )
 
 (provide 'init)
 ;;; init.el ends here
