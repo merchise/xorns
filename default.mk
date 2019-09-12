@@ -25,6 +25,8 @@ AWK          ?= $(shell command -v gawk || printf awk)
 
 EMACS_VERSION = 26.1
 
+USER_EMACS_DIR ?= $(shell $(BATCH) --eval "(princ user-emacs-directory)")
+
 CHECK_EMACS := $(shell $(BATCH) --eval \
   "(and (version< emacs-version \"$(EMACS_VERSION)\") (princ \"true\"))")
 ifeq "$(CHECK_EMACS)" "true"
@@ -36,6 +38,20 @@ nversion = $(shell echo "$(subst v,,$(1))" | $(AWK) -F. '{ printf("%d.%d.%d\n",$
 
 # function to produce comparable versions
 cversion = $(shell echo "$(1)" | $(AWK) -F. '{ printf("%03d%03d%03d\n",$$1,$$2,$$3); }';)
+
+
+# functions to delete a file if exists with [y/N] prompt
+
+answer_yn = $(findstring y,$(subst Y,y,\
+  $(shell bash -c 'read -p "$(1) [y/N]: " var; echo $$var')))
+
+prompt_delfile = $(and \
+  $(wildcard $(1)),\
+  $(call answer_yn,File \"$(1)\" is going to be deleted),\
+  $(shell rm $(1)))
+
+
+# constants
 
 GIT_TAG := $(shell git describe --tags --abbrev=0 2> /dev/null)
 LAST_RELEASE := $(call nversion,$(or $(GIT_TAG),0.1))

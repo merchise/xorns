@@ -122,7 +122,7 @@
 
 (use-package company-lsp
   :commands company-lsp
-)
+  )
 
 
 (use-package yasnippet

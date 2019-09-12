@@ -54,6 +54,20 @@ info:
 
 ## Install
 
+before-init:
+	$(call prompt_delfile,$(USER_EMACS_DIR)before-init-${USER}.el)
+	@printf ""
+
+after-init:
+	$(call prompt_delfile,"$(USER_EMACS_DIR)after-init-${USER}.el")
+	@printf ""
+
+init-el:
+	$(info "init.el: ---------")
+	@printf "\n"
+
+check-init-files: before-init after-init init-el
+
 install: install-lisp install-info
 
 install-lisp: lisp
@@ -62,7 +76,7 @@ install-lisp: lisp
 install-info: info
 	@$(MAKE) -C docs install
 
-local-install:
+local-install: check-init-files
 	@$(MAKE) -C horns local-install
 
 
