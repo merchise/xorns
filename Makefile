@@ -62,7 +62,9 @@ after-init:
 
 init-el:
 	@printf "Installing 'init.el' file\n"
-	$(shell cp -i $(TOP)/init.el $(USER_EMACS_DIR))
+	$(shell if [ -L $(USER_EMACS_DIR)init.el ]; then \
+	  rm $(USER_EMACS_DIR)init.el; fi)
+	 $(shell cp -i $(TOP)/init.el $(USER_EMACS_DIR))
 
 install: install-lisp install-info
 
