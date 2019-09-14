@@ -111,7 +111,7 @@ $(PKG)-$(VERSION).tar.gz:
 	@$(RMDIR) $(distname)
 
 
-# Release management
+## Release management
 
 check-not-melpa::
 ifdef MELPA
@@ -151,3 +151,8 @@ define SET_PACKAGE_VERSION
   (insert pkg-version))
 endef
 export SET_PACKAGE_VERSION
+
+## tests debug
+
+tests-debug:
+	@printf "Wired: $(USER_EMACS_DIR) -- Calculated: $(_USER_EMACS_DIR)\n"

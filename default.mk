@@ -25,7 +25,12 @@ AWK          ?= $(shell command -v gawk || printf awk)
 
 EMACS_VERSION = 26.1
 
-USER_EMACS_DIR ?= $(shell $(BATCH) --eval "(princ user-emacs-directory)")
+# delete one of the next two definitions
+
+_USER_EMACS_DIR ?= $(shell $(BATCH) --eval "(princ user-emacs-directory)")
+
+USER_EMACS_DIR ?= $(HOME)/.emacs.d/
+
 
 CHECK_EMACS := $(shell $(BATCH) --eval \
   "(and (version< emacs-version \"$(EMACS_VERSION)\") (princ \"true\"))")
@@ -109,14 +114,14 @@ endif
 
 ifndef LOAD_PATH
 
-ELPA_DIR ?= $(HOME)/.emacs.d/elpa
-EMACS_GITHUB_DIR ?= $(HOME)/softlib/emacs
+ELPA_DIR ?= $(USER_EMACS_DIR)elpa/
+EMACS_GITHUB_DIR ?= $(HOME)/softlib/emacs/
 
 # final '/' listing ELPA_DIR is to avoid '<package>-<version>.signed' files
 define dependency_dir
 $(or
-  $(shell ls -d $(ELPA_DIR)/$(1)-[0-9]*/ 2> /dev/null | sort | tail -n 1),
-  $(wildcard $(EMACS_GITHUB_DIR)/$(1)))
+  $(shell ls -d $(ELPA_DIR)$(1)-[0-9]*/ 2> /dev/null | sort | tail -n 1),
+  $(wildcard $(EMACS_GITHUB_DIR)$(1)))
 endef
 
 LOAD_PATH = -L $(TOP)/horns $(foreach pkg,$(DEPENDENCIES),\
