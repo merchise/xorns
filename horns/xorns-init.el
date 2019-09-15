@@ -10,6 +10,7 @@
   (defconst emacs-start-time (current-time)
     "Define this in 'init.el' file first statement."))
 
+(require 'xorns-packages)
 
 ; Check required minimum Emacs version
 
@@ -26,16 +27,25 @@
 (let ((gc-cons-threshold 134217728)  ; (* 128 1024 1024)
       (gc-cons-percentage 0.6)
       (file-name-handler-alist nil))
-  ; General initialization
-  (require 'xorns-startup)
-  (>>=xorns/init)
-  (when >>=|enable-server
-    (require 'server)
-    (if >>=|server-socket-dir
-        (setq server-socket-dir >>=|server-socket-dir))
-      (unless (server-running-p)
-        (message ">>= starting server...")
-        (server-start)))
+  (if (bound-and-true-p >>=standalone-startup)
+    (progn
+      (require 'xorns-startup)
+      (>>=xorns/init)
+      (when >>=|enable-server
+	(require 'server)
+	(if >>=|server-socket-dir
+	  (setq server-socket-dir >>=|server-socket-dir))
+	(unless (server-running-p)
+	  (message ">>= starting server...")
+	  (server-start)))
+      )
+    ; else
+    (require 'xorns)
+    (require 'xorns-extra)
+    ; # TODO: Check next
+    (autoload 'po-mode "po-mode"
+      "Major mode for translators to edit PO files" t)
+    )
   (garbage-collect))
 
 

@@ -42,6 +42,7 @@ elpa/
 /session.*
 tramp
 /network-security.data
+/ido.last
 /.backups/
 .recentf
 .recentf~

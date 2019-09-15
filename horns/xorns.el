@@ -64,6 +64,17 @@
 ;; Basic initialization
 (require 'use-package)
 
+; <<=
+(use-package xorns+base
+  :config
+  (>>=-base/init-files))
+
+; <<=
+(use-package xorns-ui
+  :hook
+  (after-init . spaceline-xorns-theme))
+
+
 (use-package xorns-start)
 (use-package xorns-buffers)
 (use-package xorns-dired)
@@ -76,16 +87,6 @@
 (use-package xorns-project)
 (use-package xorns-org)
 (use-package xorns-xml)
-
-; <<=
-(use-package xorns+base
-  :config
-  (>>=-base/init-files))
-
-; <<=
-(use-package xorns-ui
-  :hook
-  (after-init . spaceline-xorns-theme))
 
 
 
