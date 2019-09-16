@@ -18,18 +18,16 @@
 (require 'xorns-fonts)
 
 
+
+;; Configuration Variables
+
 (defvar >>=xorns-initialized nil
   "Whether or not Xorns has finished the startup process.
 This is set to true when executing `emacs-startup-hook'.")
 
 
-
-;; Configuration Variables
-
-(defvar >>=|mode-line-unicode-symbols t
-  "If non nil unicode symbols are displayed in the mode-line.
-If you use Emacs as a daemon and wants unicode characters only in GUI set
-the value to quoted `display-graphic-p'.")
+(defvar >>=|enable-server t
+  "If non-nil, start an Emacs server if one is not already running.")
 
 
 
@@ -52,7 +50,13 @@ the value to quoted `display-graphic-p'.")
   (require 'xorns-units)
   (->? >>=units/configuration)
   (>>=units/load)
-  (>>=setup-emacs-startup-hook))
+  (>>=setup-emacs-startup-hook)
+  (when >>=|enable-server
+    (require 'server)
+    (unless (server-running-p)
+      (message ">>= starting server...")
+      (server-start)))
+  )
 
 
 (defun >>=-start-maximized ()
