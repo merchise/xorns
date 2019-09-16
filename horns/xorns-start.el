@@ -51,9 +51,6 @@
 
 
 ;; Usability Interface Configuration
-(menu-bar-mode 0)
-(tool-bar-mode 0)
-(scroll-bar-mode 0)
 (when (functionp 'mouse-wheel-mode)
   (mouse-wheel-mode t))    ; Mouse wheel support
 (fset 'yes-or-no-p 'y-or-n-p)   ; Replace `yes|not' commands for simpler `[yn]'
@@ -83,9 +80,6 @@
   ;; Maximum decoration level for fontification
   ;; (different font for each structure).
   '(font-lock-maximum-decoration t)
-  ;; Configure coding for terminal
-  '(locale-coding-system 'utf-8)
-  '(set-terminal-coding-system 'utf-8)
   ;; Cutting and pasting uses the clipboard
   '(x-select-enable-clipboard t)
   ;; Key to start auto-complete

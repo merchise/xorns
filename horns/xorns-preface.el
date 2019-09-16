@@ -14,23 +14,25 @@
 ;; - `xorns-hide-mode-line' is an Emacs mode for hiding the mode-line.  This
 ;;   is a preface special feature to hide the mode-line during initialization
 ;;   process to improve load performance by smoothing UI.  This minor mode
-;;   also helps switching mode-line on and off.  Taken from:
-;;   http://bzg.fr/emacs-hide-mode-line.html
+;;   also helps switching mode-line on and off.
 ;;
 ;; - `>>=ui/remove-useless-bars' function to remove tool bar, menu bar, and
 ;;   scroll bars.
 ;;
-;; - Set `prefer-coding-system' to utf-8.
+;; - Set `prefer-coding-system' and `locale-coding-system' to utf-8.
 
 ;;; Code:
 
 (with-eval-after-load 'xorns-preface
   (hidden-mode-line-mode)
   (>>=ui/remove-useless-bars)
-  (prefer-coding-system 'utf-8))
+  (prefer-coding-system 'utf-8)
+  (setq locale-coding-system 'utf-8)
+  )
 
 
 
+;; Taken from: http://bzg.fr/emacs-hide-mode-line.html
 
 (defvar-local hidden-mode-line-mode nil)
 (defvar-local hide-mode-line nil)
@@ -64,15 +66,14 @@
 
 
 
+;; Remove tool bar, menu bar, and scroll bars
 
 (defun >>=ui/remove-useless-bars ()
-  "Remove tool bar, menu bar, and scroll bars."
-  (mapcar
-    (lambda (name)
-      (let ((mode (intern (format "%s-mode" name))))
-	(when (and (fboundp mode) (symbol-value mode))
-	  (funcall mode -1))))
-    '(tool-bar menu-bar scroll-bar tooltip)))
+  (tool-bar-mode 0)
+  (menu-bar-mode 0)
+  (scroll-bar-mode 0)
+  (tooltip-mode 0)
+  )
 
 
 (provide 'xorns-preface)

@@ -10,6 +10,7 @@
   (defconst emacs-start-time (current-time)
     "Define this in 'init.el' file first statement."))
 
+(require 'xorns-preface)
 (require 'xorns-packages)
 
 ; Check required minimum Emacs version
@@ -18,6 +19,11 @@
   (if (not (version<= emacs-min-version emacs-version))
     (error "This xorns version requires Emacs version >='%s'"
       emacs-min-version)))
+
+
+(defvar >>=|enable-server t
+  "If non-nil, start an Emacs server if one is not already running.")
+
 
 ; TODO: templates folder: package-unpack, package-user-dir
 ; (pkg-desc (cadr (assq pkg package-alist)))
@@ -33,8 +39,6 @@
       (>>=xorns/init)
       (when >>=|enable-server
 	(require 'server)
-	(if >>=|server-socket-dir
-	  (setq server-socket-dir >>=|server-socket-dir))
 	(unless (server-running-p)
 	  (message ">>= starting server...")
 	  (server-start)))

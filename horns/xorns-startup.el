@@ -22,6 +22,7 @@
   "Whether or not Xorns has finished the startup process.
 This is set to true when executing `emacs-startup-hook'.")
 
+
 
 ;; Configuration Variables
 
@@ -31,22 +32,11 @@ If you use Emacs as a daemon and wants unicode characters only in GUI set
 the value to quoted `display-graphic-p'.")
 
 
-(defvar >>=|enable-server t
-  "If non-nil, start an Emacs server if one is not already running.")
-
-
-(defvar >>=|server-socket-dir nil
-  "Set the Emacs server socket location.
-If nil, uses whatever the Emacs default is, otherwise a directory path like
-'~/.emacs.d/server'.  Has no effect if `>>=|enable-server' is nil.")
-
-
 
 ;; Configuration functions
 
 (defun >>=xorns/init ()
   "General startup initialization."
-  (require 'xorns-preface)
   (require 'use-package)
   (require 'xorns-config)
   (require 'xorns-migration)
