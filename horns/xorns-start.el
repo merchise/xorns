@@ -33,6 +33,9 @@
 
 ;;; Code:
 
+(eval-when-compile
+  (require 'use-package))
+
 (require 'server)
 (require 'font-lock)
 (require 'scroll-bar)
@@ -89,13 +92,11 @@
 
 ;;; Other standard or packages initialization
 
-;; Set shift-(left, right, up, down) to move between windows
-
-(require 'windmove nil)
-(when (featurep 'windmove)
-  (windmove-default-keybindings 'ctrl)
-  (xorns-set-value 'windmove-wrap-around t))
-
+(use-package windmove
+  :custom
+  (windmove-wrap-around t)
+  :config
+  (windmove-default-keybindings 'ctrl))
 
 ;; Interactively do things with buffers and files
 (require 'ido)

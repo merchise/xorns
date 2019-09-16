@@ -28,7 +28,9 @@
 
 ; (require 'easy-mmode)
 
-(require 'use-package)
+(eval-when-compile
+  (require 'use-package))
+
 
 (setq-default frame-title-format
   '(multiple-frames "%b"

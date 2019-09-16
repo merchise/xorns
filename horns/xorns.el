@@ -62,7 +62,8 @@
 
 
 ;; Basic initialization
-(require 'use-package)
+(eval-when-compile
+  (require 'use-package))
 
 ; <<=
 (use-package xorns+base
