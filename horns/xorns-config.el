@@ -34,6 +34,7 @@ used, it is prefixed with a dot ('.')."
   (let*
     ((xdg-config-home
        ; default directory for user configurations in POSIX systems
+       ; https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
        (find-dir (getenv "XDG_CONFIG_HOME") (dir-join "~" ".config")))
      (config-home (or xdg-config-home "~"))
      (name (if xdg-config-home "xorns" ".xorns"))

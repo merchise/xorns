@@ -18,6 +18,7 @@
   (require 'use-package))
 (require 'xorns-tools)
 
+
 
 ;; Automatic parenthesis pairing
 
@@ -25,6 +26,10 @@
   :demand t
   :config
   (electric-pair-mode t))    ; TODO: Check `custom-set-variables' for user
+
+
+;; Get back font anti-aliasing
+(push '(font-backend xft x) default-frame-alist)
 
 
 (provide 'xorns-migration)

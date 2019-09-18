@@ -59,14 +59,6 @@
 (fset 'yes-or-no-p 'y-or-n-p)   ; Replace `yes|not' commands for simpler `[yn]'
 
 
-;; Maximize each new frame including the initial one
-(push '(fullscreen . maximized) default-frame-alist)
-
-
-;; Get back font anti-aliasing
-(push '(font-backend xft x) default-frame-alist)
-
-
 ;; Show current directory in title bar
 ;; >>=
 (xorns-set-value 'frame-title-format

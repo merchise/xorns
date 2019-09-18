@@ -198,6 +198,18 @@ should be enough to get you started.
 
 To be continued ...
 
+* Issues
+
+** Error starting initial frame maximized in Manjaro Linux i3 desktop
+
+Report date: 2019-09-18
+
+When I initialize Emacs in the same workspace that it has automatically
+assigned, an unwanted border appears on the right of the screen.  To correct
+that issue, I must execute full-screen mode twice.  If it is executed from a
+different workspace, this problem does not occur.
+
+
 * _ :ignore:
 
 # Local Variables:

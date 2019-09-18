@@ -1,4 +1,4 @@
-;;; xorns-ui.el --- Xorns UI Library
+;;; xorns-ui.el --- Control UI appearance
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
@@ -23,6 +23,11 @@
 ;;   - python-env: `pyvenv', `pyenv' or `conda'
 ;;   - python-pyvenv: `pyvenv'
 ;;   - python-pyenv: `pyenv'
+;;
+;; See: seagle0128/lisp/init-ui.el, pierre-lecocq/modules/feat-theme.el,
+;; doom-emacs/core/core-ui.el, doom-emacs/early-init.el,
+;; purcell/lisp/init-gui-frames.el, raxod502/emacs/radian.el,
+;; thierryvolpiatto/init.el
 
 ;;; Code:
 
@@ -116,6 +121,43 @@ See `frame-title-format' variable."
   ;; TODO: Check (display-graphic-p)
   (when (and >>=|show-title-in-header-line frame-title-format)
     (setq header-line-format frame-title-format)
+    ))
+
+
+
+
+(use-package frame
+  :init
+  (progn
+    ; Kill `suspend-frame'
+    (global-unset-key (kbd "C-z"))
+    (global-unset-key (kbd "C-x C-z")))
+  :config
+  (if window-system
+    (progn
+      ; Start Emacs maximized
+      (set-frame-parameter nil 'undecorated t)
+      (add-to-list 'default-frame-alist '(undecorated . t))
+      (unless (frame-parameter nil 'fullscreen)
+	(toggle-frame-maximized))
+      ; TODO: Check if both are needed
+      (let ((no-border '(internal-border-width . 0))
+	    (full-screen '(fullscreen . maximized)))
+	(add-to-list 'default-frame-alist no-border)
+	(add-to-list 'initial-frame-alist no-border)
+	(add-to-list 'default-frame-alist full-screen)
+	(add-to-list 'initial-frame-alist full-screen)))
+    ; else
+    (progn
+      ; Enable mouse support when running in a console
+      (require 'mouse)
+      (xterm-mouse-mode t)
+      (defun track-mouse (e))
+      (setq mouse-sel-mode t)
+      (global-set-key [mouse-4]
+	(lambda () (interactive) (scroll-down 1)))
+      (global-set-key [mouse-5]
+	(lambda () (interactive) (scroll-up 1))))
     ))
 
 

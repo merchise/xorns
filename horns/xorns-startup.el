@@ -38,7 +38,6 @@ This is set to true when executing `emacs-startup-hook'.")
   (require 'use-package)
   (require 'xorns-config)
   (require 'xorns-migration)
-  (>>=-start-maximized)
   (->? >>=custom/user-init)
   ; TODO: load-default-theme
   (use-package xorns-ui
@@ -57,15 +56,6 @@ This is set to true when executing `emacs-startup-hook'.")
       (message ">>= starting server...")
       (server-start)))
   )
-
-
-(defun >>=-start-maximized ()
-  "Start Emacs maximized."
-  (set-frame-parameter nil 'undecorated t)
-  (add-to-list 'default-frame-alist '(undecorated . t))
-  (unless (frame-parameter nil 'fullscreen)
-    (toggle-frame-maximized))
-  (add-to-list 'default-frame-alist '(fullscreen . maximized)))
 
 
 (defun >>=setup-emacs-startup-hook ()
