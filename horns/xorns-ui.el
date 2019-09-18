@@ -127,11 +127,6 @@ See `frame-title-format' variable."
 
 
 (use-package frame
-  :init
-  (progn
-    ; Kill `suspend-frame'
-    (global-unset-key (kbd "C-z"))
-    (global-unset-key (kbd "C-x C-z")))
   :config
   (if window-system
     (progn

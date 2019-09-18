@@ -67,6 +67,7 @@ to configure for yourself: see `save-buffer' function for more information.")
   (>>=-base/init-startup)
   (>>=-base/init-window)
   (>>=-base/init-files)
+  (>>=-base/init-frame)
   (>>=-base/init-autorevert)
   (>>=-base/init-recentf)
   (>>=-base/init-gcmh))
@@ -127,6 +128,16 @@ to configure for yourself: see `save-buffer' function for more information.")
 	version-control t)
       ; else
       (setq make-backup-files nil))))
+
+
+(defun >>=-base/init-frame ()
+  "Kill `suspend-frame'."
+  (use-package frame
+    :when window-system
+    :config
+    (progn
+      (global-unset-key (kbd "C-z"))
+      (global-unset-key (kbd "C-x C-z")))))
 
 
 (defun >>=-base/init-autorevert ()
