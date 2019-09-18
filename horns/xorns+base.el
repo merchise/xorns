@@ -89,7 +89,21 @@ to configure for yourself: see `save-buffer' function for more information.")
       (if (eq >>=|user-mail-address-template t)
 	(setq >>=|user-mail-address-template "${USER}@merchise.org"))
       (setq user-mail-address
-	(substitute-env-vars >>=|user-mail-address-template)))))
+	(substitute-env-vars >>=|user-mail-address-template)))
+    :config
+    (progn
+      ; Start Emacs maximized
+      (set-frame-parameter nil 'undecorated t)
+      (add-to-list 'default-frame-alist '(undecorated . t))
+      (unless (frame-parameter nil 'fullscreen)
+	(toggle-frame-maximized))
+      ; TODO: Check if both are needed
+      (let ((no-border '(internal-border-width . 0))
+	    (full-screen '(fullscreen . maximized)))
+	(add-to-list 'default-frame-alist no-border)
+	(add-to-list 'initial-frame-alist no-border)
+	(add-to-list 'default-frame-alist full-screen)
+	(add-to-list 'initial-frame-alist full-screen)))))
 
 
 (defun >>=-base/init-window ()
