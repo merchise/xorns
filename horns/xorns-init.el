@@ -13,6 +13,7 @@
 
 (require 'xorns-preface)
 (require 'xorns-packages)
+(require 'use-package)
 
 
 (let ((emacs-min-version "26.1"))
@@ -26,8 +27,9 @@
       (gc-cons-percentage 0.6)
       (file-name-handler-alist nil))
   (if (bound-and-true-p >>=standalone-startup)
-    (progn
-      (require 'xorns-startup)
+    (use-package xorns-startup
+      :commands >>=xorns/init
+      :init
       (>>=xorns/init))
     ; else
     (require 'xorns)

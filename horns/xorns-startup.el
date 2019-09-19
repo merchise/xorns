@@ -14,6 +14,7 @@
 
 ;;; Code:
 
+(require 'use-package)
 (require 'xorns-tools)
 (require 'xorns-fonts)
 
@@ -35,7 +36,6 @@ This is set to true when executing `emacs-startup-hook'.")
 
 (defun >>=xorns/init ()
   "General startup initialization."
-  (require 'use-package)
   (require 'xorns-config)
   (require 'xorns-migration)
   (->? >>=custom/user-init)
@@ -46,9 +46,10 @@ This is set to true when executing `emacs-startup-hook'.")
     :config
     (>>=frame-title-init))
   (>>=configure-font)
-  (require 'xorns-units)
   (->? >>=units/configuration)
-  (>>=units/load)
+  (use-package xorns+base
+    :config
+    (>>=+base/init))
   (>>=setup-emacs-startup-hook)
   (when >>=|enable-server
     (require 'server)
@@ -65,7 +66,6 @@ This is set to true when executing `emacs-startup-hook'.")
    (defun >>=startup-hook ()
      (->? >>=user-config)
      ; TODO: initialize-custom-file-sync
-     (>>=configure-font)
      (setq >>=xorns-initialized
        (float-time (time-subtract nil emacs-start-time)))
      (message ">>= xorns initialized in %s seconds." >>=xorns-initialized))))
