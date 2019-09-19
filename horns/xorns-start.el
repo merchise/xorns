@@ -43,8 +43,14 @@
 (require 'auto-complete nil 'noerror)
 (require 'xorns-utils nil 'noerror)
 
+
+
+;; Fix dead characters
 ;; See https://wiki.archlinux.org/index.php/Emacs#Dead-accent_keys_problem:_.27.3Cdead-acute.3E_is_undefined.27
-(require 'iso-transl)
+(use-package iso-transl
+  :demand t
+  :config
+  (define-key key-translation-map (kbd "M-[") 'iso-transl-ctl-x-8-map))
 
 
 ;; Allow this Emacs process to be a server for client processes
