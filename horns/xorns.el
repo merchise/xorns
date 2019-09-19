@@ -62,16 +62,46 @@
 
 
 ;; Basic initialization
-; <<=
-(use-package xorns+base
-  :config
-  (>>=-base/init-files))
+(require 'use-package)
+(require 'xorns-tools)
+(require 'xorns-fonts)
 
-; <<=
-(use-package xorns-ui
-  :hook
-  (after-init . spaceline-xorns-theme))
 
+(defvar >>=xorns-initialized nil
+  "Whether or not Xorns has finished the startup process.
+This is set to true when executing `emacs-startup-hook'.")
+
+
+(defvar >>=|enable-server t
+  "If non-nil, start an Emacs server if one is not already running.")
+
+
+(defun >>=xorns/init ()
+  "General startup initialization."
+  ; (require 'xorns-config)
+  (require 'xorns-migration)
+  ; (->? >>=custom/user-init)
+  ; TODO: load-default-theme
+  (use-package xorns-ui
+    :hook
+    (after-init . spaceline-xorns-theme)
+    :config
+    (>>=frame-title-init))
+  (>>=configure-font)
+  ; (->? >>=units/configuration)
+  (use-package xorns+base
+    :config
+    (>>=+base/init))
+  ; (>>=setup-emacs-startup-hook)
+  (when >>=|enable-server
+    (require 'server)
+    (unless (server-running-p)
+      (message ">>= starting server...")
+      (server-start)))
+  )
+
+
+(>>=xorns/init)
 
 (use-package xorns-start)
 (use-package xorns-buffers)
@@ -79,7 +109,7 @@
 (use-package xorns-simple)
 (use-package xorns-term)
 (use-package xorns-fci)
-(use-package xorns-migration)
+; (use-package xorns-migration)
 (use-package xorns-prog)        ;; This requires `xorns-text'
 (use-package xorns-git)
 (use-package xorns-project)

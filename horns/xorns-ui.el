@@ -36,6 +36,9 @@
 (require 'use-package)
 (require 'xorns-packages)
 
+(>>=ensure-packages 'minions 'spaceline)
+
+(require 'spaceline)
 
 (setq-default frame-title-format
   '(multiple-frames "%b"
@@ -48,7 +51,6 @@
 
 
 (use-package minions
-  :ensure t
   :demand t
   :config
   (unless minions-mode
@@ -56,53 +58,51 @@
 
 
 (use-package spaceline-config
-  :ensure spaceline
   :config
-  (require 'spaceline)
-  (setq spaceline-highlight-face-func 'spaceline-highlight-face-modified)
+  (progn
+    (setq spaceline-highlight-face-func 'spaceline-highlight-face-modified)
 
-  (spaceline-define-segment narrow
-    "Show when buffer is narrowed."
-    (when (buffer-narrowed-p)
-      "Narrowed"))
+    (spaceline-define-segment narrow
+      "Show when buffer is narrowed."
+      (when (buffer-narrowed-p)
+	"Narrowed"))
 
-  (spaceline-define-segment minions
-    "A minions menu for minor modes."
-    (if (bound-and-true-p minions-mode)
-      (format-mode-line minions-mode-line-modes)
-      ; else
-      (spaceline-minor-modes-default)))
-  )
+    (spaceline-define-segment minions
+      "A minions menu for minor modes."
+      (if (bound-and-true-p minions-mode)
+	(format-mode-line minions-mode-line-modes)
+	; else
+	(spaceline-minor-modes-default)))
 
-(defun spaceline-xorns-theme ()
-  "Install a variation of `spaceline-emacs-theme'."
-  (spaceline-install
-    `((((persp-name :fallback workspace-number)
-	 window-number) :separator "|")
-      ((buffer-modified) :face highlight-face)
-      ((buffer-id which-function)
-	:separator " @ " :face highlight-face :tight-left t)
-      remote-host
-      projectile-root
-      ((buffer-size) :separator " | " :when active)
-      (version-control :when active))
-    `(selection-info
-      ((process minions) :when active)
-      ((,(if nil 'buffer-encoding 'buffer-encoding-abbrev)
-	macrodef
-	point-position
-	line-column)
-       :separator " | " :when active)
-       ((narrow buffer-position hud) :face highlight-face)
-      )
-    )
-
-  (setq-default spaceline-buffer-encoding-abbrev-p t)
-  (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main))))
+    (defun spaceline-xorns-theme ()
+      "Install a variation of `spaceline-emacs-theme'."
+      (message ">>=spaceline-install")
+      (spaceline-install
+	`((((persp-name :fallback workspace-number)
+	     window-number) :separator "|")
+	  ((buffer-modified) :face highlight-face)
+	  ((buffer-id which-function)
+	    :separator " @ " :face highlight-face :tight-left t)
+	  remote-host
+	  projectile-root
+	  ((buffer-size) :separator " | " :when active)
+	  (version-control :when active))
+	`(selection-info
+	  ((process minions) :when active)
+	  ((,(if nil 'buffer-encoding 'buffer-encoding-abbrev)
+	    macrodef
+	    point-position
+	    line-column)
+	   :separator " | " :when active)
+	   ((narrow buffer-position hud) :face highlight-face)))
+      (setq-default
+	spaceline-buffer-encoding-abbrev-p t
+	mode-line-format '("%e" (:eval (spaceline-ml-main))))))
   )
 
 
 (defun >>=ui/toggle-header-mode-line ()
+  "Toggle if the header line appears or not."
   (interactive)
   (if (not header-line-format)
       (setq header-line-format
@@ -121,38 +121,6 @@ See `frame-title-format' variable."
   ;; TODO: Check (display-graphic-p)
   (when (and >>=|show-title-in-header-line frame-title-format)
     (setq header-line-format frame-title-format)
-    ))
-
-
-
-
-(use-package frame
-  :config
-  (if window-system
-    (progn
-      ; Start Emacs maximized
-      (set-frame-parameter nil 'undecorated t)
-      (add-to-list 'default-frame-alist '(undecorated . t))
-      (unless (frame-parameter nil 'fullscreen)
-	(toggle-frame-maximized))
-      ; TODO: Check if both are needed
-      (let ((no-border '(internal-border-width . 0))
-	    (full-screen '(fullscreen . maximized)))
-	(add-to-list 'default-frame-alist no-border)
-	(add-to-list 'initial-frame-alist no-border)
-	(add-to-list 'default-frame-alist full-screen)
-	(add-to-list 'initial-frame-alist full-screen)))
-    ; else
-    (progn
-      ; Enable mouse support when running in a console
-      (require 'mouse)
-      (xterm-mouse-mode t)
-      (defun track-mouse (e))
-      (setq mouse-sel-mode t)
-      (global-set-key [mouse-4]
-	(lambda () (interactive) (scroll-down 1)))
-      (global-set-key [mouse-5]
-	(lambda () (interactive) (scroll-up 1))))
     ))
 
 

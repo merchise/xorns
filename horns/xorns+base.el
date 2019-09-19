@@ -69,6 +69,7 @@ to configure for yourself: see `save-buffer' function for more information.")
   (>>=-base/init-window)
   (>>=-base/init-files)
   (>>=-base/init-frame)
+  (>>=-base/init-xt-mouse)
   (>>=-base/init-autorevert)
   (>>=-base/init-recentf)
   (>>=-base/init-gcmh))
@@ -86,25 +87,12 @@ to configure for yourself: see `save-buffer' function for more information.")
     (initial-scratch-message nil)
     ; (inhibit-startup-echo-area-message (or (getenv "USER") ""))
     :init
+    ; TODO: Move this to another place
     (when >>=|user-mail-address-template
       (if (eq >>=|user-mail-address-template t)
 	(setq >>=|user-mail-address-template "${USER}@merchise.org"))
       (setq user-mail-address
-	(substitute-env-vars >>=|user-mail-address-template)))
-    :config
-    (progn
-      ; Start Emacs maximized
-      (set-frame-parameter nil 'undecorated t)
-      (add-to-list 'default-frame-alist '(undecorated . t))
-      (unless (frame-parameter nil 'fullscreen)
-	(toggle-frame-maximized))
-      ; TODO: Check if both are needed
-      (let ((no-border '(internal-border-width . 0))
-	    (full-screen '(fullscreen . maximized)))
-	(add-to-list 'default-frame-alist no-border)
-	(add-to-list 'initial-frame-alist no-border)
-	(add-to-list 'default-frame-alist full-screen)
-	(add-to-list 'initial-frame-alist full-screen)))))
+	(substitute-env-vars >>=|user-mail-address-template)))))
 
 
 (defun >>=-base/init-window ()
@@ -146,13 +134,38 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 
 (defun >>=-base/init-frame ()
-  "Kill `suspend-frame'."
+  "Kill `suspend-frame' and start Emacs maximized."
   (use-package frame
     :when window-system
     :config
     (progn
       (global-unset-key (kbd "C-z"))
-      (global-unset-key (kbd "C-x C-z")))))
+      (global-unset-key (kbd "C-x C-z"))
+      (set-frame-parameter nil 'undecorated t)
+      (add-to-list 'default-frame-alist '(undecorated . t))
+      (unless (frame-parameter nil 'fullscreen)
+	(toggle-frame-maximized))
+      ; TODO: Check if both are needed
+      (let ((no-border '(internal-border-width . 0))
+	    (full-screen '(fullscreen . maximized)))
+	(add-to-list 'default-frame-alist no-border)
+	(add-to-list 'initial-frame-alist no-border)
+	(add-to-list 'default-frame-alist full-screen)
+	(add-to-list 'initial-frame-alist full-screen)))))
+
+
+(defun >>=-base/init-xt-mouse ()
+  "Enable mouse support when running in a console."
+  (use-package xt-mouse
+    :unless window-system
+    :config
+    (progn
+      (require 'mouse)
+      (xterm-mouse-mode t)
+      (global-set-key [mouse-4]
+	(lambda () (interactive) (scroll-down 1)))
+      (global-set-key [mouse-5]
+	(lambda () (interactive) (scroll-up 1))))))
 
 
 (defun >>=-base/init-autorevert ()
