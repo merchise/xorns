@@ -23,9 +23,10 @@
 
 (require 'use-package)
 
+
 (use-package proof-general
- :defer t
- :ensure t)
+  :defer t)
+
 
 (provide 'xorns-functional)
 ;;; xorns-functional.el ends here

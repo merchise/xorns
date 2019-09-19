@@ -70,6 +70,7 @@ DEPENDENCIES = \
 	f:0.20:20190109\
 	s:1.12:20180406\
 	use-package:2.4:20190405\
+	use-package-chords:0.2:20181024.2322\
 	bind-key:2.4:20180513\
 	grizzl:0.1:20160818\
 	projectile:2.1:20190509\
@@ -94,8 +95,7 @@ DEPENDENCIES = \
 	deft:0.8:20181226\
 	realgud:1.4:20190504\
 	load-relative:1.3:20170526\
-	loc-changes:1.2:20160801\
-	proof-general:20190618:4.5
+	loc-changes:1.2:20160801
 
 
 pkg_name = $(firstword $(subst :, ,$(1)))
