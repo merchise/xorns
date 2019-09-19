@@ -14,8 +14,7 @@
 ;;; Code:
 
 
-(eval-when-compile
-  (require 'use-package))
+(require 'use-package)
 (require 'xorns-tools)
 
 

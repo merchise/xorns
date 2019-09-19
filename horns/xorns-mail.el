@@ -37,9 +37,6 @@
 
 ;; Requires, auto-loads and declarations
 
-(eval-when-compile
-  (require 'cl))
-
 (require 'sendmail)
 (require 'smtpmail)
 (require 'message)

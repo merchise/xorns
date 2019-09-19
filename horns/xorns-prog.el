@@ -42,10 +42,7 @@
 (require 'xorns-text nil 'noerror)
 (require 'xorns-utils)
 
-(eval-when-compile
-  ; needed to compile when `(package-initialize)' is not called in `init.el'
-  (require 'package)
-  (require 'use-package))
+(require 'use-package)
 
 
 (defgroup xorns-prog nil
@@ -100,17 +97,14 @@
 (use-package flycheck
   :functions global-flycheck-mode
   :custom (flycheck-idle-change-delay 10)
-  :init
-  (eval-when-compile
-    (declare-function global-flycheck-mode "flycheck.el"))
+  :config
   (global-flycheck-mode t))
 
 
 (use-package lsp-mode
   :commands lsp
   :init
-  (add-hook 'prog-mode-hook #'lsp)
-  )
+  (add-hook 'prog-mode-hook #'lsp))
 
 
 (use-package lsp-ui
@@ -133,11 +127,9 @@
 
 (use-package pipenv
   :hook (python-mode . pipenv-mode)
-  :init
-  (eval-when-compile
-    (declare-function pipenv-projectile-after-switch-extended "pipenv.el"))
-  :custom (pipenv-projectile-after-switch-function
-	    #'pipenv-projectile-after-switch-extended))
+  :custom
+  (pipenv-projectile-after-switch-function
+    #'pipenv-projectile-after-switch-extended))
 
 
 ;;; Hooks

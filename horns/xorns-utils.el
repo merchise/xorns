@@ -30,10 +30,6 @@
 ;;; Code:
 
 
-(eval-when-compile
-  (require 'cl))
-
-
 (defgroup xorns nil
   "Merchise extensions for Emacs."
   :prefix "xorns-"
@@ -103,13 +99,6 @@ This stores EXP (after evaluating it) as the saved value for SYMBOL."
 (defconst xorns-home-dir
   (purecopy (file-name-as-directory "~"))
   "Home directory.")
-
-
-(defconst xorns-directory-separator
-  (eval-when-compile
-    (purecopy
-      (char-to-string (elt (file-name-as-directory "x") 1))))
-  "Director separator.")
 
 
 (defun xorns-file-path-join (base &rest args)

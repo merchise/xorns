@@ -33,8 +33,7 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'use-package))
+(require 'use-package)
 
 (require 'server)
 (require 'font-lock)

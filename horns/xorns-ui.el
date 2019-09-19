@@ -33,8 +33,8 @@
 
 ; (require 'easy-mmode)
 
-(eval-when-compile
-  (require 'use-package))
+(require 'use-package)
+(require 'xorns-packages)
 
 
 (setq-default frame-title-format

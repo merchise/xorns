@@ -32,16 +32,12 @@
 ;;; Code:
 
 
-(eval-when-compile
-  ; needed to compile when `(package-initialize)' is not called in `init.el'
-  (require 'package)
-  (require 'use-package))
+(require 'use-package)
+
 
 (use-package fill-column-indicator
   :defer t
-
   :commands fci-mode
-
   :preface
 
   (defun xorns-fci-mode-on ()
@@ -57,10 +53,10 @@
   (fci-rule-width 1)
   (fci-rule-color "#CCCCCC")    ;; or "Legislatively"?
 
-  :hook ((text-mode . xorns-fci-mode-on)
-	 (prog-mode . xorns-fci-mode-on)
-	 (conf-mode . xorns-fci-mode-on))
-  )
+  :hook
+  ((text-mode . xorns-fci-mode-on)
+   (prog-mode . xorns-fci-mode-on)
+   (conf-mode . xorns-fci-mode-on)))
 
 
 

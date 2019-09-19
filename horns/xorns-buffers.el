@@ -44,9 +44,6 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'cl))
-
 (require 'ibuffer nil 'noerror)
 (require 'ibuf-ext nil 'noerror)
 (require 'grizzl nil 'noerror)

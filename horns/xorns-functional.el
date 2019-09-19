@@ -21,10 +21,7 @@
 
 ;;; Code:
 
-(eval-when-compile
-  ; needed to compile when `(package-initialize)' is not called in `init.el'
-  (require 'package)
-  (require 'use-package))
+(require 'use-package)
 
 (use-package proof-general
  :defer t
