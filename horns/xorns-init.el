@@ -6,9 +6,10 @@
 
 ;;; Code:
 
-(if (not (boundp 'emacs-start-time))
-  (defconst emacs-start-time (current-time)
-    "Define this in 'init.el' file first statement."))
+
+(defconst >>=start-time
+  (or (bound-and-true-p emacs-start-time) (current-time))
+  "Define this in 'init.el' file first statement.")
 
 
 (require 'xorns-preface)
@@ -42,7 +43,7 @@
 
 
 (defconst xorns-init-elapsed-time
-  (float-time (time-subtract nil emacs-start-time))
+  (float-time (time-subtract nil >>=start-time))
     "Time (seconds) spent in Emacs initialization process.")
 
 

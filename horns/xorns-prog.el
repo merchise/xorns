@@ -127,6 +127,7 @@
 
 (use-package pipenv
   :hook (python-mode . pipenv-mode)
+  :commands pipenv-projectile-after-switch-extended
   :custom
   (pipenv-projectile-after-switch-function
     #'pipenv-projectile-after-switch-extended))
