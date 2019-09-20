@@ -1,4 +1,4 @@
-;;; xorns-config.el --- Xorns Initialization Library
+;;; xorns-config.el --- Configure and load customization information file
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
@@ -8,72 +8,61 @@
 
 ;;; Commentary:
 
-;; New-age (>>=) module.  This library defines several utility functions used
-;; in Emacs main initialization process.  Including all definitions for user
-;; custom configuration.
+;; Load customization information file (`custom-file').  In `xorns', this file
+;; is stored in the standard directory for user-specific configurations
+;; (XDG_CONFIG_HOME), defaults to "~/.config/xorns".  If that folder does not
+;; exist on your system, "~/.xorns" is used.
+;;
+;; The first version of this file is copied from "templates/custom.el".  If
+;; this file is not found, `custom-file' variable maintains its default value.
 
 ;;; Code:
 
 (require 'xorns-tools)
 
 
-(with-eval-after-load 'xorns-config
-  (>>=user-config/load))
-
-
-
-
-(defun >>=user-config/load ()
-  "Load user private configuration init file if it exists.
-
-Looks first for the configurations system directory ($XDG_CONFIG_HOME,
-defaults to '~/.config/'), if it does not exist, use the user's $HOME
-directory ('~').  The file-name in the destination folder will be
-'xorns' (without the '.el' extension), but when the $HOME user directory is
-used, it is prefixed with a dot ('.')."
-  (let*
-    ((xdg-config-home
-       ; default directory for user configurations in POSIX systems
-       ; https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
-       (find-dir (getenv "XDG_CONFIG_HOME") (dir-join "~" ".config")))
-     (config-home (or xdg-config-home "~"))
-     (name (if xdg-config-home "xorns" ".xorns"))
-     (config-file (expand-file-name name config-home)))
-    (if (not (file-exists-p config-file))
-      (>>=-user-config//create-from-template config-file))
-    (if (not custom-file)
-      (progn
-	(setq custom-file config-file)
-	(load custom-file)
-	(->? >>=settings/init)
-	config-file)
-      ; else
-      (warn ">>= custom-file '%s' was already assigned" custom-file))))
-
-
-(defun >>=-user-config//create-from-template (target)
-  "Ensure user configuration file properly exists in TARGET location."
-  (let* ((dir (file-name-directory target))
-	 (pkg-dir (or (bound-and-true-p >>=standalone-startup)
-		    (>>=-package-directory)))
-	 (template-location (file-expand "custom.el" pkg-dir "templates")))
-    (if (file-exists-p template-location)
-      (progn
-	(if (not (file-directory-p dir))
-	  (make-directory dir 'parents))
-	(copy-file template-location target t)
-	(message ">>= %s has been installed." target))
-      ; else
-      (error ">>= no template file in '%s'" template-location))))
-
-
-(defun >>=-package-directory ()
-  "Return xorns package installation."
+(defun >>=-template-location ()
+  "Return base template location for `custom-file'."
   (require 'package)
-  (let* ((pkg-desc (cadr (assq 'xorns package-alist)))
-         (dirname (package-desc-full-name pkg-desc))
-         (pkg-dir (dir-join package-user-dir dirname)))
-    pkg-dir))
+  (file-expand
+    "custom.el"
+    (or
+      (bound-and-true-p >>=standalone-startup)
+      (dir-join
+	package-user-dir
+	(package-desc-full-name (cadr (assq 'xorns package-alist)))))
+    "templates"))
+
+
+(defun >>=-config-file-name ()
+  "Return target location for `custom-file'."
+  (let ((xdg (find-dir (getenv "XDG_CONFIG_HOME") (dir-join "~" ".config"))))
+    (expand-file-name
+      (if xdg "xorns" ".xorns")
+      (or xdg "~"))))
+
+
+(defun >>=-create-new (target)
+  "Create new `custom-file' in TARGET from template."
+  (let ((template (>>=-template-location)))
+    (if (file-exists-p template)
+      (progn
+	(copy-file template target t)
+	(message ">>= new `custom-file' '%s' has been created." target)
+	template)
+      ;; else
+      (warn ">>= template `custom-file' '%s' does not exist." template)
+      nil)))
+
+
+(if (not custom-file)
+  (let ((config-file (>>=-config-file-name)))
+    (when (or (file-exists-p config-file) (>>=-create-new config-file))
+      (setq custom-file config-file)
+      (load custom-file)
+      (->? >>=settings/init)))
+  ;; else
+  (warn ">>= `custom-file' already assigned with value '%s'." custom-file))
 
 
 (provide 'xorns-config)
