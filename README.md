@@ -50,5 +50,5 @@ Most Xorns structures are prefixed with ">>=".  There are other prefixes:
 
 Standard modules will use "-" separator in its names (for example
 "xorns-startup.el").  Building-block modules (units) will use "+" instead (for
-example "xorns+base.el", "").  Sub-levels are joined with "/" (for example
+example "xorns+python.el", "").  Sub-levels are joined with "/" (for example
 ">>=+base/extra-packages-to-configure").

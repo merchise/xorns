@@ -79,7 +79,6 @@ This is set to true when executing `emacs-startup-hook'.")
 (defun >>=xorns/init ()
   "General startup initialization."
   ; (require 'xorns-config)
-  (require 'xorns-migration)
   ; (->? >>=custom/user-init)
   ; TODO: load-default-theme
   (use-package xorns-ui
@@ -89,9 +88,7 @@ This is set to true when executing `emacs-startup-hook'.")
     (>>=frame-title-init))
   (>>=configure-font)
   ; (->? >>=units/configuration)
-  (use-package xorns+base
-    :config
-    (>>=+base/init))
+  (use-package xorns-base)
   ; (>>=setup-emacs-startup-hook)
   (when >>=|enable-server
     (require 'server)
@@ -109,7 +106,6 @@ This is set to true when executing `emacs-startup-hook'.")
 (use-package xorns-simple)
 (use-package xorns-term)
 (use-package xorns-fci)
-; (use-package xorns-migration)
 (use-package xorns-prog)        ;; This requires `xorns-text'
 (use-package xorns-git)
 (use-package xorns-project)

@@ -36,7 +36,9 @@
     'diminish
     'use-package-chords
     'system-packages
-    'use-package-ensure-system-package))
+    'use-package-ensure-system-package)
+  (use-package use-package-chords
+    :config (key-chord-mode 1)))
 
 
 (defun >>=ensure-packages (&rest packages)
