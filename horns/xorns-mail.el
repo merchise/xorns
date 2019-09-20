@@ -24,11 +24,6 @@
 ;; sending mail) and `pop3.el' (Post Office Protocol interface for receiving
 ;; mails).
 
-;; This module is not automatically used when require plain `xorns',
-;; to use it::
-;;
-;;     (require 'xorns-extra)
-
 ;; Enjoy!
 
 

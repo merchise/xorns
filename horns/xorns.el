@@ -29,11 +29,6 @@
 ;;     (package-initialize)
 ;;     (require 'xorns)
 ;;
-;; There are some extra features that are not included in basic
-;; `xorns'; if required, configure in the selected initialization
-;; file::
-;;
-;;     (require 'xorns-extra)
 
 ;; Enjoy!
 
@@ -111,6 +106,11 @@ This is set to true when executing `emacs-startup-hook'.")
 (use-package xorns-project)
 (use-package xorns-org)
 (use-package xorns-xml)
+
+;; Previously in xorns-extra
+(use-package xorns-mail)
+(use-package xorns-gud)
+(use-package xorns-ido)
 
 
 

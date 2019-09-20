@@ -34,7 +34,6 @@
       (>>=xorns/init))
     ; else
     (require 'xorns)
-    (require 'xorns-extra)
     ; # TODO: Check next
     (autoload 'po-mode "po-mode"
       "Major mode for translators to edit PO files" t)

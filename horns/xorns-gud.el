@@ -22,15 +22,6 @@
 
 ;; Merchise extensions for "Grand Unified Debugger mode" for running GDB and
 ;; other debuggers.  Also uses `realgud' if installed.
-;;
-;; TODO: This module debugging stuff with `realgud' can be removed when
-;; `realgud' has this stuff natively.  By now, require it in `xorns-extra'
-;; when ready.
-;;
-;; This module is not automatically used when require plain `xorns',
-;; to use it::
-;;
-;;     (require 'xorns-extra)
 
 ;; Enjoy!
 
