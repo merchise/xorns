@@ -20,9 +20,11 @@
 (defvar >>=!font-configured nil
   "If default-font is configured or not in a graphic display.")
 
+
 (defvar >>=|default-font
   '(:size 13.5 :weight normal :width normal)
   "Default font or prioritized list of fonts.")
+
 
 (defun >>=configure-font ()
   "Find and set the default font."

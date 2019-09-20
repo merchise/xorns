@@ -9,7 +9,7 @@
 ;;; Commentary:
 
 ;; New-age (>>=) module.  Must be required in the start of the initialization
-;; process just by calling '(require 'xorns-packages)' in `xorns-startup'.
+;; process just by calling '(require 'xorns-packages)' in `xorns' main module.
 ;;
 ;; Pending tasks:
 ;; - Use `quelpa' and `quelpa-use-package'.
@@ -17,26 +17,22 @@
 
 ;;; Code:
 
-(require 'package)
-(setq package-enable-at-startup nil)
-(setq package-archives
-  '(("gnu" . "http://elpa.gnu.org/packages/")
-    ("melpa" . "https://melpa.org/packages/")
-    ("org" . "https://orgmode.org/elpa/")))
-
-
 (defvar >>=package-contents-refreshed nil
   "If `package-refresh-contents' is already executed in this session.")
 
 
 (with-eval-after-load 'xorns-packages
-  ; Bootstrap 'use-package' and dependencies
   (>>=ensure-packages
+    ; Bootstrap 'use-package' and dependencies
     'use-package
     'diminish
     'use-package-chords
     'system-packages
-    'use-package-ensure-system-package)
+    'use-package-ensure-system-package
+    ; Bootstrap 'UI' dependencies
+    'minions
+    'spaceline
+    )
   (use-package use-package-chords
     :config (key-chord-mode 1)))
 

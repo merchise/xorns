@@ -34,10 +34,6 @@
 ; (require 'easy-mmode)
 
 (require 'use-package)
-(require 'xorns-packages)
-
-(>>=ensure-packages 'minions 'spaceline)
-
 (require 'spaceline)
 
 (setq-default frame-title-format
@@ -76,7 +72,6 @@
 
     (defun spaceline-xorns-theme ()
       "Install a variation of `spaceline-emacs-theme'."
-      (message ">>=spaceline-install")
       (spaceline-install
 	`((((persp-name :fallback workspace-number)
 	     window-number) :separator "|")

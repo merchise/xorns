@@ -4,62 +4,33 @@
 ;; URL: https://github.com/merchise/xorns
 ;; Version: 0.5.4
 
-;; This file is NOT part of GNU Emacs but I'd like it. ;)
-
-;; This program is free software: you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation, either version 3 of the License, or
-;; (at your option) any later version.
-
-;; This program is distributed in the hope that it will be useful,
-;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;; GNU General Public License for more details.
-
-;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>
-;; or type `C-h C-c' in Emacs.
-
 ;;; Commentary:
 
-;; To use `xorns', and automatically include all its basic features,
-;; just configure one of the standard initialization files (`~/.emacs'
-;; or `~/.emacs.d/init.el') with the following body::
+;; To use `xorns', just require its main module in the user’s initialization
+;; file:
 ;;
-;;     (package-initialize)
-;;     (require 'xorns)
+;;   (require 'xorns)
 ;;
+;; We advise to use our version of `user-init-file'.
+
 
 ;; Enjoy!
 
 
 ;;; Code:
 
-(require 'package)
-(require 'env)
-(require 'xorns-utils)
-
-
-;; TODO: (defvar xorns-version 'undefined
-;; TODO: (defun xorns-version (&optional print-dest)
-
-;;; TODO: Remove
-;; (defun xorns-load-user-file (name)
-;;   "Load user initialization file NAME."
-;;   (let ((init-file
-;;           (xorns-locate-emacs-file name nil)))
-;;     (if init-file
-;;       (load init-file 'noerror))))
-
-
-;; TODO: (xorns-load-user-file "before-init-${USER}.el")
-
-
-;; Basic initialization
+(require 'xorns-preface)
+(require 'xorns-packages)
 (require 'use-package)
-(require 'xorns-tools)
-(require 'xorns-fonts)
 
+
+(let ((emacs-min-version "26.1"))
+  (unless (version<= emacs-min-version emacs-version)
+    (error "This `xorns' version requires Emacs >='%s'" emacs-min-version)))
+
+
+
+;; Configuration Variables
 
 (defvar >>=xorns-initialized nil
   "Whether or not Xorns has finished the startup process.
@@ -70,29 +41,61 @@ This is set to true when executing `emacs-startup-hook'.")
   "If non-nil, start an Emacs server if one is not already running.")
 
 
+
+;; Configuration functions
+
 (defun >>=xorns/init ()
   "General startup initialization."
-  ; (require 'xorns-config)
-  ; (->? >>=custom/user-init)
+  (require 'xorns-config)
+  (->? >>=custom/user-init)
   ; TODO: load-default-theme
   (use-package xorns-ui
     :hook
     (after-init . spaceline-xorns-theme)
     :config
     (>>=frame-title-init))
-  (>>=configure-font)
-  ; (->? >>=units/configuration)
+  (use-package xorns-fonts
+    :config
+    (>>=configure-font))
+  (->? >>=units/configuration)
   (use-package xorns-base)
-  ; (>>=setup-emacs-startup-hook)
+  (>>=setup-emacs-startup-hook)
   (when >>=|enable-server
     (require 'server)
     (unless (server-running-p)
       (message ">>= starting server...")
-      (server-start)))
-  )
+      (server-start))))
 
 
-(>>=xorns/init)
+(defun >>=setup-emacs-startup-hook ()
+  "Add post initializtion processing."
+  (add-hook
+   'emacs-startup-hook
+   (defun >>=startup-hook ()
+     (->? >>=user-config)
+     ; TODO: initialize-custom-file-sync
+     (setq >>=xorns-initialized (emacs-init-time))
+     (message ">>= xorns initialized in %s seconds." >>=xorns-initialized))))
+
+
+
+;; Main initialization
+
+(let ((gc-cons-threshold 134217728)    ; (* 128 1024 1024)
+      (gc-cons-percentage 0.6)
+      (file-name-handler-alist nil))
+  ; these local variables speed boost during initialization
+  (>>=xorns/init)
+  (garbage-collect))
+
+
+
+
+
+;; Basic initialization
+
+(require 'xorns-utils)
+(require 'xorns-tools)
 
 (use-package xorns-start)
 (use-package xorns-buffers)

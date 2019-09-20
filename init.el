@@ -1,4 +1,4 @@
-;;; init.el --- The Emacs Initialization File for Xorns
+;;; init.el --- Xorns version of user’s initialization file
 
 ;;; Commentary:
 ;;
@@ -10,10 +10,18 @@
 ;; (package-initialize)
 
 (require 'package)
+(setq package-enable-at-startup nil)
 (package-initialize)
 
+(setq package-archives
+  '(("gnu" . "http://elpa.gnu.org/packages/")
+    ("melpa" . "https://melpa.org/packages/")
+    ("org" . "https://orgmode.org/elpa/")))
+
+
 (defconst >>=standalone-startup
-  (if (not (package-installed-p 'xorns))    ; TODO: Try (featurep 'xorns)
+  (if (not (assq 'xorns package-alist))
+    ;; xorns is not installed as a package
     (concat
       (if load-file-name
 	(file-name-directory load-file-name)
@@ -26,7 +34,7 @@
 (if >>=standalone-startup
   (add-to-list 'load-path >>=standalone-startup))
 
-(require 'xorns-init)
+(require 'xorns)
 
 (provide 'init)
 ;;; init.el ends here

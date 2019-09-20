@@ -66,14 +66,13 @@
 
 
 
-;; Remove tool bar, menu bar, and scroll bars
 
 (defun >>=ui/remove-useless-bars ()
+  "Remove tool bar, menu bar, and scroll bars."
   (tool-bar-mode 0)
   (menu-bar-mode 0)
   (scroll-bar-mode 0)
-  (tooltip-mode 0)
-  )
+  (tooltip-mode 0))
 
 
 (provide 'xorns-preface)

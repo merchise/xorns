@@ -82,6 +82,10 @@
   :type '(repeat string))
 
 
+(autoload 'po-mode "po-mode"    ; TODO: Check this
+  "Major mode for translators to edit PO files" t)
+
+
 (use-package python
   :defer t
   :init
