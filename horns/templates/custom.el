@@ -1,56 +1,35 @@
-;;; custom.el --- User custom configuration for new age -*- mode: emacs-lisp -*-
+;;; Xorns file for local user configurations -*- mode: emacs-lisp -*-
 
-;; Copyright (C) Merchise Autrement [~º/~]
-
-;; Author: Medardo Rodriguez <med@merchise.org>
-
-;;; Commentary:
-;;
-;; This file is a base template to generate the user-specific customization
-;; file.  See `>>=user-config/load' function for more information.
-
-
 ;;; Code:
 
-(defun >>=units/configuration ()
-  "Initialization code for building-blocks (units) configuration."
-  (setq-default
-    ;; It should only modify building-block setting-variables (those prefixed
-    ;; with ">>=+") when their default values are not suitable for your
-    ;; configuration.  For example:
-    ; >>=|base/extra-packages '(autorevert recentf gcmh)
-    ))
-
-
 (defun >>=settings/init ()
-  "Initialization code for user-settings customization."
+  "Configuration code for user-settings.
+This function is called at the very beginning of the startup process.  It
+should only modify setting-variables (those prefixed with '>>=|') when their
+default values are not suitable for your configuration."
   (setq-default
-    ;; Called at the very beginning of the startup process, before building
-    ;; blocks configuration.  It should only modify modify setting-variables
-    ;; (those prefixed with ">>=|") when their default values are not suitable
-    ;; for your configuration.  For example:
-    ; >>=|default-font '(:size 12.0 :weight normal :width normal)
-    ; >>=|make-backup-files t
-    ; >>=|user-mail-address-template "${USER}@gmail.com"
-    ; >>=|show-title-in-header-line t
-    ;
-    ;; Also, you can configure here most user customizations, for example:
-    ; frame-title-format
+    ;; >>=|default-font '(:size 12.0 :weight normal :width normal)
+    ;; >>=|make-backup-files t
+    ;; >>=|user-mail-address-template "${USER}@gmail.com"
+    ;; >>=|show-title-in-header-line t
     ))
 
 
-(defun >>=custom/user-init ()
-  "User-code as part of initialization process."
-  ; This function is called immediately after `>>=settings/init', before
-  ; building-blocks (units) configuration.  It''s mostly for variables that
-  ; should be set before package-system is loaded.
+(defun >>=units/configuration ()
+  "Configuration code for building-blocks customization.
+This function should only modify variables to customize how building-blocks
+are loaded (those prefixed with '>>=+') when their default values are not
+suitable for your configuration."
+  (setq-default
+    ;; >>=|base/extra-packages '(autorevert recentf gcmh)
+    ))
+
+
+(defun >>=user-conde ()
+  "User-code executed after initialization process."
   )
 
 
-(defun >>=user-config ()
-  "User-code after initialization process."
-  )
-
-
-;; Do not write anything past this comment. This is where Emacs will
+
+;; Do not write anything past this comment.  This is where Emacs will
 ;; auto-generate custom variable definitions.

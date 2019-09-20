@@ -59,8 +59,7 @@
   (let ((config-file (>>=-config-file-name)))
     (when (or (file-exists-p config-file) (>>=-create-new config-file))
       (setq custom-file config-file)
-      (load custom-file)
-      (->? >>=settings/init)))
+      (load custom-file)))
   ;; else
   (warn ">>= `custom-file' already assigned with value '%s'." custom-file))
 

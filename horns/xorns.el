@@ -46,9 +46,8 @@ This is set to true when executing `emacs-startup-hook'.")
 
 (defun >>=xorns/init ()
   "General startup initialization."
-  (require 'xorns-config)
-  (->? >>=custom/user-init)
-  ; TODO: load-default-theme
+  (use-package xorns-config)
+  (->? >>=settings/init)
   (use-package xorns-ui
     :hook
     (after-init . spaceline-xorns-theme)
@@ -57,7 +56,7 @@ This is set to true when executing `emacs-startup-hook'.")
   (use-package xorns-fonts
     :config
     (>>=configure-font))
-  (->? >>=units/configuration)
+  (->? >>=building-blocks/configuration)
   (use-package xorns-base)
   (>>=setup-emacs-startup-hook)
   (when >>=|enable-server
@@ -72,7 +71,7 @@ This is set to true when executing `emacs-startup-hook'.")
   (add-hook
    'emacs-startup-hook
    (defun >>=startup-hook ()
-     (->? >>=user-config)
+     (->? >>=user-conde)
      ; TODO: initialize-custom-file-sync
      (setq >>=xorns-initialized (emacs-init-time))
      (message ">>= xorns initialized in %s seconds." >>=xorns-initialized))))
