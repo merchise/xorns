@@ -63,8 +63,7 @@ This is set to true when executing `emacs-startup-hook'.")
    (defun >>=startup-hook ()
      (->? >>=user-config)
      ; TODO: initialize-custom-file-sync
-     (setq >>=xorns-initialized
-       (float-time (time-subtract nil >>=start-time)))
+     (setq >>=xorns-initialized (emacs-init-time))
      (message ">>= xorns initialized in %s seconds." >>=xorns-initialized))))
 
 

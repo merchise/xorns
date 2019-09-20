@@ -9,8 +9,6 @@
 ;; Without this comment emacs25 adds (package-initialize) here
 ;; (package-initialize)
 
-(defconst emacs-start-time (current-time))
-
 (require 'package)
 (package-initialize)
 

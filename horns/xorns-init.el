@@ -6,12 +6,6 @@
 
 ;;; Code:
 
-
-(defconst >>=start-time
-  (or (bound-and-true-p emacs-start-time) (current-time))
-  "Define this in 'init.el' file first statement.")
-
-
 (require 'xorns-preface)
 (require 'xorns-packages)
 (require 'use-package)
@@ -39,11 +33,6 @@
       "Major mode for translators to edit PO files" t)
     )
   (garbage-collect))
-
-
-(defconst xorns-init-elapsed-time
-  (float-time (time-subtract nil >>=start-time))
-    "Time (seconds) spent in Emacs initialization process.")
 
 
 (provide 'xorns-init)

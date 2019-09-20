@@ -35,7 +35,6 @@
 
 ;;; Code:
 
-
 (require 'package)
 (require 'env)
 (require 'xorns-utils)
