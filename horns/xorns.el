@@ -89,8 +89,10 @@ This is set to true when executing `emacs-startup-hook'.")
 (when (not (bound-and-true-p >>=standalone-startup))
   (require 'xorns-utils)
   (require 'xorns-tools)
-
-  (use-package xorns-start)
+  ;; Discover more of Emacs. See http://t.co/IwZnrqQBRO
+  (require 'discover nil 'noerror)            ;
+  (when (functionp 'global-discover-mode)
+    (global-discover-mode))
   (use-package xorns-buffers)
   (use-package xorns-dired)
   (use-package xorns-simple)
@@ -101,14 +103,6 @@ This is set to true when executing `emacs-startup-hook'.")
   (use-package xorns-project)
   (use-package xorns-org)
   (use-package xorns-xml)
-
-  ;; Fix dead characters
-  ;; https://wiki.archlinux.org/index.php/Emacs#Dead-accent_keys_problem:_.27.3Cdead-acute.3E_is_undefined.27
-
-  (use-package iso-transl
-    :demand t
-    :config
-    (define-key key-translation-map (kbd "M-[") 'iso-transl-ctl-x-8-map))
 
   ;; Previously in xorns-extra
 

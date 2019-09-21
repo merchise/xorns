@@ -40,6 +40,10 @@
 (require 'dired-single nil 'noerror)
 
 
+;;; Enable a disabled command
+(put 'dired-find-alternate-file 'disabled nil)
+
+
 (defun -mac-os ()
   "My current version of Mac OS X shell isn't bash with all is goodies."
   (require 'ns nil 'noerror))

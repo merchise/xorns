@@ -65,12 +65,15 @@ to configure for yourself: see `save-buffer' function for more information.")
   (initial-scratch-message nil)
   ; (inhibit-startup-echo-area-message (or (getenv "USER") ""))
   :init
-  ; TODO: Move this to another place
-  (when >>=|user-mail-address-template
-    (if (eq >>=|user-mail-address-template t)
-      (setq >>=|user-mail-address-template "${USER}@merchise.org"))
-    (setq user-mail-address
-      (substitute-env-vars >>=|user-mail-address-template))))
+  (progn
+    ;; Replace `yes|not' commands for simpler `[yn]'
+    (defalias 'yes-or-no-p 'y-or-n-p)
+    ; TODO: Move this to another place
+    (when >>=|user-mail-address-template
+      (if (eq >>=|user-mail-address-template t)
+	(setq >>=|user-mail-address-template "${USER}@merchise.org"))
+      (setq user-mail-address
+	(substitute-env-vars >>=|user-mail-address-template)))))
 
 
 (use-package window
@@ -123,6 +126,13 @@ to configure for yourself: see `save-buffer' function for more information.")
       (add-to-list 'initial-frame-alist full-screen))))
 
 
+(use-package windmove
+  :custom
+  (windmove-wrap-around t)
+  :config
+  (windmove-default-keybindings 'ctrl))
+
+
 (use-package xt-mouse
   :unless window-system
   :config
@@ -134,6 +144,43 @@ to configure for yourself: see `save-buffer' function for more information.")
       (lambda () (interactive) (scroll-down 1)))
     (global-set-key [mouse-5]
       (lambda () (interactive) (scroll-up 1)))))
+
+
+(use-package elec-pair
+  :demand t
+  :config
+  (electric-pair-mode t))    ; TODO: Check `custom-set-variables' for user
+
+
+(use-package ido
+  :bind ("C-x b" . ido-switch-buffer)
+  :custom
+  (ido-auto-merge-work-directories-length -1)
+  (ido-enable-flex-matching t)
+  :init
+  (ido-mode 1))
+
+
+(use-package mwheel
+  :custom
+  ;; Use the trackpade to scroll the buffer horizontally
+  (mouse-wheel-flip-direction t)
+  (mouse-wheel-tilt-scroll t))
+
+
+;; Fix dead characters
+;; https://wiki.archlinux.org/index.php/Emacs#Dead-accent_keys_problem:_.27.3Cdead-acute.3E_is_undefined.27
+(use-package iso-transl
+  :demand t
+  :config
+  (define-key key-translation-map (kbd "M-[") 'iso-transl-ctl-x-8-map))
+
+
+;; browse UNIX manual pages
+(use-package man
+  :defer t
+  :custom
+  (Man-notify-method 'aggressive))
 
 
 (use-package autorevert
@@ -159,12 +206,6 @@ to configure for yourself: see `save-buffer' function for more information.")
   (recentf-auto-cleanup 30)
   :config
   (run-with-idle-timer 30 t 'recentf-save-list))
-
-
-(use-package elec-pair
-  :demand t
-  :config
-  (electric-pair-mode t))    ; TODO: Check `custom-set-variables' for user
 
 
 (use-package gcmh

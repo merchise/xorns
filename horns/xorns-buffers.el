@@ -57,9 +57,10 @@
 
 
 
-;;; IBuffer
+;;; Custom key-bindings
 
 (global-set-key (kbd "C-x C-b") 'ibuffer)
+(global-set-key (kbd "C-x <f2>") 'rename-buffer)
 
 ;; Set `ibuffer' to loads some preferred groups.
 (xorns-set-values
@@ -258,7 +259,7 @@ An optional argument ARG could be given to delete other windows; if
 
 
 (global-set-key (kbd "C-c s") 'xorns-force-scratch)
-(global-set-key (kbd "C-c h") 'xorns-toggle-header-mode-line)
+;; (global-set-key (kbd "C-c h") 'xorns-toggle-header-mode-line)
 
 
 

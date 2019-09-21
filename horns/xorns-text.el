@@ -52,13 +52,23 @@
 (xorns-set-value 'show-paren-mode t)
 
 (xorns-set-values
-  ; Consecutive years replaced with range
+  ;; Consecutive years replaced with range
   '(copyright-year-ranges t)
-  ; Do not display continuation lines
+  ;; Do not display continuation lines
   '(truncate-lines t)
-  ; Parenthesis matching style
+  ;; Parenthesis matching style
   '(show-paren-style 'mixed)
+  ;; Key to start auto-complete
+  '(ac-trigger-key "TAB")
   )
+
+
+;; Enable some disabled commands
+
+(put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
+(put 'set-goal-column 'disabled nil)
 
 
 ;; Typed text replaces the selection
@@ -75,12 +85,6 @@
   (xorns-set-values
     '(ispell-highlight-p t)
     '(ispell-silently-savep t)))
-
-
-
-
-
-
 
 
 
@@ -135,7 +139,7 @@
 If this feature is not installed don't fail and just report a message."
   (if (featurep 'auto-complete)
     (auto-complete-mode t)
-                                        ;else
+    ;; else
     (xorns-missing-feature 'auto-complete)))
 
 

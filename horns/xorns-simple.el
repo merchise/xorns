@@ -41,8 +41,7 @@
 
 (xorns-set-values
   '(column-number-mode t)
-  '(ido-auto-merge-delay-time 1.5)
-  )
+  '(ido-auto-merge-delay-time 1.5))
 
 
 
@@ -95,9 +94,13 @@ In the case of grep results, each visited buffer is marked read-only."
     (kill-new default-directory)))
 
 
+;;; Custom key-bindings
+
+(global-set-key (kbd "C-c r") 'rgrep)
 (global-set-key (kbd "C-M-g") 'xorns-next-grep-result)
 (define-key global-map (kbd "C-c M-w") 'xorns-yank-filename)
 (define-key global-map (kbd "C-c C-w") 'xorns-yank-default-directory)
+
 
 (provide 'xorns-simple)
 ;;; xorns-simple.el ends here
