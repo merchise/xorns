@@ -55,7 +55,7 @@ This is set to true when executing `emacs-startup-hook'.")
     (>>=frame-title-init))
   (use-package xorns-fonts
     :commands >>=configure-font
-    :config
+    :init
     (>>=configure-font))
   (->? >>=building-blocks/configuration)
   (use-package xorns-base)
@@ -85,37 +85,36 @@ This is set to true when executing `emacs-startup-hook'.")
 
 
 
-;; Old initialization
 
-(require 'xorns-utils)
-(require 'xorns-tools)
+(when (not (bound-and-true-p >>=standalone-startup))
+  (require 'xorns-utils)
+  (require 'xorns-tools)
 
-(use-package xorns-start)
-(use-package xorns-buffers)
-(use-package xorns-dired)
-(use-package xorns-simple)
-(use-package xorns-term)
-(use-package xorns-fci)
-(use-package xorns-prog)        ;; This requires `xorns-text'
-(use-package xorns-git)
-(use-package xorns-project)
-(use-package xorns-org)
-(use-package xorns-xml)
+  (use-package xorns-start)
+  (use-package xorns-buffers)
+  (use-package xorns-dired)
+  (use-package xorns-simple)
+  (use-package xorns-term)
+  (use-package xorns-fci)
+  (use-package xorns-prog)        ;; This requires `xorns-text'
+  (use-package xorns-git)
+  (use-package xorns-project)
+  (use-package xorns-org)
+  (use-package xorns-xml)
 
-;; Fix dead characters
-;; https://wiki.archlinux.org/index.php/Emacs#Dead-accent_keys_problem:_.27.3Cdead-acute.3E_is_undefined.27
+  ;; Fix dead characters
+  ;; https://wiki.archlinux.org/index.php/Emacs#Dead-accent_keys_problem:_.27.3Cdead-acute.3E_is_undefined.27
 
-(use-package iso-transl
-  :demand t
-  :config
-  (define-key key-translation-map (kbd "M-[") 'iso-transl-ctl-x-8-map))
+  (use-package iso-transl
+    :demand t
+    :config
+    (define-key key-translation-map (kbd "M-[") 'iso-transl-ctl-x-8-map))
 
+  ;; Previously in xorns-extra
 
-;; Previously in xorns-extra
-
-(use-package xorns-mail)
-(use-package xorns-gud)
-
+  (use-package xorns-mail)
+  (use-package xorns-gud)
+  )
 
 (provide 'xorns)
 ;;; xorns.el ends here
