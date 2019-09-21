@@ -44,8 +44,7 @@
       (unless >>=package-contents-refreshed
 	(package-refresh-contents)
 	(setq >>=package-contents-refreshed t))
-      (package-install pkg))
-    (require pkg)))
+      (package-install pkg))))
 
 
 (provide 'xorns-packages)
