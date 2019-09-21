@@ -35,7 +35,6 @@
 
 (require 'use-package)
 
-(require 'server)
 (require 'font-lock)
 (require 'scroll-bar)
 (require 'mule)
@@ -45,35 +44,10 @@
 
 
 
-;; Fix dead characters
-;; See https://wiki.archlinux.org/index.php/Emacs#Dead-accent_keys_problem:_.27.3Cdead-acute.3E_is_undefined.27
-(use-package iso-transl
-  :demand t
-  :config
-  (define-key key-translation-map (kbd "M-[") 'iso-transl-ctl-x-8-map))
-
-
-;; Allow this Emacs process to be a server for client processes
-(if (not (server-running-p))
-  (server-start))
-
-
 ;; Usability Interface Configuration
 (when (functionp 'mouse-wheel-mode)
   (mouse-wheel-mode t))    ; Mouse wheel support
 (fset 'yes-or-no-p 'y-or-n-p)   ; Replace `yes|not' commands for simpler `[yn]'
-
-
-;; Show current directory in title bar
-;; >>=
-(xorns-set-value 'frame-title-format
-  ; Original value was::
-  ;    '(multiple-frames "%b" ("" invocation-name "@" system-name))
-  '(multiple-frames "%b"
-     (""
-       invocation-name
-       " -- "
-       (:eval (abbreviate-file-name default-directory)))))
 
 
 (xorns-set-values

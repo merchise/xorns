@@ -48,32 +48,29 @@ This is set to true when executing `emacs-startup-hook'.")
   "General startup initialization."
   (require 'xorns-config)
   (use-package xorns-ui
+    :commands >>=frame-title-init
     :hook
     (after-init . spaceline-xorns-theme)
     :config
     (>>=frame-title-init))
   (use-package xorns-fonts
+    :commands >>=configure-font
     :config
     (>>=configure-font))
   (->? >>=building-blocks/configuration)
   (use-package xorns-base)
-  (>>=setup-emacs-startup-hook)
+  (add-hook
+    'emacs-startup-hook
+    (defun >>=startup-hook ()
+      (->? >>=user-conde)
+      ;; TODO: initialize-custom-file-sync
+      (setq >>=xorns-initialized (emacs-init-time))
+      (message ">>= xorns initialized in %s seconds." >>=xorns-initialized)))
   (when >>=|enable-server
     (require 'server)
     (unless (server-running-p)
       (message ">>= starting server...")
       (server-start))))
-
-
-(defun >>=setup-emacs-startup-hook ()
-  "Add post initializtion processing."
-  (add-hook
-   'emacs-startup-hook
-   (defun >>=startup-hook ()
-     (->? >>=user-conde)
-     ; TODO: initialize-custom-file-sync
-     (setq >>=xorns-initialized (emacs-init-time))
-     (message ">>= xorns initialized in %s seconds." >>=xorns-initialized))))
 
 
 
@@ -87,10 +84,8 @@ This is set to true when executing `emacs-startup-hook'.")
   (garbage-collect))
 
 
-
-
-
-;; Basic initialization
+
+;; Old initialization
 
 (require 'xorns-utils)
 (require 'xorns-tools)
@@ -107,45 +102,20 @@ This is set to true when executing `emacs-startup-hook'.")
 (use-package xorns-org)
 (use-package xorns-xml)
 
+;; Fix dead characters
+;; https://wiki.archlinux.org/index.php/Emacs#Dead-accent_keys_problem:_.27.3Cdead-acute.3E_is_undefined.27
+
+(use-package iso-transl
+  :demand t
+  :config
+  (define-key key-translation-map (kbd "M-[") 'iso-transl-ctl-x-8-map))
+
+
 ;; Previously in xorns-extra
+
 (use-package xorns-mail)
 (use-package xorns-gud)
 (use-package xorns-ido)
-
-
-
-
-(defun xorns-manage-user-custom-files (&optional force)
-  "Configure and load per-user custom initialization.
-
-This is useful when a GIT repository for `~/.emacs.d/' folder is shared to be
-used for several team members in order to each one could have his/her own
-`custom-file' using as name the pattern `custom-${USER}.el'.
-
-If `custom-file' variable is configured when this function runs, a proper
-warning is issued and no file is configured unless optional argument FORCE
-is given."
-  (let* ((configured custom-file)
-          (do-config (or (not configured) force)))
-    (if configured
-      (message
-        "Warning: A `custom-file' \"%s\" is already configured!"
-        custom-file))
-    (if do-config
-      (let ((file-name
-              (xorns-locate-emacs-file "custom-${USER}.el" "custom.el")))
-        (setq custom-file file-name)
-        (if (file-exists-p custom-file)
-          (progn
-            (load custom-file 'noerror)
-            (message "Loading `custom-file': %s" file-name))
-                                        ;else
-          (message "Using new `custom-file': %s" file-name))))))
-
-
-(xorns-manage-user-custom-files)
-
-;; TODO: (xorns-load-user-file "after-init-${USER}.el")
 
 
 (provide 'xorns)
