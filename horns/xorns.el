@@ -42,10 +42,12 @@ This is set to true when executing `emacs-startup-hook'.")
 
 
 
-;; Configuration functions
+;; Main initialization
 
-(defun >>=xorns/init ()
-  "General startup initialization."
+(let ((gc-cons-threshold 134217728)    ; (* 128 1024 1024)
+      (gc-cons-percentage 0.6)
+      (file-name-handler-alist nil))
+  ;; these local variables speed boost during initialization
   (require 'xorns-config)
   (use-package xorns-ui
     :commands >>=frame-title-init
@@ -70,29 +72,17 @@ This is set to true when executing `emacs-startup-hook'.")
     (require 'server)
     (unless (server-running-p)
       (message ">>= starting server...")
-      (server-start))))
-
-
-
-;; Main initialization
-
-(let ((gc-cons-threshold 134217728)    ; (* 128 1024 1024)
-      (gc-cons-percentage 0.6)
-      (file-name-handler-alist nil))
-  ; these local variables speed boost during initialization
-  (>>=xorns/init)
+      (server-start)))
   (garbage-collect))
 
 
 
-
 (when (not (bound-and-true-p >>=standalone-startup))
-  (require 'xorns-utils)
-  (require 'xorns-tools)
   ;; Discover more of Emacs. See http://t.co/IwZnrqQBRO
   (require 'discover nil 'noerror)            ;
   (when (functionp 'global-discover-mode)
     (global-discover-mode))
+  ;; Main old modules
   (use-package xorns-buffers)
   (use-package xorns-dired)
   (use-package xorns-simple)
@@ -103,12 +93,11 @@ This is set to true when executing `emacs-startup-hook'.")
   (use-package xorns-project)
   (use-package xorns-org)
   (use-package xorns-xml)
-
   ;; Previously in xorns-extra
-
   (use-package xorns-mail)
   (use-package xorns-gud)
   )
+
 
 (provide 'xorns)
 ;;; xorns.el ends here
