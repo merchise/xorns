@@ -8,8 +8,8 @@
 
 ;;; Commentary:
 
-;; New-age (>>=) module.  This library defines several general utilities than
-;; can be used in any context.
+;; This library defines several basic and general utilities that can be used
+;; in any context.
 
 ;;; Code:
 
@@ -89,6 +89,23 @@ build the default directory using `dir-join' function."
 	(if (and (stringp dir) (file-directory-p dir))
 	  (setq res dir))))
     res))
+
+
+(defun >>=locate-user-emacs-file (&rest names)
+  "Return first found in absolute per-user Emacs-specific file-name.
+This function uses `locate-user-emacs-file' for each name until a proper value
+is found.  Each given name is processed with `substitute-in-file-name' to
+substitute used environment variables.  If no item is given, the name of
+standard Emacs initialization file is returned."
+  (let (res)
+    (while (and (null res) names)
+      (let ((item (locate-user-emacs-file
+		    (substitute-in-file-name (car names)))))
+	(if (file-exists-p item)
+	  (setq res item)
+	  ;; else
+	  (setq names (cdr names)))))
+    (or res (locate-user-emacs-file "init.el" ".emacs"))))
 
 
 
