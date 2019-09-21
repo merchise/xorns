@@ -2,7 +2,7 @@
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 ;; URL: https://github.com/merchise/xorns
-;; Version: 0.5.4
+;; Version: 0.5.5
 
 ;;; Commentary:
 
