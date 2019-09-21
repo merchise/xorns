@@ -13,7 +13,6 @@
 ;;
 ;; We advise to use our version of `user-init-file'.
 
-
 ;; Enjoy!
 
 
@@ -69,8 +68,8 @@ This is set to true when executing `emacs-startup-hook'.")
     (unless (server-running-p)
       (message ">>= starting server...")
       (server-start)))
-  (->? >>=building-blocks/configuration)
   (use-package xorns-common-systems)
+  (use-package xorns-building-blocks)
   (garbage-collect))
 
 
