@@ -115,7 +115,6 @@ This is set to true when executing `emacs-startup-hook'.")
 
 (use-package xorns-mail)
 (use-package xorns-gud)
-(use-package xorns-ido)
 
 
 (provide 'xorns)
