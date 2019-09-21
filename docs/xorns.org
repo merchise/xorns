@@ -38,16 +38,19 @@ General Public License for more details.
 :END:
 * Introduction
 
-Xorns automates Emacs configurations for those packages commonly used for
-Merchise members for documentation management, and software development.
+Xorns is our way of experiencing Emacs -- it automates the configuration of
+the Emacs packages commonly used by Merchise members with the intention of
+creating a coherent environment, focused on ergonomics, to perform our work
+that includes Computer Programming and Documentation Management.
 
-The name "xorns" comes from "horns" as a metaphor in the sense that "Emacs" is
-the "Gnu's head" and our framework would be the "horns" of that "head".  The
-"X" instead the "H" is due to most Merchise project names start with that
-letter looking for words in Nahuatl or sometimes in English replacing "H" by
-"X".
+Xorns is currently experimental, contributions are very welcome.
 
-Xorns configures all packages using ~use-package~ and related tools.  Generic
+The name "xorns" comes from the metaphor about that "Emacs" is the "GNU's
+head" and our framework would be "horns" ;).  The "X" instead the "H" is due
+to most Merchise project names start with that letter looking for words in
+Nahuatl or sometimes in English replacing "H" by "X".
+
+Xorns configures most packages using ~use-package~ and related tools.  Generic
 most important are ~deft~, ~dired~, and ~magit~.
 
 Enjoy Emacs and this package as our first and small gift!
@@ -198,6 +201,14 @@ should be enough to get you started.
 
 To be continued ...
 
+* Initialization
+
+** Running Emacs
+
+If Emacs is executed with the option ~--debug-init~ (see ~init-file-debug~
+variable) ~custom-file~ it is loaded activating the errors.  In addition,
+some debug messages are printed during the initialization process.
+
 * Issues
 
 ** Error starting initial frame maximized in Manjaro Linux i3 desktop
@@ -208,7 +219,6 @@ When I initialize Emacs in the same workspace that it has automatically
 assigned, an unwanted border appears on the right of the screen.  To correct
 that issue, I must execute full-screen mode twice.  If it is executed from a
 different workspace, this problem does not occur.
-
 
 * _ :ignore:
 

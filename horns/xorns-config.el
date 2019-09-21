@@ -27,7 +27,7 @@
       (if (or (file-exists-p config-file) (>>=-create-new config-file))
 	(progn
 	  (setq custom-file config-file)
-	  (load custom-file)
+	  (load custom-file (not init-file-debug))
 	  (->? >>=settings/init))
 	;; else -- this must be removed
 	(>>=-use-old)))
@@ -77,7 +77,7 @@
     (setq custom-file file-name)
     (if (file-exists-p custom-file)
       (progn
-	(load custom-file)
+	(load custom-file (not init-file-debug))
 	(message "Loading `custom-file': %s" file-name))
       ;; else
       (message "Using new `custom-file': %s" file-name))))
