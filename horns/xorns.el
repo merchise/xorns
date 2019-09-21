@@ -41,9 +41,6 @@ This is set to true when executing `emacs-startup-hook'.")
   "If non-nil, start an Emacs server if one is not already running.")
 
 
-
-;; Main initialization
-
 (let ((gc-cons-threshold 134217728)    ; (* 128 1024 1024)
       (gc-cons-percentage 0.6)
       (file-name-handler-alist nil))
@@ -59,7 +56,6 @@ This is set to true when executing `emacs-startup-hook'.")
     :commands >>=configure-font
     :init
     (>>=configure-font))
-  (->? >>=building-blocks/configuration)
   (use-package xorns-base)
   (add-hook
     'emacs-startup-hook
@@ -73,30 +69,9 @@ This is set to true when executing `emacs-startup-hook'.")
     (unless (server-running-p)
       (message ">>= starting server...")
       (server-start)))
+  (->? >>=building-blocks/configuration)
+  (use-package xorns-common-systems)
   (garbage-collect))
-
-
-
-(when (not (bound-and-true-p >>=standalone-startup))
-  ;; Discover more of Emacs. See http://t.co/IwZnrqQBRO
-  (require 'discover nil 'noerror)            ;
-  (when (functionp 'global-discover-mode)
-    (global-discover-mode))
-  ;; Main old modules
-  (use-package xorns-buffers)
-  (use-package xorns-dired)
-  (use-package xorns-simple)
-  (use-package xorns-term)
-  (use-package xorns-fci)
-  (use-package xorns-prog)        ;; This requires `xorns-text'
-  (use-package xorns-git)
-  (use-package xorns-project)
-  (use-package xorns-org)
-  (use-package xorns-xml)
-  ;; Previously in xorns-extra
-  (use-package xorns-mail)
-  (use-package xorns-gud)
-  )
 
 
 (provide 'xorns)

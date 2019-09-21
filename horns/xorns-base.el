@@ -8,15 +8,13 @@
 
 ;;; Commentary:
 
-;; New-age (>>=) module.  It's installed just by calling `(require
-;; 'xorns-packages)' in the initialization process, which is done
-;; automatically.
+;; It's installed just by calling `(require 'xorns-packages)' in the
+;; initialization process, which is done automatically.
 ;;
 ;; Pending tasks:
 ;; - See alternatives for `make-backup-files' in:
 ;;   - https://www.emacswiki.org/emacs/Auto Save
 ;;   - https://www.emacswiki.org/emacs/BackupFiles
-
 
 ;;; Code:
 

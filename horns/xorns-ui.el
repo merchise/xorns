@@ -8,8 +8,8 @@
 
 ;;; Commentary:
 
-;; New-age (>>=) module.  This library defines several utilities used to
-;; configure UI stuffs, specially mode-lines.
+;; This library defines several utilities used to configure UI stuffs,
+;; specially mode-lines.
 ;;
 ;; A common setup for this module is:
 ;;
