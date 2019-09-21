@@ -21,6 +21,20 @@
 (require 'xorns-tools)
 
 
+(with-eval-after-load 'xorns-config
+  (if (not custom-file)
+    (let ((config-file (>>=-config-file-name)))
+      (if (or (file-exists-p config-file) (>>=-create-new config-file))
+	(progn
+	  (setq custom-file config-file)
+	  (load custom-file)
+	  (->? >>=settings/init))
+	;; else -- this must be removed
+	(>>=-use-old)))
+    ;; else
+    (warn ">>= `custom-file' already assigned with value '%s'." custom-file)))
+
+
 (defun >>=-template-location ()
   "Return base template location for `custom-file'."
   (require 'package)
@@ -51,17 +65,22 @@
 	(message ">>= new `custom-file' '%s' has been created." target)
 	template)
       ;; else
-      (warn ">>= template `custom-file' '%s' does not exist." template)
+      (message ">>= `custom-file' template '%s' does not exist." template)
       nil)))
 
 
-(if (not custom-file)
-  (let ((config-file (>>=-config-file-name)))
-    (when (or (file-exists-p config-file) (>>=-create-new config-file))
-      (setq custom-file config-file)
-      (load custom-file)))
-  ;; else
-  (warn ">>= `custom-file' already assigned with value '%s'." custom-file))
+(defun >>=-use-old ()
+  "Use old style custom file."
+  (require 'xorns-utils)
+  (let ((file-name
+	  (xorns-locate-emacs-file "custom-${USER}.el" "custom.el")))
+    (setq custom-file file-name)
+    (if (file-exists-p custom-file)
+      (progn
+	(load custom-file)
+	(message "Loading `custom-file': %s" file-name))
+      ;; else
+      (message "Using new `custom-file': %s" file-name))))
 
 
 (provide 'xorns-config)

@@ -46,8 +46,7 @@ This is set to true when executing `emacs-startup-hook'.")
 
 (defun >>=xorns/init ()
   "General startup initialization."
-  (use-package xorns-config)
-  (->? >>=settings/init)
+  (require 'xorns-config)
   (use-package xorns-ui
     :hook
     (after-init . spaceline-xorns-theme)
