@@ -29,8 +29,9 @@
 	  config-file
 	  ;; else
 	  (>>=locate-user-emacs-file "custom-${USER}.el" "custom.el")))
-      (if (file-exists-p custom-file)
-	(load custom-file (not init-file-debug))))
+      (when (file-exists-p custom-file)
+	(load custom-file (not init-file-debug))
+	(->? >>=settings/init)))
     ;; else
     (warn ">>= `custom-file' already assigned with value '%s'." custom-file)))
 
