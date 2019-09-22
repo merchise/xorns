@@ -28,14 +28,8 @@
 
 (require 'ibuffer)
 (require 'ibuf-ext)
-(require 'grizzl nil 'noerror)
+(require 'grizzl nil 'noerror)    ; see `akheron/emacs.org'
 (require 'xorns-utils)
-
-;; Get rid of the startup screen and `*scratch*' buffer message
-;; >>=
-(setq-default
-  inhibit-startup-screen t
-  initial-scratch-message nil)
 
 
 
