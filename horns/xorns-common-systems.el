@@ -24,18 +24,23 @@
 (require 'xorns-tools)
 
 
+;; Discover more of Emacs. See http://t.co/IwZnrqQBRO
+(require 'discover nil 'noerror)            ;
+(when (functionp 'global-discover-mode)
+  (global-discover-mode))
+
+
+(use-package xorns-buffers)
+(use-package xorns-text)
+
+
 (when (not (bound-and-true-p >>=standalone-startup))
-  ;; Discover more of Emacs. See http://t.co/IwZnrqQBRO
-  (require 'discover nil 'noerror)            ;
-  (when (functionp 'global-discover-mode)
-    (global-discover-mode))
   ;; Main old modules
-  (use-package xorns-buffers)
   (use-package xorns-dired)
   (use-package xorns-simple)
   (use-package xorns-term)
   (use-package xorns-fci)
-  (use-package xorns-prog)        ;; This requires `xorns-text'
+  (use-package xorns-prog)
   (use-package xorns-git)
   (use-package xorns-project)
   (use-package xorns-org)

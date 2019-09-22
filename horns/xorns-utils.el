@@ -46,41 +46,10 @@
 
 ;;; Symbols and variables
 
-(defun xorns-get-value (symbol)
-  "Return SYMBOL's value or nil if that is void."
-  (if (boundp symbol)
-    (symbol-value symbol)))
-
-
 (defun xorns-get-original-value (symbol)
   "Return SYMBOL's original value or nil if that is void."
   (if (boundp symbol)
     (eval (car (get symbol 'standard-value)))))
-
-
-(defun xorns-set-value (symbol value)
-  "Initialize a SYMBOL (variable name) with an expression (VALUE)."
-  (unless (or (get symbol 'standard-value)
-            (memq (get symbol 'custom-autoload) '(nil noset)))
-    (custom-load-symbol symbol))
-  ;; set the variable.
-  (set symbol value))
-
-
-(defun xorns-set-values (&rest args)
-  "Install user customizations of variable values specified in ARGS.
-
-The arguments should each be a list of the form:
-
-  '(SYMBOL EXP)
-
-This stores EXP (after evaluating it) as the saved value for SYMBOL."
-  (dolist (entry args)
-    (unless (listp entry)
-      (error "Incompatible custom symbol value pair specification"))
-    (let* ((symbol (indirect-variable (nth 0 entry)))
-            (value (nth 1 entry)))
-      (xorns-set-value symbol (eval value)))))
 
 
 
@@ -137,7 +106,7 @@ If no item is given in DIRS, return $HOME."
 (defun xorns-set-default-directory ()
   "Set the default directory to its original value."
   (if (equal (xorns-default-directory) xorns-home-dir)
-    (xorns-set-value 'default-directory (xorns-preferred-default-directory))))
+    (setq-default default-directory (xorns-preferred-default-directory))))
 
 
 (defun xorns-executable-find (command &rest other-commands)

@@ -49,16 +49,16 @@
   (require 'ns nil 'noerror))
 
 
-(xorns-set-values
-  '(dired-dwim-target t)
+(setq-default
+  dired-dwim-target t
   ;; Next is because `ls' used in Mac Os X is a BSD version and it doesn't
   ;; have any extended option (those starting with `--'), particularly
   ;; Merchise preferred `group-directories-first'.
-  '(dired-listing-switches
-     (if (-mac-os)
-       "-lah"
-       ;; else
-       "-la --group-directories-first -h"))
+  dired-listing-switches
+  (if (-mac-os)
+    "-lah"
+    ;; else
+    "-la --group-directories-first -h")
   )
 
 

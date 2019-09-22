@@ -4,21 +4,7 @@
 
 ;; This file is NOT part of GNU Emacs but I'd like it. ;)
 
-;; This program is free software: you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation, either version 3 of the License, or
-;; (at your option) any later version.
-
-;; This program is distributed in the hope that it will be useful,
-;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;; GNU General Public License for more details.
-
-;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>
-;; or type `C-h C-c' in Emacs.
-
-;;; Commentary:
+;; Commentary:
 
 ;; This module main features are:
 ;;
@@ -35,25 +21,21 @@
 ;; - Functionality to force `*scratch*' buffer.
 ;;
 
-;; This module is automatically used when::
-;;
-;;     (require 'xorns)
-
 ;; Enjoy!
 
 
 ;;; Code:
 
-(require 'ibuffer nil 'noerror)
-(require 'ibuf-ext nil 'noerror)
+(require 'ibuffer)
+(require 'ibuf-ext)
 (require 'grizzl nil 'noerror)
 (require 'xorns-utils)
 
 ;; Get rid of the startup screen and `*scratch*' buffer message
 ;; >>=
-(xorns-set-values
-  '(inhibit-startup-screen t)
-  '(initial-scratch-message nil))
+(setq-default
+  inhibit-startup-screen t
+  initial-scratch-message nil)
 
 
 
@@ -63,103 +45,103 @@
 (global-set-key (kbd "C-x <f2>") 'rename-buffer)
 
 ;; Set `ibuffer' to loads some preferred groups.
-(xorns-set-values
-  '(ibuffer-saved-filter-groups
-     (quote (("xorns-ibuffer-groups"
-	       ("System"
-		 (or
-		   (name . "*scratch*")
-		   (name . "*Messages*")
-		   (mode . Custom-mode)))
-	       ("Shell" (mode . term-mode))
-	       ("Dired"
-		 (or
-		   (mode . dired-omit-mode)
-		   (mode . dired-mode)))
-	       ("Web"
-		 (or
-		   (mode . w3m-mode)))
-	       ("Org"
-		 (or
-		   (mode . org-mode)
-		   (mode . org-agenda-mode)
-		   (mode . diary-mode)
-		   (mode . calendar-mode)
-		   (mode . bbdb-mode)
-		   (name . "*Deft*")
-		   (name . "bbdb")))
-	       ("Configuration" (mode . conf-unix-mode))
-	       ("Python" (mode . python-mode))
-	       ("Haskell/Agda/Coq"
-		 (or
-		   (mode . haskell-mode)
-		   (mode . agda2-mode)
-		   (mode . coq-mode)))
-	       ("Lisp"
-		 (or
-		   (mode . emacs-lisp-mode)
-		   (mode . lisp-interaction-mode)
-		   (mode . lisp-mode)))
-	       ("C" (or (mode . c-mode) (mode . cc-mode)))
-	       ("Scala/Java"
-		 (or
-		   (mode . scala-mode)
-		   (mode . java-mode)
-		   (mode . scala-mode-inf)))
-	       ("RST/Markdown"
-		 (or
-		   (mode . rst-mode)
-		   (mode . markdown-mode)))
-	       ("XML/HTML/CSS"
-		 (or
-		   (mode . nxml-mode)
-		   (mode . html-mode)
-		   (mode . css-mode)
-		   (mode . less-mode)
-		   (mode . sass-mode)))
-	       ("Version Control"
-		 (or
-		   (mode . git-commit-mode)
-		   (mode . git-commit-major-mode)
-		   (mode . git-rebase-mode)
-		   (mode . magit-mode)
-		   (mode . magit-cherry-mode)
-		   (mode . magit-diff-mode)
-		   (mode . magit-log-mode)
-		   (mode . magit-log-select-mode)
-		   (mode . magit-merge-preview-mode)
-		   (mode . magit-popup-mode)
-		   (mode . magit-process-mode)
-		   (mode . magit-refs-mode)
-		   (mode . magit-reflog-mode)
-		   (mode . magit-revision-mode)
-		   (mode . magit-stash-mode)
-		   (mode . magit-stashes-mode)
-		   (mode . magit-status-mode)
-		   (mode . diff-mode)))
-	       ("Help/Info/Completions"
-		 (or
-		   (mode . help-mode)
-		   (mode . Info-mode)
-		   (mode . Man-mode)
-		   (mode . woman-mode)
-		   (mode . rfcview-mode)
-		   (mode . completion-list-mode)))
-	       )))
-     )
-  '(ibuffer-formats
-     (quote ((mark modified read-only " "
-	       (name 22 22 :left :elide)
-	       " "
-	       (size 9 -1 :right)
-	       " "
-	       (mode 16 16 :left :elide)
-	       " "
-	       filename-and-process)
-	      (mark " "
-		(name 16 -1)
-		" "
-		filename))))
+(setq-default
+  ibuffer-saved-filter-groups
+  (quote
+    (("xorns-ibuffer-groups"
+       ("System"
+	 (or
+	   (name . "*scratch*")
+	   (name . "*Messages*")
+	   (mode . Custom-mode)))
+       ("Shell" (mode . term-mode))
+       ("Dired"
+	 (or
+	   (mode . dired-omit-mode)
+	   (mode . dired-mode)))
+       ("Web"
+	 (or
+	   (mode . w3m-mode)))
+       ("Org"
+	 (or
+	   (mode . org-mode)
+	   (mode . org-agenda-mode)
+	   (mode . diary-mode)
+	   (mode . calendar-mode)
+	   (mode . bbdb-mode)
+	   (name . "*Deft*")
+	   (name . "bbdb")))
+       ("Configuration" (mode . conf-unix-mode))
+       ("Python" (mode . python-mode))
+       ("Haskell/Agda/Coq"
+	 (or
+	   (mode . haskell-mode)
+	   (mode . agda2-mode)
+	   (mode . coq-mode)))
+       ("Lisp"
+	 (or
+	   (mode . emacs-lisp-mode)
+	   (mode . lisp-interaction-mode)
+	   (mode . lisp-mode)))
+       ("C" (or (mode . c-mode) (mode . cc-mode)))
+       ("Scala/Java"
+	 (or
+	   (mode . scala-mode)
+	   (mode . java-mode)
+	   (mode . scala-mode-inf)))
+       ("RST/Markdown"
+	 (or
+	   (mode . rst-mode)
+	   (mode . markdown-mode)))
+       ("XML/HTML/CSS"
+	 (or
+	   (mode . nxml-mode)
+	   (mode . html-mode)
+	   (mode . css-mode)
+	   (mode . less-mode)
+	   (mode . sass-mode)))
+       ("Version Control"
+	 (or
+	   (mode . git-commit-mode)
+	   (mode . git-commit-major-mode)
+	   (mode . git-rebase-mode)
+	   (mode . magit-mode)
+	   (mode . magit-cherry-mode)
+	   (mode . magit-diff-mode)
+	   (mode . magit-log-mode)
+	   (mode . magit-log-select-mode)
+	   (mode . magit-merge-preview-mode)
+	   (mode . magit-popup-mode)
+	   (mode . magit-process-mode)
+	   (mode . magit-refs-mode)
+	   (mode . magit-reflog-mode)
+	   (mode . magit-revision-mode)
+	   (mode . magit-stash-mode)
+	   (mode . magit-stashes-mode)
+	   (mode . magit-status-mode)
+	   (mode . diff-mode)))
+       ("Help/Info/Completions"
+	 (or
+	   (mode . help-mode)
+	   (mode . Info-mode)
+	   (mode . Man-mode)
+	   (mode . woman-mode)
+	   (mode . rfcview-mode)
+	   (mode . completion-list-mode)))
+       )))
+  ibuffer-formats
+  (quote ((mark modified read-only " "
+	    (name 22 22 :left :elide)
+	    " "
+	    (size 9 -1 :right)
+	    " "
+	    (mode 16 16 :left :elide)
+	    " "
+	    filename-and-process)
+	   (mark " "
+	     (name 16 -1)
+	     " "
+	     filename)))
   )
 
 
@@ -238,6 +220,7 @@ window.  After that standard behaviour, this function kills the `ibuffer'."
         (interactive)
         (if xorns-use-grizzl-select-buffer
           (call-interactively #'xorns-grizzl-select-buffer)
+	  ;; else
           (call-interactively previous-binding)))))
   )
 

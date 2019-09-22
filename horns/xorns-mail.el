@@ -42,12 +42,10 @@
 (require 'xorns-utils)
 (require 'xorns-widgets)
 
-;; TODO: Use 'xorns-set-value' and 'xorns-set-values' instead 'setq'
-
 
 ;; Local definitions
 
-(setq
+(setq-default
   mail-default-directory "~/mail/"
   message-directory "~/mail/"
   )

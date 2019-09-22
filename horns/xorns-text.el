@@ -49,17 +49,17 @@
 
 ;; Turn ON parenthesis matching
 (show-paren-mode t)
-(xorns-set-value 'show-paren-mode t)
+(setq-default show-paren-mode t)
 
-(xorns-set-values
+(setq-default
   ;; Consecutive years replaced with range
-  '(copyright-year-ranges t)
+  copyright-year-ranges t
   ;; Do not display continuation lines
-  '(truncate-lines t)
+  truncate-lines t
   ;; Parenthesis matching style
-  '(show-paren-style 'mixed)
+  show-paren-style 'mixed
   ;; Key to start auto-complete
-  '(ac-trigger-key "TAB")
+  ac-trigger-key "TAB"
   )
 
 
@@ -82,9 +82,9 @@
 
 
 (when (featurep 'ispell)
-  (xorns-set-values
-    '(ispell-highlight-p t)
-    '(ispell-silently-savep t)))
+  (setq-default
+    ispell-highlight-p t
+    ispell-silently-savep t))
 
 
 
@@ -117,7 +117,7 @@
 (add-hook 'tex-mode-hook           ; run when entering generic-TeX mode
   (lambda ()
     (condition-case err
-      (xorns-set-value 'ispell-parser 'tex)
+      (setq-default ispell-parser 'tex)
       (error (message "error@tex-mode-hook: %s" err)))))
 
 
@@ -128,8 +128,9 @@
         (turn-on-auto-fill)
         (flyspell-mode nil)             ; When used flyspell-prog-mode I
                                         ; can't see the errors while typing
-        (xorns-set-value 'ispell-parser 'tex)
-	(xorns-set-value 'rst-new-adornment-down t))
+        (setq-default
+	  ispell-parser 'tex
+	  rst-new-adornment-down t))
       (error (message "error@rst-mode-hook: %s" err)))))
 
 

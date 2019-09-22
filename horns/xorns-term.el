@@ -55,7 +55,7 @@ if not valid, looks up in a list of alternatives (in order):
 variable `PYTHON' and custom variables `python-python-command' and
 `python-jython-command'."
   (xorns-executable-find
-    (xorns-get-value 'python-shell-interpreter)
+    (bound-and-true-p python-shell-interpreter)
     (getenv "PYTHON")
     (xorns-get-original-value 'python-shell-interpreter)
     "ipython" "python"))
@@ -99,7 +99,7 @@ environment variable `ESHELL', and any of [`bash' `sh' `ksh' `zsh' `tclsh'
 `csh' `tcsh']."
   (xorns-executable-find
     (getenv "SHELL")
-    (xorns-get-value 'shell-file-name)
+    (bound-and-true-p shell-file-name)
     (xorns-get-original-value 'shell-file-name)
     (getenv "ESHELL")
     "bash" "sh" "ksh" "zsh" "tclsh" "csh" "tcsh"))
@@ -209,7 +209,7 @@ This could be included as one of those defined in `xorns-term-paste-keys'."
                        activate)
   "Set argument 'switches' if defined in local scope."
   (if (null switches)
-    (let ((aux (xorns-get-value 'xorns--program-switches)))
+    (let ((aux (bound-and-true-p xorns--program-switches)))
       (if aux
         (setq switches aux)))))
 

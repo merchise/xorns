@@ -90,7 +90,7 @@
   :defer t
   :init
   (defun -inferior-python-setup()
-    (xorns-set-value 'indent-tabs-mode nil)
+    (setq-default indent-tabs-mode nil)
     (linum-mode 0))
 
   :bind (:map python-mode-map ("C-m" . newline-and-indent))
@@ -217,9 +217,9 @@
       (when (and filename
 	      (string-match (expand-file-name xorns-linux-kernel-trees-path)
 		filename))
-	(xorns-set-values
-	  '(indent-tabs-mode t)
-	  '(show-trailing-whitespace t))
+	(setq-default
+	  indent-tabs-mode t
+	  show-trailing-whitespace t)
 	(c-set-style "linux-tabs-only")))))
 
 

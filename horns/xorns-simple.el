@@ -39,9 +39,9 @@
 
 ;;; Custom Variables and Settings
 
-(xorns-set-values
-  '(column-number-mode t)
-  '(ido-auto-merge-delay-time 1.5))
+(setq-default
+  column-number-mode t
+  ido-auto-merge-delay-time 1.5)
 
 
 
@@ -49,7 +49,7 @@
 
 (defun -set-buffer-read-only ()
   "Private function to be used in `xorns-next-grep-result'."
-  (xorns-set-value 'buffer-read-only t))
+  (setq-default buffer-read-only t))
 
 
 (defun xorns-next-grep-result (&optional arg reset)

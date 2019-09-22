@@ -141,7 +141,7 @@ surrounded with blanks."
 
 (when (featurep 'calendar)
   ;; Needed in order to use `diary-anniversary' without the year
-  (xorns-set-value 'calendar-date-style 'american))
+  (setq-default calendar-date-style 'american))
 
 
 (when (featurep 'org)
@@ -150,30 +150,30 @@ surrounded with blanks."
   (global-set-key "\C-ca" 'org-agenda)
   (global-set-key "\C-cb" 'org-iswitchb)
   (define-key org-mode-map "\C-cil" 'ispell-change-dictionary)
-  (xorns-set-values
-    '(org-todo-keywords
+  (setq-default
+    org-todo-keywords
        (quote
          ((sequence "TODO(t)" "|" "DONE(d!)")
            (sequence "FIX(f)" "BUG(b)" "|" "SOLVED(s!)")
            (sequence "DEVELOP(v)" "REVIEW(r!)" "TEST(p!)" "|" "DELIVERY(e@/!)")
            (sequence "WTF(w)" "XXX(x)" "|" "WORTHY(y!)")
-           (sequence "|" "CANCELED(c@)"))))
-    '(org-todo-keyword-faces
+           (sequence "|" "CANCELED(c@)")))
+    org-todo-keyword-faces
        (quote
          (("TODO" . org-warning)
            ("BUG" . org-warning)
            ("WTF" . "black")
            ("CANCELED" . (:foreground "blue" :weight bold))))
-       '(org-confirm-babel-evaluate xorns-org-confirm-babel-evaluate)))
-                                        ; TODO: (xorns-set-value 'org-enforce-todo-dependencies t)
+       org-confirm-babel-evaluate xorns-org-confirm-babel-evaluate)
+  ;; TODO: (setq-default org-enforce-todo-dependencies t)
   )
 
 
 (when (featurep 'ob-shell)
   (unless (assoc 'shell org-babel-load-languages)
-    (xorns-set-value 'org-babel-load-languages
+    (setq-default org-babel-load-languages
       (cons '(shell . t) org-babel-load-languages)))
-  (xorns-set-value 'org-babel-default-header-args:shell
+  (setq-default org-babel-default-header-args:shell
     (cons '(:results . "output")
       (assq-delete-all :results org-babel-default-header-args:shell)))
   (let*
@@ -191,16 +191,16 @@ surrounded with blanks."
         (setcdr shebang (concat full-prefix (cdr shebang))))
                                         ; else
       (setq shebang (cons :shebang full-prefix)))
-    (xorns-set-value 'org-babel-default-header-args:shell
+    (setq-default org-babel-default-header-args:shell
       (cons shebang
         (assq-delete-all :shebang org-babel-default-header-args:shell)))))
 
 
 (when (featurep 'ob-python)
   (unless (assoc 'python org-babel-load-languages)
-    (xorns-set-value 'org-babel-load-languages
+    (setq-default org-babel-load-languages
       (cons '(python . t) org-babel-load-languages)))
-  (xorns-set-value 'org-babel-default-header-args:python
+  (setq-default org-babel-default-header-args:python
     (cons '(:results . "output")
       (assq-delete-all :results org-babel-default-header-args:python)))
   (let*
@@ -217,19 +217,20 @@ surrounded with blanks."
         (setcdr preamble (concat full-prefix (cdr preamble))))
                                         ; else
       (setq preamble (cons :preamble full-prefix)))
-    (xorns-set-value 'org-babel-default-header-args:python
+    (setq-default org-babel-default-header-args:python
       (cons preamble
         (assq-delete-all :preamble org-babel-default-header-args:python)))))
 
 
 (when (featurep 'dictionary)
   (global-set-key (kbd "C-c w") 'dictionary-search)
-  (xorns-set-values
-    '(dictionary-server "localhost")
-    '(dictionary-use-single-buffer t)))
+  (setq-default
+    dictionary-server "localhost"
+    dictionary-use-single-buffer t))
+
 
 (when (featurep 'wget)
-  (xorns-set-value 'wget-download-directory
+  (setq-default wget-download-directory
     (xorns-preferred-directory "~/Downloads" "~/download" "~/softlib" "~")))
 
 
@@ -239,7 +240,7 @@ surrounded with blanks."
       (progn
         (turn-on-auto-fill)
         (flyspell-mode nil)
-        (xorns-set-value 'ispell-parser 'tex))
+        (setq-default ispell-parser 'tex))
       (error (message "error@org-mode-hook: %s" err)))))
 
 (provide 'xorns-org)

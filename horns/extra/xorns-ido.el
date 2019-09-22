@@ -33,7 +33,7 @@
 
 (defun -customize-vertical-ido ()
   "Customize `ido' for vertical appearance."
-  (xorns-set-value 'ido-decorations
+  (setq-default ido-decorations
     '("\n-> " "" "\n " "\n ..." "[" "]"
        " [No match]" " [Matched]" " [Not readable]"
        " [Too big]" " [Confirm]"))

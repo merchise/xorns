@@ -413,19 +413,19 @@ xorns-find-project-virtualenv-dir."
 
 This adds the current's project directory to the \"sys.path\" when starting
 the python shell."
-  (if (and (featurep 'projectile)
-        (functionp 'projectile-project-root))
+  (if (and (featurep 'projectile) (functionp 'projectile-project-root))
     (let ((project-dir (projectile-project-root)))
       ;; Using python-shell-extra-pythonpaths is not working so
       ;; let's messup with python-shell-completion-setup-code.
       (make-local-variable 'python-shell-completion-setup-code)
-      (xorns-set-value
-        'python-shell-completion-setup-code
+      (setq-default
+        python-shell-completion-setup-code
         (concat
           python-shell-completion-setup-code
           "\n"
           (format "sys.path.append('''%s''')" project-dir)
-          "\n")))))
+          "\n"))
+      )))
 
 
 
