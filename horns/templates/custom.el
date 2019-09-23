@@ -25,7 +25,7 @@ suitable for your configuration."
     ))
 
 
-(defun >>=user-conde ()
+(defun >>=user-code ()
   "User-code executed after initialization process."
   )
 

@@ -59,7 +59,7 @@ This is set to true when executing `emacs-startup-hook'.")
   (add-hook
     'emacs-startup-hook
     (defun >>=startup-hook ()
-      (->? >>=user-conde)
+      (->? >>=user-code)
       ;; TODO: initialize-custom-file-sync
       (setq >>=xorns-initialized (emacs-init-time))
       (message ">>= xorns initialized in %s seconds." >>=xorns-initialized)))
@@ -69,6 +69,7 @@ This is set to true when executing `emacs-startup-hook'.")
       (message ">>= starting server...")
       (server-start)))
   (use-package xorns-common-systems)
+  (->? >>=building-blocks/configuration)
   (use-package xorns-building-blocks)
   (garbage-collect))
 

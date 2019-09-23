@@ -21,8 +21,7 @@
 (require 'xorns-preface)
 (require 'xorns-packages)
 (require 'use-package)
-
-(->? >>=building-blocks/configuration)
+(require 'xorns-tools)
 
 
 (provide 'xorns-building-blocks)
