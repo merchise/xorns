@@ -72,14 +72,6 @@
   "Home directory.")
 
 
-(defun xorns-file-path-join (base &rest args)
-  "Join BASE and ARGS to a single file path.
-The empty string or nil could be used as BASE in order to define root
-directory, one of these values at the end make the returned value to have the
-final separator."
-  (apply 'concat (mapcar 'file-name-as-directory (cons base args))))
-
-
 (defun xorns-preferred-directory (&rest dirs)
   "Return name of preferred directory (the first that exists in DIRS.
 
@@ -98,10 +90,10 @@ If no item is given in DIRS, return $HOME."
   "Return name of preferred default directory when start a new session."
   (xorns-preferred-directory
     (getenv "WORKSPACE")
-    (xorns-file-path-join "~" "work" "src")
-    (xorns-file-path-join "~" "work")
-    (xorns-file-path-join "~" "src" "merchise")
-    (xorns-file-path-join "~" "src")
+    (dir-join "~" "work" "src")
+    (dir-join "~" "work")
+    (dir-join "~" "src" "merchise")
+    (dir-join "~" "src")
     "~"))
 
 

@@ -36,17 +36,21 @@
     (warn ">>= `custom-file' already assigned with value '%s'." custom-file)))
 
 
+(defun >>=-package-user-dir ()
+  "Directory containing installed xorns package."
+  (dir-join
+    package-user-dir
+    (package-desc-full-name (cadr (assq 'xorns package-alist)))))
+
+
 (defun >>=-template-location ()
   "Return base template location for `custom-file'."
   (require 'package)
-  (file-expand
+  (expand-file-name
     "custom.el"
-    (or
-      (bound-and-true-p >>=standalone-startup)
-      (dir-join
-	package-user-dir
-	(package-desc-full-name (cadr (assq 'xorns package-alist)))))
-    "templates"))
+    (dir-join
+      (or (bound-and-true-p >>=standalone-startup) (>>=-package-user-dir))
+      "templates")))
 
 
 (defun >>=-config-file-name ()

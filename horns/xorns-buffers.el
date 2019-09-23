@@ -8,9 +8,6 @@
 
 ;; This module main features are:
 ;;
-;; - Inhibits the start-up screen and initial message for `*scratch*'
-;;   buffer.
-;;
 ;; - Configure `C-x C-b' to list buffers using `ibuffer' instead
 ;;   standard `list-buffers', or `xorns-select-buffer' if
 ;;   `xorns-use-select-buffer' is non nil and `xorns-select-buffer-enabled'
@@ -19,7 +16,7 @@
 ;; - Set `ibuffer' groups.
 ;;
 ;; - Functionality to force `*scratch*' buffer.
-;;
+
 
 ;; Enjoy!
 

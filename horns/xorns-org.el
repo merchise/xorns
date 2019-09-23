@@ -41,6 +41,7 @@
 
 
 (require 'use-package)
+(require 'xorns-tools)
 
 
 (defgroup xorns-org nil
@@ -184,7 +185,7 @@ surrounded with blanks."
       (full-prefix
         (concat
           prefix
-          (xorns-file-path-join (getenv "HOME") ".local/bin/asksp")
+          (expand-file-name "asksp" (dir-join (getenv "HOME") ".local" "bin"))
           "\n")))
     (if shebang
       (unless (string-prefix-p prefix (cdr shebang))

@@ -86,13 +86,6 @@ PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
   (mapconcat 'file-name-as-directory parts ""))
 
 
-(defun file-expand (file-name &rest dir-parts)
-  "Convert FILE-NAME to absolute using `expand-file-name' function.
-The rest of the arguments from the second (DIR-PARTS) are considered parts to
-build the default directory using `dir-join' function."
-(expand-file-name file-name (apply 'dir-join dir-parts)))
-
-
 (defun find-dir (&rest dirs)
   "Find first existing directory from a DIRS list."
   (let (res)
