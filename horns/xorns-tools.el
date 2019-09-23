@@ -37,6 +37,18 @@ ARGS."
     (message (concat ">>= " ,format-string) ,@args)))
 
 
+(defmacro >>=set-value (symbol value)
+  "Initialize a SYMBOL (variable name) with an expression (VALUE)."
+  `(progn
+     (unless
+       (or
+	 (get ',symbol 'standard-value)
+	 (memq (get ',symbol 'custom-autoload) '(nil noset)))
+       (custom-load-symbol ',symbol))
+     ;; set the variable.
+     (set ',symbol ,value)))
+
+
 
 ;; String - symbol conversion
 
@@ -92,7 +104,7 @@ build the default directory using `dir-join' function."
 
 
 (defun >>=locate-user-emacs-file (&rest names)
-  "Return first found in absolute per-user Emacs-specific file-name.
+  "Return first found in NAMES absolute per-user Emacs-specific file-name.
 This function uses `locate-user-emacs-file' for each name until a proper value
 is found.  Each given name is processed with `substitute-in-file-name' to
 substitute used environment variables.  If no item is given, the name of
@@ -106,6 +118,12 @@ standard Emacs initialization file is returned."
 	  ;; else
 	  (setq names (cdr names)))))
     (or res (locate-user-emacs-file "init.el" ".emacs"))))
+
+
+(defun >>=default-directory ()
+  "Name of default directory of current buffer.
+The result will be abbreviated and end with the directory separator slash."
+  (file-name-as-directory (abbreviate-file-name default-directory)))
 
 
 

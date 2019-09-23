@@ -242,12 +242,7 @@ An optional argument ARG could be given to delete other windows; if
 
 ;;; Hooks
 
-(add-hook 'after-init-hook
-  (lambda ()
-    (condition-case err
-      ;; Set initial default directory for `*scratch*' buffer
-      (xorns-set-default-directory)
-      (error (message "error@after-init-hook: %s" err)))))
+(add-hook 'after-init-hook 'xorns-set-default-directory)
 
 
 (provide 'xorns-buffers)

@@ -29,6 +29,8 @@
 
 ;;; Code:
 
+(require 'xorns-tools)
+
 
 (defgroup xorns nil
   "Merchise extensions for Emacs."
@@ -106,7 +108,7 @@ If no item is given in DIRS, return $HOME."
 (defun xorns-set-default-directory ()
   "Set the default directory to its original value."
   (if (equal (xorns-default-directory) xorns-home-dir)
-    (setq-default default-directory (xorns-preferred-default-directory))))
+    (>>=set-value default-directory (xorns-preferred-default-directory))))
 
 
 (defun xorns-executable-find (command &rest other-commands)
