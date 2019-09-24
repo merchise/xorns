@@ -41,7 +41,7 @@
 	(->? >>=settings/init))
       (if save
 	(if exists
-	  (progn
+	  (let ((make-backup-files nil))
 	    (message ">>= saving migrated variables.")
 	    (custom-save-all))
 	  ;; else
