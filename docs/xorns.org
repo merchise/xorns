@@ -77,22 +77,14 @@ You can familiarize with Emacs' package manager by reading the documentation
 in the Emacs manual, see [[info:emacs#Packages]].  Then add the archives to
 ~package-archives~:
 
-- To use Melpa and Marmalade:
-
 #+BEGIN_SRC emacs-lisp
   (require 'package)
-  (add-to-list 'package-archives
-    '("melpa" . "https://melpa.org/packages/") t)
-  (add-to-list 'package-archives
-    '("marmalade" . "https://marmalade-repo.org/packages/") t)
-#+END_SRC
+  (package-initialize)
 
-- To use Melpa-Stable, replace ~"melpa"~ definition, for:
-
-#+BEGIN_SRC emacs-lisp
-  (require 'package)
-  (add-to-list 'package-archives
-    '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+  (setq package-archives
+    '(("gnu" . "http://elpa.gnu.org/packages/")
+      ("melpa" . "https://melpa.org/packages/")
+      ("org" . "https://orgmode.org/elpa/")))
 #+END_SRC
 
 Once you have added your preferred archive, you need to update the
@@ -113,24 +105,33 @@ Now see [[*Post-Installation Tasks][*Post-Installation Tasks]].
 
 ** Installing from the GIT repository
 
-Xorns depends on many packages (see main "default.mk" variable "DEPENDENCIES")
+There are two ways:
+
+*** Using Xorns as an autonomous repository
+
+#+BEGIN_SRC shell-script
+  $ cd
+  $ mv .emacs.d .emacs.d.bak
+  $ git clone --depth 1 https://github.com/merchise/xorns.git .emacs.d
+#+END_SRC
+
+Then start Emacs.  Wait for a while at the first startup to install all
+dependency packages.  Enjoy!
+
+** Installing Xorns locally as an ELPA package
+
+Xorns depends on many packages (see "default.mk" variable "DEPENDENCIES")
 which are available from Melpa and Melpa-Stable.  Install them using ~M-x
 package-install RET <package> RET~.  Of course you may also install them
 manually from their repository.
 
-Then clone the Xorns repository to your softlib dir, (for example
-~\~/.emacs.d/site-lisp/~):
+Then clone the Xorns repository to your softlib dir:
 
 #+BEGIN_SRC shell-script
   $ cd <your/softlib/dir>
   $ git clone https://github.com/merchise/xorns.git
   $ cd xorns
-#+END_SRC
-
-Then compile emacs-lisp libraries and generate the info manuals:
-
-#+BEGIN_SRC shell-script
-  $ make
+  $ make local-install
 #+END_SRC
 
 Any dependency you haven't installed from ELPA or at
@@ -145,53 +146,12 @@ with the following content before running ~make~:
   LOAD_PATH += -L /path/to/<dependency-n>
 #+END_SRC
 
-Finally add your Xorns paths to your ~init.el~ file (for example):
+We have a pre-configured  ~init.el~, you can use it or adapt a previous one to
+require Xorns
 
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path "~/.emacs.d/site-lisp/xorns/horns")
   (require 'xorns)
-
-  (with-eval-after-load 'info
-    (info-initialize)
-    (add-to-list 'Info-directory-list
-                 "~/.emacs.d/site-lisp/xorns/docs/"))
 #+END_SRC
-
-Note: you have to add the library subdirectory (~horns~) to the ~load-path~,
-not the top-level of the repository.
-
-If you are using "package-el", you can automate all above with a single make
-command (just clone Xorns to any softlib folder different of
-~\~/.emacs.d/site-lisp/~):
-
-#+BEGIN_SRC shell-script
-  $ cd /path/to/xorns
-  $ make local-install
-#+END_SRC
-
-To view all available targets use ~make help~.
-
-** Post-Installation Tasks
-
-After installing Xorns you should verify that you are indeed using the correct
-releases for Emacs, Xorns, and all its dependencies.  It's best to restart
-Emacs before doing so, to make sure you are not using an outdated value for
-~load-path~.
-
-After installing Magit you should verify that you are indeed using the
-Magit, Git, and Emacs releases you think you are using.  It's best to
-restart Emacs before doing so, to make sure you are not using an
-outdated value for ~load-path~.
-
-#+BEGIN_EXAMPLE
-  M-x magit-version RET
-#+END_EXAMPLE
-
-should display something like
-
-#+BEGIN_EXAMPLE
-  Magit 2.8.0, Git 2.10.2, Emacs 25.1.1, gnu/linux
-#+END_EXAMPLE
 
 * Getting Started
 
@@ -208,6 +168,38 @@ To be continued ...
 If Emacs is executed with the option ~--debug-init~ (see ~init-file-debug~
 variable) ~custom-file~ it is loaded activating the errors.  In addition,
 some debug messages are printed during the initialization process.
+
+* Local User Configuration
+
+In Xorns, local user configuration file (see =custom-file= Emacs variable)
+will be stored in the standard directory for user-specific configurations
+(XDG_CONFIG_HOME), defaults to =~/.config/xorns=.  If that folder does not
+exist on your system, the user home is used =~/.xorns=.
+
+The first version of this file is copied from =horns/templates/custom.el=.
+
+Because there are former releases of Xorns using old style =custom-file=, the
+first time the new style file is create, old variables are imported from
+=~/.emacs.d/custom-${USER}.el= (or =~/.emacs.d/custom.el=).
+
+New style user configuration file use three functions:
+
+- =>>=settings/init=: Configuration code for user-settings.
+
+  This function is called at the very beginning of the startup process.  It
+  should only modify setting-variables (those prefixed with '>>=|') when their
+  default values are not suitable for your configuration.  See for example
+  =>>=|default-font= to configure your system font (=custom-set-faces= is
+  overwritten in this version of Xorns).
+
+- =>>=building-blocks/configuration=: Configuration code for building-blocks
+  customization.
+
+  This function should only modify variables to customize how building-blocks
+  are loaded (those prefixed with '>>=+') when their default values are not
+  suitable for your configuration.
+
+- =>>=user-code=: User-code executed after initialization process.
 
 * Issues
 
