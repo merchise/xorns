@@ -79,11 +79,12 @@ to configure for yourself: see `save-buffer' function for more information.")
   :custom
   (split-width-threshold 120)
   :chords
-  ("xk" . kill-buffer-and-window)
+  ("xk" . kill-current-buffer)
   ("x0" . delete-window)
   ("x1" . delete-other-windows)
   ("x2" . split-window-below)
-  ("x3" . split-window-right))
+  ("x3" . split-window-right)
+  ("x4" . kill-buffer-and-window))
 
 
 (use-package files
