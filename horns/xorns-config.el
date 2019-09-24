@@ -12,9 +12,8 @@
 ;; is stored in the standard directory for user-specific configurations
 ;; (XDG_CONFIG_HOME), defaults to "~/.config/xorns".  If that folder does not
 ;; exist on your system, "~/.xorns" is used.
-;;
-;; The first version of this file is copied from "templates/custom.el".  If
-;; this file is not found, `custom-file' variable maintains its default value.
+
+;; The first version of this file is copied from "templates/custom.el".
 
 ;;; Code:
 
@@ -23,7 +22,7 @@
 
 (with-eval-after-load 'xorns-config
   (if custom-file
-    (warn ">>= `custom-file' already assigned with value '%s'." custom-file)
+    (warn ">>= `custom-file' already assigned: '%s'." custom-file)
     ;; else
     (require 'cus-edit)
     (setq custom-file (>>=-config-file-name))
@@ -34,7 +33,7 @@
 	(let ((old (>>=locate-user-emacs-file
 		     "custom-${USER}.el" "custom.el")))
 	  (when (file-exists-p old)
-	    (message ">>= loading old custom-file '%s' this first time." old)
+	    (message ">>= migrating old `custom-file' '%s'." old)
 	    (load old (not init-file-debug))
 	    (setq save t))))
       (when exists
@@ -43,12 +42,12 @@
       (if save
 	(if exists
 	  (progn
-	    (message ">>= ensure saving imported old variables.")
+	    (message ">>= saving migrated variables.")
 	    (custom-save-all))
 	  ;; else
-	  (warn (concat ">>= old variables not saved because new custom-file "
-		  "couldn't be configured from a template; this error must "
-		  "be fixed by hand.")))))))
+	  (warn (concat ">>= migrated variables not saved because a template "
+		  "was not found to create the new style `custom-file'; "
+		  "Fix config file manually.")))))))
 
 
 (defun >>=-package-user-dir ()

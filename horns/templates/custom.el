@@ -15,7 +15,7 @@ default values are not suitable for your configuration."
     ))
 
 
-(defun >>=units/configuration ()
+(defun >>=building-blocks/configuration ()
   "Configuration code for building-blocks customization.
 This function should only modify variables to customize how building-blocks
 are loaded (those prefixed with '>>=+') when their default values are not
