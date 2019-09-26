@@ -13,6 +13,7 @@
 (setq package-enable-at-startup nil)
 (package-initialize)
 
+
 (setq package-archives
   '(("gnu" . "http://elpa.gnu.org/packages/")
     ("melpa" . "https://melpa.org/packages/")
@@ -28,13 +29,15 @@
 	; else
 	default-directory)
       (file-name-as-directory "horns")))
-  "If nil, Xorns Started up as an installed package.")
+  "If nil, Emacs started up with `xorns' as an installed package.")
 
 
 (if >>=standalone-startup
   (add-to-list 'load-path >>=standalone-startup))
 
+
 (require 'xorns)
+
 
 (provide 'init)
 ;;; init.el ends here

@@ -106,7 +106,9 @@ to configure for yourself: see `save-buffer' function for more information.")
       kept-old-versions 0    ; check this
       version-control t)
     ; else
-    (setq make-backup-files nil)))
+    (setq make-backup-files nil))
+  :chords
+  ("xs" . save-buffer))
 
 
 (use-package frame
