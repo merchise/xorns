@@ -16,8 +16,9 @@ MKDIR ?= install -p -m 755 -d
 RMDIR ?= $(RM) -fr
 TAR   ?= tar
 
-EMACSBIN ?= emacs
-BATCH     = $(EMACSBIN) -Q --batch $(LOAD_PATH)
+EMACS ?= emacs
+# BATCH = $(EMACS) -Q --batch $(LOAD_PATH)
+BATCH = $(EMACS) -Q --batch
 
 INSTALL_INFO ?= $(shell command -v ginstall-info || printf install-info)
 MAKEINFO     ?= makeinfo

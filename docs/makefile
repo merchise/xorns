@@ -35,7 +35,7 @@ all: info
 info: $(ORGPAGES) dir
 
 %.texi: %.org
-	@$(EMACSBIN) $(ORG_ARGS) $< $(ORG_EVAL)
+	@$(EMACS) $(ORG_ARGS) $< $(ORG_EVAL)
 	@printf "\n" >> $@
 
 %.info: %.texi
