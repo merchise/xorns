@@ -61,7 +61,6 @@
 ;; Some private functions that mimic dash.el behavior.
 (defun -scan-from (fn initial-value list)
   "Do a reduce but return all intermediate values.
-
 FN is the function to apply to each element of the list.  The first FN is
 passed the INITIAL-VALUE with the `car' of LIST.  Subsequent calls are passed
 the previous result and the 'next' value of the list."
@@ -74,7 +73,6 @@ the previous result and the 'next' value of the list."
 
 (defun -scan (fn list)
   "Simplified form of `--scan-from'.
-
 FN is the same as in `--scan-from'.  The initial value is the `car' of LIST."
   (when list (-scan-from fn (car list) (cdr list))))
 
@@ -102,7 +100,7 @@ instance if FILENAME is \"~/.emacs.d/init.el\", then this function returns:
 Notice that the `file-name-nondirectory' candidate \"init.el\" is omitted,
 since it's deemed already tried and not unique."
   (cdr
-    (-scan (lambda (first second) (concat second "/" first))
+    (-scan (lambda (first second) (dir-join second first))
       (nreverse
         (xorns-find-file-name-components
           (or filename buffer-file-name) 'abbrev)))))
