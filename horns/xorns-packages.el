@@ -21,30 +21,31 @@
   "If `package-refresh-contents' is already executed in this session.")
 
 
-(with-eval-after-load 'xorns-packages
-  (>>=ensure-packages
-    ; Bootstrap 'use-package' and dependencies
-    'use-package
-    'diminish
-    'use-package-chords
-    'system-packages
-    'use-package-ensure-system-package
-    ; Bootstrap 'UI' dependencies
-    'minions
-    'spaceline
-    )
-  (use-package use-package-chords
-    :config (key-chord-mode 1)))
-
-
-(defun >>=ensure-packages (&rest packages)
+(defmacro >>=ensure-packages (&rest packages)
   "Ensure all PACKAGES are installed."
-  (dolist (pkg packages)
+  `(dolist (pkg '(,@packages))
     (unless (package-installed-p pkg)
       (unless >>=package-contents-refreshed
 	(package-refresh-contents)
 	(setq >>=package-contents-refreshed t))
       (package-install pkg))))
+
+
+(with-eval-after-load 'xorns-packages
+  (>>=ensure-packages
+    ; Bootstrap 'use-package' and dependencies
+    use-package
+    diminish
+    use-package-chords
+    system-packages
+    use-package-ensure-system-package
+    ; Bootstrap 'UI' dependencies
+    minions
+    spaceline
+    )
+  (require 'use-package)
+  (use-package use-package-chords
+    :config (key-chord-mode 1)))
 
 
 (provide 'xorns-packages)
