@@ -25,7 +25,7 @@ install: lisp
 
 local-install: pkgdef
 	@printf "Local installing '$(PKG)'\n"
-	@$(BATCH) --debug --load=$(TOP)/etc/local-install.el
+	@$(BATCH) --debug --load=$(TOP)/make-tools.el -f local-install
 
 %.elc: %.el
 	@printf "Compiling $<\n"

@@ -60,9 +60,6 @@ old-init:
 	$(call prompt_delfile,$(USER_EMACS_DIR)before-init-${USER}.el)
 	$(call prompt_delfile,$(USER_EMACS_DIR)after-init-${USER}.el)
 
-$(USER_EMACS_DIR)init.el: $(TOP)/init.el
-	cp -i $(TOP)/init.el $(USER_EMACS_DIR)
-
 install: install-lisp install-info
 
 install-lisp: lisp
@@ -71,7 +68,7 @@ install-lisp: lisp
 install-info: info
 	@$(MAKE) -C docs install
 
-local-install: old-init $(USER_EMACS_DIR)init.el
+local-install: old-init
 	@$(MAKE) -C horns local-install
 
 
