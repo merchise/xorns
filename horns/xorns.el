@@ -55,6 +55,7 @@ This is set to true when executing `emacs-startup-hook'.")
     :commands >>=configure-font
     :init
     (>>=configure-font))
+  (->? >>=building-blocks/configuration)
   (use-package xorns-base)
   (add-hook
     'emacs-startup-hook
@@ -69,7 +70,6 @@ This is set to true when executing `emacs-startup-hook'.")
       (message ">>= starting server...")
       (server-start)))
   (use-package xorns-common-systems)
-  (->? >>=building-blocks/configuration)
   (use-package xorns-building-blocks)
   (garbage-collect))
 

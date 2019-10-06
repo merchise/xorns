@@ -21,6 +21,7 @@
 (require 'use-package)
 (require 'use-package-chords)
 (require 'xorns-tools)
+(require 'xorns-packages)
 
 
 
@@ -213,13 +214,13 @@ to configure for yourself: see `save-buffer' function for more information.")
   (run-with-idle-timer 30 t 'recentf-save-list))
 
 
-(use-package gcmh
-  :when (>>=-base/configure? gcmh)
-  :ensure t
-  :commands gcmh-mode
-  :diminish " ♻"
-  :config
-  (gcmh-mode 1))
+(when (>>=-base/configure? gcmh)
+  (>>=ensure-packages gcmh)
+  (use-package gcmh
+    :commands gcmh-mode
+    :diminish " ♻"
+    :config
+    (gcmh-mode 1)))
 
 
 (provide 'xorns-base)
