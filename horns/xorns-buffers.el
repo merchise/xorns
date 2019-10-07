@@ -17,131 +17,157 @@
 ;;
 ;; - Functionality to force `*scratch*' buffer.
 
-
 ;; Enjoy!
 
 
 ;;; Code:
 
-(require 'ibuffer)
-(require 'ibuf-ext)
 (require 'grizzl nil 'noerror)    ; see `akheron/emacs.org'
 (require 'xorns-utils)
+
+(require 'ibuf-ext)
+
+(use-package ibuffer
+  :init
+  (defun >>=ibuffer-visit-buffer (&optional single)
+    "Visit the buffer on this line (use SINGLE window)."
+    (interactive "P")
+    (ibuffer-visit-buffer single)
+    (kill-buffer "*Ibuffer*"))
+  :bind
+  (("C-x C-b" . ibuffer)
+   :map ibuffer-mode-map
+   ("M-RET" . >>=ibuffer-visit-buffer))
+  :custom
+  (ibuffer-saved-filter-groups
+    '(("Normal"
+	("System"
+	  (or
+	    (name . "[*]scratch[*]")
+	    (name . "[*]Messages[*]")
+	    (name . "[*]Backtrace[*]" )
+	    (mode . Custom-mode)))
+	("Terms"
+	  (or
+	    (mode . term-mode)
+	    (mode . vterm-mode)))
+	("Dired"
+	  (or
+	    (mode . dired-omit-mode)
+	    (mode . dired-mode)))
+	("GNUs/Org"
+	  (or
+	    (name . "*Deft*")
+	    (name . "bbdb")
+	    (name . "[.]newsrc-dribble")
+	    (mode . org-mode)
+	    (mode . org-agenda-mode)
+	    (mode . diary-mode)
+	    (mode . calendar-mode)
+	    (mode . bbdb-mode)
+	    (mode . message-mode)
+	    (mode . mail-mode)
+	    (mode . gnus-group-mode)
+	    (mode . gnus-summary-mode)
+	    (mode . gnus-article-mode)))
+	("Configuration" (mode . conf-unix-mode))
+	("Python" (mode . python-mode))
+	("Haskell/Agda/Coq"
+	  (or
+	    (mode . haskell-mode)
+	    (mode . agda2-mode)
+	    (mode . coq-mode)))
+	("Lisp"
+	  (or
+	    (mode . emacs-lisp-mode)
+	    (mode . lisp-interaction-mode)
+	    (mode . lisp-mode)))
+	("Programming"
+	  (or
+	    (mode . c-mode)
+	    (mode . cc-mode)
+	    (mode . ruby-mode)
+	    (mode . rust-mode)
+	    (mode . scala-mode)
+	    (mode . java-mode)
+	    (mode . scala-mode-inf)
+	    (mode . prog-mode)))
+	("Text/Markdown/RST/TeX"
+	  (or
+	    (mode . text-mode)
+	    (mode . rst-mode)
+	    (mode . markdown)
+	    (mode . markdown-mode)
+	    (mode . tex-mode)))
+	("Web/XML/HTML/CSS"
+	  (or
+	    (mode . w3m-mode)
+	    (mode . javascript-mode)
+	    (mode . nxml-mode)
+	    (mode . html-mode)
+	    (mode . css-mode)
+	    (mode . less-mode)
+	    (mode . sass-mode)))
+	("Version Control"
+	  (or
+	    (name . "^magit")
+	    (mode . git-commit-mode)
+	    (mode . git-commit-major-mode)
+	    (mode . git-rebase-mode)
+	    (mode . magit-mode)
+	    (mode . magit-cherry-mode)
+	    (mode . magit-diff-mode)
+	    (mode . magit-log-mode)
+	    (mode . magit-log-select-mode)
+	    (mode . magit-merge-preview-mode)
+	    (mode . magit-popup-mode)
+	    (mode . magit-process-mode)
+	    (mode . magit-refs-mode)
+	    (mode . magit-reflog-mode)
+	    (mode . magit-revision-mode)
+	    (mode . magit-stash-mode)
+	    (mode . magit-stashes-mode)
+	    (mode . magit-status-mode)
+	    (mode . diff-mode)))
+	("Help/Info/Completions/Customize"
+	  (or
+	    (name . "^[*]Help[*]$")
+	    (name . "^[*]Apropos[*]$")
+	    (name . "^[*]info[*]$")
+	    (name . "^[*]helpful")
+	    (name . "^[*]Customize")
+	    (mode . help-mode)
+	    (mode . Info-mode)
+	    (mode . Man-mode)
+	    (mode . woman-mode)
+	    (mode . rfcview-mode)
+	    (mode . completion-list-mode)))
+	)))
+  (ibuffer-show-empty-filter-groups nil)
+  (ibuffer-default-sorting-mode 'major-mode)
+  (ibuffer-formats
+    '((mark modified read-only vc-status-mini " "
+	(name 24 24 :left :elide)
+	" "
+	(size-h 9 -1 :right)
+	" "
+	(mode 16 16 :left :elide)
+	" "
+	filename-and-process)))
+  :hook
+  ((ibuffer-mode .
+     (lambda () (ibuffer-switch-to-saved-filter-groups "Normal"))))
+  :config
+  (define-ibuffer-column size-h
+    (:name "Size" :inline t)
+    (file-size-human-readable (buffer-size)))
+  )
 
 
 
 ;;; Custom key-bindings
 
-(global-set-key (kbd "C-x C-b") 'ibuffer)
 (global-set-key (kbd "C-x <f2>") 'rename-buffer)
-
-;; Set `ibuffer' to loads some preferred groups.
-(setq-default
-  ibuffer-saved-filter-groups
-  (quote
-    (("xorns-ibuffer-groups"
-       ("System"
-	 (or
-	   (name . "*scratch*")
-	   (name . "*Messages*")
-	   (mode . Custom-mode)))
-       ("Shell" (mode . term-mode))
-       ("Dired"
-	 (or
-	   (mode . dired-omit-mode)
-	   (mode . dired-mode)))
-       ("Web"
-	 (or
-	   (mode . w3m-mode)))
-       ("Org"
-	 (or
-	   (mode . org-mode)
-	   (mode . org-agenda-mode)
-	   (mode . diary-mode)
-	   (mode . calendar-mode)
-	   (mode . bbdb-mode)
-	   (name . "*Deft*")
-	   (name . "bbdb")))
-       ("Configuration" (mode . conf-unix-mode))
-       ("Python" (mode . python-mode))
-       ("Haskell/Agda/Coq"
-	 (or
-	   (mode . haskell-mode)
-	   (mode . agda2-mode)
-	   (mode . coq-mode)))
-       ("Lisp"
-	 (or
-	   (mode . emacs-lisp-mode)
-	   (mode . lisp-interaction-mode)
-	   (mode . lisp-mode)))
-       ("C" (or (mode . c-mode) (mode . cc-mode)))
-       ("Scala/Java"
-	 (or
-	   (mode . scala-mode)
-	   (mode . java-mode)
-	   (mode . scala-mode-inf)))
-       ("RST/Markdown"
-	 (or
-	   (mode . rst-mode)
-	   (mode . markdown-mode)))
-       ("XML/HTML/CSS"
-	 (or
-	   (mode . nxml-mode)
-	   (mode . html-mode)
-	   (mode . css-mode)
-	   (mode . less-mode)
-	   (mode . sass-mode)))
-       ("Version Control"
-	 (or
-	   (mode . git-commit-mode)
-	   (mode . git-commit-major-mode)
-	   (mode . git-rebase-mode)
-	   (mode . magit-mode)
-	   (mode . magit-cherry-mode)
-	   (mode . magit-diff-mode)
-	   (mode . magit-log-mode)
-	   (mode . magit-log-select-mode)
-	   (mode . magit-merge-preview-mode)
-	   (mode . magit-popup-mode)
-	   (mode . magit-process-mode)
-	   (mode . magit-refs-mode)
-	   (mode . magit-reflog-mode)
-	   (mode . magit-revision-mode)
-	   (mode . magit-stash-mode)
-	   (mode . magit-stashes-mode)
-	   (mode . magit-status-mode)
-	   (mode . diff-mode)))
-       ("Help/Info/Completions"
-	 (or
-	   (mode . help-mode)
-	   (mode . Info-mode)
-	   (mode . Man-mode)
-	   (mode . woman-mode)
-	   (mode . rfcview-mode)
-	   (mode . completion-list-mode)))
-       )))
-  ibuffer-formats
-  (quote ((mark modified read-only " "
-	    (name 22 22 :left :elide)
-	    " "
-	    (size 9 -1 :right)
-	    " "
-	    (mode 16 16 :left :elide)
-	    " "
-	    filename-and-process)
-	   (mark " "
-	     (name 16 -1)
-	     " "
-	     filename)))
-  )
-
-
-(add-hook 'ibuffer-mode-hook
-  (lambda ()
-    (condition-case err
-      (ibuffer-switch-to-saved-filter-groups "xorns-ibuffer-groups")
-      (error (message "error@ibuffer-mode-hook: %s" err)))))
-
 
 (defun xorns-toggle-header-mode-line ()
   "Toggle visibility of header mode-line."
@@ -153,19 +179,6 @@
     ; else
     (setq header-line-format nil))
   (force-mode-line-update 'all))
-
-
-(defun xorns-ibuffer-visit-buffer (&optional single)
-  "Visit the buffer on this line.
-If optional argument SINGLE is non-nil, then also ensure there is only one
-window.  After that standard behaviour, this function kills the `ibuffer'."
-  (interactive "P")
-  (ibuffer-visit-buffer single)
-  (kill-buffer "*Ibuffer*"))
-
-
-(when (featurep 'ibuffer)
-  (define-key ibuffer-mode-map (kbd "M-RET") 'xorns-ibuffer-visit-buffer))
 
 
 
@@ -187,16 +200,14 @@ window.  After that standard behaviour, this function kills the `ibuffer'."
 (defun xorns-grizzl-select-buffer ()
   "Select a buffer via `grizzl-search'."
   (interactive)
-  (let* (
-          (visible-buffer-names
-            (loop
-              for buffer being the buffers
-              for buffer-name = (buffer-name buffer)
-              if (not (string-match "^ " buffer-name))
-              collect buffer-name
-              ))
-          (buffers-index (grizzl-make-index visible-buffer-names))
-          (buffer (grizzl-completing-read "Buffer: " buffers-index)))
+  (let* ((visible-buffer-names
+	   (loop
+	     for buffer being the buffers
+	     for buffer-name = (buffer-name buffer)
+	     if (not (string-match "^ " buffer-name))
+	     collect buffer-name))
+         (buffers-index (grizzl-make-index visible-buffer-names))
+         (buffer (grizzl-completing-read "Buffer: " buffers-index)))
     (if (not (eq buffer (buffer-name)))
       (switch-to-buffer buffer))))
 

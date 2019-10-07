@@ -495,12 +495,6 @@ The prefix ARG could be:
   (message ">>>> PASTE-ARG = '%s' of type: %s" arg (type-of arg)))
 
 
-;; (defsubst ibuffer-get-region-and-prefix ()
-;;   (let ((arg (prefix-numeric-value current-prefix-arg)))
-;;     (if (use-region-p) (list (region-beginning) (region-end) arg)
-;;       (list nil nil arg))))
-
-
 (defun xorns-toggle-term-mode ()
   "Toggle term-mode between `term-line-mode' and `term-char-mode'."
   (interactive)
