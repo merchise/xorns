@@ -359,55 +359,6 @@ xorns-find-project-virtualenv-dir."
         (add-to-list local-exec-path buildout-exec-path)))))
 
 
-
-(defun xorns-find-better-unique-buffer-name ()
-  "Hook for `find-file-hook' to find a better buffer name."
-  (let ((unique nil)
-         (passes 0)
-         (max-passes 10)
-         (name (buffer-name))
-         ;; Defensively tests for projectile's functions since we could be
-         ;; called without it been installed.
-         (project-p (when (functionp 'projectile-project-p)
-                      (projectile-project-p)))
-         (project-name (when (functionp 'projectile-project-name)
-                         (projectile-project-name))))
-    ;; TODO: This __init__.py hack must be properly checked only for python
-    ;; projects, see xorns.el (Which module?).  But since I'm in a hurry,
-    ;; and having __init__.py buffer names bugs me, this helps a lot.
-    (unless (or project-p (string-match "<[0-9]+>$" name)
-              (eq "__init__.py" name))
-      (message "No better name for buffer. It will be called '%s'" name))
-    (when (or project-p (string-match "<[0-9]+>$" name)
-            (eq "__init__.py" name))
-      (message "Should find a better name for '%s'" name)
-      ;;; First just try to add the project-name
-      (when project-name
-        (setq name (concat project-name ":"
-                     (file-name-nondirectory buffer-file-name)))
-        ;; TODO: See the __init__.py above.  Probably uniqueness is not the
-        ;; only thing to check, but also goodness.
-        (setq unique (and (null (get-buffer name))
-                       (not (string-match "__init__.py$" name)))))
-      ;;; Then if not unique try prepending path components to buffer name
-      (unless unique
-        (let ((path-components (-buffer-name-candidates)))
-          (--take-while
-            (let ((stop nil)
-                   (current-path-component it))
-              (setq name (if project-name
-                           (concat project-name ":" current-path-component)
-                           current-path-component))
-              (setq unique (null (get-buffer name)))
-              (setq passes (1+ passes))
-              (setq stop (or unique (> passes max-passes)))
-              (not stop))
-            path-components)))
-      (when unique
-        (message "Found name '%s'" name)
-        (rename-buffer name)))))
-
-
 (defun xorns-python-shell-setup-completion ()
   "Setup the `python-shell-completion-setup-code' variable.
 
@@ -426,14 +377,6 @@ the python shell."
           (format "sys.path.append('''%s''')" project-dir)
           "\n"))
       )))
-
-
-
-;;  Standard hooks for project integration
-
-(add-hook 'find-file-hook
-  (lambda ()
-    (xorns-find-better-unique-buffer-name)))
 
 
 
