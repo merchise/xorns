@@ -158,15 +158,6 @@ to configure for yourself: see `save-buffer' function for more information.")
   (electric-pair-mode t))    ; TODO: Check `custom-set-variables' for user
 
 
-(use-package ido
-  :bind ("C-x b" . ido-switch-buffer)
-  :custom
-  (ido-auto-merge-work-directories-length -1)
-  (ido-enable-flex-matching t)
-  :init
-  (ido-mode 1))
-
-
 (use-package mwheel
   :custom
   ;; Use the trackpade to scroll the buffer horizontally

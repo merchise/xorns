@@ -22,10 +22,13 @@
 
 ;;; Code:
 
+(require 'use-package-chords)
+(require 'use-package)
 (require 'grizzl nil 'noerror)    ; see `akheron/emacs.org'
 (require 'xorns-utils)
 
 (require 'ibuf-ext)
+
 
 (use-package ibuffer
   :init
@@ -195,6 +198,18 @@
   "If t then `C-x b` will call `xorns-grizzl-select-buffer'."
   :group 'xorns
   :type 'boolean)
+
+
+(use-package ido
+  :bind
+  ("C-x b" . ido-switch-buffer)
+  :chords
+  ("xb" . ido-switch-buffer)
+  :custom
+  (ido-auto-merge-work-directories-length -1)
+  (ido-enable-flex-matching t)
+  :init
+  (ido-mode 1))
 
 
 (defun xorns-grizzl-select-buffer ()
