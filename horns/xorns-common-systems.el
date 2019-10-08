@@ -47,7 +47,6 @@
   (use-package xorns-xml)
   ;; Previously in xorns-extra
   (use-package xorns-mail)
-  (use-package xorns-gud)
   )
 
 
