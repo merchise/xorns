@@ -1,4 +1,4 @@
-;;; xorns-fonts.el --- Default Fonts Support
+;;; xorns-display.el --- Default Display-System Support
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
@@ -8,7 +8,7 @@
 
 ;;; Commentary:
 
-;; This library defines several utilities used to configure default fonts.
+;; This library defines several utilities to configure display-system.
 
 ;;; Code:
 
@@ -106,5 +106,5 @@ The return value is nil if no font was found, truthy otherwise."
     nil))
 
 
-(provide 'xorns-fonts)
-;;; xorns-fonts.el ends here
+(provide 'xorns-display)
+;;; xorns-display.el ends here

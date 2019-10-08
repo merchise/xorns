@@ -51,7 +51,7 @@ This is set to true when executing `emacs-startup-hook'.")
     (after-init . spaceline-xorns-theme)
     :config
     (>>=frame-title-init))
-  (use-package xorns-fonts
+  (use-package xorns-display
     :commands >>=configure-font
     :init
     (>>=configure-font))
