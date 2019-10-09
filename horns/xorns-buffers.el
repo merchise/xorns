@@ -268,5 +268,29 @@ An optional argument ARG could be given to delete other windows; if
 (add-hook 'after-init-hook 'xorns-set-default-directory)
 
 
+
+;;; line-numbering
+
+(defun xorns-try-linum-mode ()
+  "Enable line numbers in the left margin but only if buffer is not big.
+
+A buffer is considered big if buffer size is less that
+`xorns-big-buffer-size-limit'."
+;; TODO: line-number-display-limit
+  (let ((buffer-size (/ (buffer-size) 1024)))
+    (if (< buffer-size xorns-big-buffer-size-limit)
+      (linum-mode 1)
+      ; else
+      (linum-mode 0)
+      (message "Disable 'linum-mode' for a big buffer: %sK" buffer-size))
+      nil
+  ))
+
+
+(when (featurep 'linum)
+  (global-linum-mode -1)
+  )
+
+
 (provide 'xorns-buffers)
 ;;; xorns-buffers.el ends here

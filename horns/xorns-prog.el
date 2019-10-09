@@ -27,6 +27,7 @@
 
 (require 'xorns-text nil 'noerror)
 (require 'xorns-utils)
+(require 'xorns-buffers)
 
 (require 'use-package)
 

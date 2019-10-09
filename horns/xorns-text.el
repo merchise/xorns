@@ -29,6 +29,7 @@
 (require 'google-translate nil 'noerror)
 (require 'google-translate-smooth-ui nil 'noerror)
 (require 'xorns-utils nil 'noerror)
+(require 'xorns-buffers)
 
 
 ;;; Custom Variables and Settings
@@ -62,10 +63,6 @@
 
 
 ;; Fill Column Indicator parameters
-(when (featurep 'linum)
-  (global-linum-mode t)
-  )
-
 
 (when (featurep 'ispell)
   (setq-default

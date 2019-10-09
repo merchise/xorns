@@ -160,22 +160,6 @@ then a space and the value of `default-directory'."
 	  (message "%s %s" prompt name))))))
 
 
-(defun xorns-try-linum-mode ()
-  "Enable line numbers in the left margin but only if buffer is not big.
-
-A buffer is considered big if buffer size is less that
-`xorns-big-buffer-size-limit'."
-;; TODO: line-number-display-limit
-  (let ((buffer-size (/ (buffer-size) 1024)))
-    (if (< buffer-size xorns-big-buffer-size-limit)
-      (linum-mode 1)
-      ; else
-      (linum-mode 0)
-      (message "Disable 'linum-mode' for a big buffer: %sK" buffer-size))
-      nil
-  ))
-
-
 ;; TODO: This code must be removed when every body uses Emacs >= 24.3
 (unless (functionp 'file-name-base)
   (defun file-name-base (&optional filename)
