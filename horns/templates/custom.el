@@ -12,6 +12,7 @@ default values are not suitable for your configuration."
     ;; >>=|make-backup-files t
     ;; >>=|user-mail-address-template "${USER}@gmail.com"
     ;; >>=|show-title-in-header-line t
+    ;; >>=|enable-server t
     ))
 
 
@@ -33,4 +34,3 @@ suitable for your configuration."
 
 ;; Do not write anything past this comment.  This is where Emacs will
 ;; auto-generate custom variable definitions.
-

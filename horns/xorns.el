@@ -36,7 +36,7 @@
 This is set to true when executing `emacs-startup-hook'.")
 
 
-(defvar >>=|enable-server t
+(defvar >>=|enable-server nil
   "If non-nil, start an Emacs server if one is not already running.")
 
 
