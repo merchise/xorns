@@ -31,6 +31,15 @@
 
 ;; Configuration Variables
 
+(defconst >>=window-manager
+  (or
+    (getenv "DESKTOP_SESSION")
+    (getenv "XDG_SESSION_DESKTOP")
+    (getenv "GDMSESSION")
+    (getenv "XDG_CURRENT_DESKTOP"))
+  "Name of started Desktop Window Manager.")
+
+
 (defvar >>=xorns-initialized nil
   "Whether or not Xorns has finished the startup process.
 This is set to true when executing `emacs-startup-hook'.")
@@ -60,6 +69,8 @@ This is set to true when executing `emacs-startup-hook'.")
   (add-hook
     'emacs-startup-hook
     (defun >>=startup-hook ()
+      (if (equal >>=window-manager "emacs")
+	(require 'xorns-exwm))
       (->? >>=user-code)
       ;; TODO: initialize-custom-file-sync
       (setq >>=xorns-initialized (emacs-init-time))

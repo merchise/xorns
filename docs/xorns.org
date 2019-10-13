@@ -201,6 +201,38 @@ New style user configuration file use three functions:
 
 - =>>=user-code=: User-code executed after initialization process.
 
+* Configure Emacs as a Window Manager
+
+https://wiki.archlinux.org/index.php/EXWM
+
+https://github.com/ch11ng/exwm/wiki
+
+** Install
+
+Make sure you have =emacs= and =xorg-xinit= installed.
+
+From within Emacs: M-x package-install exwm RET.
+
+Edit =xinitrc= and add: =exec emacs=
+
+To test it at startup, in the folder =/usr/share/xsessions/= add the file
+=emacs.desktop= with the content:
+
+#+BEGIN_SRC shell-script
+  [Desktop Entry]
+  Name=emacs
+  Comment=emacs window manager
+  Exec=emacs
+  # Icon=
+  Type=Application
+  X-LightDM-DesktopName=emacs
+  DesktopNames=emacs
+  Keywords=emacs;wm;windowmanager;window;manager;
+#+END_SRC
+
+Then restart =lightdm= con =sudo systemctl restart lightdm= and choose "Emacs"
+in the button.
+
 * Issues
 
 ** Error starting initial frame maximized in Manjaro Linux i3 desktop
