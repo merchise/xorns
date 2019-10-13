@@ -8,6 +8,14 @@
 
 ;;; Commentary:
 
+;; Packages ('startup', 'window', 'files', 'windmove', 'elec-pair', 'mwheel',
+;; 'iso-transl', and 'man') are always configured; 'frame' is configured if a
+;; graphic display is present, while 'xt-mouse' and 'xclip' when running in a
+;; console.
+;;
+;; Extra packages can be configured through `>>=|base/extra-packages'
+;; variable.  Options are ('autorevert', 'recentf', 'saveplace', and 'gcmh').
+
 ;; It's installed just by calling `(require 'xorns-packages)' in the
 ;; initialization process, which is done automatically.
 ;;
@@ -35,10 +43,9 @@ variable is the best way to configure this leaving this value unchanged as
 nil).")
 
 
-(defvar >>=|base/extra-packages '()
+(defvar >>=|base/extra-packages nil
   "List of optional base packages to install.
-There is a fix list (window files), that are always configured by default.
-Here is the full list (autorevert recentf gcmh).")
+A full of options are (autorevert recentf saveplace gcmh).")
 
 
 (defvar >>=|make-backup-files nil
@@ -152,6 +159,14 @@ to configure for yourself: see `save-buffer' function for more information.")
       (lambda () (interactive) (scroll-up 1)))))
 
 
+;; Fix the clipboard in terminal or daemon Emacs (non-GUI)
+(unless window-system
+  (>>=ensure-packages xclip)
+  (use-package xclip
+    :hook
+    (tty-setup . xclip-mode)))
+
+
 (use-package elec-pair
   :demand t
   :config
@@ -200,9 +215,19 @@ to configure for yourself: see `save-buffer' function for more information.")
   :when (>>=-base/configure? recentf)
   :defer 0.1
   :custom
-  (recentf-auto-cleanup 30)
+  (recentf-max-saved-items 200)
+  (recentf-max-menu-items 15)
+  ;; Cleanup only when Emacs is idle for 5 minutes, not when the mode is
+  ;; enabled, that unnecessarily slows down Emacs.
+  (recentf-auto-cleanup 300)
   :config
-  (run-with-idle-timer 30 t 'recentf-save-list))
+  (run-with-idle-timer 300 t 'recentf-save-list))
+
+
+(use-package saveplace
+  :when (>>=-base/configure? saveplace)
+  :config
+  (save-place-mode 1))
 
 
 (when (>>=-base/configure? gcmh)

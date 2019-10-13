@@ -22,7 +22,7 @@ This function should only modify variables to customize how building-blocks
 are loaded (those prefixed with '>>=+') when their default values are not
 suitable for your configuration."
   (setq-default
-    ;; >>=|base/extra-packages '(autorevert recentf gcmh)
+    ;; >>=|base/extra-packages '(autorevert recentf saveplace gcmh)
     ))
 
 
