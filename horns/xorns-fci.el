@@ -25,25 +25,17 @@
   :defer t
   :commands fci-mode
   :preface
-
   (defun xorns-fci-mode-on ()
     "Set `fci-mode' on."
     (fci-mode 1))
-
-  (defun xorns-fci-mode-off ()
-    "Set `fci-mode' off."
-    (fci-mode 0))
-
   :custom
   (fill-column 78)
   (fci-rule-width 1)
   (fci-rule-color "#CCCCCC")    ;; or "Legislatively"?
-
   :hook
   ((text-mode . xorns-fci-mode-on)
    (prog-mode . xorns-fci-mode-on)
    (conf-mode . xorns-fci-mode-on)))
-
 
 
 (provide 'xorns-fci)

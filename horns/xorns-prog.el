@@ -140,7 +140,7 @@
       (error (message "error@prog-mode-hook: %s" err)))))
 
 
-(add-hook 'conf-unix-mode-hook          ; For configuration files
+(add-hook 'conf-mode-hook          ; For configuration files
   (lambda ()
     (condition-case err
       (progn

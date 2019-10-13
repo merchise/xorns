@@ -22,12 +22,14 @@
 
 ;;; Code:
 
+(require 'xorns-packages)
+(require 'xorns-utils)
 (require 'use-package-chords)
 (require 'use-package)
 (require 'grizzl nil 'noerror)    ; see `akheron/emacs.org'
-(require 'xorns-utils)
 
 (require 'ibuf-ext)
+(>>=ensure-packages ibuffer-vc)
 
 
 (use-package ibuffer
