@@ -49,30 +49,32 @@ This is set to true when executing `emacs-startup-hook'.")
   "If non-nil, start an Emacs server if one is not already running.")
 
 
+;; these local variables speed boost during initialization
 (let ((gc-cons-threshold 134217728)    ; (* 128 1024 1024)
       (gc-cons-percentage 0.6)
       (file-name-handler-alist nil))
-  ;; these local variables speed boost during initialization
   (require 'xorns-config)
-  (use-package xorns-ui
-    :commands >>=frame-title-init
-    :hook
-    (after-init . spaceline-xorns-theme)
-    :config
-    (>>=frame-title-init))
-  (use-package xorns-display
-    :commands >>=configure-font
-    :init
-    (>>=configure-font))
+  (>>=progn "UI and display initialization"
+    (use-package xorns-ui
+      :commands >>=frame-title-init
+      :hook
+      (after-init . spaceline-xorns-theme)
+      :config
+      (>>=frame-title-init))
+    (use-package xorns-display
+      :commands >>=configure-font
+      :init
+      (>>=configure-font)))
   (->? >>=building-blocks/configuration)
-  (use-package xorns-base)
+  (>>=progn "base initialization"
+    (use-package xorns-base))
+  (if (equal >>=window-manager "emacs")
+    (>>=progn "start emacs as a window manager"
+      (require 'xorns-exwm)))
   (add-hook
     'emacs-startup-hook
     (defun >>=startup-hook ()
-      (if (equal >>=window-manager "emacs")
-	(require 'xorns-exwm))
       (->? >>=user-code)
-      ;; TODO: initialize-custom-file-sync
       (setq >>=xorns-initialized (emacs-init-time))
       (message ">>= xorns initialized in %s seconds." >>=xorns-initialized)))
   (when >>=|enable-server
@@ -80,9 +82,12 @@ This is set to true when executing `emacs-startup-hook'.")
     (unless (server-running-p)
       (message ">>= starting server...")
       (server-start)))
-  (use-package xorns-common-systems)
-  (use-package xorns-building-blocks)
-  (garbage-collect))
+  (>>=progn "main initialization"
+    (use-package xorns-common-systems)
+    (use-package xorns-building-blocks)))
+
+
+(garbage-collect)
 
 
 (provide 'xorns)

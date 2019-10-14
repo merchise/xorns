@@ -25,7 +25,7 @@
      (condition-case-unless-debug err
        (,func ,@args)
        (error
-	 (message "Xorns Error in '%s': %s\n"
+	 (message ">>= error in '%s': %s\n"
 	   ',(symbol-name func) (error-message-string err))))))
 
 
@@ -35,6 +35,17 @@ Use the same parameters as `message' standard function: FORMAT-STRING and
 ARGS."
   `(if init-file-debug
     (message (concat ">>= " ,format-string) ,@args)))
+
+
+(defmacro >>=progn (header &rest body)
+  "Safe evaluate BODY forms sequentially and return value of last one.
+Use a HEADER message when `init-file-debug' is t, or in case of error, to
+report the identity of the enclosed body."
+  `(condition-case-unless-debug err
+     (progn
+       (>>=on-debug-message ,header)
+       ,@body)
+     (error (message (concat ">>= error on (" ,header "): %s") err))))
 
 
 (defmacro >>=set-value (symbol value)
