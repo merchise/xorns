@@ -25,12 +25,6 @@
   :group 'convenience)
 
 
-(defcustom xorns-big-buffer-size-limit 50
-  "Limit in KBytes to consider a buffer big (default is 50K)."
-  :group 'xorns
-  :type 'integer)
-
-
 
 ;;; Symbols and variables
 

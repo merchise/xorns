@@ -20,10 +20,8 @@
 ;;; Code:
 
 (require 'ispell)
-(require 'rst)
 (require 'outline)
 (require 'paren)
-(require 'linum)
 
 (require 'auto-complete nil 'noerror)
 (require 'google-translate nil 'noerror)
@@ -87,16 +85,24 @@
 ;;; text-modes
 
 (use-package text-mode
-  :mode ("\\.log\\'" "/LICENSE\\'")
-  :hook (text-mode . xorns-try-linum-mode))
+  :mode ("\\.log\\'" "/LICENSE\\'"))
 
 
-(add-hook 'tex-mode-hook           ; run when entering generic-TeX mode
-  (lambda ()
-    (condition-case err
-      (setq-default ispell-parser 'tex)
-      (error (message "error@tex-mode-hook: %s" err)))))
+(defun >>=tex-mode-setup ()
+  "Common settings for tex-modes."
+  (setq-default ispell-parser 'tex)
+  (turn-on-auto-fill)
+  (flyspell-mode nil))
 
+
+(use-package tex-mode
+  :defer t
+  :hook
+  ((tex-mode . >>=tex-mode-setup)
+   (latex-mode . >>=tex-mode-setup)))
+
+
+(require 'rst)
 
 (add-hook 'rst-mode-hook           ; run when entering reStructuredText mode
   (lambda ()
