@@ -84,17 +84,11 @@
 
 
 
-;;; Hooks
+;;; text-modes
 
-;;(add-hook 'before-save-hook 'copyright-update)
-;; TODO: (add-hook 'before-save-hook 'time-stamp)
-
-
-(add-hook 'text-mode-hook
-  (lambda ()
-    (condition-case err
-      (xorns-try-linum-mode)
-      (error (message "error@text-mode-hook: %s" err)))))
+(use-package text-mode
+  :mode ("\\.log\\'" "/LICENSE\\'")
+  :hook (text-mode . xorns-try-linum-mode))
 
 
 (add-hook 'tex-mode-hook           ; run when entering generic-TeX mode
