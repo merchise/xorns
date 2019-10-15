@@ -128,25 +128,18 @@
 
 (add-hook 'prog-mode-hook          ; run for all programming modes
   (lambda ()
-    (condition-case err
-      (progn
-        (unless (tramp-connectable-p (buffer-file-name))
-          (xorns-auto-complete-mode)
-          (flyspell-prog-mode))
-        (turn-on-auto-fill)
-        (subword-mode nil))
-      (error (message "error@prog-mode-hook: %s" err)))))
+    (unless (tramp-connectable-p (buffer-file-name))
+      (xorns-auto-complete-mode)
+      (flyspell-prog-mode))
+    (turn-on-auto-fill)
+    (subword-mode nil)))
 
 
 (add-hook 'conf-mode-hook          ; For configuration files
   (lambda ()
-    (condition-case err
-      (progn
-        (xorns-auto-complete-mode)
-        (turn-on-auto-fill)
-        (subword-mode nil))
-      (error (message "error@conf-unix-mode-hook: %s" err)))))
-
+    (xorns-auto-complete-mode)
+    (turn-on-auto-fill)
+    (subword-mode nil)))
 
 
 

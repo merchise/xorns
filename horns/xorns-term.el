@@ -499,14 +499,10 @@ The prefix ARG could be:
 (if xorns-term-toggle-mode-key
   (add-hook 'term-mode-hook
     (lambda ()
-      (condition-case err
-        (progn
-          (define-key term-mode-map
-            xorns-term-toggle-mode-key 'xorns-toggle-term-mode)
-          (define-key term-raw-map
-            xorns-term-toggle-mode-key 'xorns-toggle-term-mode))
-        ;; handlers
-        (error (message "error@term-mode-hook: %s" err))))))
+      (define-key term-mode-map
+	xorns-term-toggle-mode-key 'xorns-toggle-term-mode)
+      (define-key term-raw-map
+	xorns-term-toggle-mode-key 'xorns-toggle-term-mode))))
 
 
 (provide 'xorns-term)

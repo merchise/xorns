@@ -221,12 +221,9 @@ surrounded with blanks."
 
 (add-hook 'org-mode-hook           ; run when entering org mode
   (lambda ()
-    (condition-case err
-      (progn
-        (turn-on-auto-fill)
-        (flyspell-mode nil)
-        (setq-default ispell-parser 'tex))
-      (error (message "error@org-mode-hook: %s" err)))))
+    (turn-on-auto-fill)
+    (flyspell-mode nil)
+    (setq-default ispell-parser 'tex)))
 
 (provide 'xorns-org)
 ;;; xorns-org.el ends here
