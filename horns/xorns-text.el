@@ -19,7 +19,6 @@
 
 ;;; Code:
 
-(require 'ispell)
 (require 'outline)
 (require 'paren)
 
@@ -60,12 +59,21 @@
 (delete-selection-mode 1)
 
 
-;; Fill Column Indicator parameters
+;; dictionaries
 
-(when (featurep 'ispell)
-  (setq-default
-    ispell-highlight-p t
-    ispell-silently-savep t))
+(use-package ispell
+  :bind
+  (("C-c i d" . ispell-change-dictionary)
+   ("C-c i l" . ispell-change-dictionary)
+   ("C-c i r" . ispell-region)
+   ("C-c i b" . ispell-buffer)
+   ("C-c i c" . ispell-comments-and-strings)
+   ("C-c i k" . ispell-kill-ispell)
+   ("C-c i m" . ispell-message))
+  :custom
+  (ispell-highlight-p t)
+  (ispell-silently-savep t)
+  (ispell-dictionary "english"))
 
 
 
@@ -129,9 +137,6 @@ If this feature is not installed don't fail and just report a message."
 
 
 ;;; Key-bindings
-
-;; It only function in RST major mode and if `ispell' is enabled.
-(define-key rst-mode-map "\C-cil" 'ispell-change-dictionary)
 (global-set-key (kbd "C-|") 'google-translate-smooth-translate)
 
 

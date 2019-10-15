@@ -134,7 +134,6 @@
           (xorns-auto-complete-mode)
           (flyspell-prog-mode))
         (turn-on-auto-fill)
-        (ispell-change-dictionary "english")
         (subword-mode nil))
       (error (message "error@prog-mode-hook: %s" err)))))
 
@@ -145,7 +144,6 @@
       (progn
         (xorns-auto-complete-mode)
         (turn-on-auto-fill)
-        (ispell-change-dictionary "english")
         (subword-mode nil))
       (error (message "error@conf-unix-mode-hook: %s" err)))))
 

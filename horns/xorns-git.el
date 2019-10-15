@@ -18,7 +18,6 @@
 ;;; Code:
 
 
-(require 'ispell)
 (require 'magit nil 'noerror)
 (require 'xorns-utils)
 
@@ -32,9 +31,7 @@
 	(condition-case err
 	  (progn
 	    (turn-on-auto-fill)
-	    (flyspell-mode nil)
-	    ;; TODO: Use .dir-locals.el
-	    (ispell-change-dictionary "english"))
+	    (flyspell-mode nil))
 	  (error (message "error@git-commit-mode-hook: %s" err))))))
   ;else
   (xorns-missing-feature 'magit))

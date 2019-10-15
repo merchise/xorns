@@ -56,7 +56,6 @@ This patch avoid this."
 
 
 (require 'dictionary nil 'noerror)
-(require 'ispell)
 (require 'rfcview nil 'noerror)
 (require 'wget nil 'noerror)
 (require 'org nil 'noerror)
@@ -136,7 +135,6 @@ surrounded with blanks."
   (global-set-key "\C-cc" 'org-capture)
   (global-set-key "\C-ca" 'org-agenda)
   (global-set-key "\C-cb" 'org-iswitchb)
-  (define-key org-mode-map "\C-cil" 'ispell-change-dictionary)
   (setq-default
     org-todo-keywords
        (quote
