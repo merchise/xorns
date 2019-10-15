@@ -114,22 +114,16 @@
    (latex-mode . >>=tex-mode-setup)))
 
 
-(require 'rst)
-
-(add-hook 'rst-mode-hook           ; run when entering reStructuredText mode
-  (lambda ()
-    (condition-case err
-      (progn
-        (turn-on-auto-fill)
-        (flyspell-mode nil)             ; When used flyspell-prog-mode I
-                                        ; can't see the errors while typing
-        (setq-default
-	  ispell-parser 'tex
-	  rst-new-adornment-down t))
-      (error (message "error@rst-mode-hook: %s" err)))))
+(use-package rst
+  :defer t
+  :hook
+  (rst-mode . >>=tex-mode-setup)
+  :custom
+  (rst-new-adornment-down t))
 
 
 (use-package markdown-mode
+  :defer t
   :commands (markdown-mode gfm-mode)
   :mode
   (("README\\.md\\'" . gfm-mode) ;; github-flavored-markdown
