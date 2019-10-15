@@ -333,14 +333,6 @@ current mode."
       (assq id xorns-term-shells))))
 
 
-(defun xorns-read-shell-command (&optional prompt)
-  "Read the program to execute in a shell.
-
-PROMPT is a string to prompt with; a colon and a space will be appended."
-  (xorns-completing-read (or prompt "Run program") nil)
-  )
-
-
 (defun xorns--ansi-term (shell)
   "Start or select a SHELL."
   (let ((index (xorns--shell-get-index shell))
@@ -437,7 +429,7 @@ The prefix ARG could be:
     ((null arg) (xorns--default-ansi-term))
     ((integerp arg) (xorns--shell-get arg))
     ((listp arg) (xorns--current-mode-get-shell))    ;; TODO: ????
-    ((symbolp arg) (xorns-read-shell-command))    ;; '-
+    ((symbolp arg) (xorns-completing-read "Run program" nil))    ;; '-
     ))
 
 

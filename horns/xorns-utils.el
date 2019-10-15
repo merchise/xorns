@@ -226,17 +226,6 @@ If STRICT is nil::
       (if (eq res t) 2 res))))
 
 
-(defun xorns-completing-read (prompt choices &optional def)
-  "Read a string in the minibuffer with completion using `ido'.
-
-PROMPT is a string to prompt with; a colon and a space will be appended.
-CHOICES is a list of strings which are the possible completions.
-DEF, if non-nil, is the default value."
-  (if choices
-    (ido-completing-read
-      (concat prompt  ": ") choices nil 'require-match nil nil def)))
-
-
 (defun xorns-read (prompt &optional default-value keymap read hist)
   "Read a string from the minibuffer, prompting with string PROMPT.
 

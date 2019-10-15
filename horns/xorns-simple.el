@@ -30,6 +30,55 @@
   ido-auto-merge-delay-time 1.5)
 
 
+(use-package simple
+  :defer t
+  :config
+  ;; re-enable this command
+  (put 'set-goal-column 'disabled nil))
+
+
+;;; Enable some disabled commands
+
+;; Give us narrowing back!
+(put 'narrow-to-region 'disabled nil)
+(put 'narrow-to-page 'disabled nil)
+(put 'narrow-to-defun 'disabled nil)
+
+;; Same for region casing
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
+
+
+;; Typed text replaces the selection
+(delete-selection-mode 1)
+
+
+;; parenthesis matching
+
+(use-package paren
+  :custom
+  (show-paren-style 'mixed)
+  :config
+  (show-paren-mode))
+
+
+;; dictionaries
+
+(use-package ispell
+  :bind
+  (("C-c i d" . ispell-change-dictionary)
+   ("C-c i l" . ispell-change-dictionary)
+   ("C-c i r" . ispell-region)
+   ("C-c i b" . ispell-buffer)
+   ("C-c i c" . ispell-comments-and-strings)
+   ("C-c i k" . ispell-kill-ispell)
+   ("C-c i m" . ispell-message))
+  :custom
+  (ispell-highlight-p t)
+  (ispell-silently-savep t)
+  (ispell-dictionary "english"))
+
+
 
 ;;; Some simple functions
 
