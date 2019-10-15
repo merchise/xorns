@@ -20,7 +20,6 @@
 ;;; Code:
 
 (require 'outline)
-(require 'paren)
 
 (require 'auto-complete nil 'noerror)
 (require 'google-translate nil 'noerror)
@@ -29,23 +28,17 @@
 (require 'xorns-buffers)
 (require 'xorns-packages)
 
-
 (>>=ensure-packages markdown-mode)
+
 
 
 ;;; Custom Variables and Settings
-
-;; Turn ON parenthesis matching
-(show-paren-mode t)
-(setq-default show-paren-mode t)
 
 (setq-default
   ;; Consecutive years replaced with range
   copyright-year-ranges t
   ;; Do not display continuation lines
   truncate-lines t
-  ;; Parenthesis matching style
-  show-paren-style 'mixed
   ;; Key to start auto-complete
   ac-trigger-key "TAB"
   )
@@ -61,6 +54,14 @@
 
 ;; Typed text replaces the selection
 (delete-selection-mode 1)
+
+
+;; Turn ON parenthesis matching
+(use-package paren
+  :custom
+  (show-paren-style 'mixed)
+  :config
+  (show-paren-mode))
 
 
 ;; dictionaries
