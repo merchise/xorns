@@ -27,6 +27,10 @@
 (require 'google-translate-smooth-ui nil 'noerror)
 (require 'xorns-utils nil 'noerror)
 (require 'xorns-buffers)
+(require 'xorns-packages)
+
+
+(>>=ensure-packages markdown-mode)
 
 
 ;;; Custom Variables and Settings
@@ -123,6 +127,28 @@
 	  ispell-parser 'tex
 	  rst-new-adornment-down t))
       (error (message "error@rst-mode-hook: %s" err)))))
+
+
+(use-package markdown-mode
+  :commands (markdown-mode gfm-mode)
+  :mode
+  (("README\\.md\\'" . gfm-mode) ;; github-flavored-markdown
+   ("\\.md\\'" . markdown-mode)
+   ("\\.mkd" . markdown-mode)
+   ("\\.mkdn" . markdown-mode)
+   ("\\.mdown" . markdown-mode)
+   ("\\.markdown\\'" . markdown-mode))
+  :init
+  (defun >>=markdown-mode-setup ()
+    (flyspell-mode)
+    (subword-mode))
+  :hook
+  (markdown-mode . >>=markdown-mode-setup)
+  (gfm-mode . >>=markdown-mode-setup)
+  :custom-face
+  (markdown-code-face ((t nil)))
+  :custom
+  (markdown-asymmetric-header t))
 
 
 (defun xorns-auto-complete-mode ()
