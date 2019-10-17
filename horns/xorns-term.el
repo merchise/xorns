@@ -429,7 +429,7 @@ The prefix ARG could be:
     ((null arg) (xorns--default-ansi-term))
     ((integerp arg) (xorns--shell-get arg))
     ((listp arg) (xorns--current-mode-get-shell))    ;; TODO: ????
-    ((symbolp arg) (xorns-completing-read "Run program" nil))    ;; '-
+    ((symbolp arg) (ido-completing-read "Run program: " nil))
     ))
 
 

@@ -19,16 +19,6 @@
 ;;; Code:
 
 
-(require 'ido)
-(require 'xorns-utils nil 'noerror)
-
-
-;;; Custom Variables and Settings
-
-(setq-default
-  column-number-mode t
-  ido-auto-merge-delay-time 1.5)
-
 
 (use-package simple
   :defer t
@@ -95,24 +85,7 @@ If no grep process is active, find next error in occur buffer.
 A prefix ARG specifies how many error messages to move; negative means move
 back to previous error messages.  Just \\[universal-argument] as a prefix
 means reparse the error message buffer and start at the first error.
-
-The RESET argument specifies that we should restart from the beginning.
-
-In the case of grep results, each visited buffer is marked read-only."
-  (interactive "P")
-  (if (get-buffer "*grep*")
-    (progn
-      (add-hook 'next-error-hook '-set-buffer-read-only)
-      (ido-visit-buffer "*grep*" 'other-window)
-      ;; Previous statement could be generalized like::
-      ;; (ido-visit-buffer
-      ;;   (next-error-find-buffer 'AVOID-CURRENT)
-      ;;   'other-window)
-      (next-error arg reset)
-      (delete-other-windows)
-      (remove-hook 'next-error-hook '-set-buffer-read-only))
-    (next-error arg reset)))
-
+;;; interactively do (ido)
 
 (defun xorns-yank-filename ()
   "Make buffer file-name the latest kill in the kill ring."
@@ -127,6 +100,17 @@ In the case of grep results, each visited buffer is marked read-only."
   (interactive)
   (save-excursion
     (kill-new default-directory)))
+(use-package ido
+  :bind
+  ("C-x b" . ido-switch-buffer)
+  :chords
+  ("xb" . ido-switch-buffer)
+  :custom
+  (ido-auto-merge-work-directories-length -1)
+  (ido-enable-flex-matching t)
+  (ido-auto-merge-delay-time 1.5)
+  :config
+  (ido-mode 1))
 
 
 ;;; Custom key-bindings

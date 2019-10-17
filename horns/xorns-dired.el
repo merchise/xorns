@@ -206,12 +206,5 @@ If `dired-single' is not installed, does nothing."
   (lambda () (load "dired-x")))
 
 
-;; ;; TODO: To preserve positions, use::
-;; (set-register
-;;   (intern
-;;     (xorns-default-directory))
-;;   (dired-save-positions))
-
-
 (provide 'xorns-dired)
 ;;; xorns-dired.el ends here
