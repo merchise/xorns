@@ -77,9 +77,9 @@ If no item is given in DIRS, return $HOME."
     "~"))
 
 
-(defun xorns-set-default-directory ()
+(defun >>=set-default-directory ()
   "Set the default directory to its original value."
-  (if (equal (xorns-default-directory) xorns-home-dir)
+  (if (equal (>>=default-directory) xorns-home-dir)
     (>>=set-value default-directory (xorns-preferred-default-directory))))
 
 
@@ -95,63 +95,11 @@ is returned."
     (cons command other-commands)))
 
 
-(defun xorns-default-directory ()
+(defun >>=default-directory ()
   "Name of default directory of current buffer.
-
-This functions assures that the result always ends with slash and it is
-in abbreviated format.  To interactively change the default directory,
-use command `cd'."
+The result always ends with slash and it is in abbreviated format.  To
+interactively change the default directory, use command `cd'."
   (file-name-as-directory (abbreviate-file-name default-directory)))
-
-
-(defun xorns-buffer-file-name ()
-  "Name of file visited in current buffer, or nil if not visiting a file.
-
-This should be an abbreviated file name."
-  (let ((aux buffer-file-name))
-    (and aux (abbreviate-file-name aux))))
-
-
-(defun xorns-kill-ring-save-directory (&optional no-show)
-  "Show and put in the kill ring current directory.
-
-If optional argument NO-SHOW is not nil, the message is not shown.  The
-format for the message is: The first position is used as `<0>' for the
-first time this command is executed for each directory, and `<+>' when
-repeated; next is printed `$' for an ordinary user or `#' for `root';
-then a space and the value of `default-directory'."
-  (interactive "P")
-  (let* ((name (xorns-default-directory))
-         (last (if kill-ring (car kill-ring)))
-         (new (not (equal last name)))
-         (sudo (equal user-real-login-name "root"))
-         (prompt (format "%s%s" (if new "<0>" "<+>") (if sudo "#" "$"))))
-    (if new
-      (kill-new name))
-    (unless no-show
-      (message "%s %s" prompt name))))
-
-
-(defun xorns-kill-ring-save-filename (&optional no-show)
-  "Show and put in the kill ring current file-name.
-
-If optional argument NO-SHOW is not nil, the message is not shown.  The
-format for the message is: The first position is used as `<0>' for the
-first time this command is executed for each directory, and `<+>' when
-repeated; next is printed `$' for an ordinary user or `#' for `root';
-then a space and the value of `default-directory'."
-  (interactive "P")
-  (let ((name (xorns-buffer-file-name)))
-    (when name
-      (let*
-	((last (if kill-ring (car kill-ring)))
-         (new (not (equal last name)))
-         (sudo (equal user-real-login-name "root"))
-         (prompt (format "%s%s" (if new "<0>" "<+>") (if sudo "#" "$"))))
-	(if new
-	  (kill-new name))
-	(unless no-show
-	  (message "%s %s" prompt name))))))
 
 
 ;; TODO: This code must be removed when every body uses Emacs >= 24.3

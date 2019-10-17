@@ -244,7 +244,7 @@ An optional argument ARG could be given to delete other windows; if
     (set-buffer-major-mode buf)
     (switch-to-buffer-other-window buf)
     (if (= (prefix-numeric-value arg) 0)
-      (xorns-set-default-directory))
+      (>>=set-default-directory))
     (if arg (delete-other-windows))))
 
 
@@ -255,7 +255,7 @@ An optional argument ARG could be given to delete other windows; if
 
 ;;; Hooks
 
-(add-hook 'after-init-hook 'xorns-set-default-directory)
+(add-hook 'after-init-hook '>>=set-default-directory)
 
 
 
