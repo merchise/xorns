@@ -200,12 +200,6 @@ See `read-from-minibuffer' for more information on all arguments."
     (or (unless (equal res "") res) default-value "")))
 
 
-;;; Custom key-bindings
-
-(global-set-key (kbd "C-c k d") 'xorns-kill-ring-save-directory)
-(global-set-key (kbd "C-c k f") 'xorns-kill-ring-save-filename)
-
-
 
 ;;; Features
 

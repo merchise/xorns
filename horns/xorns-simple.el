@@ -18,10 +18,38 @@
 
 ;;; Code:
 
+(require 'use-package)
+(require 'use-package-chords)
+(require 'xorns-utils)
 
 
 (use-package simple
   :defer t
+  :init
+  (progn
+    (defun >>=kill-new (string)
+      "Make not repeating STRING the latest kill in the kill ring."
+      (unless (equal string (car kill-ring))
+	(kill-new string)))
+
+    (defun >>=yank-filename ()
+      "Make buffer file-name the latest kill in the kill ring."
+      (interactive)
+      (>>=kill-new (or buffer-file-truename (buffer-name))))
+
+    (defun >>=yank-default-directory ()
+      "Make default directory the latest kill in the kill ring."
+      (interactive)
+      (>>=kill-new (>>=default-directory)))
+    )
+  :bind
+  (("C-c k f" . >>=yank-filename)
+   ("C-c k d" . >>=yank-default-directory)
+   ;; deprecate next 2
+   ("C-c M-w" . >>=yank-filename)
+   ("C-c C-w" . >>=yank-default-directory))
+  :custom
+  (column-number-mode t)
   :config
   ;; re-enable this command
   (put 'set-goal-column 'disabled nil))
@@ -33,19 +61,19 @@
 (put 'narrow-to-region 'disabled nil)
 (put 'narrow-to-page 'disabled nil)
 (put 'narrow-to-defun 'disabled nil)
-
 ;; Same for region casing
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 
 
-;; Typed text replaces the selection
-(delete-selection-mode 1)
+(use-package delsel
+  ;; typed text replaces the selection
+  :config
+  (delete-selection-mode))
 
-
-;; parenthesis matching
 
 (use-package paren
+  ;; parenthesis matching
   :custom
   (show-paren-style 'mixed)
   :config
@@ -70,36 +98,8 @@
 
 
 
-;;; Some simple functions
-
-(defun -set-buffer-read-only ()
-  "Private function to be used in `xorns-next-grep-result'."
-  (setq-default buffer-read-only t))
-
-
-(defun xorns-next-grep-result (&optional arg reset)
-  "Visit next grep result.
-
-If no grep process is active, find next error in occur buffer.
-
-A prefix ARG specifies how many error messages to move; negative means move
-back to previous error messages.  Just \\[universal-argument] as a prefix
-means reparse the error message buffer and start at the first error.
 ;;; interactively do (ido)
 
-(defun xorns-yank-filename ()
-  "Make buffer file-name the latest kill in the kill ring."
-  (interactive)
-  (save-excursion
-    (kill-new (or buffer-file-truename (buffer-name)))))
-
-
-
-(defun xorns-yank-default-directory ()
-  "Make default directory the latest kill in the kill ring."
-  (interactive)
-  (save-excursion
-    (kill-new default-directory)))
 (use-package ido
   :bind
   ("C-x b" . ido-switch-buffer)
@@ -116,9 +116,6 @@ means reparse the error message buffer and start at the first error.
 ;;; Custom key-bindings
 
 (global-set-key (kbd "C-c r") 'rgrep)
-(global-set-key (kbd "C-M-g") 'xorns-next-grep-result)
-(define-key global-map (kbd "C-c M-w") 'xorns-yank-filename)
-(define-key global-map (kbd "C-c C-w") 'xorns-yank-default-directory)
 
 
 (provide 'xorns-simple)
