@@ -233,7 +233,7 @@ To test it at startup, in the folder =/usr/share/xsessions/= add the file
 Then restart =lightdm= con =sudo systemctl restart lightdm= and choose "Emacs"
 in the button.
 
-* Issues
+* Issues and Feature Requirements
 
 ** Error starting initial frame maximized in Manjaro Linux i3 desktop
 
@@ -243,6 +243,14 @@ When I initialize Emacs in the same workspace that it has automatically
 assigned, an unwanted border appears on the right of the screen.  To correct
 that issue, I must execute full-screen mode twice.  If it is executed from a
 different workspace, this problem does not occur.
+
+** Grammarly -- Great Writing, Simplified
+
+https://www.grammarly.com/
+
+@manu advised to use this to improve commit messages.  There is n extension
+with Emacs: https://github.com/mmagnus/emacs-grammarly
+
 
 * _ :ignore:
 
