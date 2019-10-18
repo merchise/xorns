@@ -26,6 +26,32 @@ suitable for your configuration."
     ))
 
 
+(defun >>=window-manager/init ()
+  "Configuration executed only when using Emacs as a Window Manager."
+  ;;; For example:
+  (setq exwm-input-simulation-keys
+    '(
+       ;; movement
+       ([?\C-b] . [left])
+       ([?\M-b] . [C-left])
+       ([?\C-f] . [right])
+       ([?\M-f] . [C-right])
+       ([?\C-p] . [up])
+       ([?\C-n] . [down])
+       ([?\C-a] . [home])
+       ([?\C-e] . [end])
+       ([?\M-v] . [prior])
+       ([?\C-v] . [next])
+       ([?\C-d] . [delete])
+       ([?\C-k] . [S-end delete])
+       ;; cut/paste.
+       ([?\M-w] . [?\C-c])
+       ([?\C-y] . [?\C-v])
+       ;; search
+       ([?\C-s] . [?\C-f])))
+  )
+
+
 (defun >>=user-code ()
   "User-code executed after initialization process."
   )

@@ -16,9 +16,14 @@
 
 (require 'exwm)
 (require 'exwm-config)
-(exwm-config-default)
 
-(message ">>= using Emacs as the Desktop Window Manager.")
+
+(with-eval-after-load 'xorns-exwm
+  (message ">>= using Emacs as the Desktop Window Manager.")
+  (exwm-config-default)
+  (->? >>=window-manager/init)
+  )
+
 
 (defun >>=cmd (command)
   "Execute a shell COMMAND."
