@@ -201,6 +201,28 @@ New style user configuration file use three functions:
 
 - =>>=user-code=: User-code executed after initialization process.
 
+* Display and Buffer Geometry Configuration
+
+For some reason in Manjaro Linux, using *i3* as window-manager (maybe in all
+tiling desktops), configure to startup in ~fullscreen maximize~ mode doesn't
+work in the initial frame with the standard procedure (see
+`initial-frame-alist' variable).
+
+We "patch" this configuration starting Emacs in ~fullboth~ mode, and then
+toggle to ~maximize~.
+
+Geometry for the initial-frame is only applied after the initialization
+process is finalized. If you want this configuration since the first
+beginning, modify one of the X Resources files (for example ~/.Xresources)
+adding the next line:
+
+#+BEGIN_SRC shell-script
+  emacs.fullscreen: full-both
+#+END_SRC
+
+You can rather use ~maximize~ if you don't use a tiling desktop.
+
+
 * Configure Emacs as a Window Manager
 
 https://wiki.archlinux.org/index.php/EXWM

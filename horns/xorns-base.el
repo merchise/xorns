@@ -120,24 +120,22 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 
 (use-package frame
-  :when window-system
+  :when (display-graphic-p)
   :config
   (progn
-    ; Kill `suspend-frame' and start Emacs maximized
+    ;; Kill `suspend-frame' and start Emacs maximized
     (global-unset-key (kbd "C-z"))
     (global-unset-key (kbd "C-x C-z"))
-    (set-frame-parameter nil 'undecorated t)
-    (add-to-list 'default-frame-alist '(undecorated . t))
+    (let ((geometry-params
+    	    '((internal-border-width . 0)
+    	      (fullscreen . maximized)
+    	      (undecorated . t))))
+      (setcdr default-frame-alist geometry-params)
+      (setcdr initial-frame-alist geometry-params))
     (unless (frame-parameter nil 'fullscreen)
+      (toggle-frame-fullscreen)
       (toggle-frame-maximized))
-    ; TODO: Check if both are needed
-    (let ((no-border '(internal-border-width . 0))
-	  (full-screen '(fullscreen . maximized)))
-      (add-to-list 'default-frame-alist no-border)
-      (add-to-list 'initial-frame-alist no-border)
-      (add-to-list 'default-frame-alist full-screen)
-      (add-to-list 'initial-frame-alist full-screen))))
-
+    ))
 
 (use-package windmove
   :custom
@@ -147,7 +145,7 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 
 (use-package xt-mouse
-  :unless window-system
+  :unless (display-graphic-p)
   :config
   (progn
     ; Enable mouse support when running in a console
@@ -160,7 +158,7 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 
 ;; Fix the clipboard in terminal or daemon Emacs (non-GUI)
-(unless window-system
+(unless (display-graphic-p)
   (>>=ensure-packages xclip)
   (use-package xclip
     :hook
