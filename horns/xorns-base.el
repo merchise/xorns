@@ -121,21 +121,24 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 (use-package frame
   :when (display-graphic-p)
+  :init
+  (let ((geometry-params
+	  '((internal-border-width . 0)
+	    (fullscreen . maximized)
+	    (fullscreen-restore . maximized)
+	    (undecorated . t))))
+    (setcdr default-frame-alist geometry-params)
+    (setcdr initial-frame-alist geometry-params))
   :config
   (progn
     ;; Kill `suspend-frame' and start Emacs maximized
     (global-unset-key (kbd "C-z"))
     (global-unset-key (kbd "C-x C-z"))
-    (let ((geometry-params
-    	    '((internal-border-width . 0)
-    	      (fullscreen . maximized)
-    	      (undecorated . t))))
-      (setcdr default-frame-alist geometry-params)
-      (setcdr initial-frame-alist geometry-params))
     (unless (frame-parameter nil 'fullscreen)
+      ;; (set-frame-parameter nil 'fullscreen 'maximized)
       (toggle-frame-fullscreen)
-      (toggle-frame-maximized))
-    ))
+      (toggle-frame-fullscreen))))
+
 
 (use-package windmove
   :custom
