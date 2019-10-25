@@ -216,13 +216,17 @@ to configure for yourself: see `save-buffer' function for more information.")
   :when (>>=-base/configure? recentf)
   :defer 0.1
   :custom
-  (recentf-max-saved-items 200)
-  (recentf-max-menu-items 15)
+  (recentf-max-saved-items 64)
   ;; Cleanup only when Emacs is idle for 5 minutes, not when the mode is
   ;; enabled, that unnecessarily slows down Emacs.
   (recentf-auto-cleanup 300)
+  :bind
+  ("C-c C-r" . recentf-open-files)
   :config
-  (run-with-idle-timer 300 t 'recentf-save-list))
+  (progn
+    (run-with-idle-timer recentf-auto-cleanup t 'recentf-save-list)
+    (recentf-mode 1)))
+
 
 
 (use-package saveplace
