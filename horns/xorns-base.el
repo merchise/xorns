@@ -224,7 +224,7 @@ to configure for yourself: see `save-buffer' function for more information.")
   ("C-c C-r" . recentf-open-files)
   :config
   (progn
-    (run-with-idle-timer recentf-auto-cleanup t 'recentf-save-list)
+    (run-with-idle-timer (* 2 recentf-auto-cleanup) t 'recentf-save-list)
     (recentf-mode 1)))
 
 

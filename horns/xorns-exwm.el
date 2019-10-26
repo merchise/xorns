@@ -14,6 +14,11 @@
 
 ;;; Code:
 
+
+(require 'xorns-packages)
+
+(>>=ensure-packages exwm)
+
 (require 'exwm)
 (require 'exwm-config)
 
