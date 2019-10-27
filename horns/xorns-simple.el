@@ -113,9 +113,36 @@
   (ido-mode 1))
 
 
-;;; Custom key-bindings
+
+;;; grep facilities
 
-(global-set-key (kbd "C-c r") 'rgrep)
+;; todo: check `wgrep', `scf-mode'
+
+(use-package grep
+  :bind
+  (("C-c C-g n" . find-name-dired)
+   ("C-c C-g f" . find-grep)
+   ("C-c C-g g" . grep)
+   ("C-c C-g d" . find-grep-dired)
+   ("C-c C-g r" . rgrep)
+   ;; deprecate
+   ("C-c r" . rgrep))
+  :chords
+  ("gn" . find-name-dired)
+  ("gf" . find-grep)
+  ("gg" . grep)
+  ("gr" . rgrep)
+  ("rr" . rgrep)
+  :config
+  (progn
+    (dolist
+      (type '(jpg jpeg png gif    ; images
+	      mpg mjpg avi        ; videos
+	      rar zip 7z))        ; archives
+      (add-to-list 'grep-find-ignored-files (concat "*." (symbol-name type))))
+    (dolist
+      (name '(".tox" ".hypothesis" ".idea" ".mypy_cache" ".vscode"))
+      (add-to-list 'grep-find-ignored-directories name))))
 
 
 (provide 'xorns-simple)
