@@ -30,6 +30,7 @@
 (require 'use-package-chords)
 (require 'xorns-tools)
 (require 'xorns-packages)
+(require 'diminish)
 
 
 

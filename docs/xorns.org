@@ -257,6 +257,10 @@ in the button.
 
 * Issues and Feature Requirements
 
+** Packages `minions' and `diminish' are mutually exclusive
+
+https://www.reddit.com/r/emacs/comments/81ogys/minions/
+
 ** Error starting initial frame maximized in Manjaro Linux i3 desktop
 
 Report date: 2019-09-18
