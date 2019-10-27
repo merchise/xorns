@@ -214,7 +214,6 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 (use-package recentf
   :when (>>=-base/configure? recentf)
-  :defer 0.1
   :custom
   (recentf-max-saved-items 64)
   ;; Cleanup only when Emacs is idle for 5 minutes, not when the mode is
