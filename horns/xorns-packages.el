@@ -17,7 +17,7 @@
 
 ;;; Code:
 
-(defvar >>=package-contents-refreshed nil
+(defvar >>-package-contents-refreshed nil
   "If `package-refresh-contents' is already executed in this session.")
 
 
@@ -25,9 +25,9 @@
   "Ensure all PACKAGES are installed."
   `(dolist (pkg '(,@packages))
     (unless (package-installed-p pkg)
-      (unless >>=package-contents-refreshed
+      (unless >>-package-contents-refreshed
 	(package-refresh-contents)
-	(setq >>=package-contents-refreshed t))
+	(setq >>-package-contents-refreshed t))
       (package-install pkg))))
 
 
@@ -45,7 +45,12 @@
     )
   (require 'use-package)
   (use-package use-package-chords
-    :config (key-chord-mode 1)))
+    :config
+    (progn
+      (setq-default
+	key-chord-two-keys-delay 0.02
+	key-chord-one-key-delay 0.15)
+      (key-chord-mode 1))))
 
 
 (provide 'xorns-packages)
