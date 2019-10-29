@@ -55,7 +55,8 @@ This is set to true when executing `emacs-startup-hook'.")
       (gc-cons-percentage 0.6)
       (file-name-handler-alist nil))
   (require 'xorns-config)
-  (>>=progn "UI and display initialization"
+  (>>=progn "keyboard UI and display initialization"
+    (use-package xorns-keyboard)
     (use-package xorns-ui
       :commands >>=frame-title-init
       :hook

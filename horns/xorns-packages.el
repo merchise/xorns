@@ -36,21 +36,12 @@
     ; Bootstrap 'use-package' and dependencies
     use-package
     diminish
-    use-package-chords
     system-packages
     use-package-ensure-system-package
     ; Bootstrap 'UI' dependencies
     minions
     spaceline
-    )
-  (require 'use-package)
-  (use-package use-package-chords
-    :config
-    (progn
-      (setq-default
-	key-chord-two-keys-delay 0.02
-	key-chord-one-key-delay 0.15)
-      (key-chord-mode 1))))
+    ))
 
 
 (provide 'xorns-packages)
