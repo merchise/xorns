@@ -13,7 +13,7 @@ default values are not suitable for your configuration."
     ;; >>=|user-mail-address-template "${USER}@gmail.com"
     ;; >>=|show-title-in-header-line t
     ;; >>=|enable-server t
-    ;; >>=|typing-delay 0.18
+    ;; >>=|key-chord-delay-level 3
     ))
 
 
