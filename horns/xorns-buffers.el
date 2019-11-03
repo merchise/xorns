@@ -26,11 +26,17 @@
 (require 'xorns-utils)
 (require 'use-package)
 (require 'use-package-chords)
-(require 'grizzl nil 'noerror)    ; see `akheron/emacs.org'
-
 (require 'ibuf-ext)
-(>>=ensure-packages ibuffer-vc)
 
+(>>=ensure-packages ibuffer-vc grizzl)
+
+(use-package grizzl
+  ;; see `akheron/emacs.org'
+  :defer t)
+
+
+;; Use grizzl instead of ido for completion
+;; todo: (setq flycheck-completion-system 'grizzl)
 
 (use-package ibuffer
   :init
@@ -220,6 +226,7 @@
 ;; TODO: Prepare a function (not a lambda) in order to see the help with
 ;; `describe-key'.
 (when xorns-grizzl-select-buffer-enabled
+  (require 'cl)
   (lexical-let ((previous-binding (global-key-binding (kbd "C-x b"))))
     (message "The C-x b previous binding was %s" previous-binding)
     (global-set-key (kbd "C-x b")
