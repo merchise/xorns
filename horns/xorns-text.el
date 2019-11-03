@@ -21,7 +21,6 @@
 
 (require 'outline)
 
-(require 'auto-complete nil 'noerror)
 (require 'google-translate nil 'noerror)
 (require 'google-translate-smooth-ui nil 'noerror)
 (require 'xorns-utils nil 'noerror)
@@ -29,19 +28,6 @@
 (require 'xorns-packages)
 
 (>>=ensure-packages markdown-mode)
-
-
-
-;;; Custom Variables and Settings
-
-(setq-default
-  ;; Consecutive years replaced with range
-  copyright-year-ranges t
-  ;; Do not display continuation lines
-  truncate-lines t
-  ;; Key to start auto-complete
-  ac-trigger-key "TAB"
-  )
 
 
 
@@ -58,10 +44,23 @@
 
 
 
+;;; Deal with copyright notices
+
+(use-package copyright
+  :bind
+  ("C-c x c" . copyright-update)
+  :custom
+  (copyright-year-ranges t))
+
+
+
 ;;; text-modes
 
 (use-package text-mode
-  :mode ("\\.log\\'" "/LICENSE\\'"))
+  :mode
+  ("\\.log\\'" "/LICENSE\\'")
+  :custom
+  (truncate-lines t))
 
 
 (defun >>=tex-mode-setup ()
@@ -108,15 +107,6 @@
   :custom
   (markdown-asymmetric-header t))
 
-
-(defun xorns-auto-complete-mode ()
-  "Turn ON `auto-complete' mode in a safe way.
-
-If this feature is not installed don't fail and just report a message."
-  (if (featurep 'auto-complete)
-    (auto-complete-mode t)
-    ;; else
-    (xorns-missing-feature 'auto-complete)))
 
 
 
