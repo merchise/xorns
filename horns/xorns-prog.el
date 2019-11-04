@@ -7,10 +7,9 @@
 ;;; Commentary:
 
 ;; Generic definitions for editing programming language source code.
-
-;; This module is automatically used when::
 ;;
-;;     (require 'xorns)
+;; todo: http://company-mode.github.io/
+;;       company-tern
 
 ;; Enjoy!
 
@@ -18,9 +17,6 @@
 ;;; Code:
 
 (require 'tramp)
-(require 'auto-complete)
-(require 'tern)
-(require 'tern-auto-complete)
 (require 'cc-mode nil 'noerror)
 (require 'javadoc-lookup nil 'noerror)
 (require 'blacken nil 'noerror)
@@ -30,6 +26,7 @@
 (require 'xorns-buffers)
 
 (require 'use-package)
+(require 'xorns-packages)
 
 
 (defgroup xorns-prog nil
@@ -40,7 +37,19 @@
 
 
 
+;;; Common Systems
 
+(>>=ensure-packages auto-complete)
+
+(use-package auto-complete
+  :custom
+  (ac-trigger-key "TAB")
+  :config
+  (progn
+    (ac-flyspell-workaround)))
+
+
+
 ;; Emacs Lisp
 
 (use-package lisp-mode
@@ -129,7 +138,7 @@
 (add-hook 'prog-mode-hook          ; run for all programming modes
   (lambda ()
     (unless (tramp-connectable-p (buffer-file-name))
-      (xorns-auto-complete-mode)
+      (auto-complete-mode t)
       (flyspell-prog-mode))
     (turn-on-auto-fill)
     (subword-mode nil)))
@@ -137,7 +146,7 @@
 
 (add-hook 'conf-mode-hook          ; For configuration files
   (lambda ()
-    (xorns-auto-complete-mode)
+    (auto-complete-mode t)
     (turn-on-auto-fill)
     (subword-mode nil)))
 
@@ -145,8 +154,22 @@
 
 ;;; Javascript, CoffeeScript and LiveScript
 
+(>>=ensure-packages tern tern-auto-complete js2-mode)
+
+(use-package tern
+  :config
+  (add-hook 'js2-mode-hook #'tern-mode))
+
+
+(use-package tern-auto-complete
+  :after tern
+  :config
+  (tern-ac-setup))
+
+
 ;; This requires you have the tern program installed in your system and in the
 ;; exec-path.
+
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
 (add-hook 'js-mode-hook (lambda () (tern-mode t)))
