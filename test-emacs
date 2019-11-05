@@ -1,0 +1,60 @@
+#!/bin/sh
+
+# author: Medardo Antonio Rodriguez, @med_merchise
+
+# It's advised to create a sym-link of this script (or copy it) in some folder
+# include in the exec-path:
+#   $ ln -s $PWD/vemacs ~/.local/bin/
+#
+# An Emacs Virtual Environment (EVE) is a folder that meets all the necessary
+# requirements to be in place of '~/.emacs.d/'.
+#
+# This script can be executed from within an EVE or from the parent folder by
+# specifying its name as the first parameter.
+#
+# All extra-arguments will be used when executing ''emacs' itself.
+#
+# For example:
+#   $ cd <xorns-path>
+#   $ venv --debug-init
+#
+# It simulates a virtual $HOME in '$HOME/.vemacs/', if you need some extra
+# $HOME resources, sym-link the original files or directories to that target.
+
+
+ORG_HOME=$HOME
+
+if [ -d "$1" ]
+then
+    PROJECT_NAME=$1
+    shift
+else
+    PROJECT_NAME=`basename $PWD`
+    cd ..
+fi
+
+if [ -f "$PROJECT_NAME/init.el" ]
+then
+    WORKON_HOME=$HOME/.vemacs
+else
+    STATUS=$?
+    echo "$PROJECT_NAME is not valid."
+    exit $STATUS
+fi
+
+if [ -d "$WORKON_HOME" ]
+then
+    echo "Using work-on home folder: $WORKON_HOME"
+else
+    echo "Creating work-on home folder: $WORKON_HOME"
+    mkdir "$WORKON_HOME"
+fi
+
+mv $HOME/.emacs.d $HOME/.emacs.d.bak
+
+ln -sf $PWD/$PROJECT_NAME $HOME/.emacs.d
+
+emacs $@
+
+rm $HOME/.emacs.d
+mv $HOME/.emacs.d.bak $HOME/.emacs.d
