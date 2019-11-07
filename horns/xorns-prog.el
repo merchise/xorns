@@ -17,7 +17,6 @@
 ;;; Code:
 
 (require 'tramp)
-(require 'cc-mode nil 'noerror)
 (require 'javadoc-lookup nil 'noerror)
 (require 'blacken nil 'noerror)
 
@@ -227,6 +226,21 @@
 (when (featurep 'blacken)
   (add-hook 'python-mode-hook 'turn-off-auto-fill)
   (add-hook 'python-mode-hook 'blacken-mode))
+;;; C/C++ Mode -- Linux kernel programming
+
+(use-package cc-mode
+  :ensure nil
+  :bind
+  (:map c-mode-base-map
+    ("C-c c" . compile))
+  :hook
+  (c-mode-common .
+    (lambda ()
+      (c-set-style "linux")
+      (setq tab-width 4)
+      (setq c-basic-offset 4))))
+
+
 
 
 (provide 'xorns-prog)
