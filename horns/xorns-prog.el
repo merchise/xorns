@@ -18,7 +18,6 @@
 
 (require 'tramp)
 (require 'javadoc-lookup nil 'noerror)
-(require 'blacken nil 'noerror)
 
 (require 'xorns-text nil 'noerror)
 (require 'xorns-utils)
@@ -61,6 +60,10 @@
 
 
 
+;;; Python
+
+(>>=ensure-packages
+  flycheck lsp-mode lsp-ui company-lsp pipenv blacken)
 
 ;; Python
 
@@ -133,6 +136,14 @@
 
 
 ;;; Hooks
+(use-package blacken
+  :hook
+  ((python-mode .
+     (lambda ()
+       (turn-off-auto-fill)
+       (blacken-mode)))))
+
+
 
 (add-hook 'prog-mode-hook          ; run for all programming modes
   (lambda ()
@@ -223,9 +234,6 @@
 
 (global-set-key (kbd "C-M-,") 'completion-at-point)
 
-(when (featurep 'blacken)
-  (add-hook 'python-mode-hook 'turn-off-auto-fill)
-  (add-hook 'python-mode-hook 'blacken-mode))
 ;;; C/C++ Mode -- Linux kernel programming
 
 (use-package cc-mode
