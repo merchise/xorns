@@ -145,5 +145,16 @@
       (add-to-list 'grep-find-ignored-directories name))))
 
 
+
+;;; Remote Access Protocol
+
+(use-package tramp
+  :config
+  (defun >>=local-buffer (&optional buffer)
+    "Not nil if BUFFER visits a local (not remote) file."
+    (interactive "b")
+    (not (tramp-connectable-p (buffer-file-name buffer)))))
+
+
 (provide 'xorns-simple)
 ;;; xorns-simple.el ends here

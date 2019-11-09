@@ -23,6 +23,7 @@
 (require 'dash)
 (require 'xorns-utils)
 (require 'xorns-tools)
+(require 'xorns-simple)
 
 
 (when (featurep 'projectile)
@@ -374,7 +375,7 @@ the python shell."
   (hook '(prog-mode-hook text-mode-hook))
   (add-hook hook
     (lambda ()
-      (unless (tramp-connectable-p (buffer-file-name))
+      (if (>>=local-buffer)
 	(xorns-exec-path-setup)))))
 
 

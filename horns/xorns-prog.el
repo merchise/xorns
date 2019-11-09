@@ -16,12 +16,12 @@
 
 ;;; Code:
 
-(require 'tramp)
 (require 'javadoc-lookup nil 'noerror)
 
-(require 'xorns-text nil 'noerror)
+(require 'xorns-text)
 (require 'xorns-utils)
 (require 'xorns-buffers)
+(require 'xorns-simple)
 
 (require 'use-package)
 (require 'xorns-packages)
@@ -45,6 +45,24 @@
   :config
   (progn
     (ac-flyspell-workaround)))
+
+
+;;; Transparent Remote Access
+
+(add-hook 'prog-mode-hook          ; run for all programming modes
+  (lambda ()
+    (if (>>=local-buffer)
+      (auto-complete-mode t)
+      (flyspell-prog-mode))
+    (turn-on-auto-fill)
+    (subword-mode nil)))
+
+
+(add-hook 'conf-mode-hook          ; For configuration files
+  (lambda ()
+    (auto-complete-mode t)
+    (turn-on-auto-fill)
+    (subword-mode nil)))
 
 
 
@@ -142,23 +160,6 @@
      (lambda ()
        (turn-off-auto-fill)
        (blacken-mode)))))
-
-
-
-(add-hook 'prog-mode-hook          ; run for all programming modes
-  (lambda ()
-    (unless (tramp-connectable-p (buffer-file-name))
-      (auto-complete-mode t)
-      (flyspell-prog-mode))
-    (turn-on-auto-fill)
-    (subword-mode nil)))
-
-
-(add-hook 'conf-mode-hook          ; For configuration files
-  (lambda ()
-    (auto-complete-mode t)
-    (turn-on-auto-fill)
-    (subword-mode nil)))
 
 
 
