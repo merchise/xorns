@@ -37,7 +37,7 @@
 
 ;;; Common Systems
 
-(>>=ensure-packages auto-complete)
+(>>=ensure-packages auto-complete yasnippet flycheck)
 
 (use-package auto-complete
   :custom
@@ -47,43 +47,55 @@
     (ac-flyspell-workaround)))
 
 
-;;; Transparent Remote Access
+(use-package yasnippet
+  :config
+  (yas-global-mode 1))
 
-(add-hook 'prog-mode-hook          ; run for all programming modes
-  (lambda ()
-    (if (>>=local-buffer)
+
+(use-package flycheck
+  :functions global-flycheck-mode
+  :custom
+  (flycheck-idle-change-delay 10)
+  :config
+  (global-flycheck-mode t))
+
+
+(use-package prog-mode
+  :init
+  (defun >>=init-prog-mode ()
+    "Init `prog-mode' based modes."
+    (when (>>=local-buffer)
       (auto-complete-mode t)
       (flyspell-prog-mode))
     (turn-on-auto-fill)
-    (subword-mode nil)))
+    (subword-mode))
+  :hook
+  (prog-mode . >>=init-prog-mode))
 
 
-(add-hook 'conf-mode-hook          ; For configuration files
-  (lambda ()
-    (auto-complete-mode t)
-    (turn-on-auto-fill)
-    (subword-mode nil)))
+(use-package conf-mode
+  :after prog-mode
+  :hook
+  (conf-mode . >>=init-prog-mode))
 
 
 
-;; Emacs Lisp
+;;; Emacs Lisp
 
 (use-package lisp-mode
   :custom
   (emacs-lisp-docstring-fill-column 78)
   (lisp-indent-offset 2)
   ;; TODO: Conflict with 'pyls'
-  (create-lockfiles nil)
-  )
+  (create-lockfiles nil))
 
 
 
 ;;; Python
 
 (>>=ensure-packages
-  flycheck lsp-mode lsp-ui company-lsp pipenv blacken)
+  lsp-mode lsp-ui company-lsp pipenv blacken)
 
-;; Python
 
 (defgroup xorns-python nil
   "Programming configurations for `xorns'."
@@ -110,39 +122,29 @@
     (linum-mode 0))
 
   :bind (:map python-mode-map ("C-m" . newline-and-indent))
-  :hook ((python-mode . outline-minor-mode)
-          (inferior-python-mode . -inferior-python-setup))
+  :hook
+  ((python-mode . outline-minor-mode)
+   (inferior-python-mode . -inferior-python-setup))
   )
-
-(use-package flycheck
-  :functions global-flycheck-mode
-  :custom (flycheck-idle-change-delay 10)
-  :config
-  (global-flycheck-mode t))
 
 
 (use-package lsp-mode
   :commands lsp
-  :init
-  (add-hook 'prog-mode-hook #'lsp))
+  :hook
+  (prog-mode . lsp))
 
 
 (use-package lsp-ui
   :commands lsp-ui-mode
   :init
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-  :custom (lsp-prefer-flymake nil)
-  )
+  :custom
+  (lsp-prefer-flymake nil))
+
 
 (use-package company-lsp
-  :commands company-lsp
-  )
-
-
-(use-package yasnippet
-  :commands yas-global-mode
-  :init
-  (yas-global-mode 1))
+  :after lsp-mode
+  :commands company-lsp)
 
 
 (use-package pipenv
@@ -153,7 +155,6 @@
     #'pipenv-projectile-after-switch-extended))
 
 
-;;; Hooks
 (use-package blacken
   :hook
   ((python-mode .
@@ -191,50 +192,6 @@
 
 
 
-;;; Linux kernel programming
-
-(defcustom xorns-linux-kernel-trees-path
-  "~/src/linux-trees"
-  "Where do you put the linux kernel source trees."
-  :group 'xorns
-  :type 'string)
-
-;; TODO: 'c-syntactic-element' is void
-(defun c-lineup-arglist-tabs-only (ignored)
-  "Line up argument lists by tabs, not spaces.  IGNORED is ignored."
-  (defvar c-syntactic-element)    ;; Avoiding warning: ref to free variable
-  (let* ((anchor (c-langelem-pos c-syntactic-element))
-          (column (c-langelem-2nd-pos c-syntactic-element))
-          (offset (- (1+ column) anchor))
-          (steps (floor offset c-basic-offset)))
-    (* (max steps 1)
-      c-basic-offset)))
-
-(add-hook 'c-mode-common-hook
-  (lambda ()
-    ;; Add kernel style
-    (c-add-style
-      "linux-tabs-only"
-      '("linux" (c-offsets-alist
-		  (arglist-cont-nonempty
-		    c-lineup-gcc-asm-reg
-		    c-lineup-arglist-tabs-only))))))
-
-(add-hook 'c-mode-hook
-  (lambda ()
-    (let ((filename (buffer-file-name)))
-      ;; Enable kernel mode for the appropriate files
-      (when (and filename
-	      (string-match (expand-file-name xorns-linux-kernel-trees-path)
-		filename))
-	(setq-default
-	  indent-tabs-mode t
-	  show-trailing-whitespace t)
-	(c-set-style "linux-tabs-only")))))
-
-
-(global-set-key (kbd "C-M-,") 'completion-at-point)
-
 ;;; C/C++ Mode -- Linux kernel programming
 
 (use-package cc-mode
@@ -248,8 +205,6 @@
       (c-set-style "linux")
       (setq tab-width 4)
       (setq c-basic-offset 4))))
-
-
 
 
 (provide 'xorns-prog)
