@@ -311,7 +311,6 @@ exists, the funtion returns nil."
 
 (defun xorns-omelette-dirs  (&optional sentinel buffer)
   "Find the parts/omelette in a buildout setup.
-
 The SENTINEL and BUFFER parameters have the same meaning that in
 xorns-find-project-virtualenv-dir."
   (-when-let (project-def-file
@@ -325,25 +324,6 @@ xorns-find-project-virtualenv-dir."
               (file-directory-p omelette-dir)))
       (when omelette-dir-exists
         (expand-file-name omelette-dir)))))
-
-
-(defun xorns-exec-path-setup (&optional sentinel buffer)
-  "Setup the `exec-path' to search in the buildout directory.
-
-The SENTINEL and BUFFER parameters have the same meaning that in
-xorns-find-project-virtualenv-dir."
-  (let* ((virtualenv-dir
-           (xorns-find-project-virtualenv-dir nil sentinel buffer))
-          (buildout-executable
-            (xorns-find-project-def-file "bin/buildout" sentinel buffer))
-          (buildout-exec-path
-            (when buildout-executable (file-name-directory
-                                        buildout-executable))))
-    (let ((local-exec-path (make-local-variable 'exec-path)))
-      (when virtualenv-dir
-        (add-to-list local-exec-path virtualenv-dir))
-      (when buildout-exec-path
-        (add-to-list local-exec-path buildout-exec-path)))))
 
 
 (defun xorns-python-shell-setup-completion ()
@@ -364,20 +344,6 @@ the python shell."
           (format "sys.path.append('''%s''')" project-dir)
           "\n"))
       )))
-
-
-
-;; Project configuration stuff is basic-level by definition, but since these
-;; are project configuration for programming in python the belong to the
-;; general level.
-
-(dolist
-  (hook '(prog-mode-hook text-mode-hook))
-  (add-hook hook
-    (lambda ()
-      (if (>>=local-buffer)
-	(xorns-exec-path-setup)))))
-
 
 
 (provide 'xorns-project)
