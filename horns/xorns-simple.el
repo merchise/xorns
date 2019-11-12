@@ -6,12 +6,8 @@
 
 ;;; Commentary:
 
-;; Basic Emacs commands not specifically related to any specific major mode
-;; or to file-handling.
-
-;; This module is automatically used when::
-;;
-;;     (require 'xorns)
+;; Container for basic commands that are not related to any specific
+;; major-mode.
 
 ;; Enjoy!
 
@@ -116,9 +112,7 @@
 
 ;;; grep facilities
 
-;; todo: check `wgrep', `scf-mode'
-
-(use-package grep
+(use-package grep    ;; todo: check `wgrep', `scf-mode'
   :bind
   (("C-c C-g n" . find-name-dired)
    ("C-c C-g f" . find-grep)
