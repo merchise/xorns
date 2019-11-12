@@ -195,13 +195,6 @@
 
 ;;; Buffer selection
 
-(defconst xorns-grizzl-select-buffer-enabled
-  (and
-    (functionp 'grizzl-make-index)
-    (functionp 'grizzl-search))
-  "This is t if all the requirements for `xorns-select-buffer' are fulfill.")
-
-
 (defcustom xorns-use-grizzl-select-buffer nil
   "If t then `C-x b` will call `xorns-grizzl-select-buffer'."
   :group 'xorns
@@ -225,18 +218,15 @@
 
 ;; TODO: Prepare a function (not a lambda) in order to see the help with
 ;; `describe-key'.
-(when xorns-grizzl-select-buffer-enabled
-  (require 'cl)
-  (lexical-let ((previous-binding (global-key-binding (kbd "C-x b"))))
-    (message "The C-x b previous binding was %s" previous-binding)
-    (global-set-key (kbd "C-x b")
-      (lambda ()
-        (interactive)
-        (if xorns-use-grizzl-select-buffer
-          (call-interactively #'xorns-grizzl-select-buffer)
-	  ;; else
-          (call-interactively previous-binding)))))
-  )
+(lexical-let ((previous-binding (global-key-binding (kbd "C-x b"))))
+  (message "The C-x b previous binding was %s" previous-binding)
+  (global-set-key (kbd "C-x b")
+    (lambda ()
+      (interactive)
+      (if xorns-use-grizzl-select-buffer
+	(call-interactively #'xorns-grizzl-select-buffer)
+	;; else
+	(call-interactively previous-binding)))))
 
 
 ;;; Buffers
