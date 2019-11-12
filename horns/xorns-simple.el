@@ -62,6 +62,12 @@
 (put 'downcase-region 'disabled nil)
 
 
+(use-package minibuffer
+  ;; todo: review this (ido, helm, grizzl)
+  :bind
+  ("C-M-," . completion-at-point))
+
+
 (use-package delsel
   ;; typed text replaces the selection
   :config
