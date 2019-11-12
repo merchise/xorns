@@ -54,11 +54,38 @@
 
 
 
+;;; display line numbers in the left margin
+
+(defvar >>=|linum/max-limit 51200
+  "Size to consider a buffer big enough in order not show line-numbers.
+If t, show line-numbers always, nil never.")
+
+;; todo: @see `display-line-numbers', and `line-number-display-limit'
+
+(use-package linum
+  :init
+  (defun >>=try-linum-mode ()
+    "Activate line-numbers for buffers smaller than `>>=|linum/max-limit'."
+    (let ((size (buffer-size)))
+      (if (and >>=|linum/max-limit (< size >>=|linum/max-limit))
+	(linum-mode 1)
+	;; else
+	(message "Disable 'linum-mode' for a big buffer: %sK" size)
+	(linum-mode 0))))
+  :custom
+  (linum-delay t)
+  :config
+  (global-linum-mode -1))
+
+
+
 ;;; text-modes
 
 (use-package text-mode
   :mode
   ("\\.log\\'" "/LICENSE\\'")
+  :hook
+  (text-mode . >>=try-linum-mode)
   :custom
   (truncate-lines t))
 

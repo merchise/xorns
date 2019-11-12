@@ -68,6 +68,7 @@
       (auto-complete-mode t)
       (flyspell-prog-mode))
     (turn-on-auto-fill)
+    (>>=try-linum-mode)
     (subword-mode))
   :hook
   (prog-mode . >>=init-prog-mode))
