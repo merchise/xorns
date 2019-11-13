@@ -30,10 +30,10 @@
   (global-discover-mode))
 
 
-(use-package xorns-buffers)
-(use-package xorns-text)
 (use-package xorns-simple)
+(use-package xorns-buffers)
 (use-package xorns-dired)
+(use-package xorns-text)
 (use-package xorns-prog)
 
 

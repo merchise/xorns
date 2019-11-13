@@ -103,6 +103,8 @@
 ;;; interactively do (ido)
 
 (use-package ido
+  ;; without 'demand' `("C-x C-f" . ido-find-file)' is not assigned
+  :demand t
   :bind
   ("C-x b" . ido-switch-buffer)
   :chords
