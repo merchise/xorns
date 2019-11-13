@@ -51,3 +51,4 @@ places
 .emacs-places
 .lsp-session-v1
 ac-comphist.dat
+javadoc-cache

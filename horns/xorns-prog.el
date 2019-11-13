@@ -16,8 +16,6 @@
 
 ;;; Code:
 
-(require 'javadoc-lookup nil 'noerror)
-
 (require 'xorns-text)
 (require 'xorns-utils)
 (require 'xorns-buffers)
@@ -206,6 +204,20 @@
       (c-set-style "linux")
       (setq tab-width 4)
       (setq c-basic-offset 4))))
+
+
+;;; Java and Scala
+
+(defvar >>=|programming/extra-languages nil
+  ;; todo: pending task for future release
+  "Extra Programming Languages to configure; for example (java scala R).")
+
+
+(when (memq 'java >>=|programming/extra-languages)
+  (>>=ensure-packages javadoc-lookup)
+  (use-package javadoc-lookup
+    :bind
+    ("C-h j" . javadoc-lookup)))
 
 
 (provide 'xorns-prog)

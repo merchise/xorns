@@ -24,6 +24,7 @@ are loaded (those prefixed with '>>=+') when their default values are not
 suitable for your configuration."
   (setq-default
     ;; >>=|base/extra-packages '(autorevert recentf saveplace gcmh)
+    ;; >>=|programming/extra-languages '(java)
     ))
 
 
