@@ -15,6 +15,49 @@
 (require 'xorns-term)
 
 
+
+;;; Buffer selection
+
+(eval-when-compile
+  ;; pacify byte-compiler, function `lexical-let'
+  (require 'cl))
+
+
+(defcustom xorns-use-grizzl-select-buffer nil
+  "If t then `C-x b` will call `xorns-grizzl-select-buffer'."
+  :group 'xorns
+  :type 'boolean)
+
+
+(defun xorns-grizzl-select-buffer ()
+  "Select a buffer via `grizzl-search'."
+  (interactive)
+  (let* ((visible-buffer-names
+	   (loop
+	     for buffer being the buffers
+	     for buffer-name = (buffer-name buffer)
+	     if (not (string-match "^ " buffer-name))
+	     collect buffer-name))
+         (buffers-index (grizzl-make-index visible-buffer-names))
+         (buffer (grizzl-completing-read "Buffer: " buffers-index)))
+    (if (not (eq buffer (buffer-name)))
+      (switch-to-buffer buffer))))
+
+
+;; todo: Prepare a function (not a lambda) in order to see the help with
+;; `describe-key'.
+(lexical-let ((previous-binding (global-key-binding (kbd "C-x b"))))
+  (message "The C-x b previous binding was %s" previous-binding)
+  (global-set-key (kbd "C-x b")
+    (lambda ()
+      (interactive)
+      (if xorns-use-grizzl-select-buffer
+	(call-interactively #'xorns-grizzl-select-buffer)
+	;; else
+	(call-interactively previous-binding)))))
+
+
+
 
 (defun xorns-python-shell-send-paste (start end)
   "Send the region delimited by START and END wrapped with a %paste magic."
