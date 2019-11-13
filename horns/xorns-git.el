@@ -7,34 +7,39 @@
 ;;; Commentary:
 
 ;; Configure all GIT preferences using `magit'.
-;;
-;; This module is automatically used when::
-;;
-;;     (require 'xorns)
 
 ;; Enjoy!
 
 
 ;;; Code:
 
+(require 'xorns-text)
 
-(require 'magit nil 'noerror)
-(require 'xorns-utils)
+(require 'use-package)
+(require 'use-package-chords)
+(require 'xorns-packages)
 
 
-(if (featurep 'magit)
-  (progn
-    (global-set-key "\C-xg" 'magit-status)
-    (global-set-key "\C-cg" 'magit-status)
-    (add-hook 'git-commit-mode-hook  ; run when in `magit' mode
-      (lambda ()
-	(condition-case err
-	  (progn
-	    (turn-on-auto-fill)
-	    (flyspell-mode nil))
-	  (error (message "error@git-commit-mode-hook: %s" err))))))
-  ;else
-  (xorns-missing-feature 'magit))
+(>>=ensure-packages magit)
+
+(use-package magit
+  :bind
+  (("C-x g" . magit-status)
+   ("C-c g c" . magit-clone)
+   ("C-c g s" . magit-status)
+   ("C-c g b" . magit-blame)
+   ("C-c g l" . magit-log-buffer-file)
+   ("C-c g p" . magit-pull))
+  :chords
+  ("vc" . magit-status)
+  :custom
+  ;; (magit-save-repository-buffers 'dontask)
+  (magit-refs-show-commit-count 'all)
+  :hook
+  ((after-save . magit-after-save-refresh-status)
+   (git-commit-mode . >>=tex-mode-setup))
+  :config
+  (put 'magit-clean 'disabled nil))
 
 
 (provide 'xorns-git)

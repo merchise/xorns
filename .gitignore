@@ -38,6 +38,7 @@ usr/
 
 # Managed by Emacs in initialization folder (".emacs.d").
 auto-save-list/
+transient/
 elpa/
 /session.*
 tramp

@@ -94,7 +94,7 @@ If t, show line-numbers always, nil never.")
   "Common settings for tex-modes."
   (setq-default ispell-parser 'tex)
   (turn-on-auto-fill)
-  (flyspell-mode nil))
+  (flyspell-mode))
 
 
 (use-package tex-mode

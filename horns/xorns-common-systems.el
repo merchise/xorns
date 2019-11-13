@@ -33,6 +33,7 @@
 (use-package xorns-simple)
 (use-package xorns-buffers)
 (use-package xorns-dired)
+(use-package xorns-git)
 (use-package xorns-text)
 (use-package xorns-prog)
 
@@ -41,7 +42,6 @@
   ;; Main old modules
   (use-package xorns-term)
   (use-package xorns-fci)
-  (use-package xorns-git)
   (use-package xorns-project)
   (use-package xorns-org)
   (use-package xorns-xml)
