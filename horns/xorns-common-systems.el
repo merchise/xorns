@@ -36,13 +36,13 @@
 (use-package xorns-git)
 (use-package xorns-text)
 (use-package xorns-prog)
+(use-package xorns-project)
 
 
 (when (not (bound-and-true-p >>=standalone-startup))
   ;; Main old modules
   (use-package xorns-term)
   (use-package xorns-fci)
-  (use-package xorns-project)
   (use-package xorns-org)
   (use-package xorns-xml)
   ;; Previously in xorns-extra

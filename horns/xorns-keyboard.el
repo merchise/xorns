@@ -61,7 +61,7 @@
 	  key-chord-one-key-delay level)
 	(key-chord-mode 1))))
   :bind
-  ("C-c C-k c" . >>=key-chord-mode)
+  ("C-c M-c" . >>=key-chord-mode)
   :config
   (>>=key-chord-mode 'setup))
 

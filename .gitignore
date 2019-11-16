@@ -52,4 +52,6 @@ places
 .emacs-places
 .lsp-session-v1
 ac-comphist.dat
+projectile.cache
+projectile-bookmarks.eld
 javadoc-cache

@@ -6,344 +6,53 @@
 
 ;;; Commentary:
 
-;; Manage and navigate projects in Emacs easily
-
-;; This module is automatically used when::
-;;
-;;     (require 'xorns)
+;; Manage and navigate projects in Emacs easily using Merchise tools.
 
 ;; Enjoy!
 
 
 ;;; Code:
 
-(require 'python)    ;; python-shell-completion-setup-code
-(require 'projectile)
-
-(require 'dash)
-(require 'xorns-utils)
-(require 'xorns-tools)
-(require 'xorns-simple)
-
-
-(when (featurep 'projectile)
-  (add-to-list 'projectile-project-root-files "setup.py"))
-
-
-(defcustom xorns-virtualenvs-dir
-  (let ((workon (getenv "WORKON_HOME")))
-    (if workon
-      (file-name-as-directory workon)
-      ;; else
-      (dir-join xorns-home-dir ".virtualenvs")))
-  "The directory where all the virtualenvs reside."
-  :group 'xorns
-  :type 'directory)
-
-
-
-
-;;; Nice buffer names
-
-;; Some private functions that mimic dash.el behavior.
-(defun -scan-from (fn initial-value list)
-  "Do a reduce but return all intermediate values.
-FN is the function to apply to each element of the list.  The first FN is
-passed the INITIAL-VALUE with the `car' of LIST.  Subsequent calls are passed
-the previous result and the 'next' value of the list."
-  (let ((r (list initial-value))
-         (acc initial-value))
-    (loop
-      for item in list
-      do (setq acc (car (push (funcall fn acc item) r))))
-    (nreverse r)))
-
-(defun -scan (fn list)
-  "Simplified form of `--scan-from'.
-FN is the same as in `--scan-from'.  The initial value is the `car' of LIST."
-  (when list (-scan-from fn (car list) (cdr list))))
-
-(defun xorns-find-file-name-components (filename &optional abbreviate)
-  "Return a list of FILENAME path components.
-
-If ABBREVIATE is not nil, abbreviates the FILENAME before splitting."
-  (when abbreviate
-    (setq filename (abbreviate-file-name filename)))
-  ;; TODO: Handle "/" in filenames properly
-  (let ((result (split-string filename "/")))
-    result))
-
-
-(defsubst --buffer-name-candidates (&optional filename)
-  "Local function to get the better buffer names candidates for a FILENAME.
-
-If FILENAME is nil the variable `buffer-file-name' is used.
-
-The candidates are simply the right-to-left path components concatenated.  For
-instance if FILENAME is \"~/.emacs.d/init.el\", then this function returns:
-
-  (\"emacs.d/init.el\", \"~/emacs.d/init.el\")
-
-Notice that the `file-name-nondirectory' candidate \"init.el\" is omitted,
-since it's deemed already tried and not unique."
-  (cdr
-    (-scan (lambda (first second) (dir-join second first))
-      (nreverse
-        (xorns-find-file-name-components
-          (or filename buffer-file-name) 'abbrev)))))
-
-
-(defun -buffer-name-candidates (&optional filename)
-  "Functional alias for `--buffer-name-candidates'.
-
-FILENAME is the same as `--buffer-name-candidates'."
-  (--buffer-name-candidates filename))
-
-
-
-;;; Project Related functions
-
-(defun -directory-exe-list (dir &optional match)
-  "Return a list of names of executable files (not folders) in DIR.
-
-If MATCH is non-nil, mention only file names that match the regexp MATCH.
-
-All file-names are returned absolute."
-  (delq nil
-    (mapcar
-      #'(lambda (item)
-          (if (and (file-executable-p item) (not (file-directory-p item)))
-            item))
-      (directory-files dir 'full match 'nosort))))
-
-
-(defvar xorns-programming-project-alist
-  (mapcar 'purecopy
-    `(
-       (generic-mode
-         :selector
-         (
-           "^\\(.*project\\|makefile\\)\\([.]\\w+\\)?$"
-           #'(lambda (dir)
-               (-directory-exe-list
-                 dir
-                 "^\\(install\\|setup\\)\\([.]\\w+\\)?$")))
-         :sources "^\\(source\\|src\\|lib\\|plugins\\|addons\\)$")
-       (python-mode
-         :init-file "__init__.py"
-         :selector "^setup.py$")))
-  "An association list for programming project definitions.
-
-Each definition has a name related with a mode and a set of keywords:
-
-- `:init-file` Packages for the defining mode has an initialization file with
-  the name in the value.
-
-- `:selector` Could be a string, a function or a list containing strings or
-  functions; strings are regular expressions, a folder with matching files
-  represent a project; a function simply return any true value if a project,
-  else return nil; a list act as a `or` of all containing values.
-
-- `:inherits` Define a definition to inherits from.
-
-If a mode don't has project definition, `generic mode is used`.
-
-Use `add-to-list` or similar functions to modify this list.
-
-Definitions in each mode of this variable complements the conventions used in
-several project management functions.
-
-Currently evaluated folder is considered a package base if the parent folder:
-
-- doesn't contains the file with source code for package initialization that
-  certain languages define.  No all programming languages has this kind of
-  file, but for example Python define it named '__init__.py'.
-
-- has a special name: 'source', 'src', 'lib', 'plugins' or 'addons'.
-
-- contains files that marks a project: '.*project\([.][a-z]+\)?', executable
-  file '\(setup\|install\)\([.][a-z]+\)?', 'makefile\([.][a-z]+\)?'.")
-
-
-(defun xorns-project-root (&optional dir)
-  "Retrieves the root directory of a project if available.
-If DIR is not supplied its set to the current directory by default.  Return
-current directory if no better candidate is found."
-  (or (projectile-project-root dir) default-directory))
-
-
-
-(defun xorns-get-mode-tag (tag &optional mode)
-  "Return a named TAG for a given a MODE.
-
-If no mode is given, `generic-mode` is assumed.
-
-Modes are iterated using the inheritance path until the TAG is found."
-  (setq mode
-    (or
-      ;; manu: If the provided mode is not in the alist use the major-mode
-      ;; or the generic-mode
-      (car (assoc (or mode major-mode) xorns-programming-project-alist))
-      'generic-mode))
-  (let (res done)
-    (while (not done)
-      (-when-let (mode-tags (assoc mode xorns-programming-project-alist))
-        (-when-let (aux (cadr (memq tag mode-tags)))
-          (setq res aux done t)
-          (progn
-            (setq mode (cadr (memq :inherits mode-tags)))
-            (if (not mode)
-              (setq done t))))
-        (setq done t)))
-    res))
-
-
-(defun xorns-find-project-def-file
-  (&optional project-file-name sentinel buffer)
-  "Find the PROJECT-FILE-NAME file name.
-
-If SENTINEL is provided, it should be a _directory_, and the search stops when
-that directory is reached.
-
-If BUFFER is not provided, the current buffer is used.  the buffer's file name
-is used to start the search.
-
-if PROJECT-FILE-NAME is not provided it defaults to \".project.el\"."
-  (let* ((project-file-name (or project-file-name ".project.el"))
-          (buffer (or buffer (current-buffer)))
-          (buffer-fname (buffer-file-name buffer))
-          (current (if buffer-fname (file-name-directory buffer-fname) (pwd)))
-          (current (expand-file-name current))
-          (last "")
-          (sentinel (if sentinel (file-name-as-directory sentinel) nil))
-          (stop (string= current sentinel))
-          (project-file (concat (file-name-as-directory current)
-                          project-file-name)))
-    (while (and
-             current
-             (not stop)
-             (not (file-exists-p project-file))
-             (not (string= last current)))
-      (setq last current
-        current (file-name-directory (directory-file-name current))
-        stop (string= current sentinel)
-        project-file (concat (file-name-as-directory current)
-                       project-file-name)))
-    (if (file-exists-p project-file)
-      project-file)))
-
-
-
-;; Python Specific
-
-(defun xorns-find-project-virtualenv-name (&optional project-file-name sentinel
-                                            buffer)
-  "Find the project's virtualenv name.
-
-The PROJECT-FILE-NAME is the name of the file where the project definitions
-are.  If it is not provided or is nil, it defaults to \".project.el\".
-
-The project definitions files _must_ contain an \"Association List:\" like:
-
-   ((project-virtualenv-name . \"VIRTUALENVNAME\").
-
-This function will find the symbol 'project-virtualenv-name inside the
-association list and return the CDR.
-
-The SENTINEL is interpreted as xorns-find-project-def-file.
-
-The BUFFER contains the buffer for which the project is searched. If not
-provided defaults to the current buffer.
-
-By convention, if the 'project-virtualenv-name is not present or is nil, the
-virtualenv name will be the name of the directory where the project definition
-file resides, or when any of the project file markers reside."
-  (or
-    (-when-let (project-file-name
-		 (xorns-find-project-def-file
-		   project-file-name sentinel buffer))
-      (let* ((project-locals-class
-	       (dir-locals-read-from-dir
-		 (file-name-directory project-file-name)))
-              (project-locals-alist
-		(dir-locals-get-class-variables project-locals-class)))
-        (cdr (assoc 'project-virtualenv-name project-locals-alist))))
-    (let ((res nil))
-      ;; TODO: Finish xorns-project-dir and use that
-      (-when-let (project-file-name (xorns-find-project-def-file
-                                      "setup.py" sentinel buffer))
-        (file-name-base (directory-file-name
-                          (file-name-directory project-file-name)))))))
-
-
-(defun xorns-find-project-virtualenv-dir (&optional project-file-name sentinel
-                                           buffer)
-  "Find the project's virtualenv directory.
-
-This function will find the project definitions file and find the configured
-virtual environment name.
-
-The PROJECT-FILE-NAME and SENTINEL are intrepreted as in
-xorns-find-project-def-file.
-
-The SENTINEL default to the user's home directory.  *Note*: Windows users
-should be aware that sometimes the user's home directory does not contains it's
-projects.
-
-The BUFFER, if given, should be the buffer for which the project virtualenv
-directory is to be found.  If not given, it defaults to the current buffer.
-
-If either there's no project definition file, or the file does not contains a
-project-virtualenv-name definition, or the virtualenv directory does not
-exists, the funtion returns nil."
-  (-when-let (virtualenv-name (xorns-find-project-virtualenv-name
-                                project-file-name sentinel buffer))
-    (let ((virtualenv-dir
-            (file-truename
-              (concat (file-name-as-directory xorns-virtualenvs-dir)
-                (xorns-find-project-virtualenv-name
-                  project-file-name
-                  sentinel
-                  buffer)))))
-      (if (file-directory-p virtualenv-dir)
-        (expand-file-name virtualenv-dir)))))
-
-
-(defun xorns-omelette-dirs  (&optional sentinel buffer)
-  "Find the parts/omelette in a buildout setup.
-The SENTINEL and BUFFER parameters have the same meaning that in
-xorns-find-project-virtualenv-dir."
-  (-when-let (project-def-file
-               (xorns-find-project-def-file
-                 "bin/buildout" sentinel buffer))
-    (let* ((project-dir
-             (dir-join (file-name-directory project-def-file) ".."))
-            (omelette-dir
-              (dir-join project-dir "parts" "omelette"))
-            (omelette-dir-exists
-              (file-directory-p omelette-dir)))
-      (when omelette-dir-exists
-        (expand-file-name omelette-dir)))))
-
-
-(defun xorns-python-shell-setup-completion ()
-  "Setup the `python-shell-completion-setup-code' variable.
-
-This adds the current's project directory to the \"sys.path\" when starting
-the python shell."
-  (if (and (featurep 'projectile) (functionp 'projectile-project-root))
-    (let ((project-dir (projectile-project-root)))
-      ;; Using python-shell-extra-pythonpaths is not working so
-      ;; let's messup with python-shell-completion-setup-code.
-      (make-local-variable 'python-shell-completion-setup-code)
-      (setq-default
-        python-shell-completion-setup-code
-        (concat
-          python-shell-completion-setup-code
-          "\n"
-          (format "sys.path.append('''%s''')" project-dir)
-          "\n"))
-      )))
+(require 'use-package)
+(require 'use-package-chords)
+(require 'xorns-packages)
+
+(>>=ensure-packages projectile)
+
+
+(defvar >>=|projectile/extra-ignored-directories nil
+  "A list of extra directories ignored by projectile.")
+
+
+(defvar >>=|projectile/project-root-files nil
+  "A list of files considered to mark the root of a project.")
+
+
+(use-package projectile
+  :demand
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :bind
+  ("C-c C-d" . projectile-dired)
+  ("C-c C-b" . projectile-ibuffer)
+  ("C-c C-k" . projectile-kill-buffers)
+  :custom
+  (projectile-switch-project-action 'projectile-dired)
+  (projectile-ignored-project-function 'file-remote-p)
+  :config
+  (progn
+    (setq projectile-globally-ignored-directories
+      (append projectile-globally-ignored-directories
+	'("elpa" ".vscode" "node_modules")
+	>>=|projectile/extra-ignored-directories))
+    (setq projectile-project-root-files
+      (append projectile-project-root-files
+	'(".travis.yml")
+	>>=|projectile/project-root-files))
+    (add-to-list
+      ;; Ignore Mac Search Index Cache
+      'projectile-globally-ignored-files ".DS_Store")
+    (projectile-mode t)))
 
 
 (provide 'xorns-project)

@@ -14,6 +14,8 @@ default values are not suitable for your configuration."
     ;; >>=|show-title-in-header-line t
     ;; >>=|enable-server t
     ;; >>=|key-chord-delay-level 3
+    ;; >>=|projectile/extra-ignored-directories '()
+    ;; >>=|projectile/project-root-files '()
     ))
 
 
@@ -31,7 +33,7 @@ suitable for your configuration."
 (defun >>=window-manager/init ()
   "Configuration executed only when using Emacs as a Window Manager."
   ;;; For example:
-  (setq exwm-input-simulation-keys
+  (setq-default exwm-input-simulation-keys
     '(
        ;; movement
        ([?\C-b] . [left])

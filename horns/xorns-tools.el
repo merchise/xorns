@@ -14,7 +14,7 @@
 ;;; Code:
 
 
-;; General
+;;; General
 
 (defmacro ->? (func &rest args)
   "Call FUNC with our remaining ARGS, only if it is bound."
@@ -61,7 +61,7 @@ report the identity of the enclosed body."
 
 
 
-;; String - symbol conversion
+;;; string - symbol conversion
 
 (defsubst >>=intern (string)
   "Return STRING\'s canonical symbol (safe if it is already a symbol)."
@@ -74,7 +74,7 @@ report the identity of the enclosed body."
 
 
 
-;; property list extension
+;;; lists, property lists extensions
 
 (defun plist-exclude (plist &rest props)
   "Return a copy of PLIST with all PROPS excluded.
@@ -90,7 +90,7 @@ PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
 
 
 
-;; Files and directories
+;;; files and directories
 
 (defun dir-join (&rest parts)
   "Join PARTS to a single path."
@@ -131,7 +131,7 @@ The result will be abbreviated and end with the directory separator slash."
 
 
 
-;; Buffers
+;;; buffers
 
 (defun >>=current-buffer-remote? ()
   "Return non-nil if current buffer is remote."
