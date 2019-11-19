@@ -65,8 +65,8 @@
     (when (>>=local-buffer)
       (auto-complete-mode t)
       (flyspell-prog-mode))
+    (>>=init-text-mode)
     (turn-on-auto-fill)
-    (>>=try-linum-mode)
     (subword-mode))
   :hook
   (prog-mode . >>=init-prog-mode))
@@ -148,7 +148,6 @@
 
 (use-package pipenv
   :hook (python-mode . pipenv-mode)
-  :commands pipenv-projectile-after-switch-extended
   :custom
   (pipenv-projectile-after-switch-function
     #'pipenv-projectile-after-switch-extended))

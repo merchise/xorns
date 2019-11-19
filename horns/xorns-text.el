@@ -54,6 +54,22 @@
 
 
 
+;;; Graphically indicate the fill column
+
+(>>=ensure-packages fill-column-indicator)
+
+(use-package fill-column-indicator
+  :preface
+  (defun >>=fci-mode-on ()
+    "Set `fci-mode' on."
+    (fci-mode 1))
+  :custom
+  (fill-column 78)
+  (fci-rule-width 1)
+  (fci-rule-color "#CCCCCC"))
+
+
+
 ;;; display line numbers in the left margin
 
 (defvar >>=|linum/max-limit 51200
@@ -82,10 +98,15 @@ If t, show line-numbers always, nil never.")
 ;;; text-modes
 
 (use-package text-mode
+  :init
+  (defun >>=init-text-mode ()
+    "Init `prog-mode' based modes."
+    (>>=try-linum-mode)
+    (>>=fci-mode-on))
   :mode
   ("\\.log\\'" "/LICENSE\\'")
   :hook
-  (text-mode . >>=try-linum-mode)
+  (text-mode . >>=init-text-mode)
   :custom
   (truncate-lines t))
 
@@ -114,7 +135,6 @@ If t, show line-numbers always, nil never.")
 
 (use-package markdown-mode
   :defer t
-  :commands (markdown-mode gfm-mode)
   :mode
   (("README\\.md\\'" . gfm-mode) ;; github-flavored-markdown
    ("\\.md\\'" . markdown-mode)
@@ -133,7 +153,6 @@ If t, show line-numbers always, nil never.")
   (markdown-code-face ((t nil)))
   :custom
   (markdown-asymmetric-header t))
-
 
 
 

@@ -42,7 +42,6 @@
 (when (not (bound-and-true-p >>=standalone-startup))
   ;; Main old modules
   (use-package xorns-term)
-  (use-package xorns-fci)
   (use-package xorns-org)
   (use-package xorns-xml)
   ;; Previously in xorns-extra
