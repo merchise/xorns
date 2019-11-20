@@ -46,6 +46,25 @@
   "If non-nil, assign `frame-title-format' to `header-line-format'.")
 
 
+(defvar >>-project-root nil
+  "Local variable to store cached `projectile-project-name'.")
+
+
+(declare-function projectile-project-name 'projectile)
+
+(defun >>-project-root ()
+  "Local function to calculate and cache `projectile-project-name'."
+  (when (and (not >>-project-root) (fboundp 'projectile-project-name))
+    (let ((name (projectile-project-name)))
+      (set (make-local-variable '>>-project-root)
+	(if (string= name (buffer-name))
+	  "-"
+	  ;; else
+	  name))))
+  (unless (string= >>-project-root "-")
+    >>-project-root))
+
+
 (use-package minions
   :demand t
   :config
@@ -70,6 +89,10 @@
 	; else
 	(spaceline-minor-modes-default)))
 
+    (spaceline-define-segment project-root
+      "Show the current project root using projectile."
+      (>>-project-root))
+
     (defun spaceline-xorns-theme ()
       "Install a variation of `spaceline-emacs-theme'."
       (spaceline-install
@@ -79,7 +102,8 @@
 	  ((buffer-id which-function)
 	    :separator " @ " :face highlight-face :tight-left t)
 	  remote-host
-	  projectile-root
+	  ;; projectile-root
+	  project-root
 	  ((buffer-size) :separator " | " :when active)
 	  (version-control :when active))
 	`(selection-info
@@ -92,8 +116,7 @@
 	   ((narrow buffer-position hud) :face highlight-face)))
       (setq-default
 	spaceline-buffer-encoding-abbrev-p t
-	mode-line-format '("%e" (:eval (spaceline-ml-main))))))
-  )
+	mode-line-format '("%e" (:eval (spaceline-ml-main)))))))
 
 
 (defun >>=ui/toggle-header-mode-line ()
