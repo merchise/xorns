@@ -32,9 +32,6 @@
    ("C-c g p" . magit-pull))
   :chords
   ("vc" . magit-status)
-  :custom
-  ;; (magit-save-repository-buffers 'dontask)
-  (magit-refs-show-commit-count 'all)
   :hook
   ((after-save . magit-after-save-refresh-status)
    (git-commit-mode . >>=tex-mode-setup))
