@@ -43,7 +43,6 @@
   ;; Main old modules
   (use-package xorns-term)
   (use-package xorns-org)
-  (use-package xorns-xml)
   ;; Previously in xorns-extra
   (use-package xorns-mail)
   )
