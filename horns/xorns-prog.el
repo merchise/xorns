@@ -204,8 +204,56 @@
       (setq tab-width 4)
       (setq c-basic-offset 4))))
 
+
 
-;;; Java and Scala
+;;; XML, SGML, and Web editing modes
+
+(use-package sgml-mode
+  :hook
+  (sgml-mode . sgml-electric-tag-pair-mode))
+
+
+(use-package nxml-mode
+  :custom
+  (nxml-slash-auto-complete-flag t)
+  (nxml-auto-insert-xml-declaration-flag t))
+  (nxml-slash-auto-complete-flag t))
+
+
+
+;;; Selectively display code/comment blocks
+
+(use-package hideshow
+  :preface
+  (defun >>=toggle-hide-show (&optional arg)
+    "Toggle block hiding/showing if ARG is nil, >=0 show-all, <0 hide-all."
+    (interactive "P")
+    (if (null arg)
+      (hs-toggle-hiding)
+      ;; else
+      (if (>= (prefix-numeric-value arg) 0)
+	(hs-show-all)
+	;; else
+	(hs-hide-all))))
+  :bind
+  (:map hs-minor-mode-map
+    ("C-=" . >>=toggle-hide-show)
+    ("C-+" . hs-show-all))
+  :hook
+  ((prog-mode . hs-minor-mode)
+   (nxml-mode . hs-minor-mode))
+  :config
+  (add-to-list 'hs-special-modes-alist
+    '(nxml-mode
+       "<!--\\|<[^/>]*[^/]>"
+       "-->\\|</[^/>]*[^/]>"
+       "<!--"
+       sgml-skip-tag-forward
+       nil)))
+
+
+
+;;; Java, Scala, ...
 
 (defvar >>=|programming/extra-languages nil
   ;; todo: pending task for future release
