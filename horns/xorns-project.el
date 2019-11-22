@@ -29,7 +29,6 @@
 
 
 (use-package projectile
-  :demand
   :bind-keymap
   ("C-c p" . projectile-command-map)
   :bind
@@ -37,6 +36,7 @@
   ("C-c C-b" . projectile-ibuffer)
   ("C-c C-k" . projectile-kill-buffers)
   :custom
+  (projectile-enable-caching t)
   (projectile-switch-project-action 'projectile-dired)
   (projectile-ignored-project-function 'file-remote-p)
   :config
