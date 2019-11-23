@@ -13,7 +13,7 @@
 ;; (XDG_CONFIG_HOME), defaults to "~/.config/xorns".  If that folder does not
 ;; exist on your system, "~/.xorns" is used.
 
-;; The first version of this file is copied from "templates/custom.el".
+;; The first version of this file is copied from "templates/user-config".
 
 ;;; Code:
 
@@ -61,7 +61,7 @@
   "Return base template location for `custom-file'."
   (require 'package)
   (expand-file-name
-    "custom.el"
+    "user-config"
     (dir-join
       (or (bound-and-true-p >>=standalone-startup) (>>=-package-user-dir))
       "templates")))

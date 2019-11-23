@@ -176,7 +176,7 @@ will be stored in the standard directory for user-specific configurations
 (XDG_CONFIG_HOME), defaults to =~/.config/xorns=.  If that folder does not
 exist on your system, the user home is used =~/.xorns=.
 
-The first version of this file is copied from =horns/templates/custom.el=.
+The first version of this file is copied from =horns/templates/user-config=.
 
 Because there are former releases of Xorns using old style =custom-file=, the
 first time the new style file is create, old variables are imported from
