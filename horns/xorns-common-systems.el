@@ -37,11 +37,11 @@
 (use-package xorns-text)
 (use-package xorns-prog)
 (use-package xorns-project)
+(use-package xorns-term)
 
 
 (when (not (bound-and-true-p >>=standalone-startup))
   ;; Main old modules
-  (use-package xorns-term)
   (use-package xorns-org)
   ;; Previously in xorns-extra
   (use-package xorns-mail)
