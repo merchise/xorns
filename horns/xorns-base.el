@@ -235,7 +235,6 @@ to configure for yourself: see `save-buffer' function for more information.")
     (recentf-mode 1)))
 
 
-
 (use-package saveplace
   :when (>>=-base/configure? saveplace)
   :config

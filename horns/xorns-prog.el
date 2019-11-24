@@ -119,12 +119,12 @@
   (defun -inferior-python-setup()
     (setq-default indent-tabs-mode nil)
     (linum-mode 0))
-
-  :bind (:map python-mode-map ("C-m" . newline-and-indent))
+  :bind
+  (:map python-mode-map
+    ("C-m" . newline-and-indent))
   :hook
   ((python-mode . outline-minor-mode)
-   (inferior-python-mode . -inferior-python-setup))
-  )
+   (inferior-python-mode . -inferior-python-setup)))
 
 
 (use-package lsp-mode
@@ -147,6 +147,8 @@
 
 
 (use-package pipenv
+  :preface
+  (declare-function pipenv-projectile-after-switch-extended 'pipenv)
   :hook (python-mode . pipenv-mode)
   :custom
   (pipenv-projectile-after-switch-function
