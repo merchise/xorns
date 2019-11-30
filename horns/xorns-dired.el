@@ -6,204 +6,134 @@
 
 ;;; Commentary:
 
-;; Configure and extend all `dired' dependencies in the way of Merchise.
+;; Configure and extend all `dired' dependencies in Merchise way.
 ;;
-;; Improve `dired-single' by remembering parent position for recovering it
-;; when navigating up.
+;; `dired-single' is improved by moving point to last folder when navigating
+;; up.
 ;;
-;; This module is automatically used when::
-;;
-;;     (require 'xorns)
+;; `dired-omit-mode' use a more consistent method by hiding only files and
+;; folders starting with a dot ("."); also initial state can be set using the
+;; variable `>>=|initial-dired-omit-mode'.
 
 ;; Enjoy!
 
 
 ;;; Code:
 
-(require 'xorns-utils)
-(require 'dired)
-(require 'dired-x)
-(require 'dired-single nil 'noerror)
+(require 'bind-key)
+
+(require 'use-package)
+(require 'xorns-packages)
+
+(>>=ensure-packages dired-single)
 
 
-;;; Enable a disabled command
-(put 'dired-find-alternate-file 'disabled nil)
+(defconst >>-listing-switches
+  (concat "-alhF"
+    (if (or (memq system-type '(gnu gnu/linux))
+	  (string= (file-name-nondirectory insert-directory-program) "gls"))
+      " --group-directories-first -v"))
+  "Calculate default value for switches passed to `ls' for dired.")
 
 
-(defun -mac-os ()
-  "My current version of Mac OS X shell isn't bash with all is goodies."
-  (require 'ns nil 'noerror))
+(defvar >>=|initial-dired-omit-mode nil
+  "Non-nil opens new `dired' buffers with `dired-omit-mode' enabled.")
 
 
-(setq-default
-  dired-dwim-target t
-  ;; Next is because `ls' used in Mac Os X is a BSD version and it doesn't
-  ;; have any extended option (those starting with `--'), particularly
-  ;; Merchise preferred `group-directories-first'.
-  dired-listing-switches
-  (if (-mac-os)
-    "-lah"
+(use-package dired
+  :custom
+  (dired-listing-switches >>-listing-switches)
+  (dired-ls-F-marks-symlinks t)
+  (dired-recursive-deletes 'always)
+  (dired-recursive-copies 'always)
+  (dired-guess-shell-alist-user
+    '(("\\(\\.ods\\|\\.xlsx?\\|\\.docx?\\|\\.csv\\)\\'" "libreoffice")))
+  (dired-auto-revert-buffer t)
+  (dired-recursive-copies 'always)
+  (dired-dwim-target t)
+  (dired-isearch-filenames 'dwim)
+  :config
+  ;; Enable a disabled command (assign to "M-RET")
+  (put 'dired-find-alternate-file 'disabled nil))
+
+
+(use-package dired-x
+  :after dired
+  :custom
+  (dired-omit-files "^\\.[^.]\\|^\\.\\..+\\|^__pycache__$")
+  (dired-omit-verbose nil)
+  :hook
+  (dired-mode . >>-dired-omit/setup)
+  :config
+  (progn
+    (defun >>-dired-omit/setup ()
+      "Setup initial `dired-omit-mode'."
+      (interactive)
+      (if >>=|initial-dired-omit-mode
+	(dired-omit-mode)))
+    (bind-keys :map dired-mode-map
+      ;; An error occurred with use-package's `:bind'
+      (";" . dired-omit-mode))))
+
+
+(use-package dired-single
+  :after dired
+  :config
+  (bind-keys :map dired-mode-map
+    ([return] . dired-single-buffer)
+    ([M-S-down] . dired-single-buffer)
+    ([M-down] . dired-single-buffer)
+    ("^" . dired-single-up-directory)
+    ("M-P" . dired-single-up-directory)
+    ([M-S-up] . dired-single-up-directory)
+    ([M-up] . dired-single-up-directory)
+    ([mouse-1] . dired-single-buffer-mouse)
+    ([mouse-2] . dired-single-buffer-mouse)))
+
+
+(use-package wdired
+  :after dired
+  :custom
+  (wdired-allow-to-change-permissions t))
+
+
+;; Check `dired-sort-toggle'
+
+
+(defun xorns-dired-recursive ()
+  "Refresh the Dired buffer using recursive switch."
+  (interactive)
+  (if dired-sort-inhibit
+    (error "Cannot sort this dired buffer")
     ;; else
-    "-la --group-directories-first -h")
-  )
+    (dired-sort-other (concat dired-listing-switches " -BR"))))
 
 
-(defcustom xorns-dired-recursive-ignore-switches
-  '(".git/*" "*.py?" "*.elc" "*.so" ".gitignore")
-  "Switches passed to `ls' for extended recursive Dired.
-
-Each one will be passed as a `--ignore' parameter.  When Direct is called with
-this function, `-R' and `-B' will be passed automatically to `ls' in addition
-to all the value defined in `dired-listing-switches'."
-  :type '(repeat string)
-  :group 'dired
-  :group 'xorns)
-
-
-(defun -dired-define-keys (keys def)
-  "In define several key sequences KEYS with the same function DEF.
-Always use `dired-mode-map' as the keymap.
-
-See `define-key' function for more information."
-  (mapcar
-    #'(lambda (key)
-        (define-key dired-mode-map key def))
-    keys))
-
-
-(defun xorns-dired-clean-recursive-switches (params)
-  "Remove all invalid PARAMS to apply ignore patterns in recursive Dired.
-
-To allow applying `--ignore' switches in recursive `ls' command, there are
-options that must be disabled in order this work properly.
-
-See also `bash' `ls' command and `xorns-dired-recursive' function."
-  (let ((switches dired-listing-switches))
-    (setq switches
-      (replace-regexp-in-string " -[b-z0-9]*\\(a\\)" ""
-        switches t t 2)
-      )
-    ;; TODO: Finish and use this function
-    )
-  (format "%s -BR %s"
-    dired-listing-switches
-    ;; string-match
-    ;; match-string
-    ;; replace-match
-    ;; replace-regexp-in-string
-    (mapconcat
-      #'(lambda (arg) (format "--ignore='%s'" arg))
-      xorns-dired-recursive-ignore-switches
-      " ")))
-
-
-(defun xorns-dired-get-recursive-switches ()
-  "Calculate  `ls' ignore arguments to be used in `xorns-dired-recursive'."
-  (format "%s -BR %s"
-    dired-listing-switches
-    (mapconcat
-      #'(lambda (arg) (format "--ignore='%s'" arg))
-      xorns-dired-recursive-ignore-switches
-      " ")))
-
-
-;; TODO: This function could not work in MacOsX or other Unixes, this is
-;; because old 'bash' versions not allowing `--ignore' or
-;; `--group-directories-first' options.
-(defun xorns-dired-recursive (&optional arg)
-  "Refresh the Dired buffer using recursive switch.
-Switches defined in `xorns-dired-recursive-ignore-switches' are used in
-addition to those in `dired-actual-switches'.  To configure prefix standard
-switches, customize `dired-listing-switches' variable.
-With a prefix ARG, print a message with ctual parameters."
-  (interactive "P")
-  (when dired-sort-inhibit
-    (error "Cannot sort this dired buffer"))
-  (let ((params (xorns-dired-get-recursive-switches)))
-    (if arg
-      (message "Recursive Dired: %s" params))
-    (dired-sort-other params)))
-
-
-(defun xorns-dired-single-buffer (&optional default-dirname)
-  "Visit selected directory in current buffer.
-Improve default `dired-single-buffer' by remembering parent position for
-recovering it when navigating up.
-
-Optional argument DEFAULT-DIRNAME specifies the directory to visit; if not
-specified, the directory or file on the current line is used (assuming it's a
-dired buffer).  If the current line represents a file, the file is visited in
-another window."
+(defadvice dired-single-buffer (around >>-dired-single-buffer activate)
+  "Select source directory item position when navigating up."
   (interactive)
   (let ((org (dired-current-directory)))
-    (declare-function dired-single-buffer 'dired-single)    ;; FIX: review
-    (dired-single-buffer default-dirname)
+    ;; super
+    ad-do-it
+    ;;
     (let ((dst (dired-current-directory)))
       (if (string-prefix-p dst org)
         (let* ((targets (split-string (substring org (length dst)) "/"))
                 (aux (car targets))
                 (target (if (string= aux "") (cadr targets) aux)))
           (left-char 1)
-          (search-forward (concat " " target "\n") nil t)
+	  (if (null (search-forward (concat " " target "\n") nil t))
+	    (search-forward (concat " " target "/") nil t))
           (left-char (1+ (length target))))))))
 
 
-(defun xorns-dired-single-buffer-mouse (click)
-  "Mouse-initiated version of `xorns-dired-single-buffer' (which see).
-
-Argument CLICK is the mouse-click event."
-  (interactive "e")
-  ;; Next code could be generalized in `xorns-utils'.
-  (let* ( (start (event-start click))
-          (window (car start))
-          (pos (car (cdr start))) )
-    (select-window window)
-    (goto-char pos))
-  (xorns-dired-single-buffer))
-
-(defun xorns-dired-single-setup ()
-  "Customize `dired-single' key-bindings.
-
-After this function is called;  Enter, Click and ^ reuse the buffer
-instead of creating a new one.
-
-If `dired-single' is not installed, does nothing."
-  (when (featurep 'dired-single)
-    (declare-function dired-single-buffer 'dired-single)
-    (define-key dired-mode-map "r" 'xorns-dired-recursive)
-    (-dired-define-keys `([return] [M-S-down] [M-down] ,(kbd "RET"))
-      'xorns-dired-single-buffer)
-    (-dired-define-keys `([mouse-1] [mouse-2])
-      'xorns-dired-single-buffer-mouse)
-    (-dired-define-keys `(,(kbd "M-P") [M-S-up] [M-up] "^")
-      #'(lambda () (interactive) (xorns-dired-single-buffer "..")))
-    ))
-
-(defun xorns-dired-setup ()
-  "Customize `dired' key-bindings.
-
-After this function is called;  Enter, Click and ^ reuse the buffer
-instead of creating a new one.
-
-If `dired-single' is not installed, does nothing."
-  (xorns-dired-single-setup)
-  (-dired-define-keys
-    `(,(kbd "C-c o") ,(kbd "C-c C-o") ,(kbd "C-c h") ,(kbd "C-c C-h"))
-    'dired-omit-mode)
-  (when (functionp 'w3m-goto-url)
-    (-dired-define-keys `("J")
-      #'(lambda () (interactive)
-	  (w3m-goto-url (dired-copy-filename-as-kill 0))))
-    )
-  )
-
-(if (boundp 'dired-mode-map)
-  (xorns-dired-setup)
-  ; else
-  (add-hook 'dired-load-hook 'xorns-dired-setup))
-
-(add-hook 'dired-load-hook
-  (lambda () (load "dired-x")))
+(when (functionp 'w3m-goto-url)
+  (bind-keys :map dired-mode-map
+    ("/" . xorns-dired-recursive)
+    ("J" .
+      #'(lambda ()
+	  (interactive)
+	  (w3m-goto-url (dired-copy-filename-as-kill 0))))))
 
 
 (provide 'xorns-dired)
