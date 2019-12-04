@@ -25,8 +25,6 @@
 (require 'use-package)
 (require 'xorns-packages)
 
-(>>=ensure-packages dired-single)
-
 
 (defconst >>-listing-switches
   (concat "-alhF"
@@ -60,7 +58,7 @@
 (use-package dired-x
   :after dired
   :custom
-  (dired-omit-files "^\\.[^.]\\|^\\.\\..+\\|^__pycache__$")
+  (dired-omit-files "^\\.?#\\|^\\.[^.]\\|^\\.\\..+\\|^__pycache__$")
   (dired-omit-verbose nil)
   :hook
   (dired-mode . >>-dired-omit/setup)
@@ -71,42 +69,57 @@
       (interactive)
       (if >>=|initial-dired-omit-mode
 	(dired-omit-mode)))
+
     (bind-keys :map dired-mode-map
       ;; An error occurred with use-package's `:bind'
       (";" . dired-omit-mode))))
 
 
-(use-package dired-single
-  :after dired
-  :config
-  (bind-keys :map dired-mode-map
-    ([return] . dired-single-buffer)
-    ([M-S-down] . dired-single-buffer)
-    ([M-down] . dired-single-buffer)
-    ("^" . dired-single-up-directory)
-    ("M-P" . dired-single-up-directory)
-    ([M-S-up] . dired-single-up-directory)
-    ([M-up] . dired-single-up-directory)
-    ([mouse-1] . dired-single-buffer-mouse)
-    ([mouse-2] . dired-single-buffer-mouse)))
-
-
 (use-package wdired
-  :after dired
   :custom
   (wdired-allow-to-change-permissions t))
 
 
-;; Check `dired-sort-toggle'
+
+;;; Reuse the current dired buffer to visit a directory
+
+(>>=require dired-single)
 
 
-(defun xorns-dired-recursive ()
-  "Refresh the Dired buffer using recursive switch."
-  (interactive)
-  (if dired-sort-inhibit
-    (error "Cannot sort this dired buffer")
-    ;; else
-    (dired-sort-other (concat dired-listing-switches " -BR"))))
+(defun >>=dired-search-forward (target)
+  "Search forward from point for directory entry TARGET."
+  (when (and target
+	  (re-search-forward (format "[[:space:]]%s[/\n]" target) nil t))
+    (left-char (1+ (length target)))
+    (point)))
+
+
+(defun >>=dired-single-reload (&optional arg)
+  "Reload current-directory in the Dired buffer.
+Non-nil ARG will reload the inserted sub-directory where the point is
+located."
+  (interactive "P")
+  (unless (eq major-mode 'dired-mode)
+    (error ">>= this function can only be called in `dired-mode'"))
+  (let ((pos (point))
+	(fname (dired-get-filename 'no-dir 'no-error)))
+    (if (null arg)
+      (goto-char (point-min)))
+    (dired-single-buffer (dired-current-directory))
+    (if (and (null (>>=dired-search-forward fname)) (< pos (point-max)))
+      (goto-char pos))))
+
+
+(defun >>=dired-insert-recursive-subdir (dirname)
+  "Insert sub-directory DIRNAME into the same buffer using recursive options.
+Very similar to `dired-maybe-insert-subdir'."
+  (interactive (list (dired-get-filename)))
+  (dired-maybe-insert-subdir dirname
+    (let ((switches (or dired-subdir-switches dired-actual-switches)))
+      (if (dired-switches-recursive-p switches)
+	switches
+	;; else (add recursive option)
+	(concat switches " -R")))))
 
 
 (defadvice dired-single-buffer (around >>-dired-single-buffer activate)
@@ -121,19 +134,23 @@
         (let* ((targets (split-string (substring org (length dst)) "/"))
                 (aux (car targets))
                 (target (if (string= aux "") (cadr targets) aux)))
-          (left-char 1)
-	  (if (null (search-forward (concat " " target "\n") nil t))
-	    (search-forward (concat " " target "/") nil t))
-          (left-char (1+ (length target))))))))
+	  (goto-char (point-min))
+	  (if (null (>>=dired-search-forward target))
+	    (dired-next-line 4)))))))
 
 
-(when (functionp 'w3m-goto-url)
-  (bind-keys :map dired-mode-map
-    ("/" . xorns-dired-recursive)
-    ("J" .
-      #'(lambda ()
-	  (interactive)
-	  (w3m-goto-url (dired-copy-filename-as-kill 0))))))
+(bind-keys :map dired-mode-map
+  ([return] . dired-single-buffer)
+  ([M-S-down] . dired-single-buffer)
+  ([M-down] . dired-single-buffer)
+  ("^" . dired-single-up-directory)
+  ("M-P" . dired-single-up-directory)
+  ("/" . >>=dired-single-reload)
+  ("r" . >>=dired-insert-recursive-subdir)
+  ([M-S-up] . dired-single-up-directory)
+  ([M-up] . dired-single-up-directory)
+  ([mouse-1] . dired-single-buffer-mouse)
+  ([mouse-2] . dired-single-buffer-mouse))
 
 
 (provide 'xorns-dired)
