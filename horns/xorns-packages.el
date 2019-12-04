@@ -31,6 +31,18 @@
       (package-install pkg))))
 
 
+(defmacro >>=require (feature &rest body)
+  "Ensure FEATURE is properly installed; and then `require' it."
+  `(progn
+     (unless (package-installed-p ',feature)
+       (unless >>-package-contents-refreshed
+	 (package-refresh-contents)
+	 (setq >>-package-contents-refreshed t))
+       (package-install ',feature))
+      (require ',feature)))
+
+
+
 (with-eval-after-load 'xorns-packages
   (>>=ensure-packages
     ; Bootstrap 'use-package' and dependencies
