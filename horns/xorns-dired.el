@@ -12,8 +12,10 @@
 ;; up.
 ;;
 ;; `dired-omit-mode' use a more consistent method by hiding only files and
-;; folders starting with a dot ("."); also initial state can be set using the
-;; variable `>>=|initial-dired-omit-mode'.
+;; folders starting with a dot ("."); a initial state can be configured
+;; (~/.config/xorns) using the variable `>>=|dired-omit-mode'.  This variable
+;; will be used to toggle this mode globally using the command
+;; `>>=dired-omit-mode-toggle'.
 
 ;; Enjoy!
 
@@ -34,7 +36,7 @@
   "Calculate default value for switches passed to `ls' for dired.")
 
 
-(defvar >>=|initial-dired-omit-mode nil
+(defvar >>=|dired-omit-mode nil
   "Non-nil opens new `dired' buffers with `dired-omit-mode' enabled.")
 
 
@@ -61,18 +63,31 @@
   (dired-omit-files "^\\.?#\\|^\\.[^.]\\|^\\.\\..+\\|^__pycache__$")
   (dired-omit-verbose nil)
   :hook
-  (dired-mode . >>-dired-omit/setup)
+  (dired-mode . >>=dired-omit-mode)
   :config
   (progn
-    (defun >>-dired-omit/setup ()
-      "Setup initial `dired-omit-mode'."
+    (defun >>=dired-omit-mode (&optional buffer)
+      "Setup `dired-omit-mode' in BUFFER using `>>=|dired-omit-mode' value."
+      (with-current-buffer (or buffer (current-buffer))
+	(dired-omit-mode (if >>=|dired-omit-mode +1 -1))))
+
+    (defun >>=dired-omit-mode-toggle ()
+      "Toggle `>>=|dired-omit-mode' globally."
       (interactive)
-      (if >>=|initial-dired-omit-mode
-	(dired-omit-mode)))
+      (setq >>=|dired-omit-mode (not >>=|dired-omit-mode))
+      (let ((current (current-buffer)))
+	(dolist (elt dired-buffers)
+	  (let ((buf (cdr elt)))
+	    (cond
+	      ((null (buffer-name buf))
+		;; Buffer is killed - clean up:
+		(setq dired-buffers (delq elt dired-buffers)))
+	      (t
+		(>>=dired-omit-mode buf)))))))
 
     (bind-keys :map dired-mode-map
       ;; An error occurred with use-package's `:bind'
-      (";" . dired-omit-mode))))
+      (";" . >>=dired-omit-mode-toggle))))
 
 
 (use-package wdired
@@ -112,9 +127,9 @@ located."
 
 (defun >>=dired-insert-recursive-subdir (dirname)
   "Insert sub-directory DIRNAME into the same buffer using recursive options.
-Very similar to `dired-maybe-insert-subdir'."
+Very similar to `dired-insert-subdir'."
   (interactive (list (dired-get-filename)))
-  (dired-maybe-insert-subdir dirname
+  (dired-insert-subdir dirname
     (let ((switches (or dired-subdir-switches dired-actual-switches)))
       (if (dired-switches-recursive-p switches)
 	switches

@@ -16,7 +16,7 @@ default values are not suitable for your configuration."
     ;; >>=|key-chord-delay-level 3
     ;; >>=|projectile/extra-ignored-directories '()
     ;; >>=|projectile/project-root-files '()
-    ;; >>=|initial-dired-omit-mode t
+    ;; >>=|dired-omit-mode t
     ))
 
 
