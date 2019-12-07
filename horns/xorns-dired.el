@@ -1,4 +1,4 @@
-;;; xorns-dired.el --- Merchise extensions for `dired'
+;;; xorns-dired.el --- Merchise extensions for `dired'  -*- checkdoc-verb-check-experimental-flag:nil -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
@@ -37,6 +37,10 @@
 This value will complement both `dired-omit-files' main custom variable and
 `dired-subdir-switches' when used with `>>=dired-insert-recursive-subdir' new
 command.")
+
+
+(defvar >>=|dired-recursive-omit t
+  "Non-nil uses `dired-omit-mode' in recursive command switches.")
 
 
 (use-package dired
@@ -114,6 +118,32 @@ command.")
 (>>=require dired-single)
 
 
+(defun >>-dired-recursive-switches (&optional switches)
+  "Complement SWITCHES to use on `dired-omit-mode' for recursive commands."
+  (let ((recursive
+	  (if switches
+	    (dired-switches-recursive-p switches)
+	    ;; else
+	    (setq switches (or dired-subdir-switches dired-actual-switches))
+	    (if (not (dired-switches-recursive-p switches))
+	      (setq switches (concat switches " --recursive")))
+	    t)))
+    (if (and recursive >>=|dired-omit-mode >>=|dired-recursive-omit)
+      (concat switches " -B "
+	(mapconcat (lambda (arg) (format "--ignore=%s" arg))
+	  (append
+	    '(".*")
+	    >>=|dired-omit-extra-files
+	    (mapcar
+	      (lambda (arg)
+		(let ((wild (if (string-match-p "/$" arg) "" "*")))
+		  (format "'%s%s'" wild arg)))
+	      dired-omit-extensions))
+	  " "))
+      ;; else
+      switches)))
+
+
 (defun >>=dired-search-forward (target)
   "Search forward from point for directory entry TARGET."
   (when (and target
@@ -142,21 +172,8 @@ located."
   "Insert sub-directory DIRNAME into the same buffer using recursive options.
 Very similar to `dired-insert-subdir'."
   (interactive (list (dired-get-filename)))
-  (dired-insert-subdir dirname
-    (let ((switches (or dired-subdir-switches dired-actual-switches)))
-      (concat switches
-	(if (not (dired-switches-recursive-p switches))
-	  " --recursive")
-	(when >>=|dired-omit-mode
-    	  (concat " -B "
-	    (mapconcat (lambda (arg) (format "--ignore=%s" arg))
-	      (append
-		'(".*")
-		>>=|dired-omit-extra-files
-		(mapcar (lambda (arg) (format "*%s" arg))
-		  dired-omit-extensions))
-	      " "))))))
-    (>>=dired-omit-mode))
+  (dired-insert-subdir dirname (>>-dired-recursive-switches))
+  (>>=dired-omit-mode))
 
 
 (defadvice dired-single-buffer (around >>-dired-single-buffer activate)
