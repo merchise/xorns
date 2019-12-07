@@ -28,21 +28,24 @@
 (require 'xorns-packages)
 
 
-(defconst >>-listing-switches
-  (concat "-alhF"
-    (if (or (memq system-type '(gnu gnu/linux))
-	  (string= (file-name-nondirectory insert-directory-program) "gls"))
-      " --group-directories-first -v"))
-  "Calculate default value for switches passed to `ls' for dired.")
-
-
 (defvar >>=|dired-omit-mode nil
   "Non-nil opens new `dired' buffers with `dired-omit-mode' enabled.")
 
 
+(defvar >>=|dired-omit-extra-files '("__pycache__")
+  "A list of extra files (strings) to omit from Dired listings.
+This value will complement both `dired-omit-files' main custom variable and
+`dired-subdir-switches' when used with `>>=dired-insert-recursive-subdir' new
+command.")
+
+
 (use-package dired
   :custom
-  (dired-listing-switches >>-listing-switches)
+  (dired-listing-switches
+    (concat "-alhF"
+      (let ((program (file-name-nondirectory insert-directory-program)))
+	(if (or (memq system-type '(gnu gnu/linux)) (string= program "gls"))
+	  " --group-directories-first -v"))))
   (dired-ls-F-marks-symlinks t)
   (dired-recursive-deletes 'always)
   (dired-recursive-copies 'always)
@@ -57,37 +60,47 @@
   (put 'dired-find-alternate-file 'disabled nil))
 
 
+
+;;; Extra functionality
+
+(require 'dired-x)
+
+
+(defun >>=dired-omit-mode (&optional buffer)
+  "Setup `dired-omit-mode' in BUFFER using `>>=|dired-omit-mode' value."
+  (with-current-buffer (or buffer (current-buffer))
+    (dired-omit-mode (if >>=|dired-omit-mode +1 -1))))
+
+
+(defun >>=dired-omit-mode-toggle ()
+  "Toggle `>>=|dired-omit-mode' globally."
+  (interactive)
+  (setq >>=|dired-omit-mode (not >>=|dired-omit-mode))
+  (let ((current (current-buffer)))
+    (dolist (elt dired-buffers)
+      (let ((buf (cdr elt)))
+	(cond
+	  ((null (buffer-name buf))
+	    ;; Buffer is killed - clean up:
+	    (setq dired-buffers (delq elt dired-buffers)))
+	  (t
+	    (>>=dired-omit-mode buf)))))))
+
+
 (use-package dired-x
-  :after dired
   :custom
-  (dired-omit-files "^\\.?#\\|^\\.[^.]\\|^\\.\\..+\\|^__pycache__$")
+  (dired-omit-files
+    (mapconcat 'identity
+      (cons
+	"^\\.?#\\|^\\.[^.]\\|^\\.\\..+"
+	>>=|dired-omit-extra-files)
+      "\\|^"))
   (dired-omit-verbose nil)
   :hook
   (dired-mode . >>=dired-omit-mode)
-  :config
-  (progn
-    (defun >>=dired-omit-mode (&optional buffer)
-      "Setup `dired-omit-mode' in BUFFER using `>>=|dired-omit-mode' value."
-      (with-current-buffer (or buffer (current-buffer))
-	(dired-omit-mode (if >>=|dired-omit-mode +1 -1))))
-
-    (defun >>=dired-omit-mode-toggle ()
-      "Toggle `>>=|dired-omit-mode' globally."
-      (interactive)
-      (setq >>=|dired-omit-mode (not >>=|dired-omit-mode))
-      (let ((current (current-buffer)))
-	(dolist (elt dired-buffers)
-	  (let ((buf (cdr elt)))
-	    (cond
-	      ((null (buffer-name buf))
-		;; Buffer is killed - clean up:
-		(setq dired-buffers (delq elt dired-buffers)))
-	      (t
-		(>>=dired-omit-mode buf)))))))
-
-    (bind-keys :map dired-mode-map
-      ;; An error occurred with use-package's `:bind'
-      (";" . >>=dired-omit-mode-toggle))))
+  :bind
+  (:map dired-mode-map
+    (";" . >>=dired-omit-mode-toggle)))
 
 
 (use-package wdired
@@ -131,10 +144,19 @@ Very similar to `dired-insert-subdir'."
   (interactive (list (dired-get-filename)))
   (dired-insert-subdir dirname
     (let ((switches (or dired-subdir-switches dired-actual-switches)))
-      (if (dired-switches-recursive-p switches)
-	switches
-	;; else (add recursive option)
-	(concat switches " -R")))))
+      (concat switches
+	(if (not (dired-switches-recursive-p switches))
+	  " --recursive")
+	(when >>=|dired-omit-mode
+    	  (concat " -B "
+	    (mapconcat (lambda (arg) (format "--ignore=%s" arg))
+	      (append
+		'(".*")
+		>>=|dired-omit-extra-files
+		(mapcar (lambda (arg) (format "*%s" arg))
+		  dired-omit-extensions))
+	      " "))))))
+    (>>=dired-omit-mode))
 
 
 (defadvice dired-single-buffer (around >>-dired-single-buffer activate)
@@ -166,6 +188,33 @@ Very similar to `dired-insert-subdir'."
   ([M-up] . dired-single-up-directory)
   ([mouse-1] . dired-single-buffer-mouse)
   ([mouse-2] . dired-single-buffer-mouse))
+
+
+
+;;; Patch fixing an Emacs bug
+
+(require 'dired-aux)
+
+(defun dired-insert-subdir-validate (dirname &optional switches)
+  ;; Fix bug in dired function.  `string-match-p' is used to check the
+  ;; switches instead of using `dired-check-switches' causing an error if you
+  ;; try to use a value like "-laF -BR --ignore=*.bak" because the 'b' in
+  ;; 'bak'.
+  ;;
+  ;; To report this bug see:
+  ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Bugs.html
+  (or (dired-in-this-tree dirname (expand-file-name default-directory))
+      (error  "%s: not in this directory tree" dirname))
+  (let ((real-switches (or switches dired-subdir-switches)))
+    (when real-switches
+      (mapcar
+	(lambda (x)
+	  (or (eq (null (dired-check-switches real-switches x))
+		(null (dired-check-switches dired-actual-switches x)))
+	    (error
+	      "Can't have dirs with and without -%s switches together" x)))
+	;; all switches that make a difference to dired-get-filename:
+	'("F" "b")))))
 
 
 (provide 'xorns-dired)
