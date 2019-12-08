@@ -39,9 +39,8 @@ This value will complement both `dired-omit-files' main custom variable and
 command.")
 
 
-(defvar >>=|dired-recursive-omit t
-  "Non-nil uses `dired-omit-mode' in recursive command switches.")
-
+
+;;; Main modules
 
 (use-package dired
   :custom
@@ -68,6 +67,23 @@ command.")
 ;;; Extra functionality
 
 (require 'dired-x)
+
+
+(defvar >>=|dired-omit-ignores-switches
+  (concat "-B "
+    (mapconcat (lambda (arg) (format "--ignore='%s'" arg))
+      (append
+	'(".*")
+	>>=|dired-omit-extra-files
+	(mapcar
+	  (lambda (arg)
+	    (let ((wild (if (string-match-p "/$" arg) "" "*")))
+	      (concat wild arg)))
+	  (seq-filter (lambda (arg) (not (string-match-p "^\\." arg)))
+	    dired-omit-extensions))
+	)
+      " "))
+  "Ignore switches when listing directory if omit-mode and recursive.")
 
 
 (defun >>=dired-omit-mode (&optional buffer)
@@ -118,32 +134,6 @@ command.")
 (>>=require dired-single)
 
 
-(defun >>-dired-recursive-switches (&optional switches)
-  "Complement SWITCHES to use on `dired-omit-mode' for recursive commands."
-  (let ((recursive
-	  (if switches
-	    (dired-switches-recursive-p switches)
-	    ;; else
-	    (setq switches (or dired-subdir-switches dired-actual-switches))
-	    (if (not (dired-switches-recursive-p switches))
-	      (setq switches (concat switches " --recursive")))
-	    t)))
-    (if (and recursive >>=|dired-omit-mode >>=|dired-recursive-omit)
-      (concat switches " -B "
-	(mapconcat (lambda (arg) (format "--ignore=%s" arg))
-	  (append
-	    '(".*")
-	    >>=|dired-omit-extra-files
-	    (mapcar
-	      (lambda (arg)
-		(let ((wild (if (string-match-p "/$" arg) "" "*")))
-		  (format "'%s%s'" wild arg)))
-	      dired-omit-extensions))
-	  " "))
-      ;; else
-      switches)))
-
-
 (defun >>=dired-search-forward (target)
   "Search forward from point for directory entry TARGET."
   (when (and target
@@ -172,7 +162,33 @@ located."
   "Insert sub-directory DIRNAME into the same buffer using recursive options.
 Very similar to `dired-insert-subdir'."
   (interactive (list (dired-get-filename)))
-  (dired-insert-subdir dirname (>>-dired-recursive-switches))
+  (dired-insert-subdir dirname
+    (concat (or dired-subdir-switches dired-actual-switches) " -R "
+      (if >>=|dired-omit-mode >>=|dired-omit-ignores-switches)))
+  (>>=dired-omit-mode))
+
+
+(defun >>=dired-maybe-insert-subdir (dirname &optional switches)
+  "Insert sub-directory DIRNAME into the same dired buffer.
+If SWITCHES contains recursive flag (see `dired-switches-recursive-p') and
+global variable `>>=|dired-omit-mode' is t, `>>=|dired-omit-ignores-switches'
+are concatenated.  See `dired-maybe-insert-subdir'."
+  (interactive
+   (list (dired-get-filename)
+	 (if current-prefix-arg
+	     (read-string "Switches for listing: "
+			  (or dired-subdir-switches dired-actual-switches)))))
+  (let ((opoint (point))
+	(dirname (file-name-as-directory dirname)))
+    (when (and >>=|dired-omit-mode (dired-switches-recursive-p switches))
+      (setq switches (concat switches " " >>=|dired-omit-ignores-switches)))
+    (or (and (not switches)
+	     (when (dired-goto-subdir dirname)
+	       (unless (dired-subdir-hidden-p dirname)
+		 (dired-initial-position dirname))
+	       t))
+	(dired-insert-subdir dirname switches))
+    (push-mark opoint))
   (>>=dired-omit-mode))
 
 
@@ -201,6 +217,7 @@ Very similar to `dired-insert-subdir'."
   ("M-P" . dired-single-up-directory)
   ("/" . >>=dired-single-reload)
   ("r" . >>=dired-insert-recursive-subdir)
+  ("i" . >>=dired-maybe-insert-subdir)
   ([M-S-up] . dired-single-up-directory)
   ([M-up] . dired-single-up-directory)
   ([mouse-1] . dired-single-buffer-mouse)
@@ -212,14 +229,14 @@ Very similar to `dired-insert-subdir'."
 
 (require 'dired-aux)
 
+;; To report this bug see:
+;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Bugs.html
 (defun dired-insert-subdir-validate (dirname &optional switches)
-  ;; Fix bug in dired function.  `string-match-p' is used to check the
-  ;; switches instead of using `dired-check-switches' causing an error if you
-  ;; try to use a value like "-laF -BR --ignore=*.bak" because the 'b' in
-  ;; 'bak'.
-  ;;
-  ;; To report this bug see:
-  ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Bugs.html
+  "Fix Emacs bug.
+Function `string-match-p' is used to check SWITCHES instead of using
+`dired-check-switches' causing an error if you try to use a value like '-laF
+-BR --ignore=*.bak' because the 'b' in 'bak' (DIRNAME is used as in original
+function)."
   (or (dired-in-this-tree dirname (expand-file-name default-directory))
       (error  "%s: not in this directory tree" dirname))
   (let ((real-switches (or switches dired-subdir-switches)))
@@ -232,6 +249,21 @@ Very similar to `dired-insert-subdir'."
 	      "Can't have dirs with and without -%s switches together" x)))
 	;; all switches that make a difference to dired-get-filename:
 	'("F" "b")))))
+
+
+(defadvice dired-replace-in-string
+  (around >>-dired-replace-in-string (regexp newtext string) activate)
+  "Fix one character switch replace."
+  (let ((org regexp) (res string))
+    (when (and (eq (string-width regexp) 1) (string-equal newtext ""))
+      (setq regexp (format " ?\\_<-%s\\_>" regexp))
+      (setq res ad-do-it))
+    (if (string-equal res string)
+      (progn
+	(setq regexp org)
+	ad-do-it)
+      ;; else
+      res)))
 
 
 (provide 'xorns-dired)
