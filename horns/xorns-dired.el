@@ -120,7 +120,7 @@ command.")
   (dired-mode . >>=dired-omit-mode)
   :bind
   (:map dired-mode-map
-    (";" . >>=dired-omit-mode-toggle)))
+    ("." . >>=dired-omit-mode-toggle)))
 
 
 (use-package wdired
