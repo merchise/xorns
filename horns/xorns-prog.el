@@ -156,11 +156,13 @@
 
 
 (use-package blacken
-  :hook
-  ((python-mode .
-     (lambda ()
-       (turn-off-auto-fill)
-       (blacken-mode)))))
+  :init
+  (defun >>-blacken-setup ()
+    (turn-off-auto-fill)
+    (blacken-mode))
+  :hook (python-mode . >>-blacken-setup)
+  :custom
+  (blacken-line-length 'fill))
 
 
 

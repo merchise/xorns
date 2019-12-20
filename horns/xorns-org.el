@@ -210,7 +210,6 @@ surrounded with blanks."
 (when (featurep 'dictionary)
   (global-set-key (kbd "C-c w") 'dictionary-search)
   (setq-default
-    dictionary-server "localhost"
     dictionary-use-single-buffer t))
 
 

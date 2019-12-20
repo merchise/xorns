@@ -65,8 +65,7 @@
     (fci-mode 1))
   :custom
   (fill-column 78)
-  (fci-rule-width 1)
-  (fci-rule-color "#CCCCCC"))
+  (fci-rule-width 1))
 
 
 

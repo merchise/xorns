@@ -16,18 +16,6 @@
 ;;   (use-package xorns-ui
 ;;     :hook
 ;;     (after-init . spaceline-xorns-theme))
-;;
-;; Pending tasks
-;; - spaceline segments vs packages must be configured:
-;;   - window-number: `winum'
-;;   - python-env: `pyvenv', `pyenv' or `conda'
-;;   - python-pyvenv: `pyvenv'
-;;   - python-pyenv: `pyenv'
-;;
-;; See: seagle0128/lisp/init-ui.el, pierre-lecocq/modules/feat-theme.el,
-;; doom-emacs/core/core-ui.el, doom-emacs/early-init.el,
-;; purcell/lisp/init-gui-frames.el, raxod502/emacs/radian.el,
-;; thierryvolpiatto/init.el
 
 ;;; Code:
 
