@@ -19,9 +19,9 @@
 (defvar >>=!font-configured nil
   "If default-font is configured or not in a graphic display.")
 
-
 (defvar >>=|default-font
-  '(:size 13.5 :weight normal :width normal)
+  `(:size ,(/ (* 13.8 (display-pixel-width)) 1920.0)
+    :weight normal :width normal)
   "Default font or prioritized list of fonts.")
 
 
