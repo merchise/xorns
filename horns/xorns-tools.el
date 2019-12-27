@@ -34,7 +34,7 @@
 Use the same parameters as `message' standard function: FORMAT-STRING and
 ARGS."
   `(if init-file-debug
-    (message (concat ">>= " ,format-string) ,@args)))
+     (message (concat ">>= " ,format-string) ,@args)))
 
 
 (defmacro >>=progn (header &rest body)

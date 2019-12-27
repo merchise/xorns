@@ -18,11 +18,6 @@
 
 ;;; Code:
 
-(require 'xorns-preface)
-(require 'xorns-packages)
-(require 'use-package)
-(require 'xorns-tools)
-
 
 (provide 'xorns-building-blocks)
 ;;; xorns-building-blocks.el ends here
