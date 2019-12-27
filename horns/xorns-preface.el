@@ -74,7 +74,7 @@
   (setq locale-coding-system 'utf-8)
   ;; keyboard, and UI initialization
   (require 'xorns-keyboard)
-  (require 'xorns-ui))
+  (require 'xorns-mode-line))
 
 
 (defun >>-visual/epilogue ()
