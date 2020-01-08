@@ -35,14 +35,6 @@
 for the default `powerline'.  In the future new kinds could be add.")
 
 
-(defvar >>=|mode-line/minor-modes-kind nil
-  "How to display minor modes in the mode-line.
-Use standard configuration if nil; any symbol will require that package and
-then execute `'a function with name '>>=symbol-mode-setup' without any argument or 'symbol-mode'
-mini' for `mini-modeline'; 'space' for `spaceline-mode-line'; and 'power' for
-the default `powerline'.  In the future new kinds could be add.")
-
-
 (use-package smart-mode-line
   :custom
   (sml/no-confirm-load-theme t)
