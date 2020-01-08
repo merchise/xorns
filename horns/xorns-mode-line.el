@@ -38,6 +38,7 @@ for the default `powerline'.  In the future new kinds could be add.")
 (use-package smart-mode-line
   :custom
   (sml/no-confirm-load-theme t)
+  (rm-blacklist "")
   :config
   (progn
     (sml/setup)
