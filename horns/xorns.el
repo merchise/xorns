@@ -21,7 +21,6 @@
 (require 'xorns-preface)
 (require 'xorns-packages)
 (require 'use-package)
-(require 'diminish)
 
 
 (let ((emacs-min-version "26.1"))
@@ -70,8 +69,6 @@ This is set to true when executing `emacs-startup-hook'.")
       (message ">>= xorns initialized in %s seconds." >>=xorns-initialized)))
   (use-package server
     :when (and >>=|enable-server (not noninteractive))
-    ;; :diminish (server-buffer-clients . " ⓒ")
-    :diminish " ⓒ"
     :config
     (unless (or (daemonp) (server-running-p))
       (message ">>= starting server...")

@@ -30,7 +30,6 @@
 (require 'use-package-chords)
 (require 'xorns-tools)
 (require 'xorns-packages)
-(require 'diminish)
 
 
 
@@ -211,7 +210,6 @@ to configure for yourself: see `save-buffer' function for more information.")
     (unless (>>=current-buffer-remote?)
       (auto-revert-mode)))
   :defer t
-  :diminish (auto-revert-mode . " ⟲")
   :custom
   (auto-revert-verbose nil)
   (auto-revert-check-vc-info nil)
@@ -245,7 +243,6 @@ to configure for yourself: see `save-buffer' function for more information.")
   (>>=ensure-packages gcmh)
   (use-package gcmh
     :commands gcmh-mode
-    :diminish " ♻"
     :config
     (gcmh-mode 1)))
 

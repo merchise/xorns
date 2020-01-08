@@ -47,7 +47,6 @@
   (>>=ensure-packages
     ; Bootstrap 'use-package' and dependencies
     use-package
-    diminish
     system-packages
     use-package-ensure-system-package
     ; Bootstrap 'UI' dependencies
