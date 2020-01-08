@@ -16,11 +16,49 @@
 ;;; Code:
 
 (require 'use-package)
-(require 'spaceline)
+(require 'xorns-packages)
+
+(>>=ensure-packages smart-mode-line)
+
+(if mode-line-format
+  (warn
+    (concat
+      ">>= This must be called just once and after `xorns-preface'. "
+      "Variable `mode-line-format' must be nil."))
+  ;; else
+  (setq mode-line-format (default-value 'mode-line-format)))
+
+
+(defvar >>=|mode-line/kind nil
+  "Standard mode-line if nil; otherwise is a symbol indicating kind.
+'mini' for `mini-modeline'; 'spaceline' for `spaceline-mode-line'; and 'power'
+for the default `powerline'.  In the future new kinds could be add.")
+
+
+(defvar >>=|mode-line/minor-modes-kind nil
+  "How to display minor modes in the mode-line.
+Use standard configuration if nil; any symbol will require that package and
+then execute `'a function with name '>>=symbol-mode-setup' without any argument or 'symbol-mode'
+mini' for `mini-modeline'; 'space' for `spaceline-mode-line'; and 'power' for
+the default `powerline'.  In the future new kinds could be add.")
+
+
+(use-package smart-mode-line
+  :custom
+  (sml/no-confirm-load-theme t)
+  :config
+  (progn
+    (sml/setup)
+    ;; TODO: configure `sml/replacer-regexp-list'
+    ))
+
+;; (force-mode-line-update)
 
 
 
-;;; misc functions
+;;; spaceline
+
+(require 'spaceline)
 
 (defvar >>-project-root nil
   "Local variable to store cached `projectile-project-name'.")
@@ -40,27 +78,6 @@
   (unless (string= >>-project-root "-")
     >>-project-root))
 
-
-
-;;; mode-line
-
-(defvar >>=|mode-line/kind nil
-  "Standard mode-line if nil; otherwise is a symbol indicating kind.
-'mini' for `mini-modeline'; 'spaceline' for `spaceline-mode-line'; and 'power'
-for the default `powerline'.  In the future new kinds could be add.")
-
-
-(defvar >>=|mode-line/minor-modes-kind nil
-  "How to display minor modes in the mode-line.
-Use standard configuration if nil; any symbol will require that package and
-then execute `'a function with name '>>=symbol-mode-setup' without any argument or 'symbol-mode'
-mini' for `mini-modeline'; 'space' for `spaceline-mode-line'; and 'power' for
-the default `powerline'.  In the future new kinds could be add.")
-
-
-(unless mode-line-format
-  (setq mode-line-format (default-value 'mode-line-format))
-  (force-mode-line-update))
 
 
 (defun >>=minor-modes-setup (kind)
