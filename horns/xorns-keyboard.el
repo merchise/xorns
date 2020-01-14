@@ -28,8 +28,8 @@
 
 ;;; Code:
 
-(require 'use-package)
 (require 'xorns-packages)
+(require 'use-package)
 
 
 (defvar >>=|key-chord-delay-level -5

@@ -15,8 +15,10 @@
 
 ;;; Code:
 
-(require 'use-package)
+
 (require 'xorns-packages)
+(require 'use-package)
+
 
 (>>=ensure-packages smart-mode-line)
 
@@ -49,9 +51,11 @@ for the default `powerline'.  In the future new kinds could be add.")
 
 
 
-;;; spaceline
+;;; misc
 
-(require 'spaceline)
+(>>=require minions)
+(>>=require spaceline)
+
 
 (defvar >>-project-root nil
   "Local variable to store cached `projectile-project-name'.")

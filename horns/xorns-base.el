@@ -211,6 +211,7 @@ to configure for yourself: see `save-buffer' function for more information.")
       (auto-revert-mode)))
   :defer t
   :custom
+  ;; global-auto-revert-non-file-buffers
   (auto-revert-verbose nil)
   (auto-revert-check-vc-info nil)
   :hook

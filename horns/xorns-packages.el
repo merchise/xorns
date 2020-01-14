@@ -49,9 +49,6 @@
     use-package
     system-packages
     use-package-ensure-system-package
-    ; Bootstrap 'UI' dependencies
-    minions
-    spaceline
     ))
 
 
