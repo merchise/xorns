@@ -8,10 +8,13 @@
 
 ;;; Commentary:
 
-;; This library defines several utilities used to configure UI stuffs,
-;; specially mode-lines.
-;;
-;; This module will be setup using
+;; Utilities used to configure mode-line.  Although the name of this module is
+;; 'mode-line', it also will refer to the 'header-line', and the
+;; 'frame-title'.
+
+;; Package `smart-mode-line' is always configured as the default, removing all
+;; minor-modes indicators.  You can change the default kind by using a non-nil
+;; value for `>>=|mode-line/kind'.
 
 ;;; Code:
 
@@ -25,76 +28,78 @@
 (if mode-line-format
   (warn
     (concat
-      ">>= This must be called just once and after `xorns-preface'. "
-      "Variable `mode-line-format' must be nil."))
+      ">>= Variable `mode-line-format' must be nil at this point; "
+      "this code must be called just once and after `xorns-preface'."))
   ;; else
   (setq mode-line-format (default-value 'mode-line-format)))
 
 
 (defvar >>=|mode-line/kind nil
-  "Standard mode-line if nil; otherwise is a symbol indicating kind.
-'mini' for `mini-modeline'; 'spaceline' for `spaceline-mode-line'; and 'power'
-for the default `powerline'.  In the future new kinds could be add.")
+  "Kind of mode-line.
+Default `smart-mode-line' if nil; otherwise is a symbol indicating kind,
+'mini' for `mini-modeline', 'power' for `powerline', or 'space' for
+`spaceline'.")
 
 
 (use-package smart-mode-line
+  :demand t
   :custom
   (sml/no-confirm-load-theme t)
+  (sml/theme 'respectful)
   (rm-blacklist "")
   :config
-  (progn
-    (sml/setup)
-    ;; TODO: configure `sml/replacer-regexp-list'
-    ))
-
-;; (force-mode-line-update)
+  (sml/setup))
 
 
 
-;;; misc
+;;; mini-modeline
 
-(>>=require minions)
-(>>=require spaceline)
-
-
-(defvar >>-project-root nil
-  "Local variable to store cached `projectile-project-name'.")
-
-
-(declare-function projectile-project-name 'projectile)
-
-(defun >>-project-root ()
-  "Local function to calculate and cache `projectile-project-name'."
-  (when (and (not >>-project-root) (fboundp 'projectile-project-name))
-    (let ((name (projectile-project-name)))
-      (set (make-local-variable '>>-project-root)
-	(if (string= name (buffer-name))
-	  "-"
-	  ;; else
-	  name))))
-  (unless (string= >>-project-root "-")
-    >>-project-root))
+(when (eq >>=|mode-line/kind 'mini)
+  (>>=ensure-packages mini-modeline)
+  (use-package mini-modeline
+    :demand t
+    :after smart-mode-line
+    :custom
+    (mini-modeline-enhance-visual t)
+    :config
+    (mini-modeline-mode +1)))
 
 
+
+;;; powerline
 
-(defun >>=minor-modes-setup (kind)
-  "Configure how to display minor modes in the mode-line for a specific KIND.
-There are two alternatives, it is executed a function whose name is
-'>>=KIND-minor-modes-setup', or 'KIND-mode' is activated."
-  (let ((setup (intern (format ">>=%s-minor-modes-setup" kind)))
-	(mode (intern (format "%s-mode" kind))))
-    (if (fboundp setup)
-      (apply setup)
-      ;; else
-      (if (fboundp mode)
-	(apply setup 1)
-	;; else
-	(warn ">>= '%s' minor-modes kind can not be setup" kind)))))
+(when (eq >>=|mode-line/kind 'power)
+  (>>=ensure-packages powerline)
+  (use-package powerline
+    :custom
+    (powerline-default-separator 'utf-8)
+    :config
+    (powerline-default-theme)))
 
 
-;; (setq mode-line-format (default-value 'mode-line-format))
+
+;;; spaceline
 
-(when (eq >>=|mode-line/kind 'spaceline)
+(when (eq >>=|mode-line/kind 'space)
+  (>>=ensure-packages minions spaceline)
+
+  (defvar >>-project-root nil
+    "Local variable to store cached `projectile-project-name'.")
+
+  (declare-function projectile-project-name 'projectile)
+
+  (defun >>-project-root ()
+    "Local function to calculate and cache `projectile-project-name'."
+    (when (and (not >>-project-root) (fboundp 'projectile-project-name))
+      (let ((name (projectile-project-name)))
+	(set (make-local-variable '>>-project-root)
+	  (if (string= name (buffer-name))
+	    "-"
+	    ;; else
+	    name))))
+    (unless (string= >>-project-root "-")
+      >>-project-root))
+
   (use-package minions
     :demand t
     :config
@@ -102,9 +107,11 @@ There are two alternatives, it is executed a function whose name is
       (minions-mode)))
 
   (use-package spaceline-config
-    :config
+    :init
     (progn
+      (require 'spaceline)
       (setq spaceline-highlight-face-func 'spaceline-highlight-face-modified)
+      (declare-function spaceline-install 'spaceline)
 
       (spaceline-define-segment narrow
 	"Show when buffer is narrowed."
@@ -122,30 +129,32 @@ There are two alternatives, it is executed a function whose name is
 	"Show the current project root using projectile."
 	(>>-project-root))
 
-      (defun spaceline-xorns-theme ()
-	"Install a variation of `spaceline-emacs-theme'."
-	(spaceline-install
-	  `((((persp-name :fallback workspace-number)
-	       window-number) :separator "|")
-	     ((buffer-modified) :face highlight-face)
-	     ((buffer-id which-function)
-	       :separator " @ " :face highlight-face :tight-left t)
-	     remote-host
-	     ;; projectile-root
-	     project-root
-	     ((buffer-size) :separator " | " :when active)
-	     (version-control :when active))
-	  `(selection-info
-	     ((process minions) :when active)
-	     ((,(if nil 'buffer-encoding 'buffer-encoding-abbrev)
-		macrodef
-		point-position
-		line-column)
-	       :separator " | " :when active)
-	     ((narrow buffer-position hud) :face highlight-face)))
-	(setq-default
-	  spaceline-buffer-encoding-abbrev-p t
-	  mode-line-format '("%e" (:eval (spaceline-ml-main))))))))
+      (add-hook 'after-init-hook
+	(defun spaceline-xorns-theme ()
+	  "Install a variation of `spaceline-emacs-theme'."
+	  (spaceline-install
+	    `((((persp-name :fallback workspace-number)
+		 window-number) :separator "|")
+	       ((buffer-modified) :face highlight-face)
+	       ((buffer-id which-function)
+		 :separator " @ " :face highlight-face :tight-left t)
+	       remote-host
+	       ;; projectile-root
+	       project-root
+	       ((buffer-size) :separator " | " :when active)
+	       (version-control :when active))
+	    `(selection-info
+	       ((process minions) :when active)
+	       ((,(if nil 'buffer-encoding 'buffer-encoding-abbrev)
+		  macrodef
+		  point-position
+		  line-column)
+		 :separator " | " :when active)
+	       ((narrow buffer-position hud) :face highlight-face)))
+	  (setq-default
+	    spaceline-buffer-encoding-abbrev-p t
+	    mode-line-format '("%e" (:eval (spaceline-ml-main))))))
+      )))
 
 
 

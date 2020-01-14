@@ -52,7 +52,8 @@
 
 
 (defun >>-visual/hidden-mode-line ()
-  "Hide the mode-line in the initial buffer."
+  "Hide the mode-line in the initial buffer.
+It will be restored later on by `xorns-mode-line' module."
   ;; Based on: http://bzg.fr/emacs-hide-mode-line.html
   (when mode-line-format
     (setq mode-line-format nil)

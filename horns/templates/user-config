@@ -17,6 +17,7 @@ default values are not suitable for your configuration."
     ;; >>=|projectile/extra-ignored-directories '()
     ;; >>=|projectile/project-root-files '()
     ;; >>=|dired-omit-mode t
+    ;; >>=|mode-line/kind 'mini
     ))
 
 
