@@ -33,8 +33,7 @@
   :chords
   ("vc" . magit-status)
   :hook
-  ((after-save . magit-after-save-refresh-status)
-   (git-commit-mode . >>=tex-mode-setup))
+  (git-commit-mode . >>=tex-mode-setup)
   :config
   (put 'magit-clean 'disabled nil))
 
