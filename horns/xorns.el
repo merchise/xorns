@@ -54,6 +54,7 @@ This is set to true when executing `emacs-startup-hook'.")
       (gc-cons-percentage 0.6)
       (file-name-handler-alist nil))
   (require 'xorns-config)
+  (require 'xorns-mode-line)
   (->? >>=building-blocks/configuration)
   (>>=progn "base initialization"
     (use-package xorns-base))

@@ -74,8 +74,7 @@ It will be restored later on by `xorns-mode-line' module."
   (prefer-coding-system 'utf-8)
   (setq locale-coding-system 'utf-8)
   ;; keyboard, and UI initialization
-  (require 'xorns-keyboard)
-  (require 'xorns-mode-line))
+  (require 'xorns-keyboard))
 
 
 (defun >>-visual/epilogue ()
