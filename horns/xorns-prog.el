@@ -160,9 +160,11 @@
   (defun >>-blacken-setup ()
     (turn-off-auto-fill)
     (blacken-mode))
-  :hook (python-mode . >>-blacken-setup)
-  :custom
-  (blacken-line-length 'fill))
+  :hook
+  (python-mode . >>-blacken-setup)
+  ;; :custom
+  ;; (blacken-line-length 'fill)
+  )
 
 
 
