@@ -70,10 +70,13 @@ It will be restored later on by `xorns-mode-line' module."
 
 (defun >>-visual/preface ()
   "Run at the very beginning."
-  ;; coding-system initialization
+  ;; internationalization
   (prefer-coding-system 'utf-8)
   (setq locale-coding-system 'utf-8)
-  ;; keyboard, and UI initialization
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  ;; keyboard
   (require 'xorns-keyboard))
 
 
