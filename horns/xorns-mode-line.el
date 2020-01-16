@@ -47,9 +47,14 @@ or 'space' for `spaceline'.")
     :custom
     (sml/no-confirm-load-theme t)
     (sml/theme 'respectful)
-    (rm-blacklist "")
     :config
-    (sml/setup)))
+    (progn
+      (if (equal (bound-and-true-p >>=window-manager) "emacs")
+	(display-time-mode +1)
+	;; else
+	;; todo: configure
+	(setq rm-blacklist ""))
+      (sml/setup))))
 
 
 
