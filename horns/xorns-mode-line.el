@@ -10,11 +10,8 @@
 
 ;; Utilities used to configure mode-line.  Although the name of this module is
 ;; 'mode-line', it also will refer to the 'header-line', and the
-;; 'frame-title'.
-
-;; Package `smart-mode-line' is always configured as the default, removing all
-;; minor-modes indicators.  You can change the default kind by using a non-nil
-;; value for `>>=|mode-line/kind'.
+;; 'frame-title'.  You can change the mode-line kind by using a non-nil value
+;; for `>>=|mode-line/kind'.
 
 ;;; Code:
 
@@ -22,8 +19,6 @@
 (require 'xorns-packages)
 (require 'use-package)
 
-
-(>>=ensure-packages smart-mode-line)
 
 (if mode-line-format
   (warn
@@ -36,19 +31,25 @@
 
 (defvar >>=|mode-line/kind nil
   "Kind of mode-line.
-Default `smart-mode-line' if nil; otherwise is a symbol indicating kind,
-'mini' for `mini-modeline', 'power' for `powerline', or 'space' for
-`spaceline'.")
+When nil, the standard Emacs mode-line will be used without change; otherwise
+is a symbol indicating kind, 'smart' for `smart-mode-line' removing all
+minor-modes indicators, 'mini' for `mini-modeline', 'power' for `powerline',
+or 'space' for `spaceline'.")
 
 
-(use-package smart-mode-line
-  :demand t
-  :custom
-  (sml/no-confirm-load-theme t)
-  (sml/theme 'respectful)
-  (rm-blacklist "")
-  :config
-  (sml/setup))
+
+;;; smart-mode-line
+
+(when (or (eq >>=|mode-line/kind 'smart) (eq >>=|mode-line/kind 'mini))
+  (>>=ensure-packages smart-mode-line)
+  (use-package smart-mode-line
+    :demand t
+    :custom
+    (sml/no-confirm-load-theme t)
+    (sml/theme 'respectful)
+    (rm-blacklist "")
+    :config
+    (sml/setup)))
 
 
 
