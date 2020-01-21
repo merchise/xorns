@@ -111,7 +111,6 @@
   ("xb" . ido-switch-buffer)
   :custom
   (ido-auto-merge-work-directories-length -1)
-  (ido-enable-flex-matching t)
   (ido-auto-merge-delay-time 1.5)
   :config
   (ido-mode 1))
