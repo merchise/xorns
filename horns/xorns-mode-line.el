@@ -49,10 +49,9 @@ or 'space' for `spaceline'.")
     (sml/theme 'respectful)
     :config
     (progn
-      (if (equal (bound-and-true-p >>=window-manager) "emacs")
+      (if (bound-and-true-p >>=emacs-as-wm)
 	(display-time-mode +1)
 	;; else
-	;; todo: configure
 	(setq rm-blacklist ""))
       (sml/setup))))
 

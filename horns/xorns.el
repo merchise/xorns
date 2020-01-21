@@ -40,6 +40,11 @@
   "Name of started Desktop Window Manager.")
 
 
+(defconst >>=emacs-as-wm
+  (string-match-p "\\(emacs\\|exwm\\)" >>=window-manager)
+  "Name of started Desktop Window Manager.")
+
+
 (defvar >>=xorns-initialized nil
   "Whether or not Xorns has finished the startup process.
 This is set to true when executing `emacs-startup-hook'.")
@@ -58,7 +63,7 @@ This is set to true when executing `emacs-startup-hook'.")
   (->? >>=building-blocks/configuration)
   (>>=progn "base initialization"
     (use-package xorns-base))
-  (if (equal >>=window-manager "emacs")
+  (if >>=emacs-as-wm
     (>>=progn "start emacs as a window manager"
       (require 'xorns-exwm)))
   ;; todo: after-init-hook
