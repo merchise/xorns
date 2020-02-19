@@ -42,9 +42,16 @@
 (require 'xorns-tools)
 
 
+(defconst >>=is-mac-os
+  (or
+    (eq system-type 'darwin)
+    (memq (window-system) '(mac ns)))
+  "Is Mac-OS System.")
+
+
 (with-eval-after-load 'xorns-preface
   (>>-visual/hidden-mode-line)
-  (>>-visual/remove-useless-bars)
+  (>>-visual/remove-useless-gui)
   ;; Preface and Epilogue
   (>>-visual/preface)
   (add-hook 'focus-in-hook #'>>-visual/epilogue)
@@ -60,12 +67,18 @@ It will be restored later on by `xorns-mode-line' module."
     (force-mode-line-update)))
 
 
-(defun >>-visual/remove-useless-bars ()
-  "Remove tool bar, menu bar, and scroll bars."
-  (tool-bar-mode 0)
-  (menu-bar-mode 0)
-  (scroll-bar-mode 0)
-  (tooltip-mode 0))
+(defun >>-visual/remove-useless-gui ()
+  "Remove useless GUI elements (menu, toolbar, scroll-bars, and tool-tips)."
+  (let ((is-mac ))
+  (unless >>=is-mac-os
+    (when (and (fboundp 'menu-bar-mode) (not (eq menu-bar-mode -1)))
+      (menu-bar-mode -1)))
+  (when (and (fboundp 'tool-bar-mode) (not (eq tool-bar-mode -1)))
+    (tool-bar-mode -1))
+  (when (and (fboundp 'scroll-bar-mode) (not (eq scroll-bar-mode -1)))
+    (scroll-bar-mode -1))
+  (when (and (fboundp 'tooltip-mode) (not (eq tooltip-mode -1)))
+    (tooltip-mode -1))))
 
 
 (defun >>-visual/preface ()
