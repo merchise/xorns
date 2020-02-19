@@ -83,15 +83,6 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 (use-package frame
   :when (display-graphic-p)
-  :init
-  (progn
-    (let ((geometry-params
-	    '((internal-border-width . 0)
-	      (fullscreen . maximized)
-	      (fullscreen-restore . maximized)
-	      (undecorated . t))))
-      (setcdr default-frame-alist geometry-params)
-      (setcdr initial-frame-alist geometry-params)))
   :custom
   (frame-resize-pixelwise t)
   :config
@@ -100,15 +91,13 @@ to configure for yourself: see `save-buffer' function for more information.")
     (global-unset-key (kbd "C-z"))
     (global-unset-key (kbd "C-x C-z"))
     (unless (frame-parameter nil 'fullscreen)
-      (let ((wm (bound-and-true-p >>=window-manager)))
-    	(cond
-    	  ((or (eq system-type 'darwin) (equal wm "emacs"))
-    	    (toggle-frame-fullscreen))
-	  ((equal wm "i3")
-	    ;; (toggle-frame-fullscreen)
-	    (toggle-frame-fullscreen))
-	  (t
-	    (toggle-frame-maximized)))))))
+      (toggle-frame-maximized))
+    (modify-all-frames-parameters
+      '((internal-border-width . 0)
+    	(fullscreen . maximized)
+    	(fullscreen-restore . maximized)
+    	(undecorated . t)))
+    ))
 
 
 (use-package window
