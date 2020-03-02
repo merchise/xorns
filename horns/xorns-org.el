@@ -1,8 +1,8 @@
-;;; xorns-org.el --- Manage miscellaneous organization stuffs
+;;; xorns-base.el --- Xorns Configuration for Base System
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
-;; This file is NOT part of GNU Emacs but I'd like it. ;)
+;; This file is not part of GNU Emacs.
 
 ;;; Commentary:
 
@@ -16,18 +16,23 @@
 ;; - WGet
 ;; - etc
 
-;; This module is automatically used when::
-;;
-;;     (require 'xorns)
-
-;; Enjoy!
-
 
 ;;; Code:
 
-
 (require 'use-package)
 (require 'xorns-tools)
+(require 'xorns-packages)
+
+
+(defvar >>=|org/packages
+  '(dictionary wget
+     )
+  "List of miscellaneous organization packages to install.")
+
+
+(defmacro >>=-org/configure? (pkg)
+  "True if an organization PKG must be configured."
+  `(memq ',pkg >>=|org/packages))
 
 
 (defgroup xorns-org nil
@@ -36,35 +41,22 @@
   :group 'xorns)
 
 
-(defcustom xorns-avoid-load-dict-strategies t
-  "Avoid initial loading of `dict-strategies'.
-
-Defining `dict-strategies' custom variable, `dict-get-strategies' function is
-executed for every host in `dict-servers'.
-
-With a connection without Internet access, it will take a very long time.
-This patch avoid this."
-  :group 'xorns-org
-  :type 'boolean)
+(when (>>=-org/configure? dictionary)
+  (>>=require dictionary))
 
 
-(if xorns-avoid-load-dict-strategies
-  (let ((dict-servers '("localhost")))
-    (require 'dict nil 'noerror))
-  ;else
-  (require 'dict nil 'noerror))
+(when (>>=-org/configure? wget)
+  (>>=require wget))
 
 
-(require 'dictionary nil 'noerror)
-(require 'rfcview nil 'noerror)
-(require 'wget nil 'noerror)
 (require 'org nil 'noerror)
 (require 'calendar nil 'noerror)
 (require 'ob-core nil 'noerror)
 (require 'ob-shell nil 'noerror)
 (require 'ob-python nil 'noerror)
 (require 'xorns-text nil 'noerror)
-(require 'xorns-utils nil 'noerror)
+
+
 
 
 (use-package deft
