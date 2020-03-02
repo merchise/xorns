@@ -42,7 +42,7 @@
 
 (when (not (bound-and-true-p >>=standalone-startup))
   ;; Main old modules
-  (use-package xorns-org)
+  (use-package xorns-misc)
   ;; Previously in xorns-extra
   (use-package xorns-mail)
   )

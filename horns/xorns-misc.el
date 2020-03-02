@@ -1,4 +1,4 @@
-;;; xorns-base.el --- Xorns Configuration for Base System
+;;; xorns-misc.el --- Xorns Configuration for miscellanies
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
@@ -109,10 +109,10 @@ surrounded with blanks."
     (if (and res xorns-org-confirm-babel-evaluate)
       (if (functionp xorns-org-confirm-babel-evaluate)
         (funcall xorns-org-confirm-babel-evaluate lang body)
-                                        ; else
+	;; else
         xorns-org-confirm-babel-evaluate
         )
-                                        ; else
+      ;; else
       res))
   )
 
@@ -216,5 +216,5 @@ surrounded with blanks."
     (flyspell-mode nil)
     (setq-default ispell-parser 'tex)))
 
-(provide 'xorns-org)
-;;; xorns-org.el ends here
+(provide 'xorns-misc)
+;;; xorns-misc.el ends here
