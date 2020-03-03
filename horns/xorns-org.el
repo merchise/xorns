@@ -5,6 +5,8 @@
 ;; This file is not part of GNU Emacs.
 
 ;;; Commentary:
+;;
+;; TODO: Completely refactor this module
 
 
 ;;; Code:
@@ -14,6 +16,7 @@
 (require 'ob-core nil 'noerror)
 (require 'ob-shell nil 'noerror)
 (require 'ob-python nil 'noerror)
+(require 'calendar nil 'noerror)
 
 
 (defgroup xorns-org nil

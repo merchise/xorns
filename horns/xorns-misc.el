@@ -39,9 +39,6 @@
   (>>=require dictionary))
 
 
-(require 'calendar nil 'noerror)
-
-
 (when (>>=-misc/configure? deft)
   (>>=ensure-packages deft)
   (use-package deft
@@ -55,7 +52,6 @@
     (deft-directory "~/.pim/notes/")
     (deft-strip-summary-regexp "\\([
 	  ]\\|=\\{3,\\}\\|-\\{3,\\}\\|^#\\+[[:upper:]_]+:.*$\\)")
-
     :init
     (defun >>=deft/open-file (&optional arg)
       "When the point is at a widget, open the file in a new buffer.
@@ -65,7 +61,6 @@
 	(when file
 	  (deft-open-file file nil arg)
 	  (kill-buffer "*Deft*"))))
-
     :bind
     (("<f12>" . deft)
      (:map deft-mode-map ("M-RET" . >>=deft/open-file)))))
