@@ -17,30 +17,38 @@
 
 ;;; Code:
 
+
 (defvar >>-package-contents-refreshed nil
   "If `package-refresh-contents' is already executed in this session.")
 
 
+(defun >>=package-ensure (pkg)
+  "Ensure PKG is installed."
+  (unless (package-installed-p pkg)
+    (unless >>-package-contents-refreshed
+      (setq >>-package-contents-refreshed t)
+      (package-refresh-contents))
+    (package-install pkg)))
+
+
+(defmacro >>=is-package-demanded (pkg domain-list)
+  "Check if package PKG is in DOMAIN-LIST for configuration."
+  `(when (memq ',pkg ,domain-list)
+     (>>=package-ensure ',pkg)
+     ',pkg))
+
+
 (defmacro >>=ensure-packages (&rest packages)
-  "Ensure all PACKAGES are installed."
+  "Ensure that all PACKAGES are installed."
   `(dolist (pkg '(,@packages))
-    (unless (package-installed-p pkg)
-      (unless >>-package-contents-refreshed
-	(package-refresh-contents)
-	(setq >>-package-contents-refreshed t))
-      (package-install pkg))))
+     (>>=package-ensure pkg)))
 
 
-(defmacro >>=require (feature &rest body)
+(defmacro >>=require (feature)
   "Ensure FEATURE is properly installed; and then `require' it."
   `(progn
-     (unless (package-installed-p ',feature)
-       (unless >>-package-contents-refreshed
-	 (package-refresh-contents)
-	 (setq >>-package-contents-refreshed t))
-       (package-install ',feature))
-      (require ',feature)))
-
+     (>>=package-ensure ',feature)
+     (require ',feature)))
 
 
 (with-eval-after-load 'xorns-packages

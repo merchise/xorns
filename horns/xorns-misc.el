@@ -39,6 +39,8 @@
   (>>=require dictionary))
 
 
+;; TODO: Use `:when' condition here.  Create a conditional version of
+;; `>>=ensure-packages'.
 (when (>>=-misc/configure? deft)
   (>>=ensure-packages deft)
   (use-package deft

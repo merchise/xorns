@@ -44,7 +44,6 @@
 (when (not (bound-and-true-p >>=standalone-startup))
   ;; Main old modules
   (use-package xorns-org)
-  ;; Previously in xorns-extra
   (use-package xorns-mail)
   )
 
