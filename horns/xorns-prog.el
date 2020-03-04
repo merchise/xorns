@@ -129,6 +129,8 @@
 
 (use-package lsp-mode
   :commands lsp
+  :custom
+  (lsp-auto-guess-root t)
   :hook
   (prog-mode . lsp))
 
