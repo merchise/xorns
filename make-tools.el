@@ -24,6 +24,12 @@
 (package-initialize)
 
 
+(setq package-archives
+  '(("gnu" . "http://elpa.gnu.org/packages/")
+    ("melpa" . "https://melpa.org/packages/")
+    ("org" . "https://orgmode.org/elpa/")))
+
+
 (defconst pkg
   (intern (or (getenv "PKG") "xorns"))
   "Symbol with package identifier.")
