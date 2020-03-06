@@ -39,33 +39,31 @@
   (>>=require dictionary))
 
 
-;; TODO: Use `:when' condition here.  Create a conditional version of
-;; `>>=ensure-packages'.
-(when (>>=-misc/configure? deft)
-  (>>=ensure-packages deft)
-  (use-package deft
-    :defer t
-    :commands (deft-filename-at-point deft-open-file)
-    :custom
-    (deft-extensions '("txt" "text" "md" "markdown" "org" "rst"))
-    (deft-use-filter-string-for-filename t)
-    (deft-use-filename-as-title t)
-    (deft-auto-save-interval 60.0)
-    (deft-directory "~/.pim/notes/")
-    (deft-strip-summary-regexp "\\([
+(use-package deft
+  :when (>>=-misc/configure? deft)
+  :ensure t
+  :defer t
+  :commands (deft-filename-at-point deft-open-file)
+  :custom
+  (deft-extensions '("txt" "text" "md" "markdown" "org" "rst"))
+  (deft-use-filter-string-for-filename t)
+  (deft-use-filename-as-title t)
+  (deft-auto-save-interval 60.0)
+  (deft-directory "~/.pim/notes/")
+  (deft-strip-summary-regexp "\\([
 	  ]\\|=\\{3,\\}\\|-\\{3,\\}\\|^#\\+[[:upper:]_]+:.*$\\)")
-    :init
-    (defun >>=deft/open-file (&optional arg)
-      "When the point is at a widget, open the file in a new buffer.
+  :init
+  (defun >>=deft/open-file (&optional arg)
+    "When the point is at a widget, open the file in a new buffer.
   The argument ARG is passed to `deft-open-file' as SWITCH."
-      (interactive "P")
-      (let ((file (deft-filename-at-point)))
-	(when file
-	  (deft-open-file file nil arg)
-	  (kill-buffer "*Deft*"))))
-    :bind
-    (("<f12>" . deft)
-     (:map deft-mode-map ("M-RET" . >>=deft/open-file)))))
+    (interactive "P")
+    (let ((file (deft-filename-at-point)))
+      (when file
+	(deft-open-file file nil arg)
+	(kill-buffer "*Deft*"))))
+  :bind
+  (("<f12>" . deft)
+    (:map deft-mode-map ("M-RET" . >>=deft/open-file))))
 
 
 (when (featurep 'calendar)
