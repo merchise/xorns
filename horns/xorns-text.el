@@ -53,9 +53,8 @@
 
 ;;; Graphically indicate the fill column
 
-(>>=ensure-packages fill-column-indicator)
-
 (use-package fill-column-indicator
+  :ensure t
   :preface
   (defun >>=fci-mode-on ()
     "Set `fci-mode' on."
