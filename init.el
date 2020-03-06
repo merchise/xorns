@@ -14,23 +14,23 @@
 (package-initialize)
 
 
-;; TODO: Unify all similar definitions
-(setq package-archives
-  '(("gnu" . "http://elpa.gnu.org/packages/")
-    ("melpa" . "https://melpa.org/packages/")
-    ("org" . "https://orgmode.org/elpa/")))
+(defconst >>=base-dir
+  (concat
+    (if load-file-name
+      (file-name-directory load-file-name)
+      ;; else
+      default-directory))
+  "Base 'xorns' directory.")
 
 
 (defconst >>=standalone-startup
   (if (not (assq 'xorns package-alist))
     ;; xorns is not installed as a package
-    (concat
-      (if load-file-name
-	(file-name-directory load-file-name)
-	; else
-	default-directory)
-      (file-name-as-directory "horns")))
+    (expand-file-name "horns" >>=base-dir))
   "If nil, Emacs started up with `xorns' as an installed package.")
+
+
+(load (expand-file-name "xorns.lock" >>=base-dir) nil (not init-file-debug))
 
 
 (if >>=standalone-startup

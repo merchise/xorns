@@ -24,12 +24,6 @@
 (package-initialize)
 
 
-(setq package-archives
-  '(("gnu" . "http://elpa.gnu.org/packages/")
-    ("melpa" . "https://melpa.org/packages/")
-    ("org" . "https://orgmode.org/elpa/")))
-
-
 (defconst pkg
   (intern (or (getenv "PKG") "xorns"))
   "Symbol with package identifier.")
@@ -43,6 +37,9 @@
 (defconst elpa-dir
   (file-name-as-directory package-user-dir)
   "ELPA base directory.")
+
+
+(load (expand-file-name "xorns.lock" pkg-dir) nil (not init-file-debug))
 
 
 (defun >>=pkg-desc ()
@@ -89,24 +86,26 @@
       (message ">>= templates not copied, '%s' is not installed." pkg))))
 
 
-(defun >>=update-init-el ()
-  "Synchronize init.el file."
+(defun >>=update-file (file)
+  "Synchronize initialization FILE."
   (if (>>=pkg-desc)
-    (let ((src (expand-file-name "init.el" pkg-dir))
-	  (dst (locate-user-emacs-file "init.el")))
+    (let ((src (expand-file-name file pkg-dir))
+	  (dst (locate-user-emacs-file file)))
       (when
-	(and (/= (shell-command (concat "diff " src " " dst)) 0)
-	     (yes-or-no-p ">>= 'init.el' file is outdated, synchronize?"))
+	(and
+	  (/= (shell-command (concat "diff " src " " dst)) 0)
+	  (yes-or-no-p (format ">>= outdated '%s' file, synchronize?" file)))
 	(copy-file src dst 'ok-if-already-exists)))
     ;; else
-    (message ">>= package not installed, 'init.el' not synchronized.")))
+    (message ">>= package not installed, '%s' not synchronized." file)))
 
 
 (defun local-install ()
   "Local install using ELPA directory as target."
   (>>=package-delete)
   (>>=package-install)
-  (>>=update-init-el)
+  (>>=update-file "init.el")
+  (>>=update-file "xorns.lock")
   (>>=copy-templates))
 
 
