@@ -19,6 +19,15 @@
 (require 'xorns-utils)
 
 
+;; TODO: Check this, maybe convert it to a configurable component.
+;; Discover more of Emacs.  See http://t.co/IwZnrqQBRO
+(use-package discover
+  :ensure t
+  :init
+  (global-discover-mode 1))
+
+
+;; TODO: DamienCassou/init.el
 (use-package simple
   :defer t
   :init

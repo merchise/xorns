@@ -24,12 +24,6 @@
 (require 'xorns-tools)
 
 
-;; Discover more of Emacs. See http://t.co/IwZnrqQBRO
-(require 'discover nil 'noerror)            ;
-(when (functionp 'global-discover-mode)
-  (global-discover-mode))
-
-
 (use-package xorns-simple)
 (use-package xorns-buffers)
 (use-package xorns-dired)
