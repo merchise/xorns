@@ -15,9 +15,6 @@
 
 (require 'use-package)
 (require 'use-package-chords)
-(require 'xorns-packages)
-
-(>>=ensure-packages projectile)
 
 
 (defvar >>=|projectile/extra-ignored-directories nil
@@ -29,6 +26,7 @@
 
 
 (use-package projectile
+  :ensure t
   :bind-keymap
   ("C-c p" . projectile-command-map)
   :bind
