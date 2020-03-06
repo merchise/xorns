@@ -22,7 +22,6 @@
 (require 'xorns-simple)
 
 (require 'use-package)
-(require 'xorns-packages)
 
 
 (defgroup xorns-prog nil
@@ -35,9 +34,8 @@
 
 ;;; Common Systems
 
-(>>=ensure-packages auto-complete yasnippet flycheck)
-
 (use-package auto-complete
+  :ensure t
   :custom
   (ac-trigger-key "TAB")
   :config
@@ -46,11 +44,13 @@
 
 
 (use-package yasnippet
+  :ensure t
   :config
   (yas-global-mode 1))
 
 
 (use-package flycheck
+  :ensure t
   :functions global-flycheck-mode
   :custom
   (flycheck-idle-change-delay 10)
@@ -92,10 +92,6 @@
 
 ;;; Python
 
-(>>=ensure-packages
-  lsp-mode lsp-ui company-lsp pipenv blacken)
-
-
 (defgroup xorns-python nil
   "Programming configurations for `xorns'."
   :prefix "xorns-python-"
@@ -128,6 +124,7 @@
 
 
 (use-package lsp-mode
+  :ensure t
   :commands lsp
   :custom
   (lsp-auto-guess-root t)
@@ -136,6 +133,7 @@
 
 
 (use-package lsp-ui
+  :ensure t
   :commands lsp-ui-mode
   :init
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
@@ -144,11 +142,13 @@
 
 
 (use-package company-lsp
+  :ensure t
   :after lsp-mode
   :commands company-lsp)
 
 
 (use-package pipenv
+  :ensure t
   :preface
   (declare-function pipenv-projectile-after-switch-extended 'pipenv)
   :hook (python-mode . pipenv-mode)
@@ -158,6 +158,7 @@
 
 
 (use-package blacken
+  :ensure t
   :init
   (defun >>-blacken-setup ()
     (turn-off-auto-fill)
@@ -172,14 +173,14 @@
 
 ;;; Javascript, CoffeeScript and LiveScript
 
-(>>=ensure-packages tern tern-auto-complete js2-mode)
-
 (use-package tern
+  :ensure t
   :config
   (add-hook 'js2-mode-hook #'tern-mode))
 
 
 (use-package tern-auto-complete
+  :ensure t
   :after tern
   :config
   (tern-ac-setup))
@@ -188,13 +189,17 @@
 ;; This requires you have the tern program installed in your system and in the
 ;; exec-path.
 
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-(add-to-list 'interpreter-mode-alist '("node" . js2-mode))
-(add-hook 'js-mode-hook (lambda () (tern-mode t)))
-(eval-after-load 'tern
-  '(progn
-     (require 'tern-auto-complete)
-     (tern-ac-setup)))
+(use-package js2-mode
+  :ensure t
+  :after tern-auto-complete
+  :hook
+  (js-mode . (lambda () (tern-mode t)))
+  :config
+  (progn
+    (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+    (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
+    (require 'tern-auto-complete)
+    (tern-ac-setup)))
 
 
 
@@ -267,11 +272,11 @@
   "Extra Programming Languages to configure; for example (java scala R).")
 
 
-(when (memq 'java >>=|programming/extra-languages)
-  (>>=ensure-packages javadoc-lookup)
-  (use-package javadoc-lookup
-    :bind
-    ("C-h j" . javadoc-lookup)))
+(use-package javadoc-lookup
+  :when (memq 'java >>=|programming/extra-languages)
+  :ensure t
+  :bind
+  ("C-h j" . javadoc-lookup))
 
 
 (provide 'xorns-prog)
