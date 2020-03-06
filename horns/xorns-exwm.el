@@ -17,6 +17,7 @@
 
 (require 'xorns-packages)
 
+;; TODO: DamienCassou/init.el: use-package: exwm
 (>>=ensure-packages exwm)
 
 (require 'exwm)
