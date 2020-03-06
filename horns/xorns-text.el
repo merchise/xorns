@@ -23,11 +23,8 @@
 
 (require 'google-translate nil 'noerror)
 (require 'google-translate-smooth-ui nil 'noerror)
-(require 'xorns-utils nil 'noerror)
+(require 'xorns-utils)
 (require 'xorns-buffers)
-(require 'xorns-packages)
-
-(>>=ensure-packages markdown-mode)
 
 
 
@@ -134,6 +131,7 @@ If t, show line-numbers always, nil never.")
 
 (use-package markdown-mode
   :defer t
+  :ensure t
   :mode
   (("README\\.md\\'" . gfm-mode) ;; github-flavored-markdown
    ("\\.md\\'" . markdown-mode)
