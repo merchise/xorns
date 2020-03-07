@@ -15,26 +15,31 @@
 ;;; Code:
 
 
-(require 'xorns-packages)
+(use-package exwm
+  :ensure t
+  :demand t
+  :preface
+  (defun >>-exwm/init ()
+    "For the hook running when EXWM has just finished initialization."
+    (display-battery-mode +1)
+    (display-time-mode +1))
+  :hook
+  (exwm-init . >>-exwm/init))
+
+
+(use-package exwm-config
+  :after exwm
+  :demand t
+  :commands exwm-config-default
+  :config
+  (progn
+    (message ">>= using Emacs as the Desktop Window Manager.")
+    (exwm-config-default)
+    (->? >>=window-manager/init)))
+
 
 ;; TODO: DamienCassou/init.el: use-package: exwm
-(>>=ensure-packages exwm)
-
-(require 'exwm)
-(require 'exwm-config)
-
-
-(with-eval-after-load 'xorns-exwm
-  (message ">>= using Emacs as the Desktop Window Manager.")
-  (exwm-config-default)
-  (->? >>=window-manager/init)
-  )
-
-
-(defun >>=cmd (command)
-  "Execute a shell COMMAND."
-  (interactive (list (read-shell-command "$ ")))
-  (start-process-shell-command command nil command))
+;; (use-package exwm-input
 
 
 (provide 'xorns-exwm)
