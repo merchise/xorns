@@ -14,15 +14,12 @@
 ;;; Code:
 
 (require 'xorns-text)
-
 (require 'use-package)
 (require 'use-package-chords)
-(require 'xorns-packages)
 
-
-(>>=ensure-packages magit)
 
 (use-package magit
+  :ensure t
   :bind
   (("C-x g" . magit-status)
    ("C-c g c" . magit-clone)
