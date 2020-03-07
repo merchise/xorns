@@ -31,13 +31,6 @@
     (package-install pkg)))
 
 
-(defmacro >>=is-package-demanded (pkg domain-list)
-  "Check if package PKG is in DOMAIN-LIST for configuration."
-  `(when (memq ',pkg ,domain-list)
-     (>>=package-ensure ',pkg)
-     ',pkg))
-
-
 (defmacro >>=ensure-packages (&rest packages)
   "Ensure that all PACKAGES are installed."
   `(dolist (pkg '(,@packages))
@@ -52,8 +45,7 @@
 
 
 ;; TODO: Check these two packages in the future
-;; system-packages
-;; use-package-ensure-system-package
+;;       system-packages, use-package-ensure-system-package
 (with-eval-after-load 'xorns-packages
   ;; Bootstrap 'use-package'
   (>>=package-ensure 'use-package))
