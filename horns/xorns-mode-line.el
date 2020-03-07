@@ -37,57 +37,46 @@ minor-modes indicators, 'mini' for `mini-modeline', 'power' for `powerline',
 or 'space' for `spaceline'.")
 
 
-
-;;; smart-mode-line
-
-(when (or (eq >>=|mode-line/kind 'smart) (eq >>=|mode-line/kind 'mini))
-  (>>=ensure-packages smart-mode-line)
-  (use-package smart-mode-line
-    :demand t
-    :custom
-    (sml/no-confirm-load-theme t)
-    (sml/theme 'respectful)
-    :config
-    (progn
-      (if (bound-and-true-p >>=emacs-as-wm)
-	(display-time-mode +1)
-	;; else
-	(setq rm-blacklist ""))
-      (sml/setup))))
+(use-package smart-mode-line
+  :when (or (eq >>=|mode-line/kind 'smart) (eq >>=|mode-line/kind 'mini))
+  :ensure t
+  :demand t
+  :custom
+  (sml/no-confirm-load-theme t)
+  (sml/theme 'respectful)
+  :config
+  (progn
+    (if (bound-and-true-p >>=emacs-as-wm)
+      (display-time-mode +1)
+      ;; else
+      (setq rm-blacklist ""))
+    (sml/setup)))
 
 
-
-;;; mini-modeline
-
-(when (eq >>=|mode-line/kind 'mini)
-  (>>=ensure-packages mini-modeline)
-  (use-package mini-modeline
-    :demand t
-    :after smart-mode-line
-    :custom
-    (mini-modeline-enhance-visual t)
-    :config
-    (mini-modeline-mode +1)))
+(use-package mini-modeline
+  :when (eq >>=|mode-line/kind 'mini)
+  :ensure t
+  :demand t
+  :after smart-mode-line
+  :custom
+  (mini-modeline-enhance-visual t)
+  :config
+  (mini-modeline-mode +1))
 
 
-
-;;; powerline
-
-(when (eq >>=|mode-line/kind 'power)
-  (>>=ensure-packages powerline)
-  (use-package powerline
-    :custom
-    (powerline-default-separator 'utf-8)
-    :config
-    (powerline-default-theme)))
+(use-package powerline
+  :when (eq >>=|mode-line/kind 'power)
+  :ensure t
+  :custom
+  (powerline-default-separator 'utf-8)
+  :config
+  (powerline-default-theme))
 
 
 
 ;;; spaceline
 
 (when (eq >>=|mode-line/kind 'space)
-  (>>=ensure-packages minions spaceline)
-
   (defvar >>-project-root nil
     "Local variable to store cached `projectile-project-name'.")
 
@@ -106,12 +95,14 @@ or 'space' for `spaceline'.")
       >>-project-root))
 
   (use-package minions
+    :ensure t
     :demand t
     :config
     (unless minions-mode
       (minions-mode)))
 
   (use-package spaceline-config
+    :ensure spaceline
     :init
     (progn
       (require 'spaceline)
