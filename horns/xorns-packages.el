@@ -51,13 +51,12 @@
      (require ',feature)))
 
 
+;; TODO: Check these two packages in the future
+;; system-packages
+;; use-package-ensure-system-package
 (with-eval-after-load 'xorns-packages
-  (>>=ensure-packages
-    ; Bootstrap 'use-package' and dependencies
-    use-package
-    system-packages
-    use-package-ensure-system-package
-    ))
+  ;; Bootstrap 'use-package'
+  (>>=package-ensure 'use-package))
 
 
 (provide 'xorns-packages)
