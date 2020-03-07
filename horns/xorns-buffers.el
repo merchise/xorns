@@ -22,21 +22,29 @@
 
 ;;; Code:
 
-(require 'xorns-packages)
-(require 'xorns-utils)
 (require 'use-package)
 (require 'use-package-chords)
+(require 'xorns-utils)
 (require 'ibuf-ext)
 
-(>>=ensure-packages ibuffer-vc grizzl)
 
+;; TODO: To use grizzl instead of ido for completion
+;;       (setq flycheck-completion-system 'grizzl)
 (use-package grizzl
+  :ensure t
   ;; see `akheron/emacs.org'
   :defer t)
 
 
-;; Use grizzl instead of ido for completion
-;; todo: (setq flycheck-completion-system 'grizzl)
+(use-package ibuffer-vc
+  :ensure t)
+
+
+(use-package ibuf-ext
+  :defer t
+  :custom
+  (ibuffer-show-empty-filter-groups nil))
+
 
 (use-package ibuffer
   :init
