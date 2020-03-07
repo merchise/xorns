@@ -158,11 +158,12 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 
 ;; Fix the clipboard in terminal or daemon Emacs (non-GUI)
-(unless (display-graphic-p)
-  (>>=ensure-packages xclip)
-  (use-package xclip
-    :hook
-    (tty-setup . xclip-mode)))
+
+(use-package xclip
+  :unless (display-graphic-p)
+  :ensure t
+  :hook
+  (tty-setup . xclip-mode))
 
 
 (use-package elec-pair
@@ -230,12 +231,12 @@ to configure for yourself: see `save-buffer' function for more information.")
   (save-place-mode 1))
 
 
-(when (>>=-base/configure? gcmh)
-  (>>=ensure-packages gcmh)
-  (use-package gcmh
-    :commands gcmh-mode
-    :config
-    (gcmh-mode 1)))
+(use-package gcmh
+  :when (>>=-base/configure? gcmh)
+  :ensure t
+  :commands gcmh-mode
+  :config
+  (gcmh-mode 1))
 
 
 (provide 'xorns-base)
