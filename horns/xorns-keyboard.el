@@ -28,7 +28,6 @@
 
 ;;; Code:
 
-(require 'xorns-packages)
 (require 'use-package)
 
 
@@ -36,10 +35,8 @@
   "Delay level for `key-chord-mode' when enabled (see module documentation).")
 
 
-(>>=ensure-packages use-package-chords)
-
-
 (use-package use-package-chords
+  :ensure t
   :init
   (defun >>=key-chord-mode (arg)
     "Toggle key-chord mode based in ARG level (see `>>=|key-chord-delay')."

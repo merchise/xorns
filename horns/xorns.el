@@ -18,8 +18,10 @@
 
 ;;; Code:
 
-(require 'xorns-preface)
+;; `xorns-packages' must be the first module loaded here
 (require 'xorns-packages)
+
+(require 'xorns-preface)
 (require 'use-package)
 
 
