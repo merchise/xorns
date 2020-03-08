@@ -173,7 +173,10 @@
 
 ;;; Javascript, CoffeeScript and LiveScript
 
+
 (use-package tern
+  ;; This requires you have the `tern' program installed in your system and in
+  ;; the exec-path.
   :ensure t
   :config
   (add-hook 'js2-mode-hook #'tern-mode))
@@ -186,20 +189,32 @@
   (tern-ac-setup))
 
 
-;; This requires you have the tern program installed in your system and in the
-;; exec-path.
-
 (use-package js2-mode
   :ensure t
   :after tern-auto-complete
+  :mode ("\\.js\\'" "\\.pac\\'" "node")
   :hook
-  (js-mode . (lambda () (tern-mode t)))
+  (js-mode . tern-mode)
+  :custom
+  (js-indent-level 2)
   :config
   (progn
-    (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+    ;; TODO: What about to add also all interpreters currently using `js-mode'
+    ;;       ("rhino", "gjs", and "nodejs")
     (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
     (require 'tern-auto-complete)
     (tern-ac-setup)))
+
+
+(use-package json-mode
+  ;; TODO: Requires npm package `json-ls' (JSON Language Server)
+  :mode "\\.json\\'"
+  :ensure t
+  :requires (flycheck)
+  :hook
+  (json-mode .
+    (lambda ()
+      (setq flycheck-checker 'json-jsonlint))))
 
 
 
