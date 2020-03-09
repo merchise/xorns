@@ -30,6 +30,7 @@
 (use-package xorns-git)
 (use-package xorns-text)
 (use-package xorns-prog)
+(use-package xorns-prog-extra)
 (use-package xorns-project)
 (use-package xorns-term)
 (use-package xorns-misc)

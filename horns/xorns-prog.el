@@ -7,9 +7,6 @@
 ;;; Commentary:
 
 ;; Generic definitions for editing programming language source code.
-;;
-;; todo: http://company-mode.github.io/
-;;       company-tern
 
 ;; Enjoy!
 
@@ -151,7 +148,8 @@
   :ensure t
   :preface
   (declare-function pipenv-projectile-after-switch-extended 'pipenv)
-  :hook (python-mode . pipenv-mode)
+  :hook
+  (python-mode . pipenv-mode)
   :custom
   (pipenv-projectile-after-switch-function
     #'pipenv-projectile-after-switch-extended))
@@ -277,21 +275,6 @@
        "<!--"
        sgml-skip-tag-forward
        nil)))
-
-
-
-;;; Java, Scala, ...
-
-(defvar >>=|programming/extra-languages nil
-  ;; todo: pending task for future release
-  "Extra Programming Languages to configure; for example (java scala R).")
-
-
-(use-package javadoc-lookup
-  :when (memq 'java >>=|programming/extra-languages)
-  :ensure t
-  :bind
-  ("C-h j" . javadoc-lookup))
 
 
 (provide 'xorns-prog)
