@@ -89,8 +89,63 @@
 	 ))))
 
 
-;; TODO: DamienCassou/init.el: use-package: exwm
-;; (use-package desktop-environment
+(use-package desktop-environment
+  :ensure t
+  :demand t
+  :after exwm-input
+  :config
+  (progn
+    (desktop-environment-mode)))
+
+
+(use-package buffer-move
+  :ensure t
+  :after exwm-input
+  :demand t
+  :config
+  (progn
+    (exwm-input-set-key (kbd "<s-up>") #'buf-move-up)
+    (exwm-input-set-key (kbd "<s-down>") #'buf-move-down)
+    (exwm-input-set-key (kbd "<s-left>") #'buf-move-left)
+    (exwm-input-set-key (kbd "<s-right>") #'buf-move-right)))
+
+
+(use-package exwm-systemtray
+  :after exwm
+  :demand t
+  :commands exwm-systemtray-enable
+  :config
+  (progn
+    (exwm-systemtray-enable)))
+
+
+(use-package exwm-workspace
+  :after exwm
+  :demand t
+  :preface
+  (progn
+    (defun >>-exwm/workspace-switch-left ()
+      "Move to left workspace. "
+      (interactive)
+      (let ((current (exwm-workspace--position exwm-workspace--current)))
+	(exwm-workspace-switch
+	  (1- (if (> current 0) current (exwm-workspace--count))))))
+    (defun >>-exwm/workspace-switch-right ()
+      "Move to left workspace. "
+      (interactive)
+      (let ((current (exwm-workspace--position exwm-workspace--current))
+	    (maxws (1- (exwm-workspace--count))))
+	(exwm-workspace-switch
+	  (if (< current maxws) (1+ current) 0)))))
+  :custom
+  (exwm-workspace-show-all-buffers t)
+  (exwm-layout-show-all-buffers t)
+  :config
+  (progn
+    (exwm-input-set-key (kbd "<C-s-left>")
+      #'>>-exwm/workspace-switch-left)
+    (exwm-input-set-key (kbd "<C-s-right>")
+      #'>>-exwm/workspace-switch-right)))
 
 
 (provide 'xorns-exwm)
