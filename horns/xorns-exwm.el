@@ -48,9 +48,7 @@
   :config
   (progn
     (exwm-input-set-key (kbd "s-r") #'exwm-reset)
-    (exwm-input-set-key (kbd "s-w") #'exwm-workspace-switch)
     (exwm-input-set-key (kbd "<s-tab>") #'other-frame)
-    (exwm-input-set-key (kbd "C-;") #'other-window)
     ;; Bind `C-q', next key is sent literally to the application
     (add-to-list 'exwm-input-prefix-keys ?\C-q)
     (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
@@ -124,13 +122,17 @@
   :demand t
   :preface
   (progn
-    (defun >>-exwm/workspace-switch-left ()
+    (defun >>-exwm/switch-workspace-0 ()
+      "Move to first workspace."
+      (interactive)
+      (exwm-workspace-switch 0))
+    (defun >>-exwm/ws-switch-left ()
       "Move to left workspace. "
       (interactive)
       (let ((current (exwm-workspace--position exwm-workspace--current)))
 	(exwm-workspace-switch
 	  (1- (if (> current 0) current (exwm-workspace--count))))))
-    (defun >>-exwm/workspace-switch-right ()
+    (defun >>-exwm/ws-switch-right ()
       "Move to left workspace. "
       (interactive)
       (let ((current (exwm-workspace--position exwm-workspace--current))
@@ -142,10 +144,10 @@
   (exwm-layout-show-all-buffers t)
   :config
   (progn
-    (exwm-input-set-key (kbd "<C-s-left>")
-      #'>>-exwm/workspace-switch-left)
-    (exwm-input-set-key (kbd "<C-s-right>")
-      #'>>-exwm/workspace-switch-right)))
+    (exwm-input-set-key (kbd "s-.") #'>>-exwm/switch-workspace-0)
+    (exwm-input-set-key (kbd "s-w") #'exwm-workspace-switch)
+    (exwm-input-set-key (kbd "<C-s-left>") #'>>-exwm/ws-switch-left)
+    (exwm-input-set-key (kbd "<C-s-right>") #'>>-exwm/ws-switch-right)))
 
 
 (provide 'xorns-exwm)
