@@ -27,7 +27,11 @@
     (display-battery-mode +1)
     (display-time-mode +1))
   :hook
-  (exwm-init . >>-exwm/init))
+  (exwm-init . >>-exwm/init)
+  :config
+  (when (eq (bound-and-true-p >>=|mode-line/kind) 'mini)
+    (setq-default >>=|mode-line/kind 'power)))
+
 
 
 (use-package exwm-config
