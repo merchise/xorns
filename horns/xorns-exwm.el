@@ -51,10 +51,14 @@
   :commands exwm-reset
   :config
   (progn
+    (exwm-input-set-key
+      ;; Like in `i3' windows manager
+      (kbd "s-d") (key-binding (kbd "M-&")))
     (exwm-input-set-key (kbd "s-r") #'exwm-reset)
     (exwm-input-set-key (kbd "<s-tab>") #'other-frame)
-    ;; Bind `C-q', next key is sent literally to the application
-    (add-to-list 'exwm-input-prefix-keys ?\C-q)
+    (add-to-list
+      ;; Bind `C-q', next key is sent literally to the application
+      'exwm-input-prefix-keys ?\C-q)
     (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
     (add-to-list 'exwm-input-prefix-keys ?\C-.)
     (add-to-list 'exwm-input-prefix-keys ?\C-,)
@@ -89,6 +93,16 @@
 	 ([?\C-g] . [escape])
 	 ([?\s-q] . [?\C-w])
 	 ))))
+
+
+(use-package winner
+  :config
+  (progn
+    (add-to-list
+      'display-buffer-alist
+      (cons "\\*Async Shell Command\\*.*"
+    	(cons #'display-buffer-no-window nil)))
+    (winner-mode +1)))
 
 
 (use-package desktop-environment
