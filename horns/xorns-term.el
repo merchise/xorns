@@ -18,20 +18,12 @@
 
 
 (use-package term
-  :preface
-  (defun >>=toggle-term-mode ()
-    "Toggle term-mode between `term-line-mode' and `term-char-mode'."
-    (interactive)
-    (if (term-in-char-mode)
-      (term-line-mode)
-      ;; else
-      (term-char-mode)))
   :bind
   (("C-c t" . ansi-term)
    (:map term-mode-map
-     ("C-c C-t" . >>=toggle-term-mode))
+     ("C-c C-t" . term-char-mode))
    (:map term-raw-map
-     ("C-c C-t" . >>=toggle-term-mode)))
+     ("C-c C-t" . term-line-mode)))
   :custom
   (term-input-autoexpand t))
 
