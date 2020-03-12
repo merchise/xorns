@@ -55,6 +55,7 @@
    ("C-c C-w" . >>=yank-default-directory))
   :custom
   (column-number-mode t)
+  (async-shell-command-buffer 'new-buffer)
   :config
   ;; re-enable this command
   (put 'set-goal-column 'disabled nil))
