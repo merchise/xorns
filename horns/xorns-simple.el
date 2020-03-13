@@ -27,7 +27,6 @@
   (global-discover-mode 1))
 
 
-;; TODO: DamienCassou/init.el
 (use-package simple
   :defer t
   :init
@@ -47,15 +46,22 @@
       (interactive)
       (>>=kill-new (>>=default-directory)))
     )
+  :hook
+  (tabulated-list-mode . hl-line-mode)
   :bind
-  (("C-c k f" . >>=yank-filename)
-   ("C-c k d" . >>=yank-default-directory)
-   ;; deprecate next 2
-   ("C-c M-w" . >>=yank-filename)
-   ("C-c C-w" . >>=yank-default-directory))
+  ("C-c k f" . >>=yank-filename)
+  ("C-c k d" . >>=yank-default-directory)
+  ("M-SPC" . cycle-spacing)    ;; It was `just-one-space'
+  ("M-s-;" . list-processes)
+  (:map process-menu-mode-map
+    ("k" . process-menu-delete-process))
   :custom
   (column-number-mode t)
   (async-shell-command-buffer 'new-buffer)
+  (mark-ring-max 32)
+  (global-mark-ring-max 32)
+  (kill-ring-max 128)
+  (save-interprogram-paste-before-kill t)
   :config
   ;; re-enable this command
   (put 'set-goal-column 'disabled nil))
