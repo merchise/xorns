@@ -17,6 +17,42 @@
 
 (require 'use-package)
 
+
+;;; Commands
+
+(defun >>-exwm/shell-file-name ()
+  "Command file name for the user's shell."
+  (or
+    explicit-shell-file-name
+    (getenv "ESHELL")
+    (getenv "SHELL")
+    shell-file-name))
+
+
+(defun >>=exwm-command/terminal ()
+  "Command to execute ANSI terminal."
+  (interactive)
+  (let* ((command (>>-exwm/shell-file-name))
+	 (buf-name "EXWM Shell")
+	 (starred (format "*%s*" buf-name))
+	 (buffer (get-buffer starred))
+	 (process (get-buffer-process buffer)))
+    (if buffer
+      (if process
+        (progn
+          (setq command nil)
+          (switch-to-buffer buffer))
+	;; else
+        (message ">>= killing '%s' because process was finished." starred)
+        (kill-buffer buffer)))
+    (if command
+      (ansi-term command buf-name)
+      ;; else
+      buffer)))
+
+
+
+;;; Configuration
 
 (use-package exwm
   :ensure t
@@ -31,7 +67,6 @@
   :config
   (when (eq (bound-and-true-p >>=|mode-line/kind) 'mini)
     (setq-default >>=|mode-line/kind 'power)))
-
 
 
 (use-package exwm-config
@@ -54,6 +89,7 @@
     (exwm-input-set-key
       ;; Like in `i3' windows manager
       (kbd "s-d") (key-binding (kbd "M-&")))
+    (exwm-input-set-key (kbd "<s-return>") #'>>=exwm-command/terminal)
     (exwm-input-set-key (kbd "s-r") #'exwm-reset)
     (exwm-input-set-key (kbd "<s-tab>") #'other-frame)
     (add-to-list
