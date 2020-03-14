@@ -20,6 +20,13 @@
 
 ;;; Commands
 
+;; Executing `(key-binding (kbd "s-&"))' returns nil
+(defun >>=exwm/start-command (command)
+  "Start a COMMAND in a sub-process."
+  (interactive (list (read-shell-command ">>= ")))
+  (start-process-shell-command command nil command))
+
+
 (defun >>-exwm/shell-file-name ()
   "Command file name for the user's shell."
   (or
@@ -88,7 +95,7 @@
   (progn
     (exwm-input-set-key
       ;; Like in `i3' windows manager
-      (kbd "s-d") (key-binding (kbd "M-&")))
+      (kbd "s-d") #'>>=exwm/start-command)
     (exwm-input-set-key (kbd "<s-return>") #'>>=exwm-command/terminal)
     (exwm-input-set-key (kbd "s-r") #'exwm-reset)
     (exwm-input-set-key (kbd "<s-tab>") #'other-frame)
