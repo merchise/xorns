@@ -27,7 +27,6 @@
 ;;; Code:
 
 (require 'use-package)
-(require 'use-package-chords)
 (require 'xorns-tools)
 (require 'xorns-packages)
 
@@ -103,14 +102,7 @@ to configure for yourself: see `save-buffer' function for more information.")
 (use-package window
   :preface (provide 'window)
   :custom
-  (split-width-threshold 120)
-  :chords
-  ("xk" . kill-current-buffer)
-  ("x0" . delete-window)
-  ("x1" . delete-other-windows)
-  ("x2" . split-window-below)
-  ("x3" . split-window-right)
-  ("x4" . kill-buffer-and-window))
+  (split-width-threshold 120))
 
 
 (use-package files
@@ -132,9 +124,7 @@ to configure for yourself: see `save-buffer' function for more information.")
       kept-old-versions 0    ; check this
       version-control t)
     ; else
-    (setq make-backup-files nil))
-  :chords
-  ("xs" . save-buffer))
+    (setq make-backup-files nil)))
 
 
 (use-package windmove

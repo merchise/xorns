@@ -14,7 +14,6 @@
 ;;; Code:
 
 (require 'use-package)
-(require 'use-package-chords)
 
 
 (defvar >>=|projectile/extra-ignored-directories nil

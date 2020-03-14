@@ -15,7 +15,6 @@
 
 (require 'xorns-text)
 (require 'use-package)
-(require 'use-package-chords)
 
 
 (use-package magit
@@ -27,8 +26,6 @@
    ("C-c g b" . magit-blame)
    ("C-c g l" . magit-log-buffer-file)
    ("C-c g p" . magit-pull))
-  :chords
-  ("vc" . magit-status)
   :hook
   (git-commit-mode . >>=tex-mode-setup)
   :config

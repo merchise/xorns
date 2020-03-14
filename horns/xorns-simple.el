@@ -15,7 +15,6 @@
 ;;; Code:
 
 (require 'use-package)
-(require 'use-package-chords)
 (require 'xorns-utils)
 
 
@@ -123,8 +122,6 @@
   :demand t
   :bind
   ("C-x b" . ido-switch-buffer)
-  :chords
-  ("xb" . ido-switch-buffer)
   :custom
   (ido-auto-merge-work-directories-length -1)
   (ido-auto-merge-delay-time 1.5)
@@ -144,12 +141,6 @@
    ("C-c C-g r" . rgrep)
    ;; deprecate
    ("C-c r" . rgrep))
-  :chords
-  ("gn" . find-name-dired)
-  ("gf" . find-grep)
-  ("gg" . grep)
-  ("gr" . rgrep)
-  ("rr" . rgrep)
   :config
   (progn
     (dolist
