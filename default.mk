@@ -71,7 +71,7 @@ DEPENDENCIES = \
 	f:0.20:20190109\
 	s:1.12:20180406\
 	use-package:2.4:20190405\
-	use-package-chords:0.2:20181024.2322
+	# use-package-chords:0.2:20181024.2322
 	# bind-key:2.4:20180513\
 	# grizzl:0.1:20160818\
 	# projectile:2.1:20190509\
