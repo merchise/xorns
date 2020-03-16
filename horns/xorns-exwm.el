@@ -112,15 +112,15 @@
     (exwm-input-set-key (kbd "<s-return>") #'>>=exwm-command/terminal)
     (exwm-input-set-key (kbd "s-r") #'exwm-reset)
     (exwm-input-set-key (kbd "<s-tab>") #'other-frame)
-    (add-to-list
-      ;; Bind `C-q', next key is sent literally to the application
-      'exwm-input-prefix-keys ?\C-q)
-    (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
-    (add-to-list 'exwm-input-prefix-keys ?\C-.)
-    (add-to-list 'exwm-input-prefix-keys ?\C-,)
     (dolist (pair >>=|exwm/url-keys)
       (exwm-input-set-key (kbd (car pair)) (>>-url-browser (cdr pair))))
     (exwm-input-set-key (kbd "C-s-/") #'browse-url-at-point)
+    (let ((suspend-key ?\C-z))
+      ;; Prefix key to send next literally to the application.  Default value
+      ;; is `C-z' because is used for `suspend-frame' in terminals.
+      (add-to-list 'exwm-input-prefix-keys suspend-key)
+      (define-key exwm-mode-map (vector suspend-key)
+	#'exwm-input-send-next-key))
     (setq exwm-input-simulation-keys
       `(
 	 ;; movement
