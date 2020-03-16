@@ -14,11 +14,18 @@
 
 ;;; Code:
 
-
 (require 'use-package)
 
 
-;;; Commands
+;;; Main definitions
+
+(defvar >>=|exwm/url-keys
+  `(("<s-f2>" . "http://")    ;; Empty browser
+    ("C-s-f" . "https://facebook.com")
+    ("C-s-t" . "https://translate.google.com")
+    ("C-s-c" . "https://web.telegram.org"))
+  "Pairs (KEY . URL) to be used with `browse-url' inner `exwm'.")
+
 
 ;; Executing `(key-binding (kbd "s-&"))' returns nil
 (defun >>=exwm/start-command (command)
@@ -56,6 +63,12 @@
       (ansi-term command buf-name)
       ;; else
       buffer)))
+
+
+(defun >>-url-browser (url)
+  "Create a web browser for a given URL."
+  (lexical-let ((url url))
+    (lambda () (interactive) (browse-url url))))
 
 
 
@@ -105,6 +118,9 @@
     (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
     (add-to-list 'exwm-input-prefix-keys ?\C-.)
     (add-to-list 'exwm-input-prefix-keys ?\C-,)
+    (dolist (pair >>=|exwm/url-keys)
+      (exwm-input-set-key (kbd (car pair)) (>>-url-browser (cdr pair))))
+    (exwm-input-set-key (kbd "C-s-/") #'browse-url-at-point)
     (setq exwm-input-simulation-keys
       `(
 	 ;; movement
