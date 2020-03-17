@@ -34,19 +34,12 @@
   (start-process-shell-command command nil command))
 
 
-(defun >>-exwm/shell-file-name ()
-  "Command file name for the user's shell."
-  (or
-    explicit-shell-file-name
-    (getenv "ESHELL")
-    (getenv "SHELL")
-    shell-file-name))
-
-
 (defun >>-url-browser (url)
   "Create a web browser for a given URL."
   (lexical-let ((url url))
-    (lambda () (interactive) (browse-url url))))
+    (lambda ()
+      (interactive)
+      (browse-url url))))
 
 
 
@@ -55,16 +48,39 @@
 (use-package exwm
   :ensure t
   :demand t
+  :commands exwm-workspace-rename-buffer
   :preface
-  (defun >>-exwm/init ()
-    "For the hook running when EXWM has just finished initialization."
-    (display-battery-mode +1)
-    (display-time-mode +1))
+  (progn
+    (defun >>-exwm/init ()
+      "For the hook running when EXWM has just finished initialization."
+      (display-battery-mode +1)
+      (display-time-mode +1))
+
+    (defun >>-exwm/rename-buffer ()
+      "Rename EXWM buffer according to the X class name."
+      ;; (when-let
+      ;; 	((new-title
+      ;; 	   (cond
+      ;; 	     ((and
+      ;; 		(stringp exwm-class-name)
+      ;; 		(stringp exwm-title)
+      ;; 		(seq-contains '("Slack") exwm-class-name #'string=))
+      ;; 	       exwm-title)
+      ;; 	     ((stringp exwm-class-name)
+      ;; 	       exwm-class-name))))
+      ;;   (exwm-workspace-rename-buffer new-title)
+      ;; 	)
+      )
+    )
   :hook
-  (exwm-init . >>-exwm/init)
+  ((exwm-init . >>-exwm/init)
+   ((exwm-update-class exwm-update-title) . >>-exwm/rename-buffer))
   :config
-  (when (eq (bound-and-true-p >>=|mode-line/kind) 'mini)
-    (setq-default >>=|mode-line/kind 'power)))
+  (progn
+    (when (eq (bound-and-true-p >>=|mode-line/kind) 'mini)
+      (setq-default >>=|mode-line/kind 'power))
+    ))
+
 
 
 (use-package exwm-config
@@ -84,6 +100,7 @@
   :commands exwm-reset
   :config
   (progn
+    (require 'xorns-term)
     (exwm-input-set-key
       ;; Like in `i3' windows manager
       (kbd "s-d") #'>>=exwm/start-command)
@@ -183,19 +200,22 @@
       "Move to first workspace."
       (interactive)
       (exwm-workspace-switch 0))
+
     (defun >>-exwm/ws-switch-left ()
       "Move to left workspace. "
       (interactive)
       (let ((current (exwm-workspace--position exwm-workspace--current)))
 	(exwm-workspace-switch
 	  (1- (if (> current 0) current (exwm-workspace--count))))))
+
     (defun >>-exwm/ws-switch-right ()
       "Move to left workspace. "
       (interactive)
       (let ((current (exwm-workspace--position exwm-workspace--current))
 	    (maxws (1- (exwm-workspace--count))))
 	(exwm-workspace-switch
-	  (if (< current maxws) (1+ current) 0)))))
+	  (if (< current maxws) (1+ current) 0))))
+    )
   :custom
   (exwm-workspace-show-all-buffers t)
   (exwm-layout-show-all-buffers t)
