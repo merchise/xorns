@@ -23,7 +23,6 @@
 (require 'message)
 
 (require 'cl-lib)
-(require 'string-utils)
 
 (require 'xorns-utils)
 (require 'xorns-widgets)
@@ -92,7 +91,7 @@ If BUFFER is not present, use the current buffer."
         ;; TODO: (address login server mech) <- account
         (let* ((address (car account))
                 (login (cadr account))
-                (server (string-utils-trim-whitespace (caddr account)))
+                (server (string-trim (caddr account)))
                 (stream-type (cadddr account))
                 (message-from (split-string (xorns-get-from-address) "@"))
                 (email-login (car message-from))
