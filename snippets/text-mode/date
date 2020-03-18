@@ -1,0 +1,5 @@
+# -*- require-final-newline: nil -*-
+# name : (current ISO date)
+# key: date
+# --
+`(format-time-string "%Y-%m-%d" (current-time))`
