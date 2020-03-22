@@ -21,8 +21,9 @@
 For example (rust haskell java scala R).")
 
 
-(defvar >>-|programming/config-toml nil
-  "Configure TOML dependency.")
+(defvar >>=|programming/extra-features nil
+  "Extra Programming Features to configure.
+For example (toml classic-snippets).")
 
 
 
@@ -39,7 +40,7 @@ For example (rust haskell java scala R).")
 ;;; Rust
 
 (when (memq 'rust >>=|programming/extra-languages)
-  (setq >>-|programming/config-toml t)
+  (add-to-list '>>=|programming/extra-features 'toml)
   (use-package rust-mode
     :ensure t
     :defer t)
@@ -84,9 +85,14 @@ For example (rust haskell java scala R).")
 ;;; Extra dependencies
 
 (use-package toml-mode
-  :when >>-|programming/config-toml
+  :when (memq 'toml >>=|programming/extra-features)
   :ensure t
   :defer t)
+
+
+(use-package yasnippet-classic-snippets
+  :when (memq 'classic-snippets >>=|programming/extra-features)
+  :ensure t)
 
 
 (provide 'xorns-prog-extra)
