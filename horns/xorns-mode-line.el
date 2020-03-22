@@ -118,7 +118,7 @@ or 'space' for `spaceline'.")
 	"A minions menu for minor modes."
 	(if (bound-and-true-p minions-mode)
 	  (format-mode-line minions-mode-line-modes)
-					; else
+	  ;; else
 	  (spaceline-minor-modes-default)))
 
       (spaceline-define-segment project-root

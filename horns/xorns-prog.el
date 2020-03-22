@@ -42,8 +42,22 @@
 
 (use-package yasnippet
   :ensure t
+  :preface
+  (progn
+    (defun >>=snippets/initialize ()
+      "Initialize `xorns' snippets."
+      (let* ((lib-dir (bound-and-true-p >>=library-directory))
+	     (snip-dir (expand-file-name "snippets" lib-dir)))
+	(if (file-exists-p snip-dir)
+	  (progn
+	    (add-to-list 'yas-snippet-dirs snip-dir t)
+	    (yas-load-directory snip-dir))
+	  ;; else
+	  (message ">>= snippets directory '%s' does not exist." snip-dir)))))
   :config
-  (yas-global-mode 1))
+  (progn
+    (yas-global-mode 1)
+    (>>=snippets/initialize)))
 
 
 (use-package flycheck
@@ -170,7 +184,6 @@
 
 
 ;;; Javascript, CoffeeScript and LiveScript
-
 
 (use-package tern
   ;; This requires you have the `tern' program installed in your system and in

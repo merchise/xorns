@@ -71,6 +71,21 @@
     (delete-file tmp)))
 
 
+(defun >>=rsync-dir (dir)
+  "Rsync DIR to installed package folder."
+  (let ((pkg-desc (>>=pkg-desc)))
+    (if pkg-desc
+      (let ((source
+	      (concat pkg-dir (file-name-as-directory "horns") dir))
+	    (dest
+	      (file-name-as-directory
+		(concat elpa-dir (package-desc-full-name pkg-desc)))))
+	(message ">>= rsync '%s' dir to installed package folder." dir)
+	(shell-command (concat "rsync -auv " source " " dest)))
+      ;; else
+      (message ">>= '%s' dir not copied, '%s' is not installed." dir pkg))))
+
+
 (defun >>=copy-templates ()
   "Copy templates to installed package folder."
   (let ((pkg-desc (>>=pkg-desc)))
@@ -106,7 +121,10 @@
   (>>=package-install)
   (>>=update-file "init.el")
   (>>=update-file "xorns.lock")
-  (>>=copy-templates))
+  (>>=rsync-dir "templates")
+  (>>=rsync-dir "snippets")
+  ;; (>>=copy-templates)
+  )
 
 
 (provide 'make-tools)
