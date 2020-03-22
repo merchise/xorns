@@ -41,6 +41,7 @@ usr/
 auto-save-list/
 transient/
 elpa/
+.cache/
 /session.*
 tramp
 /network-security.data
