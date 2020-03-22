@@ -37,6 +37,7 @@
 
 (when (not (bound-and-true-p >>=standalone-startup))
   ;; Main old modules
+  ;; TODO: Migrate portions of `xorns-org' to new style
   (use-package xorns-org)
   (use-package xorns-mail)
   )

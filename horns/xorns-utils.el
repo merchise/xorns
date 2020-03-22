@@ -34,15 +34,6 @@
     (eval (car (get symbol 'standard-value)))))
 
 
-
-;;; Strings
-
-(defun xorns-str-trim (s)
-  "Remove white-spaces at start and end of the string S."
-  (let ((blanks split-string-default-separators))
-    (replace-regexp-in-string
-      (format "\\`%s\\|%s\\'" blanks blanks) "" s)))
-
 
 
 ;;; Files
