@@ -50,20 +50,13 @@
 		  "Fix config file manually.")))))))
 
 
-(defun >>=-package-user-dir ()
-  "Directory containing installed xorns package."
-  (dir-join
-    package-user-dir
-    (package-desc-full-name (cadr (assq 'xorns package-alist)))))
-
-
 (defun >>=-template-location ()
   "Return base template location for `custom-file'."
   (require 'package)
   (expand-file-name
     "user-config"
     (dir-join
-      (or (bound-and-true-p >>=standalone-startup) (>>=-package-user-dir))
+      (bound-and-true-p >>=library-directory)
       "templates")))
 
 
