@@ -25,8 +25,7 @@
 
 
 (defvar >>=|misc/packages
-  '(dictionary deft
-     )
+  '(dictionary deft)
   "List of miscellaneous packages to install.")
 
 
@@ -35,9 +34,40 @@
   `(memq ',pkg >>=|misc/packages))
 
 
-(when (>>=-misc/configure? dictionary)
-  (>>=require dictionary))
+
+;;; Dictionary servers
 
+(use-package dictionary
+  :when (>>=-misc/configure? dictionary)
+  :ensure t
+  :bind
+  ("C-c w" . dictionary-search)
+  :custom
+  (dictionary-use-single-buffer t))
+
+
+
+;;; Processes and commands
+
+(use-package proced
+  :unless (eq system-type 'darwin)    ;; unavailable on OS-X
+  :bind
+  ("C-x p" . proced))
+
+
+
+;;; Date and time
+
+(use-package calendar
+  :bind
+  ("C-c a c" . calendar)
+  :custom
+  ;; Needed in order to use `diary-anniversary' without the year
+  (calendar-date-style 'american))
+
+
+
+;;; Edit plain text notes
 
 (use-package deft
   :when (>>=-misc/configure? deft)
@@ -64,17 +94,6 @@
   :bind
   (("<f12>" . deft)
     (:map deft-mode-map ("M-RET" . >>=deft/open-file))))
-
-
-(when (featurep 'calendar)
-  ;; Needed in order to use `diary-anniversary' without the year
-  (setq-default calendar-date-style 'american))
-
-
-(when (featurep 'dictionary)
-  (global-set-key (kbd "C-c w") 'dictionary-search)
-  (setq-default
-    dictionary-use-single-buffer t))
 
 
 (provide 'xorns-misc)
