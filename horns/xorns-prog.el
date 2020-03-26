@@ -146,10 +146,12 @@
 (use-package lsp-ui
   :ensure t
   :commands lsp-ui-mode
-  :init
-  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-  :custom
-  (lsp-prefer-flymake nil))
+  :hook
+  (lsp-mode . lsp-ui-mode)
+  :config
+  (progn
+    (defadvice lsp-ui-imenu (after hide-lsp-ui-imenu-mode-line activate)
+      (setq mode-line-format nil))))
 
 
 (use-package company-lsp
