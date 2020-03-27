@@ -23,31 +23,31 @@
   "Base `xorns' directory.")
 
 
-(defconst >>=package-user-dir
+(defconst >>=init-mode/package
   (let ((pkg-info (assq 'xorns package-alist)))
     (if pkg-info
       (expand-file-name
 	(package-desc-full-name (cadr pkg-info))
 	package-user-dir)))
-  "Directory containing installed `xorns' package.")
+  "Non-nil if `xorns' is initialized in ELPA (installed package) mode.")
 
 
-(defconst >>=standalone-startup
-  (if (not >>=package-user-dir)
+(defconst >>=init-mode/standalone
+  (if (not >>=init-mode/package)
     (expand-file-name "horns" >>=base-dir))
-  "If nil, Emacs started up with `xorns' as an installed package.")
+  "Non-nil if `xorns' is initialized in standalone mode.")
 
 
 (defconst >>=library-directory
-  (or >>=package-user-dir >>=standalone-startup)
+  (or >>=init-mode/package >>=init-mode/standalone)
   "Directory containing `xorns' library (valid in both modes).")
 
 
 (load (expand-file-name "xorns.lock" >>=base-dir) nil (not init-file-debug))
 
 
-(if >>=standalone-startup
-  (add-to-list 'load-path >>=standalone-startup))
+(if >>=init-mode/standalone
+  (add-to-list 'load-path >>=init-mode/standalone))
 
 
 (require 'xorns)

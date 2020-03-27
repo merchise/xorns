@@ -36,7 +36,7 @@
 
 (use-package xorns-mail
   ;; TODO: mail has not yet been migrated to standalone mode
-  :when (bound-and-true-p >>=package-user-dir))
+  :when (bound-and-true-p >>=init-mode/package))
 
 
 (provide 'xorns-common-systems)
