@@ -22,7 +22,6 @@
 (require 'use-package)
 (require 'xorns-tools)
 
-
 (use-package xorns-simple)
 (use-package xorns-buffers)
 (use-package xorns-dired)
@@ -32,15 +31,12 @@
 (use-package xorns-prog-extra)
 (use-package xorns-project)
 (use-package xorns-term)
-(use-package xorns-misc)
+(use-package xorns-pim)
 
 
-(when (not (bound-and-true-p >>=standalone-startup))
-  ;; Main old modules
-  ;; TODO: Migrate portions of `xorns-org' to new style
-  (use-package xorns-org)
-  (use-package xorns-mail)
-  )
+(use-package xorns-mail
+  ;; TODO: mail has not yet been migrated to standalone mode
+  :when (bound-and-true-p >>=package-user-dir))
 
 
 (provide 'xorns-common-systems)

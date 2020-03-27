@@ -1,4 +1,4 @@
-;;; xorns-misc.el --- Xorns Configuration for miscellanies
+;;; xorns-pim.el --- Configuration for Personal Information Management (PIM)
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
@@ -6,14 +6,11 @@
 
 ;;; Commentary:
 
-;; Manage miscellaneous stuffs like:
+;; This module is intended for Personal Information Management (PIM) stuffs
+;; like: Notes taking, Dictionaries, Calendar, Planner, Organizer, etc.
 ;;
-;; - Notes taking
-;; - Dictionaries
-;; - Calendar
-;; - RFCs
-;; - Planner
-;; - etc
+;; For more information see:
+;; https://en.wikipedia.org/wiki/Personal_information_management
 
 
 ;;; Code:
@@ -24,21 +21,21 @@
 (require 'xorns-packages)
 
 
-(defvar >>=|misc/packages
-  '(dictionary deft)
+(defvar >>=|pim/packages
+  '(dictionary deft org)
   "List of miscellaneous packages to install.")
 
 
-(defmacro >>=-misc/configure? (pkg)
-  "True if an miscellaneous PKG must be configured."
-  `(memq ',pkg >>=|misc/packages))
+(defmacro >>=-pim/configure? (pkg)
+  "True if a PIM PKG must be configured."
+  `(memq ',pkg >>=|pim/packages))
 
 
 
 ;;; Dictionary servers
 
 (use-package dictionary
-  :when (>>=-misc/configure? dictionary)
+  :when (>>=-pim/configure? dictionary)
   :ensure t
   :bind
   ("C-c w" . dictionary-search)
@@ -70,7 +67,7 @@
 ;;; Edit plain text notes
 
 (use-package deft
-  :when (>>=-misc/configure? deft)
+  :when (>>=-pim/configure? deft)
   :ensure t
   :defer t
   :commands (deft-filename-at-point deft-open-file)
@@ -96,5 +93,5 @@
     (:map deft-mode-map ("M-RET" . >>=deft/open-file))))
 
 
-(provide 'xorns-misc)
-;;; xorns-misc.el ends here
+(provide 'xorns-pim)
+;;; xorns-pim.el ends here
