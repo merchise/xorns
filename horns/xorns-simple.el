@@ -15,7 +15,7 @@
 ;;; Code:
 
 (require 'use-package)
-(require 'xorns-utils)
+(require 'xorns-tools)
 
 
 ;; TODO: Check this, maybe convert it to a configurable component.

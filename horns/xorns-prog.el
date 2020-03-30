@@ -14,7 +14,7 @@
 ;;; Code:
 
 (require 'xorns-text)
-(require 'xorns-utils)
+(require 'xorns-tools)
 (require 'xorns-buffers)
 (require 'xorns-simple)
 

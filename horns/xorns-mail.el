@@ -26,7 +26,8 @@
 (require 'widget)
 (require 'wid-edit)
 
-(require 'xorns-utils)
+(require 'xorns-tools)
+
 
 
 ;;; Widgets

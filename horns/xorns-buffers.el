@@ -23,7 +23,7 @@
 ;;; Code:
 
 (require 'use-package)
-(require 'xorns-utils)
+(require 'xorns-tools)
 (require 'ibuf-ext)
 
 
