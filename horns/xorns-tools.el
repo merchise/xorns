@@ -76,7 +76,7 @@ report the identity of the enclosed body."
 
 ;;; lists, property lists extensions
 
-(defun plist-exclude (plist &rest props)
+(defun >>=plist-exclude (plist &rest props)
   "Return a copy of PLIST with all PROPS excluded.
 PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
   (let ((pivot plist) res)
@@ -92,19 +92,31 @@ PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
 
 ;;; files and directories
 
-(defun dir-join (&rest parts)
+(defun >>=dir-join (&rest parts)
   "Join PARTS to a single path."
   (mapconcat 'file-name-as-directory parts ""))
 
 
-(defun find-dir (&rest dirs)
-  "Find first existing directory from a DIRS list."
+(defun >>=find-dir (&rest dirs)
+  "Find the first existing directory in DIRS sequence."
   (let (res)
     (while (and (not res) (consp dirs))
       (let ((dir (pop dirs)))
 	(if (and (stringp dir) (file-directory-p dir))
 	  (setq res dir))))
     res))
+
+
+(defun ensure-dir (dirs default)
+  "Find the first existing directory in DIRS list, or ensure a DEFAULT one."
+  (let ((res (apply '>>=find-dir dirs)))
+    (or
+      res
+      (progn
+	(when (not (file-directory-p default))
+	  (message ">>= creating default directory '%s'." default)
+	  (make-directory default 'parents))
+	default))))
 
 
 (defun >>=locate-user-emacs-file (&rest names)

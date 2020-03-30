@@ -52,7 +52,9 @@
 
 (defun >>=-config-file-name ()
   "Return target location for `custom-file'."
-  (let ((xdg (find-dir (getenv "XDG_CONFIG_HOME") (dir-join "~" ".config"))))
+  (let ((xdg (>>=find-dir
+	       (getenv "XDG_CONFIG_HOME")
+	       (>>=dir-join "~" ".config"))))
     (expand-file-name
       (if xdg "xorns" ".xorns")
       (or xdg "~"))))
@@ -60,10 +62,9 @@
 
 (defun >>=-copy-from-template ()
   "Create new `custom-file' from template."
-  (let ((template
-	  (expand-file-name
-	    "user-config"
-	    (dir-join (bound-and-true-p >>=library-directory) "templates"))))
+  (let* ((lib-dir (bound-and-true-p >>=library-directory))
+	 (template
+	  (expand-file-name "user-config" (>>=dir-join lib-dir "templates"))))
     (when (file-exists-p template)
       (copy-file template custom-file t)
       (message ">>= new `custom-file' '%s' has been created." custom-file)

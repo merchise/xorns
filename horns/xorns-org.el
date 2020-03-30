@@ -96,7 +96,7 @@ surrounded with blanks."
       (full-prefix
         (concat
           prefix
-          (expand-file-name "asksp" (dir-join "~" ".local" "bin"))
+          (expand-file-name "asksp" (>>=dir-join "~" ".local" "bin"))
           "\n")))
     (if shebang
       (unless (string-prefix-p prefix (cdr shebang))
