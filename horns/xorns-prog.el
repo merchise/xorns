@@ -21,13 +21,6 @@
 (require 'use-package)
 
 
-(defgroup xorns-prog nil
-  "Programming configurations for `xorns'."
-  :prefix "xorns-prog-"
-  :group 'xorns
-  :group 'programming)
-
-
 
 ;;; Common Systems
 
@@ -102,19 +95,6 @@
 
 
 ;;; Python
-
-(defgroup xorns-python nil
-  "Programming configurations for `xorns'."
-  :prefix "xorns-python-"
-  :group 'xorns-prog
-  :group 'python)
-
-
-(defcustom xorns-python-pyls-arguments nil
-  "Extra arguments for the python language server."
-  :group 'xorns-python
-  :type '(repeat string))
-
 
 (autoload 'po-mode "po-mode"    ; TODO: Check this
   "Major mode for translators to edit PO files" t)

@@ -113,7 +113,7 @@ PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
     res))
 
 
-(defun ensure-dir (dirs default)
+(defun >>=ensure-dir (dirs default)
   "Find the first existing directory in DIRS list, or ensure a DEFAULT one."
   (let ((res (apply '>>=find-dir dirs)))
     (or

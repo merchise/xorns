@@ -187,7 +187,8 @@
 
 (global-set-key (kbd "C-x <f2>") 'rename-buffer)
 
-(defun xorns-toggle-header-mode-line ()
+
+(defun >>=toggle-header-mode-line ()
   "Toggle visibility of header mode-line."
   (interactive)
   (if (not header-line-format)
@@ -202,7 +203,7 @@
 
 ;;; Buffers
 
-(defun xorns-force-scratch (&optional arg)
+(defun >>=force-scratch (&optional arg)
   "Switch to `*scratch*` buffer, creating a new one if needed.
 
 An optional argument ARG could be given to delete other windows; if
@@ -216,8 +217,8 @@ An optional argument ARG could be given to delete other windows; if
     (if arg (delete-other-windows))))
 
 
-(global-set-key (kbd "C-c s") 'xorns-force-scratch)
-;; (global-set-key (kbd "C-c h") 'xorns-toggle-header-mode-line)
+(global-set-key (kbd "C-c s") '>>=force-scratch)
+;; (global-set-key (kbd "C-c h") '>>=toggle-header-mode-line)
 
 
 

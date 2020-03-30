@@ -29,7 +29,8 @@
 
 
 ;;; Sub-tree utility
-(defun xorns-toggle-subtree ()
+
+(defun >>=toggle-subtree ()
   "Show or hide the current subtree depending on its current state."
   (interactive)
   (save-excursion
@@ -160,7 +161,7 @@ If t, show line-numbers always, nil never.")
 ;; TODO: This is defined by standard mode inner "C-c@'
 (define-key outline-minor-mode-map (kbd "C-=") 'outline-show-subtree)
 (define-key outline-minor-mode-map (kbd "M-=") 'outline-hide-subtree)
-(define-key outline-minor-mode-map (kbd "C-+") 'xorns-toggle-subtree)
+(define-key outline-minor-mode-map (kbd "C-+") '>>=toggle-subtree)
 
 
 (provide 'xorns-text)
