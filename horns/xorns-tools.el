@@ -113,16 +113,22 @@ PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
     res))
 
 
-(defun >>=ensure-dir (dirs default)
-  "Find the first existing directory in DIRS list, or ensure a DEFAULT one."
-  (let ((res (apply '>>=find-dir dirs)))
-    (or
-      res
-      (progn
-	(when (not (file-directory-p default))
-	  (message ">>= creating default directory '%s'." default)
-	  (make-directory default 'parents))
-	default))))
+(defun >>=canonical-directory-name (name)
+  "Convert directory NAME to absolute canonical form."
+  (expand-file-name (file-name-as-directory name)))
+
+
+(defmacro >>=dir-set (symbol &rest options)
+  "Set SYMBOL to the first existing directory name among several OPTIONS.
+If none is found, the original symbol value is used creating the directory and
+any nonexistent parents."
+  `(let ((res (>>=find-dir ,@options)))
+     (unless res
+       (setq res (>>=get-original-value ,symbol))
+       (unless (file-directory-p res)
+	 (message ">>= creating directory '%s'." res)
+	 (make-directory res 'parents)))
+     (setq-default ,symbol res)))
 
 
 (defun >>=locate-user-emacs-file (&rest names)
@@ -158,33 +164,29 @@ is returned."
 ;;; workspace management
 
 (defconst >>=|home-dir
-  (purecopy (file-name-as-directory (or (getenv "HOME") "~")))
+  (purecopy (>>=canonical-directory-name (or (getenv "HOME") "~")))
   "Home directory.")
 
 
 (defvar >>=|preferred-default-directory
-  (cl-some
-    (lambda (item) (if (and item (file-directory-p item)) item))
-    (list
-      (getenv "WORKSPACE")
-      (>>=dir-join >>=|home-dir "work" "src")
-      (>>=dir-join >>=|home-dir "work")
-      (>>=dir-join >>=|home-dir "src" "merchise")
-      (>>=dir-join >>=|home-dir "src")
-      >>=|home-dir))
+  (>>=find-dir
+    (>>=canonical-directory-name (getenv "WORKSPACE"))
+    (>>=dir-join >>=|home-dir "work" "src")
+    (>>=dir-join >>=|home-dir "work")
+    (>>=dir-join >>=|home-dir "src" "merchise")
+    (>>=dir-join >>=|home-dir "src")
+    >>=|home-dir)
   "Preferred default directory when start a new session.")
 
 
 (defun >>=set-default-directory ()
   "Set the default directory to its original value."
-  (if (equal (>>=default-directory) >>=|home-dir)
+  (if (equal (>>=canonical-directory-name default-directory) >>=|home-dir)
     (>>=set-value default-directory >>=|preferred-default-directory)))
 
 
 (defun >>=default-directory ()
-  "Name of default directory of current buffer.
-The result always ends with slash and it is in abbreviated format.  To
-interactively change the default directory, use command `cd'."
+  "Return a shortened version of `default-directory'."
   (file-name-as-directory (abbreviate-file-name default-directory)))
 
 
