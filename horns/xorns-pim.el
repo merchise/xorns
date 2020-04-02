@@ -30,6 +30,10 @@
   `(memq ',pkg >>=|pim/packages))
 
 
+(defconst >>=|pim/prefered-directory (>>=dir-join >>=|home-dir ".pim")
+  "List of miscellaneous packages to install.")
+
+
 
 ;;; Dictionary servers
 
@@ -69,27 +73,32 @@
   :when (>>=-pim/configure? deft)
   :ensure t
   :defer t
-  :commands (deft-filename-at-point deft-open-file)
   :custom
   (deft-extensions '("txt" "text" "md" "markdown" "org" "rst"))
   (deft-use-filter-string-for-filename t)
   (deft-use-filename-as-title t)
   (deft-auto-save-interval 60.0)
-  (deft-directory "~/.pim/notes/")
   (deft-strip-summary-regexp "\\([
 	  ]\\|=\\{3,\\}\\|-\\{3,\\}\\|^#\\+[[:upper:]_]+:.*$\\)")
+  :preface
+  (progn
+    (declare-function deft-open-file 'deft)
+    (declare-function deft-filename-at-point 'deft)
+
+    (defun >>=deft/open-file (&optional switch)
+      "Open file killing deft buffer; SWITCH is used in `deft-open-file'."
+      (interactive "P")
+      (let ((file (deft-filename-at-point)))
+	(when file
+	  (deft-open-file file nil switch)
+	  (kill-buffer "*Deft*")))))
   :init
-  (defun >>=deft/open-file (&optional arg)
-    "When the point is at a widget, open the file in a new buffer.
-  The argument ARG is passed to `deft-open-file' as SWITCH."
-    (interactive "P")
-    (let ((file (deft-filename-at-point)))
-      (when file
-	(deft-open-file file nil arg)
-	(kill-buffer "*Deft*"))))
+  (>>=dir-set deft-directory
+    (>>=dir-join >>=|pim/prefered-directory "notes"))
   :bind
   (("<f12>" . deft)
     (:map deft-mode-map ("M-RET" . >>=deft/open-file))))
+
 
 
 (provide 'xorns-pim)
