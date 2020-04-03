@@ -30,6 +30,12 @@
   `(memq ',pkg >>=|pim/packages))
 
 
+(defvar >>=|pim/ob-featured-languages
+  '(shell python)
+  "List of languages to be featured by `org-babel-load-languages'.
+Valid only if `org' is included in `>>=|pim/packages'.")
+
+
 (defconst >>=|pim/prefered-directory (>>=dir-join >>=|home-dir ".pim")
   "List of miscellaneous packages to install.")
 
@@ -62,7 +68,7 @@
   :bind
   ("C-c a c" . calendar)
   :custom
-  ;; Needed in order to use `diary-anniversary' without the year
+  ;; TODO: needed in order to use `diary-anniversary' without the year
   (calendar-date-style 'american))
 
 
@@ -99,6 +105,31 @@
   (("<f12>" . deft)
     (:map deft-mode-map ("M-RET" . >>=deft/open-file))))
 
+
+
+;;; Organizer
+
+(use-package org
+  :when (>>=-pim/configure? org)
+  :commands (org-store-link org-agenda)
+  :defer t
+  :custom
+  (org-startup-folded nil)
+  (org-reverse-note-order t)
+  (org-startup-with-inline-images t)
+  (org-src-fontify-natively t)
+  (org-imenu-depth 8)
+  :bind
+  ("C-c o l" . org-store-link)
+  ("C-c o a" . org-agenda)
+  :config
+  (progn
+    (dolist (lang >>=|pim/ob-featured-languages)
+      (let ((pkg (>>=intern (format "ob-%s" lang))))
+	(when (require pkg nil 'noerror)
+	  (unless (assoc lang org-babel-load-languages)
+	    (setq org-babel-load-languages
+	      (cons `(,lang . t) org-babel-load-languages))))))))
 
 
 (provide 'xorns-pim)
