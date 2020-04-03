@@ -55,6 +55,10 @@ minimum configuration is done, but you may like to review some extra variables
 to configure for yourself: see `save-buffer' function for more information.")
 
 
+(defvar >>=|package/column-width 28
+  "New width for `package' name column (use nil for standard behaviour).")
+
+
 (defmacro >>=-base/configure? (pkg)
   "True if extra PKG must be configured."
   `(memq ',pkg >>=|base/extra-packages))
@@ -182,6 +186,21 @@ to configure for yourself: see `save-buffer' function for more information.")
   :defer t
   :custom
   (Man-notify-method 'aggressive))
+
+
+(when >>=|package/column-width
+  (defadvice package-refresh-contents
+    (around >>-package-refresh-contents activate)
+    "Wide the 'Package' column."
+    (interactive)
+    (if (eq major-mode 'package-menu-mode)
+      (let ((pkg-col (elt tabulated-list-format 0)))
+	(when (equal (car pkg-col) "Package")
+	  (let ((tail (cdr pkg-col)))
+	    (setcar tail >>=|package/column-width)
+	    (setcdr pkg-col tail)))))
+    ;; super
+    ad-do-it))
 
 
 (use-package autorevert
