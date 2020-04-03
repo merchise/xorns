@@ -37,6 +37,18 @@ minor-modes indicators, 'mini' for `mini-modeline', 'power' for `powerline',
 or 'space' for `spaceline'.")
 
 
+(use-package minions
+  :when (and >>=|mode-line/kind (not (eq >>=|mode-line/kind 'mini)))
+  :ensure t
+  :bind
+  ([S-down-mouse-3] . minions-minor-modes-menu)
+  :hook
+  (after-init . minions-mode)
+  :config
+  (if window-system
+    (setq minions-mode-line-lighter "◆")))
+
+
 (use-package smart-mode-line
   :when (or (eq >>=|mode-line/kind 'smart) (eq >>=|mode-line/kind 'mini))
   :ensure t
@@ -93,13 +105,6 @@ or 'space' for `spaceline'.")
 	    name))))
     (unless (string= >>-project-root "-")
       >>-project-root))
-
-  (use-package minions
-    :ensure t
-    :demand t
-    :config
-    (unless minions-mode
-      (minions-mode)))
 
   (use-package spaceline-config
     :ensure spaceline
