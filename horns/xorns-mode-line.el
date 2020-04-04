@@ -38,7 +38,7 @@ or 'space' for `spaceline'.")
 
 
 (use-package minions
-  :when (and >>=|mode-line/kind (not (eq >>=|mode-line/kind 'mini)))
+  :when (not (eq >>=|mode-line/kind 'mini))
   :ensure t
   :bind
   ([S-down-mouse-3] . minions-minor-modes-menu)
@@ -111,6 +111,7 @@ or 'space' for `spaceline'.")
     :init
     (progn
       (require 'spaceline)
+
       (setq spaceline-highlight-face-func 'spaceline-highlight-face-modified)
       (declare-function spaceline-install 'spaceline)
 
