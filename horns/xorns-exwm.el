@@ -55,8 +55,7 @@
   (progn
     (defun >>-exwm/init ()
       "For the hook running when EXWM has just finished initialization."
-      (display-battery-mode +1)
-      (display-time-mode +1))
+      )
 
     (defun >>-exwm/rename-buffer ()
       "Rename EXWM buffer according to the X class name."
@@ -76,12 +75,7 @@
     )
   :hook
   ((exwm-init . >>-exwm/init)
-   ((exwm-update-class exwm-update-title) . >>-exwm/rename-buffer))
-  :config
-  (progn
-    (when (eq (bound-and-true-p >>=|mode-line/kind) 'mini)
-      (setq-default >>=|mode-line/kind 'power))
-    ))
+   ((exwm-update-class exwm-update-title) . >>-exwm/rename-buffer)))
 
 
 
