@@ -104,9 +104,36 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 
 (use-package window
-  :preface (provide 'window)
+  :preface
+  (progn
+    (defun >>=window/split-toggle (&optional arg)
+      "Toggle horizontal/vertical layout of 2 windows (use ARG to restore)."
+      (interactive "P")
+      (if (= (count-windows) 2)
+	(let* ((tree (car (window-tree)))
+	       (one (nth 2 tree))
+	       (two (nth 3 tree))
+	       (aux (car tree))                ;; t: vertical -> horizontal
+	       (v2h (if arg (not aux) aux))    ;; (xor arg v2h)
+	       (state (window-state-get two)))
+	  (delete-other-windows one)
+	  (window-state-put
+	    state
+	    (funcall
+	      (if v2h
+		#'split-window-horizontally
+		;; else
+		#'split-window-vertically))))
+	;; else
+	(warn "Only can toggle two windows!")))
+
+    (provide 'window)
+    )
   :custom
-  (split-width-threshold 120))
+  (split-width-threshold 120)
+  :bind
+  (:map ctl-x-4-map
+    ("t" . >>=window/split-toggle)))
 
 
 (use-package files
