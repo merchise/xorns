@@ -172,10 +172,10 @@
   :demand t
   :config
   (progn
-    (exwm-input-set-key (kbd "<s-up>") #'buf-move-up)
-    (exwm-input-set-key (kbd "<s-down>") #'buf-move-down)
-    (exwm-input-set-key (kbd "<s-left>") #'buf-move-left)
-    (exwm-input-set-key (kbd "<s-right>") #'buf-move-right)))
+    (exwm-input-set-key (kbd "<C-S-up>") #'buf-move-up)
+    (exwm-input-set-key (kbd "<C-S-down>") #'buf-move-down)
+    (exwm-input-set-key (kbd "<C-S-left>") #'buf-move-left)
+    (exwm-input-set-key (kbd "<C-S-right>") #'buf-move-right)))
 
 
 (use-package exwm-systemtray
