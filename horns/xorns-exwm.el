@@ -94,9 +94,17 @@
   :after exwm
   :demand t
   :commands exwm-reset
+  :preface
+  (progn
+    (defun >>-exwm/swap-last-buffers ()
+      "Switch currently visible buffer by last one."
+      (interactive)
+      (switch-to-buffer (other-buffer (current-buffer))))
+    )
   :config
   (progn
     (require 'xorns-term)
+
     (exwm-input-set-key
       ;; Like in `i3' windows manager
       (kbd "s-d") #'>>=exwm/start-command)
@@ -105,6 +113,8 @@
       #'>>=term-main-shell)
     (exwm-input-set-key (kbd "s-r") #'exwm-reset)
     (exwm-input-set-key (kbd "<s-tab>") #'other-frame)
+    (exwm-input-set-key (kbd "s-o") #'other-window)
+    (exwm-input-set-key (kbd "s-;") #'>>-exwm/swap-last-buffers)
     (dolist (pair >>=|exwm/url-keys)
       (exwm-input-set-key (kbd (car pair)) (>>-url-browser (cdr pair))))
     (exwm-input-set-key (kbd "C-s-/") #'browse-url-at-point)
@@ -116,7 +126,7 @@
 	#'exwm-input-send-next-key))
     (setq exwm-input-simulation-keys
       `(
-	 ;; movement
+	 ;; general, movement
 	 ([?\C-b] . [left])
 	 ([?\M-b] . [C-left])
 	 ([?\C-f] . [right])
@@ -131,13 +141,16 @@
 	 ([?\C-e] . [end])
 	 ([?\M-v] . [prior])
 	 ([?\C-v] . [next])
-	 ([?\C-d] . [delete])
-	 ([?\C-k] . [S-end ?\C-x])
+	 ([?\C-m] . [return])
+	 ([?\C-i] . [tab])
+	 ;; TODO: ([?\C-\[] . [escape])
 	 ;; cut/paste, selection
+	 ([?\C-d] . [delete])
 	 ([?\C-w] . [?\C-x])
 	 ([?\M-w] . [?\C-c])
 	 ([?\C-y] . [?\C-v])
 	 ([?\M-d] . [C-S-right ?\C-x])
+	 ([?\C-k] . [S-end ?\C-x])
 	 ([M-backspace] . [C-S-left ?\C-x])
 	 ;; search
 	 ([?\C-s] . [?\C-f])
