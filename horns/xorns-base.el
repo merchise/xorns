@@ -127,11 +127,47 @@ to configure for yourself: see `save-buffer' function for more information.")
 	;; else
 	(warn "Only can toggle two windows!")))
 
+    (defun >>-window-coach/done ()
+      (interactive)
+      (setq >>=window-coach nil)
+      (message ">>= window-coach done."))
+
+    (defvar >>=window-coach-map
+      (let ((map (make-keymap))
+	    (commands
+	      '((shrink-window "<up>" "p")
+		(enlarge-window "<down>" "n")
+		(enlarge-window-horizontally "<right>" "f")
+		(shrink-window-horizontally "<left>" "b")
+		(other-window "o")
+		(>>=window/split-toggle "t")
+		(>>-window-coach/done "C-g" "q"))))
+	(dolist (cmd commands)
+	  (let ((fn (car cmd))
+		(keys (cdr cmd)))
+	    (dolist (key keys)
+	      (define-key map (kbd key) fn))))
+	map))
+
+    (define-minor-mode >>=window-coach
+      "A simple window-coach minor mode."
+      :init-value nil
+      :lighter " Window-Coach"
+      :keymap >>=window-coach-map
+      :global t
+      (if (<= (count-windows) 1)
+	(progn
+	  (setq >>=window-coach nil)
+	  (message ">>= only root frame exists, abort."))
+	;; else
+	(message ">>= use arrow-keys or p/n/f/b/o/t/q to manage windows.")))
+
     (provide 'window)
     )
   :custom
   (split-width-threshold 120)
   :bind
+  ("C-c C-`" . >>=window-coach)
   (:map ctl-x-4-map
     ("t" . >>=window/split-toggle)))
 
