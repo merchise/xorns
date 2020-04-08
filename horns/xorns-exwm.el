@@ -12,6 +12,9 @@
 
 ;; https://github.com/ch11ng/exwm/wiki
 
+;; Enjoy!
+
+
 ;;; Code:
 
 (eval-when-compile

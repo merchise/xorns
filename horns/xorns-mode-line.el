@@ -13,6 +13,9 @@
 ;; 'frame-title'.  You can change the mode-line kind by using a non-nil value
 ;; for `>>=|mode-line/kind'.
 
+;; Enjoy!
+
+
 ;;; Code:
 
 

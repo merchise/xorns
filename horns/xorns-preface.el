@@ -36,6 +36,9 @@
 ;; In the preface, the mode-line is hidden, useless-bars are removed, and the
 ;; coding-system is defined to UTF-8.
 
+;; Enjoy!
+
+
 ;;; Code:
 
 

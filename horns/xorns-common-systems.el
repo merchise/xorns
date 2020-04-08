@@ -16,7 +16,9 @@
 ;;   - https://www.emacswiki.org/emacs/Auto Save
 ;;   - https://www.emacswiki.org/emacs/BackupFiles
 
+;; Enjoy!
 
+
 ;;; Code:
 
 (require 'use-package)

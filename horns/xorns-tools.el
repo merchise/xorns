@@ -11,9 +11,11 @@
 ;; This library defines several basic and general utilities that can be used
 ;; in any context.
 
-;;; Code:
+;; Enjoy!
 
 
+;;; Code:
+
 ;;; General
 
 (defmacro ->? (func &rest args)

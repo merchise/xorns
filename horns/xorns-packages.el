@@ -15,6 +15,9 @@
 ;; - Use `quelpa' and `quelpa-use-package'.
 ;; - See: (setq system-packages-noconfirm t)
 
+;; Enjoy!
+
+
 ;;; Code:
 
 

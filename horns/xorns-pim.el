@@ -12,6 +12,8 @@
 ;; For more information see:
 ;; https://en.wikipedia.org/wiki/Personal_information_management
 
+;; Enjoy!
+
 
 ;;; Code:
 

@@ -10,6 +10,9 @@
 
 ;; This library defines several utilities to configure display-system.
 
+;; Enjoy!
+
+
 ;;; Code:
 
 
