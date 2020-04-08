@@ -8,17 +8,21 @@
 
 ;;; Commentary:
 
-;; Load customization information file (`custom-file').  In `xorns', this file
-;; is stored in the standard directory for user-specific configurations
-;; (XDG_CONFIG_HOME), defaults to "~/.config/xorns".  If that folder does not
-;; exist on your system, "~/.xorns" is used.
-
-;; The first version of this file is copied from "templates/user-config".
+;; This file contains the code needed to configure and load user options.
+;; These options are settled in a file (see `custom-file' variable) stored in
+;; the operating system standard directory for user-specific configurations
+;; (XDG_CONFIG_HOME), or in in the user home.  In the first case it defaults
+;; to "~/.config/xorns", in the second "~/.xorns" is used.
+;;
+;; There are also tools to configure the 'xorn' package in standalone mode.
 
 ;;; Code:
 
 (require 'xorns-tools)
 
+
+
+;;; configuration file
 
 (with-eval-after-load 'xorns-config
   (if custom-file
@@ -69,6 +73,21 @@
       (copy-file template custom-file t)
       (message ">>= new `custom-file' '%s' has been created." custom-file)
       template)))
+
+
+
+;;; extra standalone-mode tools
+
+(defun >>=byte-recompile (&optional force)
+  "Recompile every `.el' file in `xorns' directory that needs recompilation.
+If FORCE argument is non-nil, recompile every ‘.el’ file that already has a
+‘.elc’ file."
+  (interactive "P")
+  (let ((dir (bound-and-true-p >>=init-mode/standalone)))
+    (if dir
+      (byte-recompile-directory "~/.emacs.d/horns/" 0 force)
+      ;; else
+      (warn ">>= only allowed in standalone-mode."))))
 
 
 (provide 'xorns-config)

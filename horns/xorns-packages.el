@@ -44,8 +44,7 @@
      (require ',feature)))
 
 
-;; TODO: Check these two packages in the future
-;;       system-packages, use-package-ensure-system-package
+;; TODO: Check `system-packages', and `use-package-ensure-system-package'
 (with-eval-after-load 'xorns-packages
   ;; Bootstrap 'use-package'
   (>>=package-ensure 'use-package))
