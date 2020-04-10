@@ -35,8 +35,9 @@
 (defvar >>=|mode-line/kind nil
   "Kind of mode-line.
 When nil, the standard Emacs mode-line will be used; otherwise, the value must
-be a symbol: 'smart' for `smart-mode-line', 'mini' for `mini-modeline';
-'power' or 'space', `spaceline' including `powerline'.")
+be a symbol: 'smart' for `smart-mode-line', 'mini' for `mini-modeline'; 'doom'
+for `doom-modeline'; and 'power' or 'space', for `spaceline' including
+`powerline'.")
 
 
 (defvar >>=|mode-line/show-system-status nil
@@ -95,6 +96,34 @@ battery and time.")
   (rm-blacklist "")
   :config
   (mini-modeline-mode +1))
+
+
+(use-package doom-themes
+  :when (eq >>=|mode-line/kind 'doom)
+  :ensure t
+  :custom
+  (doom-dracula-brighter-comments t)
+  (doom-dracula-colorful-headers t)
+  (doom-dracula-comment-bg t)
+  :config
+  (progn
+    (doom-themes-treemacs-config)
+    (doom-themes-visual-bell-config)
+    (doom-themes-org-config)))
+
+
+(use-package doom-modeline
+  :when (eq >>=|mode-line/kind 'doom)
+  :ensure t
+  :config
+  (progn
+    (declare-function doom-modeline-def-modeline 'doom-modeline-core)
+    (doom-modeline-def-modeline 'main
+      '(buffer-info remote-host buffer-position)
+      '(objed-state misc-info vcs checker input-method buffer-encoding lsp
+	 major-mode process " "))
+    (setq doom-modeline-buffer-file-name-style 'truncate-upto-root)
+    (doom-modeline-mode +1)))
 
 
 (use-package spaceline-config
