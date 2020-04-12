@@ -77,12 +77,6 @@
 (put 'downcase-region 'disabled nil)
 
 
-(use-package minibuffer
-  ;; todo: review this (ido, helm, grizzl)
-  :bind
-  ("C-M-," . completion-at-point))
-
-
 (use-package delsel
   ;; typed text replaces the selection
   :config
@@ -112,21 +106,6 @@
   (ispell-highlight-p t)
   (ispell-silently-savep t)
   (ispell-dictionary "english"))
-
-
-
-;;; interactively do (ido)
-
-(use-package ido
-  ;; without 'demand' `("C-x C-f" . ido-find-file)' is not assigned
-  :demand t
-  :bind
-  ("C-x b" . ido-switch-buffer)
-  :custom
-  (ido-auto-merge-work-directories-length -1)
-  (ido-auto-merge-delay-time 1.5)
-  :config
-  (ido-mode 1))
 
 
 
