@@ -107,6 +107,11 @@ PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
     res))
 
 
+(defmacro >>=append (target &rest sequences)
+  "Set TARGET to the result value from appending it with all the SEQUENCES."
+  `(setq ,target (append ,target ,@sequences)))
+
+
 
 ;;; files and directories
 

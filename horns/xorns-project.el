@@ -14,6 +14,7 @@
 ;;; Code:
 
 (require 'use-package)
+(require 'xorns-tools)
 
 
 (defvar >>=|projectile/extra-ignored-directories nil
@@ -38,14 +39,12 @@
   (projectile-ignored-project-function 'file-remote-p)
   :config
   (progn
-    (setq projectile-globally-ignored-directories
-      (append projectile-globally-ignored-directories
-	'("elpa" ".vscode" "node_modules")
-	>>=|projectile/extra-ignored-directories))
-    (setq projectile-project-root-files
-      (append projectile-project-root-files
-	'(".travis.yml")
-	>>=|projectile/project-root-files))
+    (>>=append projectile-globally-ignored-directories
+      '("elpa" ".vscode" "node_modules")
+      >>=|projectile/extra-ignored-directories)
+    (>>=append projectile-project-root-files
+      '(".travis.yml")
+      >>=|projectile/project-root-files)
     (add-to-list
       ;; Ignore Mac Search Index Cache
       'projectile-globally-ignored-files ".DS_Store")
