@@ -28,6 +28,8 @@
 (use-package term
   :preface
   (progn
+    (declare-function term-send-raw-string 'term)
+
     (defun >>-term/raw-kill-line ()
       "Kill the rest of the current line in `term-char-mode'."
       (interactive)
