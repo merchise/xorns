@@ -48,7 +48,9 @@
     (add-to-list
       ;; Ignore Mac Search Index Cache
       'projectile-globally-ignored-files ".DS_Store")
-    (projectile-mode t)))
+    (projectile-mode +1)
+    (if (bound-and-true-p ivy-mode)
+      (setq projectile-completion-system 'ivy))))
 
 
 (provide 'xorns-project)
