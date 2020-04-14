@@ -50,7 +50,9 @@
       'projectile-globally-ignored-files ".DS_Store")
     (projectile-mode +1)
     (if (bound-and-true-p ivy-mode)
-      (setq projectile-completion-system 'ivy))))
+      (setq projectile-completion-system 'ivy))
+    (if (bound-and-true-p helm-mode)
+      (setq projectile-completion-system 'helm))))
 
 
 (provide 'xorns-project)

@@ -47,11 +47,13 @@ tramp
 /network-security.data
 /ido.last
 /.backups/
+/eshell/
 .recentf
 .recentf~
 /recentf
 places
 .emacs-places
+/bookmarks
 .lsp-session-v1
 ac-comphist.dat
 projectile.cache

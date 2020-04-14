@@ -81,5 +81,61 @@
     (counsel-mode +1)))
 
 
+
+
+(use-package helm
+  :when (eq >>=|minibuffer/completing-framework 'helm)
+  :ensure t
+  :bind
+  (:map helm-map
+    ([left] . helm-previous-source)
+    ([right] . helm-next-source))
+  :config
+  (progn
+    (>>=remap ("M-x" . "M-X") helm-M-x)
+    (helm-mode +1)))
+
+
+(use-package helm-config
+  :when (eq >>=|minibuffer/completing-framework 'helm)
+  :ensure helm
+  :demand t
+  :preface
+  (progn
+    (defun >>=helm/multi (&optional arg)
+      "Use `helm-mini' if nil, otherwise call `helm-multi-files'."
+      (interactive "P")
+      (if (null arg)
+	(helm-mini)
+	;; else
+	(helm-multi-files)))
+    )
+  :bind
+  (("M-Y" . helm-show-kill-ring)
+   ("C-h SPC" . helm-all-mark-rings)
+   ("C-x C-f" . helm-find-files)
+   ("C-x b" . >>=helm/multi)
+   :map minibuffer-local-map
+   ("C-c C-l" . helm-minibuffer-history)
+   :map helm-command-map
+   ("o" . helm-occur))
+  :config
+  (progn
+    ;; Note: Do not remove `:demand' option.  "C-x c" is very similar to
+    ;; `kill-emacs' ("C-x C-c"), so we use "C-c h".  Global method is used
+    ;; because `helm-command-prefix-key' do not work if changed after
+    ;; `helm-config' is loaded
+    (global-set-key (kbd "C-c h") 'helm-command-prefix)
+    (global-unset-key (kbd "C-x c"))))
+
+
+(use-package swiper-helm
+  :when (eq >>=|minibuffer/completing-framework 'helm)
+  :ensure t
+  :config
+  (progn
+    (>>=remap ("C-s" . "C-S-s") swiper-helm)))
+
+
 (provide 'xorns-minibuffer)
 ;;; xorns-minibuffer.el ends here
