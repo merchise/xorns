@@ -16,7 +16,7 @@
 
 ;;; Code:
 
-;;; General
+;;; general
 
 (defmacro ->? (func &rest args)
   "Call FUNC with our remaining ARGS, only if it is bound."
@@ -66,6 +66,16 @@ report the identity of the enclosed body."
   "Return SYMBOL's original value or nil if that is void."
   `(if (boundp ',symbol)
      (eval (car (get ',symbol 'standard-value)))))
+
+
+(defmacro >>=remap (map command)
+  "Remap global bindings using a new COMMAND.
+MAP is a `cons' with components (KEY . ALT); key binding for new command, and
+the alternative binding for the original command."
+  `(let ((key (kbd (car ',map)))
+	 (alt (kbd (cdr ',map))))
+     (global-set-key alt (key-binding key))
+     (global-set-key key ',command)))
 
 
 
