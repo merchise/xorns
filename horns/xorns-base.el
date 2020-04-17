@@ -109,6 +109,15 @@ to configure for yourself: see `save-buffer' function for more information.")
 (use-package window
   :preface
   (progn
+    (eval-when-compile
+      (declare-function count-windows 'window)
+      (declare-function window-tree 'window)
+      (declare-function window-state-get 'window)
+      (declare-function delete-other-windows 'window)
+      (declare-function window-state-put 'window)
+      (declare-function split-window-horizontally 'window)
+      (declare-function split-window-vertically 'window))
+
     (defun >>=window/split-toggle (&optional arg)
       "Toggle horizontal/vertical layout of 2 windows (use ARG to restore)."
       (interactive "P")

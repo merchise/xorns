@@ -30,6 +30,7 @@
   :preface
   (progn
     (eval-when-compile
+      (require 'em-term)
       (declare-function eshell-cmpl-initialize 'em-cmpl))
 
     (defun >>-eshell/first-time ()
