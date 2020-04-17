@@ -25,6 +25,59 @@
     shell-file-name))
 
 
+(use-package eshell
+  :commands (eshell eshell-command)
+  :preface
+  (progn
+    (eval-when-compile
+      (declare-function eshell-cmpl-initialize 'em-cmpl))
+
+    (defun >>-eshell/first-time ()
+      "Run the first time `eshell-mode' is entered.a"
+      (add-to-list 'eshell-visual-commands "htop"))
+
+    (defun >>-eshell/init ()
+      "Initialize eshell."
+      (eshell-cmpl-initialize)
+      (define-key eshell-mode-map
+	(kbd "C-c C-d") 'quit-window)
+      (when (bound-and-true-p helm-mode)
+	(require 'helm-eshell)
+	(define-key eshell-mode-map
+	  [remap eshell-pcomplete] 'helm-esh-pcomplete)
+	(define-key eshell-mode-map
+	  [remap eshell-list-history] 'helm-eshell-history)))
+    )
+  :custom
+  (eshell-history-size 1024)
+  (eshell-hist-ignoredups t)
+  :hook
+  (eshell-first-time-mode . >>-eshell/first-time)
+  (eshell-mode . >>-eshell/init)
+  :config
+  (progn
+    (require 'esh-io)
+    (require 'em-alias)
+    (eshell/alias "l" "ls -lh $1")
+    (eshell/alias "ll" "ls -alhF $1")
+    (eshell/alias "la" "ls -A $1")))
+
+
+(use-package comint
+  :ensure helm
+  :preface
+  (defun >>-comint/init ()
+    "Initialize comint."
+    (when (bound-and-true-p helm-mode)
+      (require 'helm-eshell)
+      (define-key comint-mode-map
+	(kbd "C-c C-l") 'helm-comint-input-ring)
+      (define-key comint-mode-map
+	(kbd "M-s f") 'helm-comint-prompts-all)))
+  :hook
+  (comint-mode . >>-comint/init))
+
+
 (use-package term
   :preface
   (progn
