@@ -252,6 +252,9 @@ To test it at startup, in the folder =/usr/share/xsessions/= add the file
   Keywords=emacs;wm;windowmanager;window;manager;
 #+END_SRC
 
+See =https://wiki.archlinux.org/index.php/Desktop_entries= For more
+information about =.desktop= files.
+
 Then restart =lightdm= con =sudo systemctl restart lightdm= and choose "Emacs"
 in the button.
 
