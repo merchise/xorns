@@ -188,7 +188,7 @@ is returned."
 
 (defvar >>=|preferred-default-directory
   (>>=find-dir
-    (>>=canonical-directory-name (getenv "WORKSPACEX))
+    (>>=canonical-directory-name (getenv "WORKSPACE"))
     (>>=dir-join >>=|home-dir "work" "src")
     (>>=dir-join >>=|home-dir "work")
     (>>=dir-join >>=|home-dir "src" "merchise")
