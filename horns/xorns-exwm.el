@@ -58,50 +58,23 @@
 (use-package exwm
   :ensure t
   :demand t
-  :commands exwm-workspace-rename-buffer
-  :preface
-  (progn
-    (defun >>-exwm/init ()
-      "For the hook running when EXWM has just finished initialization."
-      ;; Run all startup applications
-      (dolist (cmd >>=|exwm/startup-applications)
-	(let ((name (car (split-string cmd))))
-	  (condition-case-unless-debug err
-	    (start-process-shell-command name nil cmd)
-	  (error
-	    (message ">>= error executing '%s' startup application:\n    %s"
-	      cmd (error-message-string err)))))))
-
-    (defun >>-exwm/rename-buffer ()
-      "Rename EXWM buffer according to the X class name."
-      ;; (when-let
-      ;; 	((new-title
-      ;; 	   (cond
-      ;; 	     ((and
-      ;; 		(stringp exwm-class-name)
-      ;; 		(stringp exwm-title)
-      ;; 		(seq-contains '("Slack") exwm-class-name #'string=))
-      ;; 	       exwm-title)
-      ;; 	     ((stringp exwm-class-name)
-      ;; 	       exwm-class-name))))
-      ;;   (exwm-workspace-rename-buffer new-title)
-      ;; 	)
-      )
-    )
-  :hook
-  ((exwm-init . >>-exwm/init)
-   ((exwm-update-class exwm-update-title) . >>-exwm/rename-buffer)))
-
-
-
-(use-package exwm-config
-  :after exwm
-  :demand t
   :config
   (progn
     (message ">>= using Emacs as the Desktop Window Manager.")
+    (dolist (cmd >>=|exwm/startup-applications)
+      ;; Run all startup applications
+      (let ((name (car (split-string cmd))))
+	(condition-case-unless-debug err
+	  (start-process-shell-command name nil cmd)
+	  (error
+	    (message ">>= error executing '%s' startup application:\n    %s"
+	      cmd (error-message-string err))))))
+    (->? >>=window-manager/init)
+    (require 'exwm-systemtray)
+    (exwm-systemtray-enable)
+    (require 'exwm-config)
     (exwm-config-default)
-    (->? >>=window-manager/init)))
+    ))
 
 
 (use-package exwm-input
@@ -203,15 +176,6 @@
     (exwm-input-set-key (kbd "<C-S-down>") #'buf-move-down)
     (exwm-input-set-key (kbd "<C-S-left>") #'buf-move-left)
     (exwm-input-set-key (kbd "<C-S-right>") #'buf-move-right)))
-
-
-(use-package exwm-systemtray
-  :after exwm
-  :demand t
-  :commands exwm-systemtray-enable
-  :config
-  (progn
-    (exwm-systemtray-enable)))
 
 
 (use-package exwm-workspace
