@@ -32,6 +32,11 @@
   "Pairs (KEY . URL) to be used with `browse-url' inner `exwm'.")
 
 
+(defvar >>=|exwm/startup-applications nil
+  ;; For example: '("nm-applet" "pamac-tray")
+  "Startup applications to be executed with `start-process-shell-command'.")
+
+
 ;; Executing `(key-binding (kbd "s-&"))' returns nil
 (defun >>=exwm/start-command (command)
   "Start a COMMAND in a sub-process."
@@ -58,7 +63,14 @@
   (progn
     (defun >>-exwm/init ()
       "For the hook running when EXWM has just finished initialization."
-      )
+      ;; Run all startup applications
+      (dolist (cmd >>=|exwm/startup-applications)
+	(let ((name (car (split-string cmd))))
+	  (condition-case-unless-debug err
+	    (start-process-shell-command name nil cmd)
+	  (error
+	    (message ">>= error executing '%s' startup application:\n    %s"
+	      cmd (error-message-string err)))))))
 
     (defun >>-exwm/rename-buffer ()
       "Rename EXWM buffer according to the X class name."
@@ -85,7 +97,6 @@
 (use-package exwm-config
   :after exwm
   :demand t
-  :commands exwm-config-default
   :config
   (progn
     (message ">>= using Emacs as the Desktop Window Manager.")

@@ -18,6 +18,7 @@ default values are not suitable for your configuration."
     ;; >>=|projectile/project-root-files '()
     ;; >>=|dired-omit-mode t
     ;; >>=|mode-line/kind 'mini
+    ;; >>=|exwm/startup-applications '("nm-applet" "pamac-tray")
     ))
 
 
