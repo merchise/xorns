@@ -132,7 +132,8 @@ PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
 
 (defun >>=canonical-directory-name (name)
   "Convert directory NAME to absolute canonical form."
-  (expand-file-name (file-name-as-directory name)))
+  (if name
+    (expand-file-name (file-name-as-directory name))))
 
 
 (defmacro >>=dir-set (symbol &rest options)
@@ -187,7 +188,7 @@ is returned."
 
 (defvar >>=|preferred-default-directory
   (>>=find-dir
-    (>>=canonical-directory-name (getenv "WORKSPACE"))
+    (>>=canonical-directory-name (getenv "WORKSPACEX))
     (>>=dir-join >>=|home-dir "work" "src")
     (>>=dir-join >>=|home-dir "work")
     (>>=dir-join >>=|home-dir "src" "merchise")
