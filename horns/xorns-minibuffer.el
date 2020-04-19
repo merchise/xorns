@@ -92,7 +92,7 @@
     ([right] . helm-next-source))
   :config
   (progn
-    (>>=remap ("M-x" . "M-X") helm-M-x)
+    (>>=remap "M-x" helm-M-x "M-X")
     (helm-mode +1)))
 
 
@@ -134,7 +134,7 @@
   :ensure t
   :config
   (progn
-    (>>=remap ("C-s" . "C-S-s") swiper-helm)))
+    (>>=remap "C-s" swiper-helm "C-S-s")))
 
 
 (provide 'xorns-minibuffer)
