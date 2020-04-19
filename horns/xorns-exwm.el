@@ -147,16 +147,6 @@
 	 ))))
 
 
-(use-package winner
-  :config
-  (progn
-    (add-to-list
-      'display-buffer-alist
-      (cons "\\*Async Shell Command\\*.*"
-    	(cons #'display-buffer-no-window nil)))
-    (winner-mode +1)))
-
-
 (use-package desktop-environment
   :ensure t
   :demand t

@@ -213,6 +213,12 @@ to configure for yourself: see `save-buffer' function for more information.")
   (windmove-default-keybindings 'ctrl))
 
 
+(use-package winner
+  :config
+  (progn
+    (winner-mode +1)))
+
+
 (use-package xt-mouse
   :unless (display-graphic-p)
   :config
