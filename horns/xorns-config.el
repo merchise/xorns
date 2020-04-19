@@ -85,7 +85,11 @@ If FORCE argument is non-nil, recompile every ‘.el’ file that already has a
   (interactive "P")
   (let ((dir (bound-and-true-p >>=init-mode/standalone)))
     (if dir
-      (byte-recompile-directory "~/.emacs.d/horns/" 0 force)
+      (let ((path (file-name-as-directory dir)))
+	(save-some-buffers nil
+	  (lambda ()
+	    (string-match (regexp-quote path) buffer-file-name)))
+	(byte-recompile-directory path 0 force))
       ;; else
       (warn ">>= only allowed in standalone-mode."))))
 
