@@ -178,6 +178,14 @@ is returned."
     (cons command other-commands)))
 
 
+(defun >>=file-string (file)
+  "Return the trimmed contents of the given FILE as a string."
+  (if (file-exists-p file)
+    (with-temp-buffer
+      (insert-file-contents file)
+      (string-trim (buffer-string)))))
+
+
 
 ;;; workspace management
 
