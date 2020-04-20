@@ -147,13 +147,9 @@
 	 ))))
 
 
-(use-package desktop-environment
-  :ensure t
+(use-package xorns-linux
   :demand t
-  :after exwm-input
-  :config
-  (progn
-    (desktop-environment-mode)))
+  :after exwm-input)
 
 
 (use-package buffer-move
