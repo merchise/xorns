@@ -35,6 +35,7 @@
 (use-package xorns-project)
 (use-package xorns-term)
 (use-package xorns-pim)
+(use-package xorns-bots)
 
 
 (use-package xorns-mail

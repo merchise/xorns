@@ -75,24 +75,5 @@
       template)))
 
 
-
-;;; extra standalone-mode tools
-
-(defun >>=byte-recompile (&optional force)
-  "Recompile every `.el' file in `xorns' directory that needs recompilation.
-If FORCE argument is non-nil, recompile every ‘.el’ file that already has a
-‘.elc’ file."
-  (interactive "P")
-  (let ((dir (bound-and-true-p >>=init-mode/standalone)))
-    (if dir
-      (let ((path (file-name-as-directory dir)))
-	(save-some-buffers nil
-	  (lambda ()
-	    (string-match (regexp-quote path) buffer-file-name)))
-	(byte-recompile-directory path 0 force))
-      ;; else
-      (warn ">>= only allowed in standalone-mode."))))
-
-
 (provide 'xorns-config)
 ;;; xorns-config.el ends here
