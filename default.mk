@@ -67,11 +67,13 @@ DATE_VERSION := $(or $(subst T,.,$(subst -,,$(subst :,,$(TAG_DATE)))),20010101)
 CLAST_RELEASE := $(call cversion,$(or $(GIT_TAG),0.1))
 
 DEPENDENCIES = \
-	dash:2.16:20190424\
-	f:0.20:20190109\
-	s:1.12:20180406\
 	use-package:2.4:20190405\
-	# use-package-chords:0.2:20181024.2322
+
+	# transient:0.2:20190812\
+	# dash:2.16:20190424\
+	# f:0.20:20190109\
+	# s:1.12:20180406\
+	# use-package-chords:0.2:20181024.2322\
 	# bind-key:2.4:20180513\
 	# grizzl:0.1:20160818\
 	# projectile:2.1:20190509\
