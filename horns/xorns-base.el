@@ -284,6 +284,11 @@ to configure for yourself: see `save-buffer' function for more information.")
     ad-do-it))
 
 
+(use-package transient
+  :ensure t
+  :demand t)
+
+
 (use-package autorevert
   :when (>>=-base/configure? autorevert)
   :init
