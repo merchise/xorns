@@ -82,5 +82,20 @@ has an ‘.elc’ file; otherwise only those that needs recompilation."
     (warn ">>= only allowed in standalone-mode.")))
 
 
+(define-transient-command >>=bot/menu ()
+  "Local menu standalone mode developer tools."
+  ["Arguments"
+    ("-f" "Force byte recompile all `.el' files"      ("-f" "--force"))
+    ("-b" "Base working-folder instead Lisp library"  ("-b" "--base"))]
+  [["Production"
+     ("p" "Pull from source"    >>=bot/git-pull)
+     ("d" "Open dired+magit"    >>=bot/dired+git-status)
+     ("c" "Byte recompile"      >>=bot/byte-recompile)]
+   ["Development"
+     ("w" "Open dired"          >>=bot/dired-working-folder)]]
+  (interactive)
+  (transient-setup '>>=bot/menu))
+
+
 (provide 'xorns-bots)
 ;;; xorns-bots.el ends here
