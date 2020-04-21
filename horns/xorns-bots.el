@@ -20,6 +20,13 @@
   "Package directory if `xorns' is initialized in standalone mode.")
 
 
+(defun >>-bot-git-remote-url ()
+  "Internal function to get GIT remote URL of `xorns' standalone repository."
+  (if >>=!pkg-dir
+    (let ((default-directory user-emacs-directory))
+      (string-trim (shell-command-to-string "git remote get-url origin")))))
+
+
 (defun >>=bot/dired+git-status ()
   "Open `dired' and `magit-status' buffers in `user-emacs-directory'.
 This assumes that `user-emacs-directory' is a valid cloned `xorns' GIT
@@ -31,6 +38,21 @@ repository."
       (magit-status-setup-buffer default-directory))
     ;; else
     (warn ">>= only allowed in standalone-mode.")))
+
+
+(defun >>=bot/dired-working-folder (&optional base)
+  "Open a `dired' buffer in `xorns' working-folder Lisp library.
+If BASE argument is non-nil, open project directory instead."
+  (interactive "P")
+  (let ((dir (>>-bot-git-remote-url))
+	ok)
+    (if dir
+      (let ((path (replace-regexp-in-string "^file://" "" dir)))
+	(when (file-exists-p path)
+	  (setq ok (if base path (expand-file-name "horns" path)))
+	  (dired ok))))
+    (if (not ok)
+      (warn ">>= xorns working-folder not found."))))
 
 
 (defun >>=bot/git-pull ()
