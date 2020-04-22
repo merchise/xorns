@@ -20,14 +20,18 @@
   "Package directory if `xorns' is initialized in standalone mode.")
 
 
-(defun >>-bot-git-remote-url ()
+(defvar >>=|bots/activation-key "C-s-`"
+  "Key-binding to use with `>>=bots/menu'.")
+
+
+(defun >>-bots-git-remote-url ()
   "Internal function to get GIT remote URL of `xorns' standalone repository."
   (if >>=!pkg-dir
     (let ((default-directory user-emacs-directory))
       (string-trim (shell-command-to-string "git remote get-url origin")))))
 
 
-(defun >>=bot/dired+git-status ()
+(defun >>=bots/dired+git-status ()
   "Open `dired' and `magit-status' buffers in `user-emacs-directory'.
 This assumes that `user-emacs-directory' is a valid cloned `xorns' GIT
 repository."
@@ -40,11 +44,11 @@ repository."
     (warn ">>= only allowed in standalone-mode.")))
 
 
-(defun >>=bot/dired-working-folder (&optional base)
+(defun >>=bots/dired-working-folder (&optional base)
   "Open a `dired' buffer in `xorns' working-folder Lisp library.
 If BASE argument is non-nil, open project directory instead."
   (interactive "P")
-  (let ((dir (>>-bot-git-remote-url))
+  (let ((dir (>>-bots-git-remote-url))
 	ok)
     (if dir
       (let ((path (replace-regexp-in-string "^file://" "" dir)))
@@ -55,7 +59,7 @@ If BASE argument is non-nil, open project directory instead."
       (warn ">>= xorns working-folder not found."))))
 
 
-(defun >>=bot/git-pull ()
+(defun >>=bots/git-pull ()
   "Pull `xorns' standalone repository from GIT origin remote.
 This assumes that `user-emacs-directory' is a valid cloned `xorns' GIT
 repository."
@@ -67,7 +71,7 @@ repository."
     (warn ">>= only allowed in standalone-mode.")))
 
 
-(defun >>=bot/byte-recompile (&optional force)
+(defun >>=bots/byte-recompile (&optional force)
   "Recompile `.el' files in `xorns' standalone directory.
 If FORCE argument is non-nil, recompile every ‘.el’ file even if it already
 has an ‘.elc’ file; otherwise only those that needs recompilation."
@@ -82,19 +86,23 @@ has an ‘.elc’ file; otherwise only those that needs recompilation."
     (warn ">>= only allowed in standalone-mode.")))
 
 
-(define-transient-command >>=bot/menu ()
+(define-transient-command >>=bots/menu ()
   "Local menu standalone mode developer tools."
   ["Arguments"
     ("-f" "Force byte recompile all `.el' files"      ("-f" "--force"))
     ("-b" "Base working-folder instead Lisp library"  ("-b" "--base"))]
   [["Production"
-     ("p" "Pull from source"    >>=bot/git-pull)
-     ("d" "Open dired+magit"    >>=bot/dired+git-status)
-     ("c" "Byte recompile"      >>=bot/byte-recompile)]
+     ("p" "Pull from source"    >>=bots/git-pull)
+     ("d" "Open dired+magit"    >>=bots/dired+git-status)
+     ("c" "Byte recompile"      >>=bots/byte-recompile)]
    ["Development"
-     ("w" "Open dired"          >>=bot/dired-working-folder)]]
+     ("w" "Open dired"          >>=bots/dired-working-folder)]]
   (interactive)
-  (transient-setup '>>=bot/menu))
+  (transient-setup '>>=bots/menu))
+
+
+(if >>=|bots/activation-key
+  (global-set-key (kbd >>=|bots/activation-key) '>>=bots/menu))
 
 
 (provide 'xorns-bots)
