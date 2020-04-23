@@ -176,6 +176,12 @@ is returned."
       (string-trim (buffer-string)))))
 
 
+(defun >>=command-string (command)
+  "Return the trimmed string contents of executing shell COMMAND.
+See `string-trim', and `shell-command-to-string' functions."
+  (string-trim (shell-command-to-string command)))
+
+
 
 ;;; workspace management
 
