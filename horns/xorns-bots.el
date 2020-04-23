@@ -13,7 +13,7 @@
 
 ;;; Code:
 
-(require 'xorns-tools)
+(require 'xorns-bindings)
 
 
 (defconst >>=!pkg-dir (bound-and-true-p >>=init-mode/standalone)
@@ -102,7 +102,7 @@ has an ‘.elc’ file; otherwise only those that needs recompilation."
 
 
 (if >>=|bots/activation-key
-  (global-set-key (kbd >>=|bots/activation-key) '>>=bots/menu))
+  (>>=global-set-key (kbd >>=|bots/activation-key) '>>=bots/menu))
 
 
 (provide 'xorns-bots)

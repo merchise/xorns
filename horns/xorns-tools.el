@@ -68,27 +68,6 @@ report the identity of the enclosed body."
      (eval (car (get ',symbol 'standard-value)))))
 
 
-(defmacro >>=remap (key command alt-key)
-  "Give KEY a global binding as COMMAND.
-In this case, KEY is a standard `key-binding', whose original command will
-receive the alternative ALT-KEY binding.  See also `>>=remap*'"
-  `(let* ((map (current-global-map))
-	  (kbind (kbd ,key))
-	  (abind (kbd ,alt-key))
-	  (org (key-binding kbind)))
-     (define-key map kbind ',command)
-     (define-key map abind org)))
-
-
-(defmacro >>=remap* (key command alt-key)
-  "Give KEY a global binding as COMMAND.
-In this case KEY is NOT a `key-binding' but a base command, which will receive
-the alternative ALT-KEY binding.  See also `>>=remap'"
-  `(let ((map (current-global-map)))
-     (define-key map [remap ,key] ',command)
-     (define-key map (kbd ,alt-key) ',key)))
-
-
 
 ;;; string - symbol conversion
 

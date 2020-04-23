@@ -18,7 +18,7 @@
 ;;; Code:
 
 (require 'use-package)
-(require 'xorns-tools)
+(require 'xorns-bindings)
 
 
 (defvar >>=|minibuffer/completing-framework nil
