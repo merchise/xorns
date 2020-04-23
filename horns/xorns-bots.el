@@ -20,7 +20,7 @@
   "Package directory if `xorns' is initialized in standalone mode.")
 
 
-(defvar >>=|bots/activation-key "C-s-`"
+(defvar >>=|bots/activation-key "<C-s-backspace>"
   "Key-binding to use with `>>=bots/menu'.")
 
 
