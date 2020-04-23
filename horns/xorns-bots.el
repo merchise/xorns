@@ -28,7 +28,8 @@
   "Internal function to get GIT remote URL of `xorns' standalone repository."
   (if >>=!pkg-dir
     (let ((default-directory user-emacs-directory))
-      (string-trim (shell-command-to-string "git remote get-url origin")))))
+      (replace-regexp-in-string "^file://" ""
+	(>>=command-string "git remote get-url origin")))))
 
 
 (defun >>=bots/dired+git-status ()
@@ -48,14 +49,29 @@ repository."
   "Open a `dired' buffer in `xorns' working-folder Lisp library.
 If BASE argument is non-nil, open project directory instead."
   (interactive "P")
-  (let ((dir (>>-bots-git-remote-url))
-	ok)
-    (if dir
-      (let ((path (replace-regexp-in-string "^file://" "" dir)))
-	(when (file-exists-p path)
-	  (setq ok (if base path (expand-file-name "horns" path)))
-	  (dired ok))))
-    (if (not ok)
+  (let ((path (>>-bots-git-remote-url)))
+    (if (file-exists-p path)
+      (dired (if base path (expand-file-name "horns" path)))
+      ;; else
+      (warn ">>= xorns working-folder not found."))))
+
+
+(defun >>=bots/recent-working-file ()
+  "Switch to a buffer visiting recent file in `xorns' working-folder."
+  (interactive)
+  (let ((path (>>-bots-git-remote-url)))
+    (if (file-exists-p path)
+      (let*
+	((base (regexp-quote (expand-file-name path)))
+	 (res
+	   (seq-find
+	     (lambda (item) (string-match base (expand-file-name item)))
+	     (recentf-elements recentf-max-saved-items))))
+	(if res
+	  (find-file res)
+	  ;; else
+	  (warn ">>= no recent-file on xorns working-folder.")))
+      ;; else
       (warn ">>= xorns working-folder not found."))))
 
 
@@ -96,7 +112,8 @@ has an ‘.elc’ file; otherwise only those that needs recompilation."
      ("d" "Open dired+magit"    >>=bots/dired+git-status)
      ("c" "Byte recompile"      >>=bots/byte-recompile)]
    ["Development"
-     ("w" "Open dired"          >>=bots/dired-working-folder)]]
+     ("w" "Open dired"          >>=bots/dired-working-folder)
+     ("r" "Open recent-file"    >>=bots/recent-working-file)]]
   (interactive)
   (transient-setup '>>=bots/menu))
 
