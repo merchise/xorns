@@ -24,6 +24,14 @@
   "Key-binding to use with `>>=bots/menu'.")
 
 
+(defun >>-bots-menu-arguments (prefix)
+  "Internal function to get transient or interactive PREFIX argument."
+  (list
+    (or
+      current-prefix-arg
+      (member prefix (transient-args '>>=bots/menu)))))
+
+
 (defun >>-bots-git-remote-url ()
   "Internal function to get GIT remote URL of `xorns' standalone repository."
   (if >>=!pkg-dir
@@ -48,7 +56,7 @@ repository."
 (defun >>=bots/dired-working-folder (&optional base)
   "Open a `dired' buffer in `xorns' working-folder Lisp library.
 If BASE argument is non-nil, open project directory instead."
-  (interactive "P")
+  (interactive (>>-bots-menu-arguments "base"))
   (let ((path (>>-bots-git-remote-url)))
     (if (file-exists-p path)
       (dired (if base path (expand-file-name "horns" path)))
@@ -91,7 +99,7 @@ repository."
   "Recompile `.el' files in `xorns' standalone directory.
 If FORCE argument is non-nil, recompile every ‘.el’ file even if it already
 has an ‘.elc’ file; otherwise only those that needs recompilation."
-  (interactive "P")
+  (interactive (>>-bots-menu-arguments "force"))
   (if >>=!pkg-dir
     (let ((path (file-name-as-directory >>=!pkg-dir)))
       (save-some-buffers nil
@@ -105,8 +113,8 @@ has an ‘.elc’ file; otherwise only those that needs recompilation."
 (define-transient-command >>=bots/menu ()
   "Local menu standalone mode developer tools."
   ["Arguments"
-    ("-f" "Force byte recompile all `.el' files"      ("-f" "--force"))
-    ("-b" "Base working-folder instead Lisp library"  ("-b" "--base"))]
+    ("-f" "Force byte recompile all `.el' files"      ("-f" "force"))
+    ("-b" "Base working-folder instead Lisp library"  ("-b" "base"))]
   [["Production"
      ("p" "Pull from source"    >>=bots/git-pull)
      ("d" "Open dired+magit"    >>=bots/dired+git-status)
