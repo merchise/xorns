@@ -76,6 +76,11 @@ report the identity of the enclosed body."
   (if (symbolp string) string (intern string)))
 
 
+(defmacro >>=intern* (string &rest args)
+  "Return canonical symbol by formating a STRING with ARGS."
+  `(intern (format ,string ,@args)))
+
+
 (defsubst >>=symbol-name (symbol)
   "Return SYMBOL\'s name, a string (safe if it is already a string)."
   (if (stringp symbol) symbol (symbol-name symbol)))
