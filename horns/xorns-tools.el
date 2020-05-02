@@ -16,6 +16,9 @@
 
 ;;; Code:
 
+(require 'subr-x)    ; for `string-trim'
+
+
 ;;; general
 
 (defmacro ->? (func &rest args)
@@ -84,6 +87,16 @@ report the identity of the enclosed body."
 (defsubst >>=symbol-name (symbol)
   "Return SYMBOL\'s name, a string (safe if it is already a string)."
   (if (stringp symbol) symbol (symbol-name symbol)))
+
+
+(defun >>=safe-replace (regexp rep source)
+  "Replace all occurrences for REGEXP with REP in SOURCE.
+Source could be either a string or a symbol, return a new value of the same
+type containing the replacements.  See `replace-regexp-in-string' function."
+  (let* ((is-symbol (symbolp source))
+	 (value (if is-symbol (symbol-name source) source))
+	 (res (replace-regexp-in-string regexp rep value)))
+    (if is-symbol (intern res) res)))
 
 
 
