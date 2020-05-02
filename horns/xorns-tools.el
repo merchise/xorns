@@ -251,5 +251,50 @@ See `string-trim', and `shell-command-to-string' functions."
     res))
 
 
+
+;;; modes
+
+(defvar >>-criteria-mode-cache nil
+  "Internal cache used for `>>-criteria-mode-y-or-n-p'.")
+
+
+(defun >>-criteria-mode-y-or-n-p (criteria mode)
+  "Version of `y-or-n-p' caching first time for CRITERIA/MODE pair.
+Used for `>>=check-major-mode' when CRITERIA is a semantic identity."
+  (let* ((pair (format "%s/%s" mode criteria))
+	 (cached (assoc-string pair >>-criteria-mode-cache)))
+    (when (null cached)
+      (setq cached (cons pair (y-or-n-p (format ">>= enable '%s'? " pair))))
+      (push cached >>-criteria-mode-cache))
+    (cdr cached)))
+
+
+(defun >>=check-major-mode (criteria &optional mode)
+  "Check if a CRITERIA is valid to trigger a condition for a major MODE.
+
+The value of CRITERIA could be either a list of symbols, or a symbol, or one
+of the two canonical boolean values.
+
+A list contains valid major modes, without the suffix '-mode'; for example
+`python-mode' will be represented as plain `python'.
+
+A symbol represents the semantic identity of the condition kind, in which case
+a version of the function `y-or-n-p' will be used, caching the result for
+every pair 'mode/criteria'.
+
+If optional argument MODE is not given, current `major-mode' is used by
+default."
+  (let ((mode (>>=safe-replace "-mode$" "" (or mode major-mode))))
+    (cond
+      ((listp criteria)
+	(member mode criteria))
+      ((symbolp criteria)
+	(>>-criteria-mode-y-or-n-p criteria mode))
+      ((booleanp criteria)
+	criteria)
+      (t
+	(error ">>= invalid criteria: %s" criteria)))))
+
+
 (provide 'xorns-tools)
 ;;; xorns-tools.el ends here
