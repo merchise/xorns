@@ -96,6 +96,14 @@
 
 ;;; Python
 
+(defvar >>=|blacken/enable t
+  "Determines if `blacken' is enabled when entering `python-mode'.
+Possible values are any of the two canonical boolean values, or the symbol
+'ask', in which case the first time entering the mode the user will be asked.
+You always can manually enable this mode using `>>=blacken/turn-on' or
+`blacken-mode'.")
+
+
 (autoload 'po-mode "po-mode"    ; TODO: Check this
   "Major mode for translators to edit PO files" t)
 
@@ -116,15 +124,22 @@
 
 (use-package blacken
   :ensure t
-  :init
-  (defun >>-blacken-setup ()
-    (turn-off-auto-fill)
-    (blacken-mode))
+  :preface
+  (progn
+    (defun >>=blacken/turn-on ()
+      "Setup `blacken' inner a file in `python-mode'."
+      (interactive)
+      (turn-off-auto-fill)
+      (blacken-mode))
+
+    (defun >>-blacken/may-enable-mode ()
+      "Determine whether `blacken' may be enabled (see `>>=|blacken/enable')."
+      (let ((arg (if (eq >>=|blacken/enable 'ask) 'blacken >>=|blacken/enable)))
+	(if (>>=check-major-mode arg 'python)
+	  (>>=blacken/turn-on))))
+    )
   :hook
-  (python-mode . >>-blacken-setup)
-  ;; :custom
-  ;; (blacken-line-length 'fill)
-  )
+  (python-mode . >>-blacken/may-enable-mode))
 
 
 (use-package pipenv
