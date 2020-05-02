@@ -19,6 +19,7 @@ default values are not suitable for your configuration."
     ;; >>=|dired-omit-mode t
     ;; >>=|mode-line/kind 'mini
     ;; >>=|exwm/startup-applications '("nm-applet" "pamac-tray")
+    ;; >>=|lsp/enable-mode 'ask
     ))
 
 

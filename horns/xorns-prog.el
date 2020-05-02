@@ -114,13 +114,54 @@
    (inferior-python-mode . -inferior-python-setup)))
 
 
+(use-package blacken
+  :ensure t
+  :init
+  (defun >>-blacken-setup ()
+    (turn-off-auto-fill)
+    (blacken-mode))
+  :hook
+  (python-mode . >>-blacken-setup)
+  ;; :custom
+  ;; (blacken-line-length 'fill)
+  )
+
+
+(use-package pipenv
+  :ensure t
+  :preface
+  (declare-function pipenv-projectile-after-switch-extended 'pipenv)
+  :hook
+  (python-mode . pipenv-mode)
+  :custom
+  (pipenv-projectile-after-switch-function
+    #'pipenv-projectile-after-switch-extended))
+
+
+
+;;; Language Server Protocol
+
+(defvar >>=|lsp/enable-mode t
+  "Determine when to enable `lsp' when entering a programming mode.
+Language server activation is based on the logic of the `>>=check-major-mode'
+function.  The possible values of this variable are the same as the CRITERIA
+argument, with the exception of the symbol 'ask' which is replaced by `lsp' to
+be used as a semantic identity in this case.")
+
+
 (use-package lsp-mode
   :ensure t
   :commands lsp
+  :preface
+  (defun >>-lsp/may-enable-server ()
+    "Determine whether `lsp' may be enabled (see `>>=|lsp/enable-mode')."
+    (let ((arg (if (eq >>=|lsp/enable-mode 'ask) 'lsp >>=|lsp/enable-mode)))
+      (if (>>=check-major-mode arg)
+      (lsp +1))))
   :custom
   (lsp-auto-guess-root t)
   :hook
-  (prog-mode . lsp))
+  (prog-mode . >>-lsp/may-enable-server))
 
 
 (use-package lsp-ui
@@ -138,30 +179,6 @@
   :ensure t
   :after lsp-mode
   :commands company-lsp)
-
-
-(use-package pipenv
-  :ensure t
-  :preface
-  (declare-function pipenv-projectile-after-switch-extended 'pipenv)
-  :hook
-  (python-mode . pipenv-mode)
-  :custom
-  (pipenv-projectile-after-switch-function
-    #'pipenv-projectile-after-switch-extended))
-
-
-(use-package blacken
-  :ensure t
-  :init
-  (defun >>-blacken-setup ()
-    (turn-off-auto-fill)
-    (blacken-mode))
-  :hook
-  (python-mode . >>-blacken-setup)
-  ;; :custom
-  ;; (blacken-line-length 'fill)
-  )
 
 
 
