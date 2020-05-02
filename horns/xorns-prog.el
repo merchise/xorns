@@ -175,6 +175,7 @@ be used as a semantic identity in this case.")
       (lsp +1))))
   :custom
   (lsp-auto-guess-root t)
+  (lsp-keymap-prefix "C-s-l")
   :hook
   (prog-mode . >>-lsp/may-enable-server))
 
