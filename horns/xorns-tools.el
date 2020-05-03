@@ -269,6 +269,12 @@ Used for `>>=check-major-mode' when CRITERIA is a semantic identity."
     (cdr cached)))
 
 
+(defun >>=criteria-mode-cache/reset ()
+  "Reset criteria/mode pairs cache for `y-or-n-p' answers."
+  (interactive)
+  (setq >>-criteria-mode-cache nil))
+
+
 (defun >>=check-major-mode (criteria &optional mode)
   "Check if a CRITERIA is valid to trigger a condition for a major MODE.
 
@@ -294,6 +300,15 @@ default."
 	criteria)
       (t
 	(error ">>= invalid criteria: %s" criteria)))))
+
+
+(defmacro >>=major-mode-trigger (id criteria function &rest args)
+  "Trigger a FUNCTION if CRITERIA is met for current `major-mode'.
+CRITERIA has a semantic ID used to cache answers in `y-or-n-p' kind of
+conditions.  FUNCTION is called using our remaining ARGS."
+  `(let ((aux (if (eq ,criteria 'ask) ',id ,criteria)))
+     (if (>>=check-major-mode aux)
+       (,function ,@args))))
 
 
 (provide 'xorns-tools)
