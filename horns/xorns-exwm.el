@@ -60,6 +60,10 @@
   :demand t
   :config
   (progn
+    (eval-when-compile
+      ;; TODO: deprecate this
+      (declare-function exwm-systemtray-enable 'exwm-systemtray)
+      (declare-function exwm-config-default 'exwm-config))
     (message ">>= using Emacs as the Desktop Window Manager.")
     (dolist (cmd >>=|exwm/startup-applications)
       ;; Run all startup applications
@@ -70,11 +74,10 @@
 	    (message ">>= error executing '%s' startup application:\n    %s"
 	      cmd (error-message-string err))))))
     (->? >>=window-manager/init)
+    (require 'exwm-config)
     (require 'exwm-systemtray)
     (exwm-systemtray-enable)
-    (require 'exwm-config)
-    (exwm-config-default)
-    ))
+    (exwm-config-default)))
 
 
 (use-package exwm-input
