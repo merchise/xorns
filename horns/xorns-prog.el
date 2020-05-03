@@ -134,9 +134,7 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
 
     (defun >>-blacken/may-enable-mode ()
       "Determine whether `blacken' may be enabled (see `>>=|blacken/enable')."
-      (let ((arg (if (eq >>=|blacken/enable 'ask) 'blacken >>=|blacken/enable)))
-	(if (>>=check-major-mode arg 'python)
-	  (>>=blacken/turn-on))))
+      (>>=major-mode-trigger blacken >>=|blacken/enable >>=blacken/turn-on))
     )
   :hook
   (python-mode . >>-blacken/may-enable-mode))
@@ -170,9 +168,7 @@ be used as a semantic identity in this case.")
   :preface
   (defun >>-lsp/may-enable-server ()
     "Determine whether `lsp' may be enabled (see `>>=|lsp/enable-mode')."
-    (let ((arg (if (eq >>=|lsp/enable-mode 'ask) 'lsp >>=|lsp/enable-mode)))
-      (if (>>=check-major-mode arg)
-      (lsp +1))))
+     (>>=major-mode-trigger lsp >>=|lsp/enable-mode lsp +1))
   :custom
   (lsp-auto-guess-root t)
   (lsp-keymap-prefix "C-s-l")
