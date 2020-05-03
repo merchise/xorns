@@ -261,12 +261,14 @@ See `string-trim', and `shell-command-to-string' functions."
 (defun >>-criteria-mode-y-or-n-p (criteria mode)
   "Version of `y-or-n-p' caching first time for CRITERIA/MODE pair.
 Used for `>>=check-major-mode' when CRITERIA is a semantic identity."
-  (let* ((pair (format "%s/%s" mode criteria))
-	 (cached (assoc-string pair >>-criteria-mode-cache)))
-    (when (null cached)
-      (setq cached (cons pair (y-or-n-p (format ">>= enable '%s'? " pair))))
-      (push cached >>-criteria-mode-cache))
-    (cdr cached)))
+  (when (bound-and-true-p >>=xorns-initialized)
+    ;; always nil if Emacs is not yet initialized
+    (let* ((pair (format "%s/%s" mode criteria))
+	   (cached (assoc-string pair >>-criteria-mode-cache)))
+      (when (null cached)
+	(setq cached (cons pair (y-or-n-p (format ">>= enable '%s'? " pair))))
+	(push cached >>-criteria-mode-cache))
+      (cdr cached))))
 
 
 (defun >>=criteria-mode-cache/reset ()
