@@ -39,7 +39,7 @@
 
 (defconst >>=!linux/exit-commands
   `((lock . desktop-environment-lock-screen)
-    (logout . >>-linux-logout)
+    (exit . >>-linux-logout)
     (suspend lock "suspend")
     (hibernate lock "hibernate")
     (reboot . "reboot")
@@ -86,12 +86,12 @@
 
 (defun >>=linux/exit (kind)
   "Center for exit commands.
-KIND could be any of `(lock, logout, suspend, hibernate, reboot, shutdown)'.
+KIND could be any of `(lock, exit, suspend, hibernate, reboot, shutdown)'.
 See `>>=!linux/exit-commands' constant."
   (interactive (list (completing-read ">>= " >>=!linux/exit-commands nil t)))
   (let ((rule (assoc-string kind >>=!linux/exit-commands)))
     (when rule
-      (if (memq (car rule) '(logout hibernate reboot shutdown))
+      (if (memq (car rule) '(exit hibernate reboot shutdown))
 	 (>>-linux/before-close-session))
       (>>-linux-exit (cdr rule)))))
 
