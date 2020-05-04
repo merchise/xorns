@@ -88,8 +88,8 @@
   :ensure t
   :bind
   (:map helm-map
-    ([left] . helm-previous-source)
-    ([right] . helm-next-source))
+    ("<C-M-left>" . helm-previous-source)
+    ("<C-M-right>" . helm-next-source))
   :config
   (progn
     (>>=remap "M-x" helm-M-x "M-X")
