@@ -72,7 +72,8 @@ battery and time.")
 
 
 (use-package smart-mode-line
-  :when (or (eq >>=|mode-line/kind 'smart) (eq >>=|mode-line/kind 'mini))
+  :when (member >>=|mode-line/kind '(smart mini power space))
+  ;; (or (eq >>=|mode-line/kind 'smart) (eq >>=|mode-line/kind 'mini))
   :ensure t
   :demand t
   :custom
