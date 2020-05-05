@@ -170,6 +170,9 @@ battery and time.")
 	 (global :when active :separator " - " :tight nil)
 	 ))
 
+    (if (eq >>=|minibuffer/completing-framework 'helm)
+      (spaceline-helm-mode +1))
+
     (setq-default mode-line-format '("%e" (:eval (spaceline-ml-xorns))))
 
     (when (bound-and-true-p battery-mode-line-format)
