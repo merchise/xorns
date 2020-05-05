@@ -67,7 +67,6 @@ This is set to true when executing `emacs-startup-hook'.")
   (if >>=emacs-as-wm
     (>>=progn "start emacs as a window manager"
       (require 'xorns-exwm)))
-  (require 'xorns-mode-line)
   ;; todo: after-init-hook
   (add-hook
     'emacs-startup-hook

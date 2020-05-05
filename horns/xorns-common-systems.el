@@ -25,6 +25,7 @@
 (require 'xorns-tools)
 
 (use-package xorns-minibuffer)
+(use-package xorns-mode-line)
 (use-package xorns-simple)
 (use-package xorns-buffers)
 (use-package xorns-dired)
