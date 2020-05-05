@@ -37,6 +37,12 @@
   "Startup applications to be executed with `start-process-shell-command'.")
 
 
+(defvar >>=|exwm/systemtray-icons t
+  "Count of system-tray icons (useful to set `mini-modeline-right-padding').
+Could be an integer or a boolean value, if t is calculated with the length of
+`>>=|exwm/startup-applications'.)"  )
+
+
 ;; Executing `(key-binding (kbd "s-&"))' returns nil
 (defun >>=exwm/start-command (command)
   "Start a COMMAND in a sub-process."

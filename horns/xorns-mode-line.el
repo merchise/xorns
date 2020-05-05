@@ -96,7 +96,16 @@ battery and time.")
   ;; Hide all minor modes from the mode-line
   (rm-blacklist "")
   :config
-  (mini-modeline-mode +1))
+  (progn
+    (let ((delta (bound-and-true-p >>=|exwm/systemtray-icons)))
+      (if delta
+	(setq mini-modeline-right-padding
+	  (+ mini-modeline-right-padding
+	    (if (eq delta t)
+	      (length (bound-and-true-p >>=|exwm/startup-applications))
+	      ;; else
+	      delta)))))
+    (mini-modeline-mode +1)))
 
 
 (use-package doom-themes
