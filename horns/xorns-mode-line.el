@@ -35,9 +35,10 @@
 (defvar >>=|mode-line/kind nil
   "Kind of mode-line.
 When nil, the standard Emacs mode-line will be used; otherwise, the value must
-be a symbol: 'smart' for `smart-mode-line', 'mini' for `mini-modeline'; 'doom'
-for `doom-modeline'; and 'power' or 'space', for `spaceline' including
-`powerline'.")
+be a symbol: 'smart' for `smart-mode-line'; 'mini' for `mini-modeline';
+'powered-smart' for complementing `smart-mode-line' with `powerline' theme
+to ; 'doom' for `doom-modeline'; and 'power' or 'space', for `spaceline'
+including `powerline'.")
 
 
 (defvar >>=|mode-line/show-system-status nil
@@ -72,8 +73,7 @@ battery and time.")
 
 
 (use-package smart-mode-line
-  :when (member >>=|mode-line/kind '(smart mini power space))
-  ;; (or (eq >>=|mode-line/kind 'smart) (eq >>=|mode-line/kind 'mini))
+  :when (member >>=|mode-line/kind '(smart mini powered-smart power space))
   :ensure t
   :demand t
   :custom
@@ -85,6 +85,13 @@ battery and time.")
     (when (bound-and-true-p battery-mode-line-format)
       (setq sml/battery-format battery-mode-line-format))
     (sml/setup)))
+
+
+(use-package smart-mode-line-powerline-theme
+  :when (eq >>=|mode-line/kind 'powered-smart)
+  :ensure t
+  :demand t
+  :after smart-mode-line)
 
 
 (use-package mini-modeline
