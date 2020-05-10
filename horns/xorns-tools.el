@@ -296,10 +296,10 @@ default."
     (cond
       ((listp criteria)
 	(member mode criteria))
-      ((symbolp criteria)
-	(>>-criteria-mode-y-or-n-p criteria mode))
       ((booleanp criteria)
 	criteria)
+      ((symbolp criteria)
+	(>>-criteria-mode-y-or-n-p criteria mode))
       (t
 	(error ">>= invalid criteria: %s" criteria)))))
 
