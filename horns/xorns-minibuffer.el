@@ -39,7 +39,6 @@
   :custom
   (ido-auto-merge-work-directories-length -1)
   (ido-auto-merge-delay-time 1.5)
-  (ido-use-filename-at-point t)
   :config
   (progn
     (ido-everywhere +1)
