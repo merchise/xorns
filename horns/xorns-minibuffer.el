@@ -4,13 +4,11 @@
 
 ;;; Commentary:
 
-;; You can configure `>>=|minibuffer/completing-framework' variable to decide
-;; which input completing framework is configured; when nil, just builtin
-;; packages (like `ido') are configured; other possible options are `ido+',
-;; `ivy', or `helm'.
-;;
-;; The package `ido' is part of Emacs, to configure extra related packages
-;; (like `ido-completing-read+', will be configured), `ido+' must be used.
+;; The input completing framework to use can be configured with the variable
+;; `>>=|minibuffer/completing-framework'; when nil, builtin package `ido' in
+;; its standard mode is configured; `ido+' will configure standard `ido' plus
+;; some extra related packages (`ido-everywhere' and `ido-completing-read+');
+;; `ivy' and `helm' are the other two possibilities.
 
 ;; Enjoy!
 
@@ -41,7 +39,8 @@
   (ido-auto-merge-delay-time 1.5)
   :config
   (progn
-    (ido-everywhere +1)
+    (when (eq >>=|minibuffer/completing-framework 'ido+)
+      (ido-everywhere +1))
     (ido-mode +1)))
 
 
