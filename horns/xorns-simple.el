@@ -23,7 +23,7 @@
 (use-package discover
   :ensure t
   :init
-  (global-discover-mode 1))
+  (global-discover-mode +1))
 
 
 (use-package simple
@@ -55,7 +55,7 @@
   (:map process-menu-mode-map
     ("k" . process-menu-delete-process))
   :custom
-  (column-number-mode t)
+  (column-number-mode +1)
   (async-shell-command-buffer 'new-buffer)
   (mark-ring-max 32)
   (global-mark-ring-max 32)

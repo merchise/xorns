@@ -225,7 +225,7 @@ to configure for yourself: see `save-buffer' function for more information.")
   (progn
     ; Enable mouse support when running in a console
     (require 'mouse)
-    (xterm-mouse-mode t)
+    (xterm-mouse-mode +1)
     (global-set-key [mouse-4]
       (lambda () (interactive) (scroll-down 1)))
     (global-set-key [mouse-5]
@@ -244,7 +244,7 @@ to configure for yourself: see `save-buffer' function for more information.")
 (use-package elec-pair
   :demand t
   :config
-  (electric-pair-mode t))    ; TODO: Check `custom-set-variables' for user
+  (electric-pair-mode +1))    ; TODO: Check `custom-set-variables' for user
 
 
 (use-package mwheel
@@ -318,13 +318,13 @@ to configure for yourself: see `save-buffer' function for more information.")
   :config
   (progn
     (run-with-idle-timer (* 2 recentf-auto-cleanup) t 'recentf-save-list)
-    (recentf-mode 1)))
+    (recentf-mode +1)))
 
 
 (use-package saveplace
   :when (>>=-base/configure? saveplace)
   :config
-  (save-place-mode 1))
+  (save-place-mode +1))
 
 
 (use-package gcmh
@@ -332,7 +332,7 @@ to configure for yourself: see `save-buffer' function for more information.")
   :ensure t
   :commands gcmh-mode
   :config
-  (gcmh-mode 1))
+  (gcmh-mode +1))
 
 
 (provide 'xorns-base)

@@ -49,7 +49,7 @@
 	  (message ">>= snippets directory '%s' does not exist." snip-dir)))))
   :config
   (progn
-    (yas-global-mode 1)
+    (yas-global-mode +1)
     (>>=snippets/initialize)))
 
 
@@ -59,7 +59,7 @@
   :custom
   (flycheck-idle-change-delay 10)
   :config
-  (global-flycheck-mode t))
+  (global-flycheck-mode +1))
 
 
 (use-package prog-mode
@@ -67,7 +67,7 @@
   (defun >>=init-prog-mode ()
     "Init `prog-mode' based modes."
     (when (>>=local-buffer)
-      (auto-complete-mode t)
+      (auto-complete-mode +1)
       (flyspell-prog-mode))
     (>>=init-text-mode)
     (turn-on-auto-fill)

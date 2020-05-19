@@ -59,7 +59,7 @@
   :preface
   (defun >>=fci-mode-on ()
     "Set `fci-mode' on."
-    (fci-mode 1))
+    (fci-mode +1))
   :custom
   (fill-column 78)
   (fci-rule-width 1))
@@ -80,7 +80,7 @@ If t, show line-numbers always, nil never.")
     "Activate line-numbers for buffers smaller than `>>=|linum/max-limit'."
     (let ((size (buffer-size)))
       (if (and >>=|linum/max-limit (< size >>=|linum/max-limit))
-	(linum-mode 1)
+	(linum-mode +1)
 	;; else
 	(message "Disable 'linum-mode' for a big buffer: %sK" size)
 	(linum-mode 0))))
