@@ -43,7 +43,9 @@
 
 
 (defconst >>=emacs-as-wm
-  (string-match-p "\\(emacs\\|exwm\\)" >>=window-manager)
+  (and
+    >>=window-manager
+    (string-match-p "\\(emacs\\|exwm\\)" >>=window-manager))
   "Name of started Desktop Window Manager.")
 
 
