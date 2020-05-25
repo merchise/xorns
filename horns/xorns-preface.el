@@ -46,7 +46,7 @@
 (require 'xorns-tools)
 
 
-(defconst >>=is-mac-os
+(defconst >>=!is-mac-os
   (or
     (eq system-type 'darwin)
     (memq (window-system) '(mac ns)))
@@ -74,7 +74,7 @@ It will be restored later on by `xorns-mode-line' module."
 (defun >>-visual/remove-useless-gui ()
   "Remove useless GUI elements (menu, toolbar, scroll-bars, and tool-tips)."
   (let ((is-mac ))
-  (unless >>=is-mac-os
+  (unless >>=!is-mac-os
     (when (and (fboundp 'menu-bar-mode) (not (eq menu-bar-mode -1)))
       (menu-bar-mode -1)))
   (when (and (fboundp 'tool-bar-mode) (not (eq tool-bar-mode -1)))

@@ -33,7 +33,7 @@
 
 ;; Configuration Variables
 
-(defconst >>=window-manager
+(defconst >>=!window-manager
   (or
     (getenv "DESKTOP_SESSION")
     (getenv "XDG_SESSION_DESKTOP")
@@ -42,10 +42,10 @@
   "Name of started Desktop Window Manager.")
 
 
-(defconst >>=emacs-as-wm
+(defconst >>=!emacs-as-wm
   (and
-    >>=window-manager
-    (string-match-p "\\(emacs\\|exwm\\)" >>=window-manager))
+    >>=!window-manager
+    (string-match-p "\\(emacs\\|exwm\\)" >>=!window-manager))
   "Name of started Desktop Window Manager.")
 
 
@@ -66,7 +66,7 @@ This is set to true when executing `emacs-startup-hook'.")
   (->? >>=building-blocks/configuration)
   (>>=progn "base initialization"
     (use-package xorns-base))
-  (if >>=emacs-as-wm
+  (if >>=!emacs-as-wm
     (>>=progn "start emacs as a window manager"
       (require 'xorns-exwm)))
   ;; todo: after-init-hook

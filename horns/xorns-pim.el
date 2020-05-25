@@ -38,7 +38,7 @@
 Valid only if `org' is included in `>>=|pim/packages'.")
 
 
-(defconst >>=|pim/prefered-directory (>>=dir-join >>=|home-dir ".pim")
+(defconst >>=!pim/prefered-directory (>>=dir-join >>=!home-dir ".pim")
   "List of miscellaneous packages to install.")
 
 
@@ -102,7 +102,7 @@ Valid only if `org' is included in `>>=|pim/packages'.")
 	  (kill-buffer "*Deft*")))))
   :init
   (>>=dir-set deft-directory
-    (>>=dir-join >>=|pim/prefered-directory "notes"))
+    (>>=dir-join >>=!pim/prefered-directory "notes"))
   :bind
   (("<f12>" . deft)
     (:map deft-mode-map ("M-RET" . >>=deft/open-file))))

@@ -203,7 +203,7 @@ See `string-trim', and `shell-command-to-string' functions."
 
 ;;; workspace management
 
-(defconst >>=|home-dir
+(defconst >>=!home-dir
   (purecopy (>>=canonical-directory-name (or (getenv "HOME") "~")))
   "Home directory.")
 
@@ -211,17 +211,17 @@ See `string-trim', and `shell-command-to-string' functions."
 (defvar >>=|preferred-default-directory
   (>>=find-dir
     (>>=canonical-directory-name (getenv "WORKSPACE"))
-    (>>=dir-join >>=|home-dir "work" "src")
-    (>>=dir-join >>=|home-dir "work")
-    (>>=dir-join >>=|home-dir "src" "merchise")
-    (>>=dir-join >>=|home-dir "src")
-    >>=|home-dir)
+    (>>=dir-join >>=!home-dir "work" "src")
+    (>>=dir-join >>=!home-dir "work")
+    (>>=dir-join >>=!home-dir "src" "merchise")
+    (>>=dir-join >>=!home-dir "src")
+    >>=!home-dir)
   "Preferred default directory when start a new session.")
 
 
 (defun >>=set-default-directory ()
   "Set the default directory to its original value."
-  (if (equal (>>=canonical-directory-name default-directory) >>=|home-dir)
+  (if (equal (>>=canonical-directory-name default-directory) >>=!home-dir)
     (>>=set-value default-directory >>=|preferred-default-directory)))
 
 

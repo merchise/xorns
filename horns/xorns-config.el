@@ -66,7 +66,7 @@
 
 (defun >>=-copy-from-template ()
   "Create new `custom-file' from template."
-  (let* ((lib-dir (bound-and-true-p >>=library-directory))
+  (let* ((lib-dir (bound-and-true-p >>=!library-directory))
 	 (template
 	  (expand-file-name "user-config" (>>=dir-join lib-dir "templates"))))
     (when (file-exists-p template)

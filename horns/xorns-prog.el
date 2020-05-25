@@ -39,7 +39,7 @@
   (progn
     (defun >>=snippets/initialize ()
       "Initialize `xorns' snippets."
-      (let* ((lib-dir (bound-and-true-p >>=library-directory))
+      (let* ((lib-dir (bound-and-true-p >>=!library-directory))
 	     (snip-dir (expand-file-name "snippets" lib-dir)))
 	(if (file-exists-p snip-dir)
 	  (progn
