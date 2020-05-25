@@ -52,3 +52,13 @@ Standard modules will use "-" separator in its names (for example
 "xorns-startup.el").  Building-block modules (units) will use "+" instead (for
 example "xorns+python.el", "").  Sub-levels are joined with "/" (for example
 ">>=+base/extra-packages-to-configure").
+
+
+## Backlog
+
+### Avoid compiler errors
+
+Sometimes, there are errors depending on module load; for example, using
+constant `>>=!home-dir` in other module different to where it is defined (see
+`xorns-pim`).  Maybe the solution is to use `eval-when-compile`, or
+`eval-and-compile`, function.
