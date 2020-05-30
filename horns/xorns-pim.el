@@ -100,12 +100,12 @@ Valid only if `org' is included in `>>=|pim/packages'.")
 	(when file
 	  (deft-open-file file nil switch)
 	  (kill-buffer "*Deft*")))))
-  :init
-  (>>=dir-set deft-directory
-    (>>=dir-join >>=!pim/prefered-directory "notes"))
   :bind
   (("<f12>" . deft)
-    (:map deft-mode-map ("M-RET" . >>=deft/open-file))))
+    (:map deft-mode-map ("M-RET" . >>=deft/open-file)))
+  :config
+  (>>=dir-set deft-directory
+    (>>=dir-join >>=!pim/prefered-directory "notes")))
 
 
 

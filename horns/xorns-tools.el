@@ -138,6 +138,19 @@ PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
     res))
 
 
+(defun >>=ensure-dir (&rest options)
+  "Select first valid directory among several OPTIONS ensuring it exists."
+  (let ((res (apply '>>=find-dir options)))
+    (unless res
+      (while (and options (null (car options)))
+	(setq options (cdr options)))
+      (setq res (car options))
+      (when res
+	(message ">>= creating directory '%s'." res)
+	(make-directory res 'parents)))
+    res))
+
+
 (defun >>=canonical-directory-name (name)
   "Convert directory NAME to absolute canonical form."
   (if name
@@ -145,16 +158,11 @@ PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
 
 
 (defmacro >>=dir-set (symbol &rest options)
-  "Set SYMBOL to the first existing directory name among several OPTIONS.
-If none is found, the original symbol value is used creating the directory and
-any nonexistent parents."
-  `(let ((res (>>=find-dir ,@options)))
-     (unless res
-       (setq res (>>=get-original-value ,symbol))
-       (unless (file-directory-p res)
-	 (message ">>= creating directory '%s'." res)
-	 (make-directory res 'parents)))
-     (setq-default ,symbol res)))
+  "Set variable SYMBOL to the first directory can be ensured.
+The value is selected among several OPTIONS including current variable value."
+  `(let ((res (>>=ensure-dir ,@options ,symbol)))
+     (if (and res (not (string-equal res ,symbol)))
+       (setq-default ,symbol res))))
 
 
 (defun >>=locate-user-emacs-file (&rest names)
