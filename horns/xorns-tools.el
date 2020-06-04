@@ -71,6 +71,23 @@ report the identity of the enclosed body."
      (eval (car (get ',symbol 'standard-value)))))
 
 
+(defun >>=deprecate (name &rest options)
+  "Issue a warning deprecating NAME.
+Several keyword OPTIONS are supported to complement the base message:
+':current' module name, ':new' feature name to use instead, a ':new-place'
+where an equivalent behaviour is configured, a ':release' version number where
+old feature will be not longer available.  All invalid options are ignored."
+  (warn
+    (concat
+      (format ">>= '%s' is now DEPRECATED" name)
+      (apply '>>=mapconcat-alist
+	'((:current . " in '%s' module")
+	  (:new . ", use new '%s' feature instead")
+	  (:new-place . ", it is configured now in '%s' module")
+	  (:release . ", it will not be longer available after '%s' release"))
+	"" options))))
+
+
 
 ;;; string - symbol conversion
 
@@ -101,6 +118,23 @@ type containing the replacements.  See `replace-regexp-in-string' function."
 
 
 ;;; lists, property lists extensions
+
+(defun >>=mapconcat-alist (alist separator &rest options)
+  "Conditionally `mapconcat' an association-list.
+The SEPARATOR is pasted in between each pair of results.  ALIST is formed by
+cons pairs (:KEY . FORMAT-STRING); each :KEY is searched in the property-list
+given in the argument OPTIONS, when a corresponding value is found, it is used
+with FORMAT-STRING to obtain a sequence result.  See `>>=deprecate' function
+implementation for an example."
+  (mapconcat 'identity
+    (delq nil
+      (mapcar
+	(lambda (pair)
+	  (let ((value (plist-get options (car pair))))
+	    (if value (format (cdr pair) value))))
+	alist))
+    separator))
+
 
 (defun >>=plist-exclude (plist &rest props)
   "Return a copy of PLIST with all PROPS excluded.
