@@ -59,7 +59,7 @@ This is set to true when executing `emacs-startup-hook'.")
 
 
 (require 'xorns-config)
-;; (require 'xorns-gc)
+(require 'xorns-gc)
 (->? >>=building-blocks/configuration)    ; TODO: Move this to `xorns-config'
 
 

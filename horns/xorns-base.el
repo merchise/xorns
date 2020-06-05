@@ -14,7 +14,7 @@
 ;; console.
 ;;
 ;; Extra packages can be configured through `>>=|base/extra-packages'
-;; variable.  Options are ('autorevert', 'recentf', 'saveplace', and 'gcmh').
+;; variable.  Options are ('autorevert', 'recentf', and 'saveplace').
 
 ;; It's installed just by calling `(require 'xorns-packages)' in the
 ;; initialization process, which is done automatically.
@@ -327,12 +327,10 @@ to configure for yourself: see `save-buffer' function for more information.")
   (save-place-mode +1))
 
 
-(use-package gcmh
-  :when (>>=-base/configure? gcmh)
-  :ensure t
-  :commands gcmh-mode
-  :config
-  (gcmh-mode +1))
+
+(when (>>=-base/configure? gcmh)
+  ;; TODO: remove this in release 1.0
+  (>>=deprecate 'gcmh :current 'xorns-base :new 'xorns-gc))
 
 
 (provide 'xorns-base)
