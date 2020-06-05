@@ -14,6 +14,19 @@
 (package-initialize)
 
 
+;; Improve startup time by temporarily increment these value to prevent
+;; garbage collection from running.  They are reset after initialization is
+;; finished in `xorns-gc' module (if this is not done it can produce freezes
+;; or stuttering).
+(setq
+  gc-cons-threshold #x40000000    ; 1 GB
+  gc-cons-percentage 0.6)
+
+
+;; TODO: Check other variables to improve startup time:
+;;       `file-name-handler-alist' ...
+
+
 (defconst >>=!base-dir
   (concat
     (if load-file-name
