@@ -59,19 +59,14 @@ memory requirements is being used (like `exwm')."
     (if (featurep 'exwm-input) 2 1)))
 
 
-(defun >>=gc/restore ()
-  "Restore garbage collection threshold and percentage values.
-Call `garbage-collect' function at the end."
-  (interactive)
+(defun >>-gc/strategy-configure ()
+  "Configure garbage collection strategy after startup process is finished.
+Restore original threshold and percentage values, call `garbage-collect', and
+configure defined strategy in `>>=|gc/strategy' variable."
   (setq
     gc-cons-threshold (or (>>=get-original-value gc-cons-threshold) 800000)
     gc-cons-percentage (or (>>=get-original-value gc-cons-percentage) 0.1))
-  (garbage-collect))
-
-
-(defun >>=gc/strategy-configure ()
-  "Configure garbage collection strategy based on `>>=|gc/strategy' value."
-  (>>=gc/restore)
+  (garbage-collect)
   (cond
     ((null >>=|gc/strategy)
       ;; nil? do nothing
@@ -80,27 +75,24 @@ Call `garbage-collect' function at the end."
       (setq gc-cons-threshold
 	(>>=gc/threshold-from-base >>=!gc/default-threshold-base)))
     ((integerp >>=|gc/strategy)
-      (setq gc-cons-threshold
-	(>>=gc/threshold-from-base >>=|gc/strategy)))
+      (setq
+	gc-cons-threshold (>>=gc/threshold-from-base >>=|gc/strategy)))
     ((consp >>=|gc/strategy)
       (setq
 	gc-cons-threshold (>>=gc/threshold-from-base (car >>=|gc/strategy))
 	gc-cons-percentage (cdr >>=|gc/strategy)))
     ((and (symbolp >>=|gc/strategy) (memq >>=|gc/strategy '(smart magic)))
       (>>=require gcmh)
-      (gcmh-mode +1)
-      )
+      (gcmh-mode +1))
     (t
-      (warn ">>= invalid garbage collection strategy: %s" >>=|gc/strategy)))
-  )
+      (warn ">>= invalid `>>=|gc/strategy' value: %s" >>=|gc/strategy))))
 
 
-(add-hook
-  'emacs-startup-hook
-  (defun >>-gc/configure ()
-    "Configure GC strategy after startup process is finished."
-    (>>=gc/restore)
-    (>>=gc/strategy-configure)))
+(with-eval-after-load 'xorns-gc
+  (if (bound-and-true-p >>=xorns-initialized)
+    (>>-gc/strategy-configure)
+    ;; else
+    (warn ">>= `xorns-gc' must be configured after initialization process")))
 
 
 (provide 'xorns-gc)
