@@ -150,6 +150,7 @@ Could be an integer or a boolean value, if t is calculated with the length of
 	 ([M-backspace] . [C-S-left ?\C-x])
 	 ;; search
 	 ([?\C-s] . [?\C-f])
+	 ([?\C-\S-s] . [?\C-g])
 	 ;; escape
 	 ([?\C-g] . [escape])
 	 ([?\s-q] . [?\C-w])
