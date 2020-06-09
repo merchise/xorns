@@ -159,29 +159,21 @@ battery and time.")
 
     (spaceline-compile 'xorns
       ;; left side (important stuff)
-      '( (((persp-name :fallback workspace-number) window-number)
-	   :separator "|")
-	 ((buffer-modified buffer-size input-method)
-	   ;; :face highlight-face
-	   )
-	 (anzu :priority 95)
+      '(((buffer-modified buffer-size input-method) :face highlight-face)
+	 anzu
 	 '(buffer-id remote-host buffer-encoding-abbrev)
-	 `((selection-info :priority 95)
-	   ((xorns-modes) :when active :priority 79)
-	   ((macrodef point-position line-column)
-	     :separator " | " :when active :priority 96)
-	   ((narrow buffer-position hud :priority 99)
-	     ;; :face highlight-face
-	     )
-	    )
-	 ((flycheck-error flycheck-warning flycheck-info)
-	   :when active :priority 89)
+	 ((point-position line-column buffer-position selection-info)
+	   :separator " | ")
+	 xorns-modes
+	 process
+	 (flycheck-error flycheck-warning flycheck-info)
 	 (python-pyvenv :fallback python-pyenv)
-	 ((which-function projectile-root) :separator " @ ")
+	 ;; ((which-function projectile-root) :separator " @ ")
+	 ;; ((minor-modes :separator spaceline-minor-modes-separator)
+	 ;;   :when active)
 	 )
       ;; right side
-      '( (version-control :when active :priority 78)
-	 ;; (purpose :priority 94)
+      '((version-control :when active)
 	 (battery :when active)
 	 (global :when active :separator " - " :tight nil)
 	 ))
