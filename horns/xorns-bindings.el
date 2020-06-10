@@ -8,8 +8,8 @@
 
 ;;; Commentary:
 
-;; Simple tools to manage Key bindings taking into account if EXWM is
-;; present.
+;; Tools to manage key-bindings.  It will be taken into account if `exwm' is
+;; active when assigning each command.
 
 ;; Enjoy!
 
