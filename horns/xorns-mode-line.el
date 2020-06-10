@@ -158,25 +158,32 @@ battery and time.")
       (format-mode-line minions-mode-line-modes))
 
     (spaceline-compile 'xorns
-      ;; left side (important stuff)
-      '(((buffer-modified buffer-size input-method) :face highlight-face)
+      '(    ;; left side (important stuff)
+	 ((buffer-modified buffer-size input-method)
+	  :face highlight-face
+	  :priority 90)
 	 anzu
-	 '(buffer-id remote-host buffer-encoding-abbrev)
 	 ((point-position line-column buffer-position selection-info)
-	   :separator " | ")
-	 xorns-modes
+	   :separator " | "
+	   :priority 90)
+	 ((buffer-id remote-host buffer-encoding-abbrev)
+	   :priority 90)
+	 (xorns-modes :when active :priority 15)
 	 process
 	 (flycheck-error flycheck-warning flycheck-info)
 	 (python-pyvenv :fallback python-pyenv)
-	 ;; ((which-function projectile-root) :separator " @ ")
-	 ;; ((minor-modes :separator spaceline-minor-modes-separator)
-	 ;;   :when active)
+	 ;; TODO: `smart-mode-line' put project together `buffer-id'
+	 ;;       ((which-function projectile-root) :separator " @ ")
+	 ;; TODO: `minions' diminished `minor-modes' (`xorns-modes')
+	 ;;        ((minor-modes :separator spaceline-minor-modes-separator)
+	 ;;          :when active)
 	 )
-      ;; right side
-      '((version-control :when active)
-	 (battery :when active)
-	 (global :when active :separator " - " :tight nil)
-	 ))
+      '(    ;; right side
+	 (version-control :priority 80)
+	 (battery :priority 75)
+	 (global :separator " - " :tight nil :priority 90)
+	 )
+      )
 
     (if (eq >>=|minibuffer/completing-framework 'helm)
       (spaceline-helm-mode +1))
