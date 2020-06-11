@@ -29,7 +29,7 @@
 (use-package xorns-simple)
 (use-package xorns-buffers)
 (use-package xorns-dired)
-(use-package xorns-git)
+(use-package xorns-vc)
 (use-package xorns-text)
 (use-package xorns-prog)
 (use-package xorns-prog-extra)

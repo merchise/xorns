@@ -1,4 +1,4 @@
-;;; xorns-git.el --- Integrate Emacs with GIT using `magit'
+;;; xorns-vc.el --- Version Control Integration
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
@@ -6,7 +6,7 @@
 
 ;;; Commentary:
 
-;; Configure all GIT preferences using `magit'.
+;; Configure Version Control Systems, very focused in `magit' for GIT.
 
 ;; Enjoy!
 
@@ -32,5 +32,5 @@
   (put 'magit-clean 'disabled nil))
 
 
-(provide 'xorns-git)
-;;; xorns-git.el ends here
+(provide 'xorns-vc)
+;;; xorns-vc.el ends here
