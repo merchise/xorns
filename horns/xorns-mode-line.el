@@ -163,11 +163,14 @@ battery and time.")
 	  :face highlight-face
 	  :priority 90)
 	 anzu
-	 ((point-position line-column buffer-position selection-info)
+	 ((point-position line-column)
 	   :separator " | "
 	   :priority 90)
-	 ((buffer-id remote-host buffer-encoding-abbrev)
+	 ((buffer-id remote-host)
 	   :priority 90)
+	 ((buffer-encoding-abbrev buffer-position selection-info)
+	   :separator " | "
+	   :priority 75)
 	 (xorns-modes :when active :priority 15)
 	 process
 	 (flycheck-error flycheck-warning flycheck-info)
@@ -179,7 +182,7 @@ battery and time.")
 	 ;;          :when active)
 	 )
       '(    ;; right side
-	 (version-control :priority 80)
+	 (version-control :priority 50)
 	 (battery :priority 75)
 	 (global :separator " - " :tight nil :priority 90)
 	 )
