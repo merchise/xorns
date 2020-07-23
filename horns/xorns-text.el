@@ -21,10 +21,12 @@
 
 (require 'outline)
 
-(require 'google-translate nil 'noerror)
-(require 'google-translate-smooth-ui nil 'noerror)
 (require 'xorns-tools)
 (require 'xorns-buffers)
+
+;; TODO: Migrate this
+(require 'google-translate nil 'noerror)
+(require 'google-translate-smooth-ui nil 'noerror)
 
 
 

@@ -327,7 +327,6 @@ to configure for yourself: see `save-buffer' function for more information.")
   (save-place-mode +1))
 
 
-
 (when (>>=-base/configure? gcmh)
   ;; TODO: remove this in release 1.0
   (>>=deprecate 'gcmh :current 'xorns-base :new 'xorns-gc))

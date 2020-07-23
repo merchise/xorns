@@ -71,6 +71,7 @@ report the identity of the enclosed body."
      (eval (car (get ',symbol 'standard-value)))))
 
 
+;; TODO: Check `make-obsolete', `define-obsolete-function-alias', ...
 (defun >>=deprecate (name &rest options)
   "Issue a warning deprecating NAME.
 Several keyword OPTIONS are supported to complement the base message:

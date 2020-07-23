@@ -62,3 +62,8 @@ Sometimes, there are errors depending on module load; for example, using
 constant `>>=!home-dir` in other module different to where it is defined (see
 `xorns-pim`).  Maybe the solution is to use `eval-when-compile`, or
 `eval-and-compile`, function.
+
+
+### Use 'lexical-binding' in xorns modules
+
+Research how to use `lexical-binding` in most `xorns ` modules.
