@@ -1,4 +1,4 @@
-;;; xorns-packages.el --- Initialize `use-package' and all its dependencies
+;;; xorns-packages.el --- Initialize `use-package' and all its dependencies  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

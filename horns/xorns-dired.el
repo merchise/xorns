@@ -1,4 +1,5 @@
-;;; xorns-dired.el --- Merchise extensions for `dired'  -*- checkdoc-verb-check-experimental-flag:nil -*-
+;;; xorns-dired.el --- Merchise extensions for `dired'  -*- lexical-binding: t -*-
+;; TODO:  -*- checkdoc-verb-check-experimental-flag:nil -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
@@ -96,7 +97,8 @@ command.")
   "Toggle `>>=|dired-omit-mode' globally."
   (interactive)
   (setq >>=|dired-omit-mode (not >>=|dired-omit-mode))
-  (let ((current (current-buffer)))
+  ;; TODO: check why `_current' is unused
+  (let ((_current (current-buffer)))
     (dolist (elt dired-buffers)
       (let ((buf (cdr elt)))
 	(cond

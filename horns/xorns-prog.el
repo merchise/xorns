@@ -1,4 +1,4 @@
-;;; xorns-prog.el --- Programming language source code editing
+;;; xorns-prog.el --- Programming language source code editing  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

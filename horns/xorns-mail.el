@@ -1,4 +1,4 @@
-;;; xorns-mail.el --- Merchise extensions for sending and receiving mail
+;;; xorns-mail.el --- Merchise extensions for sending and receiving mail  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
@@ -127,8 +127,9 @@ If BUFFER is not present, use the current buffer."
          (buffer (or buffer (current-buffer))))
     (with-current-buffer buffer
       (when account
+	;; TODO: check why `_address' is unused
         ;; TODO: (address login server mech) <- account
-        (let* ((address (car account))
+        (let* ((_address (car account))
                 (login (cadr account))
                 (server (string-trim (caddr account)))
                 (stream-type (cadddr account))
@@ -174,7 +175,8 @@ If BUFFER is not present, use the current buffer."
         (xorns-get-from-address)))))
 
 
-(defun -xorns-use-appropriate-server (recipient smtpmail-text-buffer &optional ask-for-password)
+;; TODO: check why `_recipient', and `_ask-for-password' are unused
+(defun -xorns-use-appropriate-server (_recipient smtpmail-text-buffer &optional _ask-for-password)
   "Choose the SMTP account from `xorns-smtp-accounts'."
   (xorns-use-appropriate-smtp-server smtpmail-text-buffer))
 

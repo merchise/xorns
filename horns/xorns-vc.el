@@ -1,4 +1,4 @@
-;;; xorns-vc.el --- Version Control Integration
+;;; xorns-vc.el --- Version Control Integration  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

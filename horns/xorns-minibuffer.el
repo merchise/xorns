@@ -1,4 +1,4 @@
-;;; xorns-minibuffer.el --- Mini-buffer completion
+;;; xorns-minibuffer.el --- Mini-buffer completion  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

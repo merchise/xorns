@@ -1,4 +1,4 @@
-;;; xorns-bots.el --- Latest `xorns' development versions tools
+;;; xorns-bots.el --- Latest `xorns' development versions tools  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

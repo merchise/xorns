@@ -1,4 +1,4 @@
-;;; xorns-display.el --- Default Display-System Support
+;;; xorns-display.el --- Default Display-System Support  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

@@ -1,4 +1,4 @@
-;;; xorns-linux.el --- Helps you control your GNU/Linux computer
+;;; xorns-linux.el --- Helps you control your GNU/Linux computer  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

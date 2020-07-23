@@ -1,4 +1,4 @@
-;;; xorns-base.el --- Xorns Configuration for Base System
+;;; xorns-base.el --- Xorns Configuration for Base System  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

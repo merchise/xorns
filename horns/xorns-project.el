@@ -1,4 +1,4 @@
-;;; xorns-project.el --- Manage and navigate projects in Emacs easily
+;;; xorns-project.el --- Manage and navigate projects in Emacs easily  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

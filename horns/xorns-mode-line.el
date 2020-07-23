@@ -1,4 +1,4 @@
-;;; xorns-mode-line.el --- Control UI appearance
+;;; xorns-mode-line.el --- Control UI appearance  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

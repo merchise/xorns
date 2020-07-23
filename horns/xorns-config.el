@@ -1,4 +1,4 @@
-;;; xorns-config.el --- Configure and load customization information file
+;;; xorns-config.el --- Configure and load customization information file  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

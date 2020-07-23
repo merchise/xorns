@@ -1,4 +1,4 @@
-;;; xorns.el --- Merchise extensions for Emacs
+;;; xorns.el --- Merchise extensions for Emacs  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 ;; URL: https://github.com/merchise/xorns

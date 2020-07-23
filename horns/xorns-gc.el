@@ -1,4 +1,4 @@
-;;; xorns-gc.el --- Garbage Collection Strategy
+;;; xorns-gc.el --- Garbage Collection Strategy  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

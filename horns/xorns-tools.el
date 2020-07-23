@@ -1,4 +1,4 @@
-;;; xorns-tools.el --- Common Systems Tools
+;;; xorns-tools.el --- Common Systems Tools  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

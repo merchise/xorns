@@ -1,4 +1,4 @@
-;;; xorns-exwm.el --- EXWM is a window manager based on Emacs
+;;; xorns-exwm.el --- EXWM is a window manager based on Emacs  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

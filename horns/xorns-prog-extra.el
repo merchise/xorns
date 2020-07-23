@@ -1,4 +1,4 @@
-;;; xorns-prog-extra.el --- Programming source code editing (extra packages)
+;;; xorns-prog-extra.el --- Programming source code editing (extra packages)  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

@@ -1,4 +1,4 @@
-;;; xorns-pim.el --- Configuration for Personal Information Management (PIM)
+;;; xorns-pim.el --- Configuration for Personal Information Management (PIM)  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

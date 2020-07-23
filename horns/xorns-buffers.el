@@ -1,4 +1,4 @@
-;;; xorns-buffers.el --- Buffers management
+;;; xorns-buffers.el --- Buffers management  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

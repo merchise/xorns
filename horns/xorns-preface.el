@@ -1,4 +1,4 @@
-;;; xorns-preface.el --- Common Systems Tools
+;;; xorns-preface.el --- Common Systems Tools  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
@@ -73,7 +73,6 @@ It will be restored later on by `xorns-mode-line' module."
 
 (defun >>-visual/remove-useless-gui ()
   "Remove useless GUI elements (menu, toolbar, scroll-bars, and tool-tips)."
-  (let ((is-mac ))
   (unless >>=!is-mac-os
     (when (and (fboundp 'menu-bar-mode) (not (eq menu-bar-mode -1)))
       (menu-bar-mode -1)))
@@ -82,7 +81,7 @@ It will be restored later on by `xorns-mode-line' module."
   (when (and (fboundp 'scroll-bar-mode) (not (eq scroll-bar-mode -1)))
     (scroll-bar-mode -1))
   (when (and (fboundp 'tooltip-mode) (not (eq tooltip-mode -1)))
-    (tooltip-mode -1))))
+    (tooltip-mode -1)))
 
 
 (defun >>-visual/preface ()

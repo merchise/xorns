@@ -1,4 +1,4 @@
-;;; xorns-building-blocks.el --- Merchise extensions for Emacs
+;;; xorns-building-blocks.el --- Merchise extensions for Emacs  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 

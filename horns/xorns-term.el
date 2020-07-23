@@ -1,4 +1,4 @@
-;;; xorns-term.el --- Terminal support
+;;; xorns-term.el --- Terminal support  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
