@@ -69,7 +69,8 @@ Could be an integer or a boolean value, if t is calculated with the length of
     (eval-when-compile
       ;; TODO: deprecate this
       (declare-function exwm-systemtray-enable 'exwm-systemtray)
-      (declare-function exwm-config-default 'exwm-config))
+      ;; (declare-function exwm-config-default 'exwm-config)
+      )
     (message ">>= using Emacs as the Desktop Window Manager.")
     (dolist (cmd >>=|exwm/startup-applications)
       ;; Run all startup applications
@@ -83,7 +84,8 @@ Could be an integer or a boolean value, if t is calculated with the length of
     (require 'exwm-config)
     (require 'exwm-systemtray)
     (exwm-systemtray-enable)
-    (exwm-config-default)))
+    (exwm-config-example)    ; TODO: review how to define a customized config
+    ))
 
 
 (use-package exwm-input
