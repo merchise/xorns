@@ -62,11 +62,6 @@ to configure for yourself: see `save-buffer' function for more information.")
   "New width for `package' name column (use nil for standard behaviour).")
 
 
-(defmacro >>=-base/configure? (pkg)
-  "True if extra PKG must be configured."
-  `(memq ',pkg >>=|base/extra-packages))
-
-
 
 ;; Default base packages (always configured)
 
@@ -290,7 +285,7 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 
 (use-package autorevert
-  :when (>>=-base/configure? autorevert)
+  :when (memq 'autorevert >>=|base/extra-packages)
   :init
   (defun >>=-auto-revert? ()
     (unless (>>=current-buffer-remote?)
@@ -306,7 +301,7 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 
 (use-package recentf
-  :when (>>=-base/configure? recentf)
+  :when (memq 'recentf >>=|base/extra-packages)
   :demand t
   :custom
   (recentf-max-saved-items 64)
@@ -322,12 +317,12 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 
 (use-package saveplace
-  :when (>>=-base/configure? saveplace)
+  :when (memq 'saveplace >>=|base/extra-packages)
   :config
   (save-place-mode +1))
 
 
-(when (>>=-base/configure? gcmh)
+(when (memq 'gcmh >>=|base/extra-packages)
   ;; TODO: remove this in release 1.0
   (>>=deprecate 'gcmh :current 'xorns-base :new 'xorns-gc))
 
