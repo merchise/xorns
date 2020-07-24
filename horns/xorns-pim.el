@@ -27,9 +27,9 @@
   "List of miscellaneous packages to install.")
 
 
-(defmacro >>=-pim/configure? (pkg)
-  "True if a PIM PKG must be configured."
-  `(memq ',pkg >>=|pim/packages))
+(defmacro >>=-pim/configure? (*pkg*)
+  "True if a PIM *PKG* must be configured."
+  `(memq ',*pkg* >>=|pim/packages))
 
 
 (defvar >>=|pim/ob-featured-languages

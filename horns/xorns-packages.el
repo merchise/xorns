@@ -25,13 +25,13 @@
   "If `package-refresh-contents' is already executed in this session.")
 
 
-(defun >>=package-ensure (pkg)
-  "Ensure PKG is installed."
-  (unless (package-installed-p pkg)
+(defun >>=package-ensure (*pkg*)
+  "Ensure *PKG* is installed."
+  (unless (package-installed-p *pkg*)
     (unless >>-package-contents-refreshed
       (setq >>-package-contents-refreshed t)
       (package-refresh-contents))
-    (package-install pkg)))
+    (package-install *pkg*)))
 
 
 (defmacro >>=ensure-packages (&rest packages)
