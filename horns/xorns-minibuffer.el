@@ -108,15 +108,13 @@
 	;; else
 	(helm-multi-files)))
     )
-  :bind
+  :bind    ; TODO: Check this configuration
   (("M-Y" . helm-show-kill-ring)
    ("C-h SPC" . helm-all-mark-rings)
    ("C-x C-f" . helm-find-files)
    ("C-x b" . >>=helm/multi)
    :map minibuffer-local-map
-   ("C-c C-l" . helm-minibuffer-history)
-   :map helm-command-map
-   ("o" . helm-occur))
+   ("C-c C-l" . helm-minibuffer-history))
   :config
   (progn
     ;; Note: Do not remove `:demand' option.  "C-x c" is very similar to
