@@ -16,9 +16,22 @@
 
 (require 'use-package)
 
-(defun >>-shell-file-name ()
-  "Command file name for the user's shell."
+
+
+;;; Common setup
+
+(defun >>-shell-file-name (&optional base)
+  "Calculate the file name to load as inferior shells for terminals.
+Argument BASE is prioritized using `executable-find' function, and getting the
+value of environment variable with the uppercase value.  If no value is found
+for BASE, the default system shell is returned."
   (or
+    (and
+      base
+      (let ((aux (format "%s" base)))
+	(or
+	  (executable-find aux)
+	  (getenv (upcase aux)))))
     explicit-shell-file-name
     (getenv "ESHELL")
     (getenv "SHELL")
