@@ -15,6 +15,7 @@
 ;;; Code:
 
 (require 'use-package)
+(require 'term)
 
 
 
@@ -90,6 +91,76 @@ for BASE, the default system shell is returned."
 	(kbd "M-s f") 'helm-comint-prompts-all)))
   :hook
   (comint-mode . >>-comint/init))
+
+
+
+;;; ANSI Terminal
+
+(defmacro >>=define-terminal-trigger (&optional name program)
+  "Define NAME as a new trigger to manage an `ansi-term' based terminal.
+
+The NAME of the resulting command will be '>>=<NAME>-term'; when the name is
+omitted, it will be '>>=ansi-term'.
+
+to manage multiple shell sessions,
+equivalent to tabs in standard system terminals.  The
+
+Each instance is identified
+by a positive integer, or zero (the default value).
+
+Calling a trigger will start a new shell session or reuse an existing one.
+When prefixed with a negative value, the selected region (or current line if
+none) will be yanked to the instance identified by the absolute value.  To
+yank to the default session use the `universal-argument' (`C-u') prefix.
+
+PROGRAM argument must be a string that specifies the file name to be loaded as
+inferior shell.  When omitted, the value is calculated with the function
+`>>-shell-file-name'."
+  (let* (id shell fun-name bn-prefix doc)
+    (if name
+      (if (or (symbolp name) (stringp name))
+	(setq
+	  id name
+	  bn-prefix (format "%s-" name))
+	;; else
+	(error ">>= terminal-trigger name must be a symbol or nil, not %s"
+	  (type-of name)))
+      ;; else
+      (setq
+	id 'ansi
+	bn-prefix ""))
+    (setq
+      fun-name (intern (format ">>=%s-term" id))
+      doc (format "Command to trigger '%s' terminal." id))
+    (if (or (null program) (stringp program))
+      (setq shell (or program (>>-shell-file-name name)))
+      ;; else
+      (error ">>= terminal-trigger program must be a string if given, not %s"
+	(type-of program)))
+    `(progn
+       (defun ,fun-name (&optional arg)
+	 ,doc
+	 (interactive "P")
+	 (let* ((command ,shell)
+		(std (or (null arg) (eq arg 0)))
+		(bn-suffix (if std "" (format " - %s" arg)))
+		(buf-name (format "%sterminal%s" ,bn-prefix bn-suffix))
+		(starred (format "*%s*" buf-name))
+		(buffer (get-buffer starred))
+		(process (get-buffer-process buffer)))
+	   (if buffer
+	     (if process
+	       (progn
+		 (setq command nil)
+		 (switch-to-buffer buffer))
+	       ;; else
+	       (message ">>= killing '%s' because process was finished." starred)
+	       (kill-buffer buffer)))
+	   (if command
+	     (ansi-term command buf-name)
+	     ;; else
+	     buffer))))
+    ))
 
 
 (use-package term
