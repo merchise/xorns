@@ -168,14 +168,11 @@ inferior shell.  When omitted, the value is calculated with the function
 
 (use-package term
   :preface
-  (progn
-    ;; TODO: (declare-function term-send-raw-string 'term)
-
-    (defun >>-term/raw-kill-line ()
-      "Kill the rest of the current line in `term-char-mode'."
-      (interactive)
-      (term-send-raw-string "\C-k")
-      (kill-line)))
+  (defun >>-term/raw-kill-line ()
+    "Kill the rest of the current line in `term-char-mode'."
+    (interactive)
+    (term-send-raw-string "\C-k")
+    (kill-line))
   :bind
   (("C-c t" . ansi-term)
    ("s-M-t" . >>=ansi-term)
