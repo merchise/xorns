@@ -108,7 +108,7 @@ Could be an integer or a boolean value, if t is calculated with the length of
       (kbd "s-d") #'>>=exwm/start-command)
     (exwm-input-set-key (kbd "<s-return>")
       ;; Like in i3 window manager
-      #'>>=term-main-shell)
+      #'>>=ansi-term)
     (exwm-input-set-key (kbd "s-r") #'exwm-reset)
     (exwm-input-set-key (kbd "<s-tab>") #'other-frame)
     (exwm-input-set-key (kbd "s-o") #'other-window)

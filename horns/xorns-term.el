@@ -169,38 +169,16 @@ inferior shell.  When omitted, the value is calculated with the function
 (use-package term
   :preface
   (progn
-    (declare-function term-send-raw-string 'term)
+    ;; TODO: (declare-function term-send-raw-string 'term)
 
     (defun >>-term/raw-kill-line ()
       "Kill the rest of the current line in `term-char-mode'."
       (interactive)
       (term-send-raw-string "\C-k")
-      (kill-line))
-
-    (defun >>=term-main-shell ()
-      "Command to execute ANSI terminal."
-      (interactive)
-      (let* ((command (>>-shell-file-name))
-	      (buf-name "Terminal")
-	      (starred (format "*%s*" buf-name))
-	      (buffer (get-buffer starred))
-	      (process (get-buffer-process buffer)))
-	(if buffer
-	  (if process
-	    (progn
-	      (setq command nil)
-	      (switch-to-buffer buffer))
-	    ;; else
-	    (message ">>= killing '%s' because process was finished." starred)
-	    (kill-buffer buffer)))
-	(if command
-	  (ansi-term command buf-name)
-	  ;; else
-	  buffer)))
-    )
+      (kill-line)))
   :bind
   (("C-c t" . ansi-term)
-   ("s-M-t" . >>=term-main-shell)
+   ("s-M-t" . >>=ansi-term)
    (:map term-mode-map
      ("C-c C-t" . term-char-mode))
    (:map term-raw-map
