@@ -163,6 +163,9 @@ inferior shell.  When omitted, the value is calculated with the function
     ))
 
 
+(>>=define-terminal-trigger)        ; define `>>=ansi-term'
+
+
 (use-package term
   :preface
   (progn
