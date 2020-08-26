@@ -154,7 +154,8 @@ inferior shell.  When omitted, the value is calculated with the function
 		 (setq command nil)
 		 (switch-to-buffer buffer))
 	       ;; else
-	       (message ">>= killing '%s' because process was finished." starred)
+	       (message ">>= killing '%s' terminal, process was finished."
+		 starred)
 	       (kill-buffer buffer)))
 	   (if command
 	     (ansi-term command buf-name)
@@ -174,7 +175,7 @@ inferior shell.  When omitted, the value is calculated with the function
     (term-send-raw-string "\C-k")
     (kill-line))
   :bind
-  (("C-c t" . ansi-term)
+  (("C-c t" . ansi-term)    ;; TODO: migrate to `>>=ansi-term'
    ("s-M-t" . >>=ansi-term)
    (:map term-mode-map
      ("C-c C-t" . term-char-mode))
