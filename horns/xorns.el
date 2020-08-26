@@ -75,7 +75,9 @@ This is set to true when executing `emacs-startup-hook'.")
   'emacs-startup-hook
   (defun >>=startup-hook ()
     (->? >>=user-code)
-    (setq >>=xorns-initialized (emacs-init-time))
+    (setq >>=xorns-initialized
+      (format "%.1f seconds"
+	(float-time (time-subtract after-init-time before-init-time))))
     (message ">>= xorns initialized in %s seconds." >>=xorns-initialized)))
 
 
