@@ -217,16 +217,26 @@ standard Emacs initialization file is returned."
     (or res (locate-user-emacs-file "init.el" ".emacs"))))
 
 
-(defun >>=executable-find (command &rest other-commands)
+(defun >>=file-in-dir-tree (file dir)
+  "Return if FILE is part of the directory tree starting at DIR."
+  ;; Based on `dired-in-this-tree'
+  (let ((file (expand-file-name file))
+	(dir (expand-file-name dir))
+	case-fold-search)
+    (string-match-p (concat "^" (regexp-quote dir)) file)))
+
+
+(defun >>=executable-find (command &rest extra)
   "Search for COMMAND in `exec-path' and return the absolute file name.
 
-If COMMAND is not found, looks for alternatives given in OTHER-COMMANDS.
+If the main command is not found, a EXTRA set of alternatives will be used
+until a valid one is found.
 
 This function is safe avoiding nil commands.  If none is found, nil
 is returned."
   (cl-some
     (lambda (cmd) (if cmd (executable-find cmd)))
-    (cons command other-commands)))
+    (cons command extra)))
 
 
 (defun >>=file-string (file)
