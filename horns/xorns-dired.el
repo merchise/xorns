@@ -24,8 +24,8 @@
 ;;; Code:
 
 (require 'bind-key)
-
 (require 'use-package)
+(require 'xorns-tools)
 (require 'xorns-packages)
 
 
@@ -227,30 +227,38 @@ are concatenated.  See `dired-maybe-insert-subdir'."
 
 
 
-;;; Patch fixing an Emacs bug
+;;; Patch to fix `dired-aux' bug
 
 (require 'dired-aux)
 
-;; To report this bug see:
-;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Bugs.html
+;; Next fucntion is a replacement of the original one because `string-match-p'
+;; is used to check switches instead of `dired-check-switches' causing an
+;; error if you try to use a value like '-laF -BR --ignore=*.bak' because the
+;; 'b' in 'bak'.
+;;
+;; TODO: try to advice original function.
+
 (defun dired-insert-subdir-validate (dirname &optional switches)
-  "Fix Emacs bug.
-Function `string-match-p' is used to check SWITCHES instead of using
-`dired-check-switches' causing an error if you try to use a value like '-laF
--BR --ignore=*.bak' because the 'b' in 'bak' (DIRNAME is used as in original
-function)."
-  (or (dired-in-this-tree dirname (expand-file-name default-directory))
-      (error  "%s: not in this directory tree" dirname))
+  "Check that it is valid to insert DIRNAME with SWITCHES.
+Signal an error if invalid (e.g. user typed `i' on `..')."
+  (or
+    (>>=file-in-dir-tree dirname default-directory)
+    (error  "%s: not in this directory tree" dirname))
   (let ((real-switches (or switches dired-subdir-switches)))
     (when real-switches
-      (mapcar
-	(lambda (x)
-	  (or (eq (null (dired-check-switches real-switches x))
+      (let (case-fold-search)
+	(mapcar
+	  (lambda (x)
+	    (or
+	      (eq
+		;; was: (string-match-p x real-switches)
+		(null (dired-check-switches real-switches x))
+		;; was: (string-match-p x dired-actual-switches)
 		(null (dired-check-switches dired-actual-switches x)))
-	    (error
-	      "Can't have dirs with and without -%s switches together" x)))
-	;; all switches that make a difference to dired-get-filename:
-	'("F" "b")))))
+	      (error
+		"Can't have dirs with and without -%s switches together" x)))
+	  ;; all switches that make a difference to dired-get-filename:
+	  '("F" "b"))))))
 
 
 (defadvice dired-replace-in-string
