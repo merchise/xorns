@@ -24,8 +24,8 @@
 ;; is not yet selected (for the daemon case).  Without a selected frame, the
 ;; `find-font' will not work correctly!
 ;;
-;; So we do the font setup in `focus-in-hook' instead, by which time in the
-;; Emacs startup process, all of the below are true:
+;; So we do the font setup when the main frame gains focus instead, by which
+;; time in the Emacs startup process, all of the below are true:
 ;;
 ;; - Fonts are loaded (in both daemon and non-daemon cases).
 ;;
@@ -53,13 +53,27 @@
   "Is Mac-OS System.")
 
 
+(defconst >>-obsolete-focus-in-hook
+  (unless (boundp 'after-focus-change-function)
+    (intern "focus-in-hook"))
+  "This hook is obsolete since 27.1.")
+
+
+(defvar >>-visual-epilogue-called nil
+  "Function `>>-visual/epilogue' must be executed only once.")
+
+
 (with-eval-after-load 'xorns-preface
   (>>-visual/hidden-mode-line)
   (>>-visual/remove-useless-gui)
   ;; Preface and Epilogue
   (>>-visual/preface)
-  (add-hook 'focus-in-hook #'>>-visual/epilogue)
-  )
+  ;; `focus-in-hook' is obsolete since 27.1
+  (if >>-obsolete-focus-in-hook
+    (add-hook >>-obsolete-focus-in-hook #'>>-visual/epilogue)
+    ;; else: new method
+    (add-function :after after-focus-change-function #'>>-visual/epilogue)))
+
 
 
 (defun >>-visual/hidden-mode-line ()
@@ -96,11 +110,12 @@ It will be restored later on by `xorns-mode-line' module."
 
 (defun >>-visual/epilogue ()
   "Run after the frame is created and focus."
-  (remove-hook 'focus-in-hook #'>>-visual/epilogue)
-  ;; font configuration
-  (require 'xorns-display)
-  (declare-function >>=configure-font 'xorns-display)
-  (>>=configure-font))
+  (unless >>-visual-epilogue-called
+    (setq >>-visual-epilogue-called t)
+    ;; font configuration
+    (require 'xorns-display)
+    (declare-function >>=configure-font 'xorns-display)
+    (>>=configure-font)))
 
 
 (provide 'xorns-preface)
