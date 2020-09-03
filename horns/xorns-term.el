@@ -97,25 +97,28 @@ for BASE, the default system shell is returned."
 ;;; ANSI Terminal
 
 (defmacro >>=define-terminal-trigger (&optional name program)
-  "Define NAME as a new trigger to manage an `ansi-term' based terminal.
+  "Define a new trigger to manage an `ansi-term' based terminal.
 
-The NAME of the resulting command will be '>>=<NAME>-term'; when the name is
-omitted, it will be '>>=ansi-term'.
+Arguments of this macro can be used as follow:
 
-to manage multiple shell sessions,
-equivalent to tabs in standard system terminals.  The
+If both are missing, the default trigger `>>=ansi-term' is created.
 
-Each instance is identified
-by a positive integer, or zero (the default value).
+NAME could be a symbol or a string, it will identify the trigger name using
+'>>=<NAME>-term' as format, and it will be used as a prefix in each buffer
+name.
 
-Calling a trigger will start a new shell session or reuse an existing one.
-When prefixed with a negative value, the selected region (or current line if
-none) will be yanked to the instance identified by the absolute value.  To
-yank to the default session use the `universal-argument' (`C-u') prefix.
+When given, PROGRAM must be a string specifying the file-name to be loaded as
+inferior shell for this trigger.  If omitted, this value is calculated with
+the function `>>-shell-file-name' using NAME as its argument.
 
-PROGRAM argument must be a string that specifies the file name to be loaded as
-inferior shell.  When omitted, the value is calculated with the function
-`>>-shell-file-name'."
+A trigger is an `interactive' command that could be called in three different
+scenarios: to start a new shell session, to reuse an existing one, or to yank
+the selected region in the current buffer to a designated shell.
+
+The prefix argument in a trigger is used to identify the shell session tab.  A
+TAB-INDEX is a positive integer, or zero for the default session.  A negative
+value, or the `universal-argument' (`C-u') prefix, executes a yank scenario in
+the `abs' value TAB."
   (let* (id shell fun-name bn-prefix doc)
     (if name
       (if (or (symbolp name) (stringp name))
@@ -131,11 +134,11 @@ inferior shell.  When omitted, the value is calculated with the function
 	bn-prefix ""))
     (setq
       fun-name (intern (format ">>=%s-term" id))
-      doc (format "Command to trigger '%s' terminal." id))
+      doc (format "Command to trigger '%s' terminals." id))
     (if (or (null program) (stringp program))
       (setq shell (or program (>>-shell-file-name name)))
       ;; else
-      (error ">>= terminal-trigger program must be a string if given, not %s"
+      (error ">>= terminal-trigger program must be a string, not %s"
 	(type-of program)))
     `(progn
        (defun ,fun-name (&optional arg)
@@ -148,6 +151,7 @@ inferior shell.  When omitted, the value is calculated with the function
 		(starred (format "*%s*" buf-name))
 		(buffer (get-buffer starred))
 		(process (get-buffer-process buffer)))
+	   (message ">>= terminal-trigger: %s -- %s" arg (type-of arg))
 	   (if buffer
 	     (if process
 	       (progn
