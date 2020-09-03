@@ -217,17 +217,19 @@ standard Emacs initialization file is returned."
     (or res (locate-user-emacs-file "init.el" ".emacs"))))
 
 
-(defun >>=file-in-dir-tree (file dir)
-  "Return if FILE is part of the directory tree starting at DIR."
+(defun >>=file-in-dir-tree (files base)
+  "Return the first item in FILES that is part of the BASE directory tree."
   ;; Based on `dired-in-this-tree'
-  (let ((file (expand-file-name file))
-	(dir (expand-file-name dir))
+  (let ((base (concat "^" (regexp-quote (expand-file-name base))))
+	(files (if (stringp files) (list files) files))
 	case-fold-search)
-    (string-match-p (concat "^" (regexp-quote dir)) file)))
+    (seq-find
+      (lambda (item) (string-match-p base (expand-file-name item)))
+      files)))
 
 
 (defun >>=executable-find (command &rest extra)
-  "Search for COMMAND in `exec-path' and return the absolute file name.
+  "Return the first COMMAND that is part of the BASE directory tree.
 
 If the main command is not found, a EXTRA set of alternatives will be used
 until a valid one is found.
