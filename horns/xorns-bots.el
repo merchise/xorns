@@ -69,12 +69,8 @@ If BASE argument is non-nil, open project directory instead."
   (interactive)
   (let ((path (>>-bots-git-remote-url)))
     (if (file-exists-p path)
-      (let*
-	((base (regexp-quote (expand-file-name path)))
-	 (res
-	   (seq-find
-	     (lambda (item) (string-match base (expand-file-name item)))
-	     (recentf-elements recentf-max-saved-items))))
+      (let* ((recent-files (recentf-elements recentf-max-saved-items))
+	     (res (>>=file-in-dir-tree recent-files path)))
 	(if res
 	  (find-file res)
 	  ;; else
