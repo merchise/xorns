@@ -96,6 +96,28 @@ for BASE, the default system shell is returned."
 
 ;;; ANSI Terminal
 
+(defun >>-normalize-trigger-argument (prefix)
+  "Normalize a trigger PREFIX argument.
+
+Convert a trigger PREFIX argument to a (TAB-INDEX . PASTE) pair.  The first
+value will be an integer greater than or equal to zero, or nil for the default
+tab.  The second value will be a boolean specifying if the selected text in
+the current buffer must be pasted to that terminal shell.
+
+The `universal-argument' \(or `C-u') without any further digits, means paste
+to the default tab, identified with nil.  The `negative-argument' \(or `C--')
+without any further digits, means paste to tab with index 0."
+  (cond
+    ((null prefix)
+      nil)
+    ((consp prefix)
+      '(nil . t))
+    ((integerp prefix)
+      (cons (abs prefix) (< prefix 0)))
+    (t
+      '(0 . t))))
+
+
 (defmacro >>=define-terminal-trigger (&optional name program)
   "Define a new trigger to manage an `ansi-term' based terminal.
 
@@ -145,13 +167,15 @@ the `abs' value TAB."
 	 ,doc
 	 (interactive "P")
 	 (let* ((command ,shell)
-		(std (or (null arg) (eq arg 0)))
-		(bn-suffix (if std "" (format " - %s" arg)))
+		(prefix (>>-normalize-trigger-argument arg))
+		(tab-index (car prefix))
+		(yank (cdr prefix))
+		(bn-suffix (if tab-index (format " - %s" tab-index) ""))
 		(buf-name (format "%sterminal%s" ,bn-prefix bn-suffix))
 		(starred (format "*%s*" buf-name))
 		(buffer (get-buffer starred))
 		(process (get-buffer-process buffer)))
-	   (message ">>= terminal-trigger: %s -- %s" arg (type-of arg))
+	   (message "%s(%s %s)" (symbol-name ',fun-name) tab-index yank)
 	   (if buffer
 	     (if process
 	       (progn
