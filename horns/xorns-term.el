@@ -16,23 +16,27 @@
 
 (require 'use-package)
 (require 'term)
-
+(require 'xorns-tools)
 
 
 ;;; Common setup
 
-(defun >>-shell-file-name (&optional base)
-  "Calculate the file name to load as inferior shells for terminals.
-Argument BASE is prioritized using `executable-find' function, and getting the
-value of environment variable with the uppercase value.  If no value is found
-for BASE, the default system shell is returned."
+(defun >>-shell-file-name (&optional id)
+  "Calculate the file name to load as inferior shells for a terminal ID.
+If no executable is found, the default system shell is always returned.  To
+ensure a specific shell, use `executable-find'."
   (or
-    (and
-      base
-      (let ((aux (format "%s" base)))
+    (when id
+      (if (symbolp id)
+	(setq id (symbol-name id)))
+      (if (stringp id)
 	(or
-	  (executable-find aux)
-	  (getenv (upcase aux)))))
+	  (executable-find id)
+	  (getenv (upcase id)))
+	;; else
+	(error
+	  ">>= shell-file-name ID must be a string or a symbol, not %s"
+	  (type-of id))))
     explicit-shell-file-name
     (getenv "ESHELL")
     (getenv "SHELL")
