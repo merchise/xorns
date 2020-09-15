@@ -13,7 +13,9 @@
 
 ;;; Code:
 
+
 (require 'xorns-bindings)
+(require 'xorns-simple)
 
 
 (defconst >>=!pkg-dir (bound-and-true-p >>=!init-mode/standalone)
@@ -37,7 +39,7 @@
   (if >>=!pkg-dir
     (let ((default-directory user-emacs-directory))
       (replace-regexp-in-string "^file://" ""
-	(>>=command-string "git remote get-url origin")))))
+	(>>=shell-command-to-string "git remote get-url origin")))))
 
 
 (defun >>=bots/dired+git-status ()

@@ -66,6 +66,12 @@
   (put 'set-goal-column 'disabled nil))
 
 
+(defun >>=shell-command-to-string (command)
+  "Execute shell COMMAND and return its output as a trimmed string."
+  (string-trim (shell-command-to-string command)))
+
+
+
 ;;; Enable some disabled commands
 
 ;; Give us narrowing back!
