@@ -100,6 +100,12 @@ ensure a specific shell, use `executable-find'."
 
 ;;; ANSI Terminal
 
+(defconst >>-!trigger-documentation-format
+  "Command to trigger '%s' terminals.
+See `>>=define-terminal-trigger' for more information."
+  "Documentation format-string to be used with a trigger ID as argument.")
+
+
 (defun >>-normalize-trigger-argument (prefix)
   "Normalize a trigger PREFIX argument.
 
@@ -160,7 +166,7 @@ the `abs' value TAB."
 	bn-prefix ""))
     (setq
       fun-name (intern (format ">>=%s-term" id))
-      doc (format "Command to trigger '%s' terminals." id))
+      doc (format >>-!trigger-documentation-format id))
     (if (or (null program) (stringp program))
       (setq shell (or program (>>-shell-file-name name)))
       ;; else
