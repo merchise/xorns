@@ -71,6 +71,24 @@
   (string-trim (shell-command-to-string command)))
 
 
+(defun >>=buffer-focused-text ()
+  "Return focused-text in current buffer, selected region or current line."
+  (let (begin end)
+    (if (use-region-p)
+      (setq
+	begin (point)
+	end (mark))
+      ;; else
+      (save-restriction
+	(widen)
+	(save-excursion
+	  (beginning-of-line)
+	  (setq begin (point))
+	  (end-of-line)
+	  (setq end (point)))))
+    (buffer-substring-no-properties begin end)))
+
+
 
 ;;; Enable some disabled commands
 
