@@ -17,6 +17,7 @@
 (require 'use-package)
 (require 'term)
 (require 'xorns-tools)
+(require 'xorns-simple)
 
 
 ;;; Common setup
@@ -128,6 +129,28 @@ without any further digits, means paste to tab with index 0."
       '(0 . t))))
 
 
+(defun >>-normalize-terminal-string (string)
+  "Normalize a STRING to paste it into a terminal."
+  (let ((res (string-trim-right string)))
+    (unless (string-empty-p res)
+      (concat res "\n"))))
+
+
+(defun >>-get-terminal-paste-string (&optional adapter)
+  "Get current buffer focused-text and normalize it with the given ADAPTER."
+  (let ((res (>>-normalize-terminal-string (>>=buffer-focused-text))))
+    (if (and res adapter) (funcall adapter res) res)))
+
+
+(defmacro >>=define-paste-magic (&optional magic)
+  "Create an IPython like MAGIC paste-adapter."
+  (if (null magic)
+    (setq magic "%paste"))
+  `(lambda (chars)
+     (kill-new chars)
+     (>>-normalize-terminal-string ,magic)))
+
+
 (defmacro >>=define-terminal-trigger (id &rest keywords)
   "Define a new trigger to manage an `ansi-term' based terminal.
 
@@ -180,6 +203,8 @@ both the shell session tab and whether to execute a paste operation.  See
 	      (starred (format "*%s*" buf-name))
 	      (buffer (get-buffer starred))
 	      (process (get-buffer-process buffer)))
+	 (when paste
+	   (setq paste (>>-get-terminal-paste-string ,paste-adapter)))
 	 (if buffer
 	   (if process
 	     (progn
@@ -189,17 +214,21 @@ both the shell session tab and whether to execute a paste operation.  See
 	     (message ">>= killing '%s' terminal, process was finished."
 	       starred)
 	     (kill-buffer buffer)))
-	 (if command
-	   (ansi-term command buf-name)
-	   ;; else
-	   buffer)))
+	 (when command
+	   (setq buffer (ansi-term command buf-name)))
+	 (when paste
+	   (message ">>= term-send-raw-string %s" paste)
+	   (term-send-raw-string paste))
+	 buffer))
     ))
+
 
 
 (>>=define-terminal-trigger ansi)        ; define `>>=ansi-term'
 
 ;; (>>=define-terminal-trigger python
 ;;   :program "ipython"
+;;   :paste-adapter (>>=define-paste-magic)
 ;;   )
 
 
