@@ -128,81 +128,79 @@ without any further digits, means paste to tab with index 0."
       '(0 . t))))
 
 
-(defmacro >>=define-terminal-trigger (&optional name program)
+(defmacro >>=define-terminal-trigger (id &rest keywords)
   "Define a new trigger to manage an `ansi-term' based terminal.
 
-Arguments of this macro can be used as follow:
+A terminal trigger is an `interactive' command that can be invoked in three
+different scenarios: start a new shell session, reuse an existing one, or
+paste text into a target one.
 
-If both are missing, the default trigger `>>=ansi-term' is created.
+The ID argument is used as part of the '>>=<ID>-term' trigger name and also
+for the prefix in session buffer names.
 
-NAME could be a symbol or a string, it will identify the trigger name using
-'>>=<NAME>-term' as format, and it will be used as a prefix in each buffer
-name.
+The following KEYWORDS are supported:
 
-When given, PROGRAM must be a string specifying the file-name to be loaded as
-inferior shell for this trigger.  If omitted, this value is calculated with
-the function `>>-shell-file-name' using NAME as its argument.
+:program STRING
+    The file-name to be loaded as inferior shell.  When omitted, it is
+    calculated with `>>-shell-file-name' using ID as its argument.
 
-A trigger is an `interactive' command that could be called in three different
-scenarios: to start a new shell session, to reuse an existing one, or to yank
-the selected region in the current buffer to a designated shell.
+:paste-adapter FUNCTION
+    When a paste operation is invoked, the text is wrapped with this function
+    before calling `term-send-raw-string'.  The macro `>>=define-paste-magic'
+    can be used to create adapters using the IPython magic way.
 
-The prefix argument in a trigger is used to identify the shell session tab.  A
-TAB-INDEX is a positive integer, or zero for the default session.  A negative
-value, or the `universal-argument' (`C-u') prefix, executes a yank scenario in
-the `abs' value TAB."
-  (let* (id shell fun-name bn-prefix doc)
-    (if name
-      (if (or (symbolp name) (stringp name))
-	(setq
-	  id name
-	  bn-prefix (format "%s-" name))
-	;; else
-	(error ">>= terminal-trigger name must be a symbol or nil, not %s"
-	  (type-of name)))
-      ;; else
-      (setq
-	id 'ansi
-	bn-prefix ""))
-    (setq
-      fun-name (intern (format ">>=%s-term" id))
-      doc (format >>-!trigger-documentation-format id))
-    (if (or (null program) (stringp program))
-      (setq shell (or program (>>-shell-file-name name)))
-      ;; else
-      (error ">>= terminal-trigger program must be a string, not %s"
-	(type-of program)))
-    `(progn
-       (defun ,fun-name (&optional arg)
-	 ,doc
-	 (interactive "P")
-	 (let* ((command ,shell)
-		(prefix (>>-normalize-trigger-argument arg))
-		(tab-index (car prefix))
-		(yank (cdr prefix))
-		(bn-suffix (if tab-index (format " - %s" tab-index) ""))
-		(buf-name (format "%sterminal%s" ,bn-prefix bn-suffix))
-		(starred (format "*%s*" buf-name))
-		(buffer (get-buffer starred))
-		(process (get-buffer-process buffer)))
-	   (message "%s(%s %s)" (symbol-name ',fun-name) tab-index yank)
-	   (if buffer
-	     (if process
-	       (progn
-		 (setq command nil)
-		 (switch-to-buffer buffer))
-	       ;; else
-	       (message ">>= killing '%s' terminal, process was finished."
-		 starred)
-	       (kill-buffer buffer)))
-	   (if command
-	     (ansi-term command buf-name)
+The optional `interactive' prefix argument of a trigger is used to identify
+both the shell session tab and whether to execute a paste operation.  See
+`>>-normalize-trigger-argument' to understand this logic."
+  (declare (indent 1))
+  (unless (symbolp id)
+    (error ">>= terminal-trigger ID must be a symbol, not %s" (type-of id)))
+  (let* (keyw program paste-adapter
+	 (fun-name (intern (format ">>=%s-term" id)))
+	 (bn-prefix (if (eq id 'ansi) "" (format "%s-" id)))
+	 (doc (format >>-!trigger-documentation-format id)))
+    (while (keywordp (setq keyw (car keywords)))
+      (setq keywords (cdr keywords))
+      (pcase keyw
+	(:program (setq program (pop keywords)))
+	(:paste-adapter (setq paste-adapter (pop keywords)))
+	(_  (error ">>= terminal-trigger invalid keyword: %s" keyw))))
+    (when keywords
+      (error ">>= terminal-trigger wrong keywords: %s" keywords))
+    (setq program (>>-shell-file-name (or program id)))
+    `(defun ,fun-name (&optional arg)
+       ,doc
+       (interactive "P")
+       (setq arg (>>-normalize-trigger-argument arg))
+       (let* ((command ,program)
+	      (tab-index (car arg))
+	      (paste (cdr arg))
+	      (bn-suffix (if tab-index (format " - %s" tab-index) ""))
+	      (buf-name (format "%sterminal%s" ,bn-prefix bn-suffix))
+	      (starred (format "*%s*" buf-name))
+	      (buffer (get-buffer starred))
+	      (process (get-buffer-process buffer)))
+	 (if buffer
+	   (if process
+	     (progn
+	       (setq command nil)
+	       (switch-to-buffer buffer))
 	     ;; else
-	     buffer))))
+	     (message ">>= killing '%s' terminal, process was finished."
+	       starred)
+	     (kill-buffer buffer)))
+	 (if command
+	   (ansi-term command buf-name)
+	   ;; else
+	   buffer)))
     ))
 
 
-(>>=define-terminal-trigger)        ; define `>>=ansi-term'
+(>>=define-terminal-trigger ansi)        ; define `>>=ansi-term'
+
+;; (>>=define-terminal-trigger python
+;;   :program "ipython"
+;;   )
 
 
 (use-package term
