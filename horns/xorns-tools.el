@@ -170,24 +170,10 @@ old feature will be not longer available.  All invalid options are ignored."
 
 ;;; string - symbol conversion
 
-(defsubst >>=intern (string)
-  "Return STRING\'s canonical symbol (safe if it is already a symbol)."
-  (if (symbolp string) string (intern string)))
-
-
-(defmacro >>=intern* (string &rest args)
-  "Return canonical symbol by formating a STRING with ARGS."
-  `(intern (format ,string ,@args)))
-
-
-(defsubst >>=symbol-name (symbol)
-  "Return SYMBOL\'s name, a string (safe if it is already a string)."
-  (if (stringp symbol) symbol (symbol-name symbol)))
-
-
 (defun >>=safe-replace (regexp rep source)
   "Replace all occurrences for REGEXP with REP in SOURCE.
-Source could be either a string or a symbol, return a new value of the same
+
+SOURCE could be either a string or a symbol, return a new value of the same
 type containing the replacements.  See `replace-regexp-in-string' function."
   (let* ((is-symbol (symbolp source))
 	 (value (if is-symbol (symbol-name source) source))

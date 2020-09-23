@@ -127,7 +127,7 @@ Valid only if `org' is included in `>>=|pim/packages'.")
   :config
   (progn
     (dolist (lang >>=|pim/ob-featured-languages)
-      (let ((pkg (>>=intern (format "ob-%s" lang))))
+      (let ((pkg (intern (format "ob-%s" lang))))
 	(when (require pkg nil 'noerror)
 	  (unless (assoc lang org-babel-load-languages)
 	    (setq org-babel-load-languages
