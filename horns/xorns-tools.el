@@ -369,6 +369,11 @@ result in a pseudo property-list that needs additional normalization with
 
 ;;; files and directories
 
+(defconst >>=!path-separator
+  "Character used by the operating system to separate pathname components."
+  (substring (file-name-as-directory "x") 1))
+
+
 (defun >>=dir-join (&rest parts)
   "Join PARTS to a single path."
   (mapconcat 'file-name-as-directory parts ""))
@@ -439,17 +444,34 @@ standard Emacs initialization file is returned."
       files)))
 
 
-(defun >>=executable-find (command &rest extra)
-  "Return the first COMMAND that is part of the BASE directory tree.
+(defun >>=find-env-executable (format &rest options)
+  "Find the first valid command from a set of OPTIONS.
+This is different from `>>=executable-find' in that each option is first
+formatted with the FORMAT string, upcased, and looked up in the environment
+using `getenv'.  Another difference is that the result is a `cons' with the
+form '(OPTION . COMMAND)'."
+  (let ((aux (delq nil (>>=fix-rest-list options)))
+	(fmt (or format "%s"))
+	res)
+    (while (and aux (not res))
+      (let* ((var (car aux))
+	     (env-var (getenv (upcase (format fmt var))))
+	     (tmp (executable-find (or env-var var))))
+	(if tmp
+	  (setq res (cons var tmp))))
+      (setq aux (cdr aux)))
+    res))
 
-If the main command is not found, a EXTRA set of alternatives will be used
-until a valid one is found.
 
-This function is safe avoiding nil commands.  If none is found, nil
-is returned."
-  (cl-some
-    (lambda (cmd) (if cmd (executable-find cmd)))
-    (cons command extra)))
+(defun >>=executable-find (&rest options)
+  "Search first valid command using the function `executable-find'.
+A set of OPTIONS is searched until a valid one is found.  This function is
+safe avoiding nil commands.  If none is found, nil is returned."
+  (let ((aux (delq nil (>>=cast-list options)))
+	res)
+    (while (and aux (not (setq res (executable-find (car aux)))))
+      (setq aux (cdr aux)))
+    res))
 
 
 (defun >>=file-string (file)
