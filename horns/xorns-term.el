@@ -101,7 +101,7 @@ ensure a specific shell, use `executable-find'."
 
 ;;; ANSI Terminal
 
-(defconst >>-!trigger/documentation-format
+(defconst >>-!trigger/docstring-format
   "Command to trigger '%s' terminals.
 See `>>=define-terminal-trigger' for more information."
   "Documentation format-string to be used with a trigger ID as argument.")
@@ -152,17 +152,20 @@ without any further digits, means paste to tab with index 0."
      (>>-trigger/adjust-string ,magic)))
 
 
-(defmacro >>=define-terminal-trigger (id &rest keywords)
+(defmacro >>=define-terminal-trigger (id &optional docstring &rest keywords)
   "Define a new trigger to manage `ansi-term' based terminals.
 
-A terminal trigger is an `interactive' command that can be invoked in three
-different scenarios: start a new shell session, reuse an existing one, or
-paste text into a target one.
+A trigger is an `interactive' command to manage shell terminals in three
+different scenarios: create, reuse, or paste.
 
-The ID argument is used as part of the '>>=<ID>-term' trigger name and also
-for the prefix in session buffer names.
+Argument ID is used to form the command name as '>>=<ID>-term', the prefix for
+buffer names, and to calculate the value of :PROGRAM if this keyword is
+missing.
 
-The following KEYWORDS are supported:
+DOCSTRING is the trigger documentation, it may contain a format string
+placeholder '%s' which will be replaced by the ID value.
+
+The following KEYWORDS are meaningful:
 
 :program STRING
     The file-name to be loaded as inferior shell.  When omitted, it is
@@ -178,13 +181,17 @@ The following KEYWORDS are supported:
 The optional `interactive' prefix argument of a trigger is used to identify
 both the shell session tab and whether to execute a paste operation.  See
 `>>-trigger/adjust-argument' to understand this logic."
-  (declare (indent 1))
+  (declare (doc-string 2) (indent 1) (debug t))
   (unless (symbolp id)
     (error ">>= terminal-trigger ID must be a symbol, not %s" (type-of id)))
+  (when (and docstring (not (stringp docstring)))
+    (setq
+      keywords (cons docstring keywords)
+      docstring nil))
+  (setq docstring (format (or docstring >>-!trigger/docstring-format) id))
   (let* (keyw program paste-adapter
 	 (fun-name (intern (format ">>=%s-term" id)))
-	 (bn-prefix (if (eq id 'ansi) "" (format "%s-" id)))
-	 (doc (format >>-!trigger/documentation-format id)))
+	 (bn-prefix (if (eq id 'ansi) "" (format "%s-" id))))
     (while (keywordp (setq keyw (car keywords)))
       (setq keywords (cdr keywords))
       (pcase keyw
@@ -195,7 +202,7 @@ both the shell session tab and whether to execute a paste operation.  See
       (error ">>= terminal-trigger wrong keywords: %s" keywords))
     (setq program (>>-shell-file-name (or program id)))
     `(defun ,fun-name (&optional arg)
-       ,doc
+       ,docstring
        (interactive "P")
        (setq arg (>>-trigger/adjust-argument arg))
        (let* ((command ,program)
