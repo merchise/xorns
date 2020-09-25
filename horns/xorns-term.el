@@ -18,6 +18,7 @@
 (require 'term)
 (require 'xorns-tools)
 (require 'xorns-simple)
+(require 'xorns-keywords)
 
 
 ;;; Common setup
@@ -189,17 +190,17 @@ both the shell session tab and whether to execute a paste operation.  See
       keywords (cons docstring keywords)
       docstring nil))
   (setq docstring (format (or docstring >>-!trigger/docstring-format) id))
-  (let* (keyw program paste-adapter
+  (setq keywords
+    (>>=normalize-alist '>>-trigger
+      (append `((id . ,id) (docstring . ,docstring))
+	(apply '>>=keywords->alist keywords))
+      ;; defaults
+      :program '(:eval id)
+      ))
+  (let* ((program (>>=kw-get :program keywords))
+	 (paste-adapter (>>=kw-get :paste-adapter keywords))
 	 (fun-name (intern (format ">>=%s-term" id)))
 	 (bn-prefix (if (eq id 'ansi) "" (format "%s-" id))))
-    (while (keywordp (setq keyw (car keywords)))
-      (setq keywords (cdr keywords))
-      (pcase keyw
-	(:program (setq program (pop keywords)))
-	(:paste-adapter (setq paste-adapter (pop keywords)))
-	(_  (error ">>= terminal-trigger invalid keyword: %s" keyw))))
-    (when keywords
-      (error ">>= terminal-trigger wrong keywords: %s" keywords))
     (setq program (>>-shell-file-name (or program id)))
     `(defun ,fun-name (&optional arg)
        ,docstring
