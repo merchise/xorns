@@ -23,26 +23,44 @@
 
 ;;; Common setup
 
-(defun >>-shell-file-name (&optional id)
-  "Calculate the file name to load as inferior shells for a terminal ID.
-If no executable is found, the default system shell is always returned.  To
-ensure a specific shell, use `executable-find'."
+(defsubst >>-getenvshell (variable &optional format)
+  "Get the value of environment VARIABLE using a FORMAT string for `getenv'.
+Resulting value will be checked with `executable-find'"
+  (executable-find
+    (or
+      (getenv (format (or format "%sSHELL") (upcase variable)))
+      variable)))
+
+
+(defun >>-default-shell-file-name ()
+  "Get the system default-shell-file-name."
   (or
-    (when id
-      (if (symbolp id)
-	(setq id (symbol-name id)))
-      (if (stringp id)
-	(or
-	  (executable-find id)
-	  (getenv (upcase id)))
-	;; else
-	(error
-	  ">>= shell-file-name ID must be a string or a symbol, not %s"
-	  (type-of id))))
     explicit-shell-file-name
-    (getenv "ESHELL")
-    (getenv "SHELL")
-    shell-file-name))
+    shell-file-name
+    (>>-getenvshell "ESHELL" "%s")
+    (>>-getenvshell "SHELL" "%s")))
+
+
+(defun >>-shell-file-name (&rest options)
+  "Calculate a file name valid to load as inferior shell in a terminal.
+
+The result is the first item in OPTIONS that can be validated with `getenv' or
+with `executable-find'."
+  (if (null options)
+    (>>-default-shell-file-name)
+    ;; else
+    (setq options (delq nil (>>=cast-list options)))
+    (let (res)
+      (while (and options (not res))
+	(let ((id (car options)))
+	  (setq options (cdr options))
+	  (if (eq id 'ansi)
+	    (setq res (>>-default-shell-file-name))
+	    ;; else
+	    (if (symbolp id)
+	      (setq id (symbol-name id)))
+	    (setq res (>>-getenvshell id)))))
+      res)))
 
 
 (use-package eshell
