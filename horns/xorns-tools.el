@@ -53,6 +53,15 @@ report the identity of the enclosed body."
      (error (message (concat ">>= error on (" ,header "): %s") err))))
 
 
+(defun >>=var-value (variable &optional default)
+  "Return the value of a VARIABLE, or DEFAULT if it is void."
+  (let ((symbol (intern-soft variable)))
+    (if (and symbol (boundp symbol))
+      (symbol-value symbol)
+      ;; else
+      default)))
+
+
 (defmacro >>=set-value (symbol value)
   "Initialize a SYMBOL (variable name) with an expression (VALUE)."
   `(progn
@@ -69,6 +78,70 @@ report the identity of the enclosed body."
   "Return SYMBOL's original value or nil if that is void."
   `(if (boundp ',symbol)
      (eval (car (get ',symbol 'standard-value)))))
+
+
+(defsubst >>=non-nil-symbol (object)
+  "Return if OBJECT is a true symbol."
+  (and object (symbolp object)))
+
+
+(defun >>=check-function (value &optional validate)
+  "Check if VALUE is an existing function.
+If VALIDATE is given and VALUE is not a function, an error is issued."
+  (if (functionp value)    ; TODO: difference with `fboundp'
+    value
+    ;; else
+    (if validate
+      (error ">>= wrong function form '%s'" value))))
+
+
+(defun >>=cast-function (value &optional validate)
+  "Recognize a function in VALUE and check it is valid.
+If VALIDATE is given and VALUE is not a function, an error is issued."
+  (>>=check-function
+    (cond
+      ((symbolp value)
+	value)
+      ((and (listp value)
+	 (memq (car value) '(quote function))
+	 (>>=non-nil-symbol (cadr value)))
+	(cadr value))
+      ((and (consp value) (memq (car value) '(lambda closure)))
+	value)
+      ((and (listp value)
+	 (memq (car value) '(quote function))
+	 (memq (car (cadr value)) '(lambda closure)))
+	(cadr value))
+      ((and (consp value) (>>=non-nil-symbol (car value)))
+	;; macro building a function?
+	(condition-case nil
+	  (eval value)
+	  (error value)))
+      (t
+	value))
+    validate))
+
+
+(defun >>=function-repr (fun)
+  "Return function FUN string representation.
+For a lambda function, its documentation is returned if it exists."
+  (when (functionp fun)
+    (if (symbolp fun)
+      (symbol-name fun)
+      ;; else
+      (if (consp fun)
+	(let* ((kind (car fun))
+	       (is-closure (eq kind 'closure))
+	       (doc (nth (if is-closure 3 2) fun)))
+	  (if (stringp doc)
+	    doc
+	    ;; else
+	    (if (symbolp kind)
+	      (format "(%s %s ...)" kind (nth (if is-closure 2 1) fun))
+	      ;; else
+	      (format "%s" fun))))
+	;; else
+	(format "%s:%s" (type-of fun) fun)))))
 
 
 ;; TODO: Check `make-obsolete', `define-obsolete-function-alias', ...
@@ -120,6 +193,35 @@ type containing the replacements.  See `replace-regexp-in-string' function."
 
 ;;; lists, property lists extensions
 
+(defsubst >>=length (arg)
+  "Return the length of a strict list ARG."
+  (if (and (listp arg) (listp (cdr arg)))
+    (length arg)))
+
+
+(defsubst >>=cast-list (value)
+  "Force VALUE to be a strict list."
+  (if (>>=length value) value (list value)))
+
+
+(defsubst >>=list-value (value)
+  "Extract a singleton VALUE from a list if it has only one value."
+  (if (eq (>>=length value) 1) (car value) value))
+
+
+(defun >>=fix-rest-list (value)
+  "Normalize VALUE used as rest-list argument."
+  (let ((len (>>=length value)))
+    (if len
+      (if (eq len 1)
+	(let ((res (car value)))
+	  (if (>>=length res) res value))
+	;; else
+	value)
+      ;; else
+      (list value))))
+
+
 (defun >>=mapconcat-alist (alist separator &rest options)
   "Conditionally `mapconcat' an association-list.
 The SEPARATOR is pasted in between each pair of results.  ALIST is formed by
@@ -137,6 +239,52 @@ implementation for an example."
     separator))
 
 
+(defmacro >>=append (target &rest sequences)
+  "Set TARGET to the result value from appending it with all the SEQUENCES."
+  `(setq ,target (append ,target ,@sequences)))
+
+
+(defmacro >>=plist-do (spec &rest body)
+  "Loop over a property-list using SPEC.
+
+Evaluate BODY with KEY-VAR and VALUE-VAR bound to each pair from PLIST, in
+turn.  Then evaluate RESULT to get return value, default nil.
+
+Based on `dolist' original macro.  Keys are not checked to be valid keywords,
+so this macro can be used to iterate over tuples of two values in any list.
+
+\(fn (KEY-VAR VALUE-VAR PLIST [RESULT]) BODY...)"
+  (declare (indent 1) (debug ((symbolp form &optional form) body)))
+  (unless (consp spec)
+    (signal 'wrong-type-argument (list 'consp spec)))
+  (unless (<= 3 (length spec) 4)
+    (signal 'wrong-number-of-arguments (list '(3 . 4) (length spec))))
+  (let ((temp '>>--plist-do-tail--))
+    (if lexical-binding
+      `(let ((,temp ,(nth 2 spec)))
+         (while ,temp
+           (let ((,(car spec) (car ,temp))
+		 (,(nth 1 spec) (nth 1 ,temp)))
+             ,@body
+             (setq ,temp (cdr (cdr ,temp)))))
+         ,@(cdr (cdr (cdr spec))))
+      ;; else
+      `(let ((,temp ,(nth 2 spec))
+             ,(car spec)
+	     ,(nth 1 spec))
+         (while ,temp
+           (setq
+	     ,(car spec) (car ,temp)
+	     ,(nth 1 spec) (nth 1 ,temp))
+           ,@body
+           (setq ,temp (cdr (cdr ,temp))))
+         ,@(if (cdr (cdr (cdr spec)))
+             `((setq
+		 ,(car spec) nil
+		 ,(nth 1 spec) nil)
+		,@(cdr (cdr (cdr spec)))))))))
+
+
 (defun >>=plist-exclude (plist &rest props)
   "Return a copy of PLIST with all PROPS excluded.
 PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
@@ -150,9 +298,81 @@ PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
     res))
 
 
-(defmacro >>=append (target &rest sequences)
-  "Set TARGET to the result value from appending it with all the SEQUENCES."
-  `(setq ,target (append ,target ,@sequences)))
+(defun >>=split-list (pred xs)
+  "Split list XS into a `cons' of two lists '(HEAD . TAIL)'.
+
+HEAD is all successive items of XS for which (PRED item) returns nil.  TAIL is
+a list of all items remaining starting from the first for which (PRED item)
+returns a non-nil value."
+  (let ((ys (list nil)) (zs (list nil)) flip)
+    (cl-dolist (x xs)
+      (if flip
+        (nconc zs (list x))
+        (if (funcall pred x)
+          (progn
+            (setq flip t)
+            (nconc zs (list x)))
+          (nconc ys (list x)))))
+    (cons (cdr ys) (cdr zs))))
+
+
+(defun >>=plist-merge (target key &rest values)
+  "Merge VALUES into a TARGET property-list KEY."
+  (plist-put target key
+    (if (plist-member target key)
+      (append (>>=cast-list (plist-get target key)) values)
+      ;; else
+      (>>=list-value values))))
+
+
+(defun >>=plist-fix (source)
+  "Fix a pseudo SOURCE property-list into a regular one."
+  (setq source (delq 'elisp--witness--lisp source))
+  (let (target multi)
+    (while source
+      (let* ((xs (>>=split-list #'keywordp (cdr source)))
+	     (key (car source))
+	     (value (car xs)))
+	;; value
+	(setq target
+	  (plist-put target key
+	    (if (plist-member target key)
+	      (let ((current (plist-get target key)))
+		(append
+		  (if (memq key multi)
+		    current
+		    ;; else
+		    (setq multi (cons key multi))
+		    (list current))
+		  value))
+	      ;; else
+	      (if (eq (>>=length value) 1)
+		(car value)
+		;; else
+		(setq multi (cons key multi))
+		value)))
+	  source (cdr xs))))
+    target))
+
+
+(defun >>=plist-rename-aliases (target &rest aliases)
+  "Rename a set of ALIASES in a TARGET property-list.
+
+ALIASES is given as an association-list of '(CURRENT . NEW)' pairs.  It could
+result in a pseudo property-list that needs additional normalization with
+`>>=plist-fix'."
+  (mapc
+    (lambda (pair)
+      (let ((cur (car pair))
+	    (new (cdr pair))
+	    aux)
+	(if (and (keywordp cur) (keywordp new) (not (eq cur new)))
+	  (while (setq aux (memq cur target))
+	    (setcar aux new))
+	  ;; else
+	  (error ">>= must be keywords, not '%s'" pair))))
+    (>>=fix-rest-list aliases))
+  target)
 
 
 
