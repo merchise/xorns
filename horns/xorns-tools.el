@@ -346,6 +346,55 @@ returns a non-nil value."
     target))
 
 
+(defun >>=plist-normalize (class name keywords &rest defaults)
+  "Normalize a sequence of KEYWORDS.
+
+KEYWORDS must be a pseudo property-list, usually provided as final arguments
+to a macro that defines a new concept.
+
+Each normalization process is identified with a CLASS and an instance NAME.
+For example, in '(use-package magit)' the equivalent would be `use-package'
+being the CLASS and `magit' being the NAME.
+
+KEYWORDS are first fixed by the `>>=plist-fix' function, then DEFAULTS are
+updated.
+
+Finally each VALUE is normalized as follows: function `eval' is applied when
+the VALUE is defined using the form '(:eval <lisp-expression>)'; functions
+'<CLASS>-normalize/<:KEY>' and '<NAME>-normalize/<:KEY>' are applied when
+defined, these functions must be defined to get three arguments (KEY VALUE
+KEYWORDS).  KEYWORDS will be passed as the lexical environment argument."
+  (if (null keywords)
+    (setq keywords defaults)
+    ;; else
+    (setq keywords (>>=plist-fix keywords))
+    (>>=plist-do (key value defaults keywords)
+      (if (keywordp key)
+	(when (not (plist-member keywords key))
+	  (plist-put keywords key value))
+	;; else
+	(error ">>= '%s' must be a keyword, not %s" key (type-of key)))))
+  (>>=plist-do (key value keywords)
+    (let (changed)
+      (when (and (listp value) (eq :eval (car value)))
+	(if (eq (length value) 2)
+	  (setq
+	    value (eval (cadr value) `((keywords . ,keywords)))
+	    changed t)
+	  ;; else
+	  (error ">>= eval form '%s' must have two elements, not %s"
+	    value (length value))))
+      (dolist (prefix `(,class ,name))
+	(let ((check (intern-soft (format "%s-normalize/%s" prefix key))))
+	  (when (functionp check)
+	    (setq
+	      value (funcall check value keywords)
+	      changed t))))
+      (if changed
+	(plist-put keywords key value))))
+  keywords)
+
+
 (defun >>=plist-rename-aliases (target &rest aliases)
   "Rename a set of ALIASES in a TARGET property-list.
 
