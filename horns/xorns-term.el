@@ -120,19 +120,19 @@ with `executable-find'."
 
 ;;; ANSI Terminal
 
-(defconst >>-!trigger/docstring-format
-  "Command to trigger '%s' terminals.
-See `>>=define-terminal-trigger' for more information."
-  "Documentation format-string to be used with a trigger ID as argument.")
+(defconst >>-!term/docstring-format
+  "Command to manage '%s' terminals.
+See `>>=define-terminal' for more information."
+  "Documentation format-string to be used with a terminal ID as argument.")
 
 
-(defun >>-trigger/adjust-argument (prefix)
-  "Adjust a trigger PREFIX argument.
+(defun >>-term/adjust-argument (prefix)
+  "Adjust a terminal PREFIX argument.
 
-Convert a trigger PREFIX argument to a (TAB-INDEX . PASTE) pair.  The first
-value will be an integer greater than or equal to zero, or nil for the default
-tab.  The second value will be a boolean specifying if the selected text in
-the current buffer must be pasted to that terminal shell.
+Convert a terminal command PREFIX argument to a (TAB-INDEX . PASTE) pair.  The
+first value will be an integer greater than or equal to zero, or nil for the
+default tab.  The second value will be a boolean specifying if the selected
+text in the current buffer must be pasted to that terminal shell.
 
 The `universal-argument' \(or `C-u') without any further digits, means paste
 to the default tab, identified with nil.  The `negative-argument' \(or `C--')
@@ -148,7 +148,7 @@ without any further digits, means paste to tab with index 0."
       '(0 . t))))
 
 
-(defun >>-trigger/adjust-string (string)
+(defun >>-term/adjust-string (string)
   "Adjust a STRING to paste it into a terminal."
   (when string
     (let ((res (string-trim-right string)))
@@ -156,33 +156,32 @@ without any further digits, means paste to tab with index 0."
 	(concat res "\n")))))
 
 
-(defun >>-trigger/paste-get (&optional adapter)
+(defun >>-term/paste-get (&optional adapter)
   "Get current buffer focused-text and adjust it with the given ADAPTER."
-  (let ((res (>>-trigger/adjust-string (>>=buffer-focused-text))))
+  (let ((res (>>-term/adjust-string (>>=buffer-focused-text))))
     (if (and res adapter) (funcall adapter res) res)))
 
 
-(defmacro >>=trigger/define-paste-magic (&optional magic)
+(defmacro >>=term/define-paste-magic (&optional magic)
   "Create an IPython like MAGIC paste-adapter."
   (if (null magic)
     (setq magic "%paste"))
   `(lambda (chars)
      (kill-new chars)
-     (>>-trigger/adjust-string ,magic)))
+     (>>-term/adjust-string ,magic)))
 
 
-(defmacro >>=define-terminal-trigger (id &optional docstring &rest keywords)
-  "Define a new trigger to manage `ansi-term' based terminals.
+(defmacro >>=define-terminal (id &optional docstring &rest keywords)
+  "Define a command to manage `ansi-term' based terminals.
 
-A trigger is an `interactive' command to manage shell terminals in three
-different scenarios: create, reuse, or paste.
+This macro defines a command to manage shell terminals in two scenarios:
+trigger/reuse a shell session, or paste.
 
-Argument ID is used to form the command name as '>>=<ID>-term', the prefix for
-buffer names, and to calculate the value of :PROGRAM if this keyword is
-missing.
+ID must be a symbol, it will be used to form the command NAME using
+'>>=<ID>-term' format, and for default values of KEYWORDS :program and
+:buffer-name.
 
-DOCSTRING is the trigger documentation, it may contain a format string
-placeholder '%s' which will be replaced by the ID value.
+DOCSTRING is the terminal command documentation.
 
 The following KEYWORDS are meaningful:
 
@@ -194,22 +193,35 @@ The following KEYWORDS are meaningful:
 
     When a paste operation is invoked, the text is wrapped with this function
     before calling `term-send-raw-string'.  The macro
-    `>>=trigger/define-paste-magic' can be used to create adapters using the
+    `>>=term/define-paste-magic' can be used to create adapters using the
     IPython magic way.
 
-The optional `interactive' prefix argument of a trigger is used to identify
-both the shell session tab and whether to execute a paste operation.  See
-`>>-trigger/adjust-argument' to understand this logic."
+Given KEYWORDS are normalized using `>>=plist-normalize', the CLASS will be
+'>>-term', and the NAME will be used but replacing '>>=' prefix for '>>-'.
+
+The defined terminal command takes one optional prefix argument.  It is used
+to identify both the terminal shell session TAB-INDEX and whether to execute a
+paste operation.
+
+The command prefix argument is converted to a \(TAB-INDEX . PASTE) pair using
+the function `>>-term/adjust-argument'.  TAB-INDEX is nil, for the default
+tab, or any integer greater than or equal to zero.  PASTE specifies if the
+selected text in the current buffer must be pasted to the corresponding
+terminal shell.
+
+The `universal-argument', or `C-u' without any further digits, means paste to
+the default tab, identified with nil.  The `negative-argument' or `C--'
+without any further digits, means paste to tab with index 0."
   (declare (doc-string 2) (indent 1) (debug t))
   (unless (symbolp id)
-    (error ">>= terminal-trigger ID must be a symbol, not %s" (type-of id)))
+    (error ">>= terminal ID must be a symbol, not %s" (type-of id)))
   (when (and docstring (not (stringp docstring)))
     (setq
       keywords (cons docstring keywords)
       docstring nil))
-  (setq docstring (format (or docstring >>-!trigger/docstring-format) id))
+  (setq docstring (format (or docstring >>-!term/docstring-format) id))
   (setq keywords
-    (>>=normalize-alist '>>-trigger
+    (>>=normalize-alist '>>-term
       (append `((id . ,id) (docstring . ,docstring))
 	(apply '>>=keywords->alist keywords))
       ;; defaults
@@ -223,7 +235,7 @@ both the shell session tab and whether to execute a paste operation.  See
     `(defun ,fun-name (&optional arg)
        ,docstring
        (interactive "P")
-       (setq arg (>>-trigger/adjust-argument arg))
+       (setq arg (>>-term/adjust-argument arg))
        (let* ((command ,program)
 	      (tab-index (car arg))
 	      (paste (cdr arg))
@@ -233,7 +245,7 @@ both the shell session tab and whether to execute a paste operation.  See
 	      (buffer (get-buffer starred))
 	      (process (get-buffer-process buffer)))
 	 (when paste
-	   (setq paste (>>-trigger/paste-get ,paste-adapter)))
+	   (setq paste (>>-term/paste-get ,paste-adapter)))
 	 (if buffer
 	   (if process
 	     (progn
@@ -253,11 +265,11 @@ both the shell session tab and whether to execute a paste operation.  See
 
 
 
-(>>=define-terminal-trigger ansi)        ; define `>>=ansi-term'
+(>>=define-terminal ansi)        ; define `>>=ansi-term'
 
-;; (>>=define-terminal-trigger python
+;; (>>=define-terminal python
 ;;   :program "ipython"
-;;   :paste-adapter (>>=trigger/define-paste-magic)
+;;   :paste-adapter (>>=term/define-paste-magic)
 ;;   )
 
 
