@@ -239,40 +239,39 @@ without any further digits, means paste to tab with index 0."
       ;; defaults
       :program id
       :buffer-name (if (eq id 'ansi) "terminal" (format "%s-term" id))))
-  (let* ((paste-adapter (plist-get keywords :paste-adapter))
-	 (fun-name (intern (format ">>=%s-term" id))))
-    `(defun ,fun-name (&optional arg)
-       ,docstring
-       (interactive "P")
-       (setq arg (>>-term/adjust-argument arg))
-       (let* ((command ,(plist-get keywords :program))
-	      (tab-index (car arg))
-	      (paste (cdr arg))
-	      (buf-name
-		(concat
-		  ,(plist-get keywords :buffer-name)
-		  (if tab-index (format " - %s" tab-index) "")))
-	      (starred (format "*%s*" buf-name))
-	      (buffer (get-buffer starred))
-	      (process (get-buffer-process buffer)))
-	 (when paste
-	   (setq paste (>>-term/paste-get ,paste-adapter)))
-	 (if buffer
-	   (if process
-	     (progn
-	       (setq command nil)
-	       (switch-to-buffer buffer))
-	     ;; else
-	     (message ">>= killing '%s' terminal, process was finished."
-	       starred)
-	     (kill-buffer buffer)))
-	 (when command
-	   (setq buffer (ansi-term command buf-name)))
-	 (when paste
-	   (message ">>= term-send-raw-string %s" paste)
-	   (term-send-raw-string paste))
-	 buffer))
-    ))
+  `(defun ,(intern (format ">>=%s-term" id)) (&optional arg)
+     ,docstring
+     (interactive "P")
+     (setq arg (>>-term/adjust-argument arg))
+     (let* ((command ,(plist-get keywords :program))
+	    (tab-index (car arg))
+	    (paste (cdr arg))
+	    (buf-name
+	      (concat
+		,(plist-get keywords :buffer-name)
+		(if tab-index (format " - %s" tab-index) "")))
+	    (starred (format "*%s*" buf-name))
+	    (buffer (get-buffer starred))
+	    (process (get-buffer-process buffer)))
+       (when paste
+	 (setq paste
+	   (>>-term/paste-get ,(plist-get keywords :paste-adapter))))
+       (if buffer
+	 (if process
+	   (progn
+	     (setq command nil)
+	     (switch-to-buffer buffer))
+	   ;; else
+	   (message ">>= killing '%s' terminal, process was finished."
+	     starred)
+	   (kill-buffer buffer)))
+       (when command
+	 (setq buffer (ansi-term command buf-name)))
+       (when paste
+	 (message ">>= term-send-raw-string %s" paste)
+	 (term-send-raw-string paste))
+       buffer))
+  )
 
 
 (>>=define-terminal ansi)        ; define `>>=ansi-term'
@@ -281,7 +280,6 @@ without any further digits, means paste to tab with index 0."
 ;;   :program "ipython"
 ;;   :paste-adapter (>>=term/define-paste-magic)
 ;;   )
-
 
 (use-package term
   :preface
