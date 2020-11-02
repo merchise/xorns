@@ -195,8 +195,9 @@ The following KEYWORDS are meaningful:
 	defaults to the result of `>>-default-shell-file-name'.
 
 :buffer-name
-	A prefix for buffer names, the suffix will be the TAB-INDEX, see
-	below.  It defaults to NAME.
+	A string prefix for buffer names, the suffix will be the TAB-INDEX,
+	see below.  It defaults to 'terminal' if ID is 'ansi', or '<ID>-term'
+	otherwise.
 
 :paste-get
 	A function to get the focused-text in the current buffer when a paste
@@ -236,10 +237,10 @@ without any further digits, means paste to tab with index 0."
   (setq keywords
     (>>=plist-normalize '>>-term (format ">>-%s-term" id) keywords
       ;; defaults
-      :program id))
+      :program id
+      :buffer-name (if (eq id 'ansi) "terminal" (format "%s-term" id))))
   (let* ((paste-adapter (plist-get keywords :paste-adapter))
-	 (fun-name (intern (format ">>=%s-term" id)))
-	 (bn-prefix (if (eq id 'ansi) "" (format "%s-" id))))
+	 (fun-name (intern (format ">>=%s-term" id))))
     `(defun ,fun-name (&optional arg)
        ,docstring
        (interactive "P")
@@ -247,8 +248,10 @@ without any further digits, means paste to tab with index 0."
        (let* ((command ,(plist-get keywords :program))
 	      (tab-index (car arg))
 	      (paste (cdr arg))
-	      (bn-suffix (if tab-index (format " - %s" tab-index) ""))
-	      (buf-name (format "%sterminal%s" ,bn-prefix bn-suffix))
+	      (buf-name
+		(concat
+		  ,(plist-get keywords :buffer-name)
+		  (if tab-index (format " - %s" tab-index) "")))
 	      (starred (format "*%s*" buf-name))
 	      (buffer (get-buffer starred))
 	      (process (get-buffer-process buffer)))
