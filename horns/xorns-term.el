@@ -18,7 +18,6 @@
 (require 'term)
 (require 'xorns-tools)
 (require 'xorns-simple)
-(require 'xorns-keywords)
 
 
 ;;; Common setup
@@ -219,16 +218,15 @@ without any further digits, means paste to tab with index 0."
     (setq
       keywords (cons docstring keywords)
       docstring nil))
-  (setq docstring (format (or docstring >>-!term/docstring-format) id))
+  (when (null docstring)
+    (setq docstring (format >>-!term/docstring-format id)))
   (setq keywords
-    (>>=normalize-alist '>>-term
-      (append `((id . ,id) (docstring . ,docstring))
-	(apply '>>=keywords->alist keywords))
+    (>>=plist-normalize '>>-term (format ">>-%s-term" id) keywords
       ;; defaults
-      :program '(:eval id)
+      :program id
       ))
-  (let* ((program (>>=kw-get :program keywords))
-	 (paste-adapter (>>=kw-get :paste-adapter keywords))
+  (let* ((program (plist-get keywords :program))
+	 (paste-adapter (plist-get keywords :paste-adapter))
 	 (fun-name (intern (format ">>=%s-term" id)))
 	 (bn-prefix (if (eq id 'ansi) "" (format "%s-" id))))
     (setq program (>>-shell-file-name (or program id)))
