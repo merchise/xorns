@@ -170,6 +170,11 @@ without any further digits, means paste to tab with index 0."
      (>>-term/adjust-string ,magic)))
 
 
+(defun >>-term-normalize/:program (value &optional _keywords)
+  "Adjust VALUE for keyword ':program'."
+  (>>-shell-file-name value))
+
+
 (defmacro >>=define-terminal (id &optional docstring &rest keywords)
   "Define a command to manage `ansi-term' based terminals.
 
@@ -184,16 +189,24 @@ DOCSTRING is the terminal command documentation.
 
 The following KEYWORDS are meaningful:
 
-:program STRING
-    The file-name to be loaded as inferior shell.  When omitted, it is
-    calculated with `>>-shell-file-name' using ID as its argument.
+:program
+	The file-name to be loaded as inferior shell.  The value must be a
+	string or a list of choices to find the first valid value.  It
+	defaults to the result of `>>-default-shell-file-name'.
 
-:paste-adapter FUNCTION
+:buffer-name
+	A prefix for buffer names, the suffix will be the TAB-INDEX, see
+	below.  It defaults to NAME.
 
-    When a paste operation is invoked, the text is wrapped with this function
-    before calling `term-send-raw-string'.  The macro
-    `>>=term/define-paste-magic' can be used to create adapters using the
-    IPython magic way.
+:paste-get
+	A function to get the focused-text in the current buffer when a paste
+	operation is invoked.  It defaults to `>>-term/paste-get'.
+
+:paste-send
+	A function to send the text to the selected terminal shell when a
+	paste operation is invoked.  If a string value is given, it is
+	converted to a function using the macro `>>=term/define-paste-magic'.
+	It defaults to `>>-term/paste-send'.
 
 Given KEYWORDS are normalized using `>>=plist-normalize', the CLASS will be
 '>>-term', and the NAME will be used but replacing '>>=' prefix for '>>-'.
@@ -223,18 +236,15 @@ without any further digits, means paste to tab with index 0."
   (setq keywords
     (>>=plist-normalize '>>-term (format ">>-%s-term" id) keywords
       ;; defaults
-      :program id
-      ))
-  (let* ((program (plist-get keywords :program))
-	 (paste-adapter (plist-get keywords :paste-adapter))
+      :program id))
+  (let* ((paste-adapter (plist-get keywords :paste-adapter))
 	 (fun-name (intern (format ">>=%s-term" id)))
 	 (bn-prefix (if (eq id 'ansi) "" (format "%s-" id))))
-    (setq program (>>-shell-file-name (or program id)))
     `(defun ,fun-name (&optional arg)
        ,docstring
        (interactive "P")
        (setq arg (>>-term/adjust-argument arg))
-       (let* ((command ,program)
+       (let* ((command ,(plist-get keywords :program))
 	      (tab-index (car arg))
 	      (paste (cdr arg))
 	      (bn-suffix (if tab-index (format " - %s" tab-index) ""))
@@ -260,7 +270,6 @@ without any further digits, means paste to tab with index 0."
 	   (term-send-raw-string paste))
 	 buffer))
     ))
-
 
 
 (>>=define-terminal ansi)        ; define `>>=ansi-term'
