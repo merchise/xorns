@@ -22,44 +22,13 @@
 
 ;;; Common setup
 
-(defsubst >>-getenvshell (variable &optional format)
-  "Get the value of environment VARIABLE using a FORMAT string for `getenv'.
-Resulting value will be checked with `executable-find'"
-  (executable-find
+(defconst >>=!default-shell-file-name
+  (purecopy
     (or
-      (getenv (format (or format "%sSHELL") (upcase variable)))
-      variable)))
-
-
-(defun >>-default-shell-file-name ()
-  "Get the system default-shell-file-name."
-  (or
-    explicit-shell-file-name
-    shell-file-name
-    (>>-getenvshell "ESHELL" "%s")
-    (>>-getenvshell "SHELL" "%s")))
-
-
-(defun >>-shell-file-name (&rest options)
-  "Calculate a file name valid to load as inferior shell in a terminal.
-
-The result is the first item in OPTIONS that can be validated with `getenv' or
-with `executable-find'."
-  (if (null options)
-    (>>-default-shell-file-name)
-    ;; else
-    (setq options (delq nil (>>=cast-list options)))
-    (let (res)
-      (while (and options (not res))
-	(let ((id (car options)))
-	  (setq options (cdr options))
-	  (if (eq id 'ansi)
-	    (setq res (>>-default-shell-file-name))
-	    ;; else
-	    (if (symbolp id)
-	      (setq id (symbol-name id)))
-	    (setq res (>>-getenvshell id)))))
-      res)))
+      explicit-shell-file-name
+      shell-file-name
+      (>>=executable-find (getenv "ESHELL") (getenv "SHELL") "bash" "sh")))
+  "System default shell file-name.")
 
 
 (use-package eshell
@@ -84,8 +53,7 @@ with `executable-find'."
 	(define-key eshell-mode-map
 	  [remap eshell-pcomplete] 'helm-esh-pcomplete)
 	(define-key eshell-mode-map
-	  [remap eshell-list-history] 'helm-eshell-history)))
-    )
+	  [remap eshell-list-history] 'helm-eshell-history))))
   :custom
   (eshell-history-size 1024)
   (eshell-hist-ignoredups t)
@@ -149,30 +117,76 @@ without any further digits, means paste to tab with index 0."
 
 (defun >>-term/adjust-string (string)
   "Adjust a STRING to paste it into a terminal."
-  (when string
-    (let ((res (string-trim-right string)))
-      (unless (string-empty-p res)
-	(concat res "\n")))))
+  (let ((res (and string (string-trim-right string))))
+    (if (and res (not (string-empty-p res)))
+      res)))
 
 
-(defun >>-term/paste-get (&optional adapter)
-  "Get current buffer focused-text and adjust it with the given ADAPTER."
-  (let ((res (>>-term/adjust-string (>>=buffer-focused-text))))
-    (if (and res adapter) (funcall adapter res) res)))
+(defun >>-term/paste-get ()
+  "Get current buffer focused-text and adjust it for a terminal shell."
+  (>>-term/adjust-string (>>=buffer-focused-text)))
 
 
-(defmacro >>=term/define-paste-magic (&optional magic)
-  "Create an IPython like MAGIC paste-adapter."
+(defun >>-term/paste-send (text)
+  "Send TEXT to a selected terminal shell session."
+  (term-send-raw-string (concat text "\n")))
+
+
+(defun >>=term/define-paste-magic (&optional magic)
+  "Create a ':paste-send' adapter like IPython's MAGIC '%paste' command."
   (if (null magic)
     (setq magic "%paste"))
-  `(lambda (chars)
-     (kill-new chars)
-     (>>-term/adjust-string ,magic)))
+  (lambda (text)
+    (when text
+      (if (string-match-p "\n" text)
+	(progn
+	  (kill-new text)
+	  (>>-term/paste-send magic)
+	  (current-kill 1))
+	;; else
+	(>>-term/paste-send text)))))
 
 
-(defun >>-term-normalize/:program (value &optional _keywords)
-  "Adjust VALUE for keyword ':program'."
-  (>>-shell-file-name value))
+(defun >>-term-normalize/:program (value &optional keywords)
+  "Adjust VALUE for ':program' using KEYWORDS environment."
+  (cond
+    ((eq value 'ansi)
+      (plist-put keywords :program-id "ansi")
+      >>=!default-shell-file-name)
+    ((symbolp value)
+      (>>-term-normalize/:program (symbol-name value) keywords))
+    (t    ; string, or sequence of options
+      (let ((pair (>>=find-env-executable "%sSHELL" value)))
+	(if pair
+	  (progn
+	    (plist-put keywords :program-id (car pair))
+	    (cdr pair))
+	  ;; else
+	  (error ">>= invalid ':program' value '%s'" value))))))
+
+
+(defun >>-term-normalize/:paste-get (value &optional _keywords)
+  "Adjust VALUE for keyword ':paste-get'."
+  (>>=cast-function value 'validate))
+
+
+(defun >>-term-normalize/:paste-send (value &optional keywords)
+  "Adjust ':paste-send' VALUE using KEYWORDS environment."
+  (if (stringp value)
+    (>>-term-normalize/:paste-send
+      (>>=term/define-paste-magic value) keywords)
+    ;; else
+    (or
+      (>>=cast-function value)
+      (if (consp value)
+	(let* ((options (>>=cast-list value))
+	       (program (plist-get keywords :program-id))
+	       (res (assoc program options 'string-equal)))
+	  (if res
+	    (>>-term-normalize/:paste-send (cdr res))
+	    #'>>-term/paste-send))
+	;; else
+	(error ">>= invalid ':paste-send' value '%s'" :paste-send)))))
 
 
 (defmacro >>=define-terminal (id &optional docstring &rest keywords)
@@ -192,7 +206,11 @@ The following KEYWORDS are meaningful:
 :program
 	The file-name to be loaded as inferior shell.  The value must be a
 	string or a list of choices to find the first valid value.  It
-	defaults to the result of `>>-default-shell-file-name'.
+	defaults to the `symbol-name' result of ID.
+
+:program-id
+	Virtual value, must not be given as a formal argument.  It storage the
+	original value of ':program'.
 
 :buffer-name
 	A string prefix for buffer names, the suffix will be the TAB-INDEX,
@@ -204,10 +222,12 @@ The following KEYWORDS are meaningful:
 	operation is invoked.  It defaults to `>>-term/paste-get'.
 
 :paste-send
-	A function to send the text to the selected terminal shell when a
-	paste operation is invoked.  If a string value is given, it is
-	converted to a function using the macro `>>=term/define-paste-magic'.
-	It defaults to `>>-term/paste-send'.
+	A function to send selected text into a terminal shell when a paste
+	operation is invoked.  If a string is given, it is converted to a
+	function using `>>=term/define-paste-magic', if a `cons' or an
+	assotiation-list is given, ':program-id' will be searched in a `car'
+	value, the `cdr' value will be the definitive value.  It defaults to
+	`>>-term/paste-send'.
 
 Given KEYWORDS are normalized using `>>=plist-normalize', the CLASS will be
 '>>-term', and the NAME will be used but replacing '>>=' prefix for '>>-'.
@@ -237,25 +257,29 @@ without any further digits, means paste to tab with index 0."
   (setq keywords
     (>>=plist-normalize '>>-term (format ">>-%s-term" id) keywords
       ;; defaults
+      :id id
+      :function-name (intern (format ">>=%s-term" id))
+      :buffer-name (if (eq id 'ansi) "terminal" (format "%s-term" id))
       :program id
-      :buffer-name (if (eq id 'ansi) "terminal" (format "%s-term" id))))
-  `(defun ,(intern (format ">>=%s-term" id)) (&optional arg)
+      :paste-get #'>>-term/paste-get
+      :paste-send #'>>-term/paste-send))
+  `(defun ,(plist-get keywords :function-name) (&optional arg)
      ,docstring
      (interactive "P")
      (setq arg (>>-term/adjust-argument arg))
      (let* ((command ,(plist-get keywords :program))
+	    (paste-get ',(plist-get keywords :paste-get))
+	    (paste-send ',(plist-get keywords :paste-send))
 	    (tab-index (car arg))
 	    (paste (cdr arg))
-	    (buf-name
-	      (concat
-		,(plist-get keywords :buffer-name)
-		(if tab-index (format " - %s" tab-index) "")))
+	    (buffer-name ',(plist-get keywords :buffer-name))
+	    (buf-name-index (if tab-index (format " - %s" tab-index) ""))
+	    (buf-name (concat buffer-name buf-name-index))
 	    (starred (format "*%s*" buf-name))
 	    (buffer (get-buffer starred))
 	    (process (get-buffer-process buffer)))
        (when paste
-	 (setq paste
-	   (>>-term/paste-get ,(plist-get keywords :paste-adapter))))
+	 (setq paste (funcall paste-get)))
        (if buffer
 	 (if process
 	   (progn
@@ -268,18 +292,19 @@ without any further digits, means paste to tab with index 0."
        (when command
 	 (setq buffer (ansi-term command buf-name)))
        (when paste
-	 (message ">>= term-send-raw-string %s" paste)
-	 (term-send-raw-string paste))
-       buffer))
-  )
+	 (funcall paste-send paste))
+       buffer)))
 
 
 (>>=define-terminal ansi)        ; define `>>=ansi-term'
 
+
 ;; (>>=define-terminal python
-;;   :program "ipython"
-;;   :paste-adapter (>>=term/define-paste-magic)
+;;   :program "ipython" "python"
+;;   :paste-send ("ipython" . "%paste")
+;;   :mode python
 ;;   )
+
 
 (use-package term
   :preface
