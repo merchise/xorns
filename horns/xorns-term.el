@@ -93,6 +93,12 @@ See `>>=define-terminal' for more information."
   "Documentation format-string to be used with a terminal ID as argument.")
 
 
+(defvar >>=term-modes nil
+  "An association-list mapping major modes to default ansi terminals.
+See macro `>>=define-terminal' and function `>>=terminal' for more
+information.")
+
+
 (defun >>-term/adjust-argument (prefix)
   "Adjust a terminal PREFIX argument.
 
@@ -165,6 +171,28 @@ without any further digits, means paste to tab with index 0."
 	  (error ">>= invalid ':program' value '%s'" value))))))
 
 
+(defun >>-term-normalize/:mode (value &optional keywords)
+  "Adjust VALUE for ':mode' using KEYWORDS environment."
+  (let ((function-name (plist-get keywords :function-name)))
+    (if function-name
+      (dolist (item (>>=cast-list value))
+	(if (symbolp item)
+	  (let* ((mode (or (intern-soft (format "%s-mode" item)) item))
+		  (current (assq mode >>=term-modes)))
+	    (if (not current)
+	      (setq >>=term-modes
+		(cons `(,mode . ,function-name) >>=term-modes))
+	      ;; else
+	      (when (not (equal (cdr current) function-name))
+		(warn ">>= repeated :mode '%s', functions %s -> %s"
+		  mode (cdr current) function-name)
+		(setcdr current function-name))))
+	  ;; else
+	  (error ">>= invalid ':mode' value '%s', must be a symbol" item)))
+      ;; else
+      (error ">>= ':function-name' not found to set mode '%s'" value))))
+
+
 (defun >>-term-normalize/:paste-get (value &optional _keywords)
   "Adjust VALUE for keyword ':paste-get'."
   (>>=cast-function value 'validate))
@@ -211,6 +239,11 @@ The following KEYWORDS are meaningful:
 :program-id
 	Virtual value, must not be given as a formal argument.  It storage the
 	original value of ':program'.
+
+:mode
+	A sequence of one or more symbols representing major modes to be used
+	with terminal being defined.  See variable `>>=term-modes' and
+	function `>>=terminal'.
 
 :buffer-name
 	A string prefix for buffer names, the suffix will be the TAB-INDEX,
@@ -299,11 +332,15 @@ without any further digits, means paste to tab with index 0."
 (>>=define-terminal ansi)        ; define `>>=ansi-term'
 
 
-;; (>>=define-terminal python
-;;   :program "ipython" "python"
-;;   :paste-send ("ipython" . "%paste")
-;;   :mode python
-;;   )
+(defun >>=terminal (&optional arg)
+  "Use current mode to choose a terminal created with `>>=define-terminal'.
+The interactive argument ARG is used without modification."
+  (interactive "P")
+  (let ((term (cdr (assq major-mode >>=term-modes))))
+    (if term
+      (funcall term arg)
+      ;; else
+      (>>=ansi-term arg))))
 
 
 (use-package term
@@ -314,8 +351,9 @@ without any further digits, means paste to tab with index 0."
     (term-send-raw-string "\C-k")
     (kill-line))
   :bind
-  (("C-c t" . ansi-term)    ;; TODO: migrate to `>>=ansi-term'
+  (("C-c t" . >>=ansi-term)    ;; TODO: migrate to `>>=ansi-term'
    ("s-M-t" . >>=ansi-term)
+   ("s-/" . >>=terminal)
    (:map term-mode-map
      ("C-c C-t" . term-char-mode))
    (:map term-raw-map
