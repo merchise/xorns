@@ -17,6 +17,7 @@
 (require 'xorns-tools)
 (require 'xorns-buffers)
 (require 'xorns-simple)
+(require 'xorns-term)
 
 (require 'use-package)
 
@@ -120,6 +121,12 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
   :hook
   ((python-mode . outline-minor-mode)
    (inferior-python-mode . -inferior-python-setup)))
+
+
+(>>=define-terminal python
+  :program "ipython" "python"
+  :paste-send ("ipython" . "%paste")
+  :mode python)
 
 
 (use-package blacken
