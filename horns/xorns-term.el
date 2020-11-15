@@ -128,6 +128,20 @@ without any further digits, means paste to tab with index 0."
       res)))
 
 
+(defun >>-term/get-mode-tuples (keywords)
+  "Get the new ':mode' tuples from KEYWORDS to adjust `>>=term-modes'."
+  (let ((fn (plist-get keywords :function-name))
+	(modes (plist-get keywords :mode)))
+    (if modes
+      (let ((new (mapcar (lambda (mode) `(,mode . ,fn)) modes)))
+	(append
+	  new
+	  (delq nil
+	    (mapcar
+	      (lambda (tuple) (if (not (assq (car tuple) new)) tuple))
+	      >>=term-modes)))))))
+
+
 (defun >>-term/paste-get ()
   "Get current buffer focused-text and adjust it for a terminal shell."
   (>>-term/adjust-string (>>=buffer-focused-text)))
@@ -171,26 +185,15 @@ without any further digits, means paste to tab with index 0."
 	  (error ">>= invalid ':program' value '%s'" value))))))
 
 
-(defun >>-term-normalize/:mode (value &optional keywords)
-  "Adjust VALUE for ':mode' using KEYWORDS environment."
-  (let ((function-name (plist-get keywords :function-name)))
-    (if function-name
-      (dolist (item (>>=cast-list value))
-	(if (symbolp item)
-	  (let* ((mode (or (intern-soft (format "%s-mode" item)) item))
-		  (current (assq mode >>=term-modes)))
-	    (if (not current)
-	      (setq >>=term-modes
-		(cons `(,mode . ,function-name) >>=term-modes))
-	      ;; else
-	      (when (not (equal (cdr current) function-name))
-		(warn ">>= repeated :mode '%s', functions %s -> %s"
-		  mode (cdr current) function-name)
-		(setcdr current function-name))))
-	  ;; else
-	  (error ">>= invalid ':mode' value '%s', must be a symbol" item)))
-      ;; else
-      (error ">>= ':function-name' not found to set mode '%s'" value))))
+(defun >>-term-normalize/:mode (value &optional _keywords)
+  "Adjust VALUE for ':mode' keyword."
+  (mapcar
+    (lambda (mode)
+      (if (symbolp mode)
+	(or (intern-soft (format "%s-mode" mode)) mode)
+	;; else
+	(error ">>= invalid ':mode' value '%s', must be a symbol" mode)))
+    (>>=cast-list value)))
 
 
 (defun >>-term-normalize/:paste-get (value &optional _keywords)
@@ -296,37 +299,41 @@ without any further digits, means paste to tab with index 0."
       :program id
       :paste-get #'>>-term/paste-get
       :paste-send #'>>-term/paste-send))
-  `(defun ,(plist-get keywords :function-name) (&optional arg)
-     ,docstring
-     (interactive "P")
-     (setq arg (>>-term/adjust-argument arg))
-     (let* ((command ,(plist-get keywords :program))
-	    (paste-get ',(plist-get keywords :paste-get))
-	    (paste-send ',(plist-get keywords :paste-send))
-	    (tab-index (car arg))
-	    (paste (cdr arg))
-	    (buffer-name ',(plist-get keywords :buffer-name))
-	    (buf-name-index (if tab-index (format " - %s" tab-index) ""))
-	    (buf-name (concat buffer-name buf-name-index))
-	    (starred (format "*%s*" buf-name))
-	    (buffer (get-buffer starred))
-	    (process (get-buffer-process buffer)))
-       (when paste
-	 (setq paste (funcall paste-get)))
-       (if buffer
-	 (if process
-	   (progn
-	     (setq command nil)
-	     (switch-to-buffer buffer))
-	   ;; else
-	   (message ">>= killing '%s' terminal, process was finished."
-	     starred)
-	   (kill-buffer buffer)))
-       (when command
-	 (setq buffer (ansi-term command buf-name)))
-       (when paste
-	 (funcall paste-send paste))
-       buffer)))
+  (let ((tuples (>>-term/get-mode-tuples keywords)))
+    `(progn
+       ,(if tuples
+	  `(setq >>=term-modes ',tuples))
+       (defun ,(plist-get keywords :function-name) (&optional arg)
+	 ,docstring
+	 (interactive "P")
+	 (setq arg (>>-term/adjust-argument arg))
+	 (let* ((command ,(plist-get keywords :program))
+		 (paste-get ',(plist-get keywords :paste-get))
+		 (paste-send ',(plist-get keywords :paste-send))
+		 (tab-index (car arg))
+		 (paste (cdr arg))
+		 (buffer-name ',(plist-get keywords :buffer-name))
+		 (buf-name-index (if tab-index (format " - %s" tab-index) ""))
+		 (buf-name (concat buffer-name buf-name-index))
+		 (starred (format "*%s*" buf-name))
+		 (buffer (get-buffer starred))
+		 (process (get-buffer-process buffer)))
+	   (when paste
+	     (setq paste (funcall paste-get)))
+	   (if buffer
+	     (if process
+	       (progn
+		 (setq command nil)
+		 (switch-to-buffer buffer))
+	       ;; else
+	       (message ">>= killing '%s' terminal, process was finished."
+		 starred)
+	       (kill-buffer buffer)))
+	   (when command
+	     (setq buffer (ansi-term command buf-name)))
+	   (when paste
+	     (funcall paste-send paste))
+	   buffer)))))
 
 
 (>>=define-terminal ansi)        ; define `>>=ansi-term'
