@@ -299,7 +299,8 @@ without any further digits, means paste to tab with index 0."
       :program id
       :paste-get #'>>-term/paste-get
       :paste-send #'>>-term/paste-send))
-  (let ((tuples (>>-term/get-mode-tuples keywords)))
+  (let ((tuples (>>-term/get-mode-tuples keywords))
+	(buffer-name (plist-get keywords :buffer-name)))
     `(progn
        ,(if tuples
 	  `(setq >>=term-modes ',tuples))
@@ -308,18 +309,15 @@ without any further digits, means paste to tab with index 0."
 	 (interactive "P")
 	 (setq arg (>>-term/adjust-argument arg))
 	 (let* ((command ,(plist-get keywords :program))
-		 (paste-get ',(plist-get keywords :paste-get))
-		 (paste-send ',(plist-get keywords :paste-send))
 		 (tab-index (car arg))
 		 (paste (cdr arg))
-		 (buffer-name ',(plist-get keywords :buffer-name))
-		 (buf-name-index (if tab-index (format " - %s" tab-index) ""))
-		 (buf-name (concat buffer-name buf-name-index))
+		 (bn-index (if tab-index (format " - %s" tab-index) ""))
+		 (buf-name (concat ,buffer-name bn-index))
 		 (starred (format "*%s*" buf-name))
 		 (buffer (get-buffer starred))
 		 (process (get-buffer-process buffer)))
 	   (when paste
-	     (setq paste (funcall paste-get)))
+	     (setq paste (funcall ',(plist-get keywords :paste-get))))
 	   (if buffer
 	     (if process
 	       (progn
@@ -332,7 +330,7 @@ without any further digits, means paste to tab with index 0."
 	   (when command
 	     (setq buffer (ansi-term command buf-name)))
 	   (when paste
-	     (funcall paste-send paste))
+	     (funcall ',(plist-get keywords :paste-send) paste))
 	   buffer)))))
 
 
