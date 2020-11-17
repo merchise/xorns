@@ -22,10 +22,6 @@
 ;;; general
 
 
-(defconst >>-required ::required::
-  "Marker that a required value is expected.")
-
-
 (defmacro ->? (func &rest args)
   "Call FUNC with our remaining ARGS, only if it is bound."
   `(when (fboundp ',func)
