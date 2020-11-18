@@ -67,8 +67,7 @@ Could be an integer or a boolean value, if t is calculated with the length of
     (eval-when-compile
       ;; TODO: deprecate this, only needed in local compile
       (declare-function exwm-systemtray-enable 'exwm-systemtray)
-      (declare-function exwm-config-example 'exwm-config)
-      )
+      (declare-function exwm-config-example 'exwm-config))
     (message ">>= using Emacs as the Desktop Window Manager.")
     (dolist (cmd >>=|exwm/startup-applications)
       ;; Run all startup applications

@@ -95,6 +95,7 @@ See `>>=!linux/exit-commands' constant."
 
 
 (use-package desktop-environment
+  ;; TODO: This should probably be configured in the `xorns-exwm' module
   :ensure t
   :demand t
   :bind

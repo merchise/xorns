@@ -521,7 +521,7 @@ safe avoiding nil commands.  If none is found, nil is returned."
 
 (defun >>=file-string (file)
   "Return the trimmed contents of the given FILE as a string."
-  (if (file-exists-p file)
+  (if (file-readable-p file)
     (with-temp-buffer
       (insert-file-contents file)
       (string-trim (buffer-string)))))

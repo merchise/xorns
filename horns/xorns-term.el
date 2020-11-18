@@ -318,6 +318,7 @@ without any further digits, means paste to tab with index 0."
 		 (process (get-buffer-process buffer)))
 	   (when paste
 	     (setq paste (funcall ',(plist-get keywords :paste-get))))
+	   ;; TODO: Check  `(other-window 1)'
 	   (if buffer
 	     (if process
 	       (progn
