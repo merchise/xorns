@@ -1,12 +1,15 @@
-;;; xorns-buffers.el --- Buffers management  -*- lexical-binding: t -*-
+;;; xorns-buffers.el --- Advanced tools for manipulating buffers  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
 ;; This file is NOT part of GNU Emacs but I'd like it. ;)
 
-;; Commentary:
+;;; Commentary:
 
-;; This module main features are:
+;; This module has advanced features to manipulate buffers: view, edit,
+;; delete, or change attributes of buffers.
+;;
+;; Main features are:
 ;;
 ;; - Configure `C-x C-b' to list buffers using `ibuffer' instead
 ;;   standard `list-buffers', or `xorns-select-buffer' if
@@ -16,6 +19,9 @@
 ;; - Set `ibuffer' groups.
 ;;
 ;; - Functionality to force `*scratch*' buffer.
+;;
+;; Some common-systems level buffer manipulation utilities could be found on
+;; `xorns-core' module.
 
 ;; Enjoy!
 
