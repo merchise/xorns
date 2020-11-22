@@ -15,6 +15,7 @@
 
 ;;; Code:
 
+(require 'xorns-tools)
 
 
 ;;; Lisp configuration files
@@ -37,6 +38,112 @@
   (with-temp-buffer
     (mapc (lambda (line) (insert (format "%S\n" line))) form)
     (write-file file)))
+
+
+
+;;; Buffers
+
+(defmacro >>=get-buffer-value (buffer variable)
+  "Return the value of symbol VARIABLE in BUFFER if it is bound, else nil."
+  `(and (boundp ',variable) (buffer-local-value ',variable ,buffer)))
+
+
+(defun >>=get-buffer-keyword (buffer keyword)
+  "Return the value of KEYWORD in BUFFER.
+
+Possible keywords are:
+
+:name
+    The value resulting of function `buffer-name'.
+
+:mode
+    The value of `major-mode' converted to string using `symbol-name'.
+
+:default-directory
+    The value of `default-directory'.
+
+:process
+    The live process associated with the buffer.
+
+:class
+    If running under Emacs X Window Manager (`exwm'), the value of variable
+    `exwm-class-name'.
+
+:instance
+    If running under Emacs X Window Manager (`exwm'), the value of variable
+    `exwm-instance-name'.
+
+:title
+    If running under Emacs X Window Manager (`exwm'), the value of variable
+    `exwm-title'."
+  (pcase keyword
+    (:name (buffer-name buffer))
+    (:mode (buffer-local-value 'major-mode buffer))
+    (:file-name (buffer-local-value 'buffer-file-name buffer))
+    (:default-directory (buffer-local-value 'default-directory buffer))
+    (:process (get-buffer-process buffer))
+    (:class (>>=get-buffer-value buffer exwm-class-name))
+    (:instance (>>=get-buffer-value buffer exwm-instance-name))
+    (:title (>>=get-buffer-value buffer exwm-title))
+    (_ (error ">>= unknown keyword: %s" keyword))))
+
+
+(defun >>-buffer-value-to-string (value)
+  "Convert a buffer VALUE to string."
+  (cond
+    ((or (null value) (stringp value))
+      value)
+    ((symbolp value)
+      (symbol-name value))
+    ((processp value)
+      (process-name value))
+    (t
+      (format "%s" value))))
+
+
+(defun >>-buffer-value-match (exp value)
+  "Return if a buffer keyword VALUE match a ruler expression EXP."
+  (let ((aux (>>-buffer-value-to-string value)))
+    (and exp aux (string-match-p exp aux))))
+
+
+(defun >>=buffer-match-p (ruler buffer)
+  "Return non-nil if BUFFER is matched with RULER."
+  (if ruler
+    (let ((res buffer))
+      (while (and res ruler)
+	(let ((exp (nth 1 ruler))
+	      (value (>>=get-buffer-keyword buffer (car ruler))))
+	  (unless (>>-buffer-value-match exp value)
+	    (setq res nil))
+	  (setq ruler (cdr (cdr ruler)))))
+      res)))
+
+
+(defun >>=find-buffers (&rest ruler)
+  "Find all buffers matching RULER.
+RULER is a property-list, all keywords supported by `>>=get-buffer-keyword'
+can be specified, each value must be a string, the comparison logic will an
+`and' of all given keywords, each value could be a simple string or a regular
+expression."
+  (let ((aux (>>=fix-rest-list ruler)))
+    (delq nil
+      (mapcar
+	(lambda (buffer) (>>=buffer-match-p aux buffer))
+	(buffer-list)))))
+
+
+(defun >>=find-buffer (&rest ruler)
+  "Find best buffer matching RULER.
+See `>>=find-buffers' for more information."
+  (let* ((result (apply '>>=find-buffers ruler))
+	 (one (car result))
+	 (two (nth 1 result)))
+    ;; if two or more buffers are found, do not select current.
+    (if (and two (eq one (current-buffer)))
+      two
+      ;; else
+      one)))
 
 
 (provide 'xorns-core)
