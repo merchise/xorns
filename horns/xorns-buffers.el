@@ -185,31 +185,13 @@
   :config
   (define-ibuffer-column size-h
     (:name "Size" :inline t)
-    (file-size-human-readable (buffer-size)))
-  )
-
-
-
-;;; Custom key-bindings
-
-(global-set-key (kbd "C-x <f2>") 'rename-buffer)
-
-
-(defun >>=toggle-header-mode-line ()
-  "Toggle visibility of header mode-line."
-  (interactive)
-  (if (not header-line-format)
-      (setq header-line-format
-	'(multiple-frames "%b"
-	   (" " (:eval (abbreviate-file-name default-directory)))))
-    ; else
-    (setq header-line-format nil))
-  (force-mode-line-update 'all))
+    (file-size-human-readable (buffer-size))))
 
 
 
 ;;; Misc
 
+(global-set-key (kbd "C-x <f2>") 'rename-buffer)
 (global-set-key (kbd "C-c s") '>>=scratch/force)
 ;; (global-set-key (kbd "C-c h") '>>=toggle-header-mode-line)
 

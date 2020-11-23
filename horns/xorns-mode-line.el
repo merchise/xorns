@@ -236,5 +236,21 @@ See `frame-title-format' variable."
     ))
 
 
+
+;;; Header
+
+(defun >>=toggle-header-mode-line ()
+  "Toggle visibility of header mode-line."
+  (interactive)
+  (if (not header-line-format)
+    (setq header-line-format
+      '(multiple-frames "%b"
+	 (" " (:eval (abbreviate-file-name default-directory)))))
+    ;; else
+    (setq header-line-format nil))
+  (force-mode-line-update 'all))
+
+
+
 (provide 'xorns-mode-line)
 ;;; xorns-mode-line.el ends here
