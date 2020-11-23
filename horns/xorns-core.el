@@ -17,6 +17,7 @@
 
 (require 'xorns-tools)
 
+
 
 ;;; Lisp configuration files
 
@@ -42,6 +43,25 @@
 
 
 ;;; Buffers
+
+(defun >>-scratch/get-buffer-create ()
+  "Copied from `startup--get-buffer-create-scratch'."
+  (or (get-buffer "*scratch*")
+    (with-current-buffer (get-buffer-create "*scratch*")
+      (set-buffer-major-mode (current-buffer))
+      (current-buffer))))
+
+
+(defun >>=scratch/force (&optional arg)
+  "Switch to `*scratch*` buffer, creating a new one if needed.
+An optional argument ARG could be given to delete other windows; if
+`0' also reset `default-directory' to `xorns' default."
+  (interactive "P")
+  (switch-to-buffer-other-window (>>-scratch/get-buffer-create))
+  (if (= (prefix-numeric-value arg) 0)
+    (>>=set-default-directory))
+  (if arg (delete-other-windows)))
+
 
 (defmacro >>=get-buffer-value (buffer variable)
   "Return the value of symbol VARIABLE in BUFFER if it is bound, else nil."

@@ -31,13 +31,14 @@
 (require 'use-package)
 (require 'xorns-tools)
 (require 'ibuf-ext)
+(require 'xorns-core)
 
 
 ;; TODO: To use grizzl instead of ido for completion
 ;;       (setq flycheck-completion-system 'grizzl)
+;; This must be moved from here, see `akheron/emacs-config'
 (use-package grizzl
   :ensure t
-  ;; see `akheron/emacs.org'
   :defer t)
 
 
@@ -207,28 +208,10 @@
 
 
 
-;;; Buffers
+;;; Misc
 
-(defun >>=force-scratch (&optional arg)
-  "Switch to `*scratch*` buffer, creating a new one if needed.
-
-An optional argument ARG could be given to delete other windows; if
-`0' also reset `default-directory' to `xorns' default."
-  (interactive "P")
-  (let ((buf (get-buffer-create "*scratch*")))
-    (set-buffer-major-mode buf)
-    (switch-to-buffer-other-window buf)
-    (if (= (prefix-numeric-value arg) 0)
-      (>>=set-default-directory))
-    (if arg (delete-other-windows))))
-
-
-(global-set-key (kbd "C-c s") '>>=force-scratch)
+(global-set-key (kbd "C-c s") '>>=scratch/force)
 ;; (global-set-key (kbd "C-c h") '>>=toggle-header-mode-line)
-
-
-
-;;; Hooks
 
 (add-hook 'after-init-hook '>>=set-default-directory)
 
