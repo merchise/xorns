@@ -318,18 +318,17 @@ without any further digits, means paste to tab with index 0."
 		 (process (get-buffer-process buffer)))
 	   (when paste
 	     (setq paste (funcall ',(plist-get keywords :paste-get))))
-	   ;; TODO: Check  `(other-window 1)'
 	   (if buffer
 	     (if process
-	       (progn
-		 (setq command nil)
-		 (switch-to-buffer buffer))
+	       (setq command nil)
 	       ;; else
 	       (message ">>= killing '%s' terminal, process was finished."
 		 starred)
 	       (kill-buffer buffer)))
 	   (when command
-	     (setq buffer (ansi-term command buf-name)))
+	     (save-window-excursion
+	       (setq buffer (ansi-term command buf-name))))
+	   (switch-to-buffer-other-window buffer)
 	   (when paste
 	     (funcall ',(plist-get keywords :paste-send) paste))
 	   buffer)))))
