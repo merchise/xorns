@@ -99,6 +99,10 @@ See macro `>>=define-terminal' and function `>>=terminal' for more
 information.")
 
 
+(defvar >>-term/state nil
+  "From which buffer a terminal was called.")
+
+
 (defun >>-term/adjust-argument (prefix)
   "Adjust a terminal PREFIX argument.
 
@@ -119,6 +123,24 @@ without any further digits, means paste to tab with index 0."
       (cons (abs prefix) (< prefix 0)))
     (t
       '(0 . t))))
+
+
+(defun >>-term/wrap-argument (prefix index)
+  "Wrap a terminal PREFIX argument based in an existing INDEX.
+See `>>=terminal' and `>>-term/adjust-argument' for more information."
+  (cond
+    ((null prefix)
+      index)
+    ((consp prefix)
+      (cond
+	((null index)
+	  prefix)
+	((= index 0)
+	  '_)
+	(t    ; index is a positive integer
+	  (* -1 index))))
+    (t
+      prefix)))
 
 
 (defun >>-term/adjust-string (string)
@@ -300,22 +322,24 @@ without any further digits, means paste to tab with index 0."
       :paste-get #'>>-term/paste-get
       :paste-send #'>>-term/paste-send))
   (let ((tuples (>>-term/get-mode-tuples keywords))
-	(buffer-name (plist-get keywords :buffer-name)))
+	(buffer-name (plist-get keywords :buffer-name))
+	(fun-name (plist-get keywords :function-name)))
     `(progn
        ,(if tuples
 	  `(setq >>=term-modes ',tuples))
-       (defun ,(plist-get keywords :function-name) (&optional arg)
+       (defun ,fun-name (&optional arg)
 	 ,docstring
 	 (interactive "P")
 	 (setq arg (>>-term/adjust-argument arg))
 	 (let* ((command ,(plist-get keywords :program))
-		 (tab-index (car arg))
-		 (paste (cdr arg))
-		 (bn-index (if tab-index (format " - %s" tab-index) ""))
-		 (buf-name (concat ,buffer-name bn-index))
-		 (starred (format "*%s*" buf-name))
-		 (buffer (get-buffer starred))
-		 (process (get-buffer-process buffer)))
+		(tab-index (car arg))
+		(paste (cdr arg))
+		(bn-index (if tab-index (format " - %s" tab-index) ""))
+		(buf-name (concat ,buffer-name bn-index))
+		(cur-buffer (current-buffer))
+		(starred (format "*%s*" buf-name))
+		(buffer (get-buffer starred))
+		(process (get-buffer-process buffer)))
 	   (when paste
 	     (setq paste (funcall ',(plist-get keywords :paste-get))))
 	   (if buffer
@@ -327,10 +351,23 @@ without any further digits, means paste to tab with index 0."
 	       (kill-buffer buffer)))
 	   (when command
 	     (save-window-excursion
-	       (setq buffer (ansi-term command buf-name))))
-	   (switch-to-buffer-other-window buffer)
-	   (when paste
-	     (funcall ',(plist-get keywords :paste-send) paste))
+	       (with-current-buffer (setq buffer (ansi-term command buf-name))
+		 (make-local-variable '>>-term/state))))
+	   (if (and (eq buffer cur-buffer) >>-term/state)
+	     (progn
+	       (setq buffer (car >>-term/state))
+	       (switch-to-buffer-other-window buffer)
+	       (when paste
+		 (if (eq major-mode 'term-mode)
+		   (>>-term/paste-send paste)
+		   ;; else
+		   (unless buffer-read-only
+		     (insert paste)))))
+	     ;; else
+	     (switch-to-buffer-other-window buffer)
+	     (setq >>-term/state (list cur-buffer ',fun-name tab-index))
+	     (when paste
+	       (funcall ',(plist-get keywords :paste-send) paste)))
 	   buffer)))))
 
 
@@ -341,7 +378,13 @@ without any further digits, means paste to tab with index 0."
   "Use current mode to choose a terminal created with `>>=define-terminal'.
 The interactive argument ARG is used without modification."
   (interactive "P")
-  (let ((term (cdr (assq major-mode >>=term-modes))))
+  (let (term)
+    (if >>-term/state
+      (setq
+	term (nth 1 >>-term/state)
+	arg (>>-term/wrap-argument arg (nth 2 >>-term/state)))
+      ;; else
+      (setq term (cdr (assq major-mode >>=term-modes))))
     (if term
       (funcall term arg)
       ;; else
