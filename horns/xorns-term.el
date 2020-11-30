@@ -315,7 +315,8 @@ without any further digits, means paste to tab with index 0."
       :paster #'>>-term/paster))
   (let ((tuples (>>-term/get-mode-tuples keywords))
 	(buffer-name (plist-get keywords :buffer-name))
-	(fun-name (plist-get keywords :function-name)))
+	(fun-name (plist-get keywords :function-name))
+	(paster (plist-get keywords :paster)))
     `(progn
        ,(if tuples
 	  `(setq >>=term-modes ',tuples))
@@ -359,8 +360,9 @@ without any further digits, means paste to tab with index 0."
 	     (switch-to-buffer-other-window buffer)
 	     (setq >>-term/state (list cur-buffer ',fun-name tab-index))
 	     (when paste
-	       (funcall ',(plist-get keywords :paster) paste)))
-	   buffer)))))
+	       (funcall ',paster paste)))
+	   buffer))
+       (put ',fun-name :paster ',paster))))
 
 
 (>>=define-terminal ansi)        ; define `>>=ansi-term'
