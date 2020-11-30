@@ -125,7 +125,7 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
 
 (>>=define-terminal python
   :program "ipython" "python"
-  :paste-send ("ipython" . "%paste")
+  :paster ("ipython" . "%paste")
   :mode python)
 
 

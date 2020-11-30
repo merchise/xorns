@@ -169,13 +169,13 @@ See `>>=terminal' and `>>-term/adjust-argument' for more information."
   (>>-term/adjust-string (>>=buffer-focused-text)))
 
 
-(defun >>-term/paste-send (text)
+(defun >>-term/paster (text)
   "Send TEXT to a selected terminal shell session."
   (term-send-raw-string (concat text "\n")))
 
 
 (defun >>=term/define-paste-magic (&optional magic)
-  "Create a ':paste-send' adapter like IPython's MAGIC '%paste' command."
+  "Create a ':paster' adapter like IPython's MAGIC '%paste' command."
   (if (null magic)
     (setq magic "%paste"))
   (lambda (text)
@@ -183,10 +183,10 @@ See `>>=terminal' and `>>-term/adjust-argument' for more information."
       (if (string-match-p "\n" text)
 	(progn
 	  (kill-new text)
-	  (>>-term/paste-send magic)
+	  (>>-term/paster magic)
 	  (current-kill 1))
 	;; else
-	(>>-term/paste-send text)))))
+	(>>-term/paster text)))))
 
 
 (defun >>-term-normalize/:program (value &optional keywords)
@@ -218,10 +218,10 @@ See `>>=terminal' and `>>-term/adjust-argument' for more information."
     (>>=cast-list value)))
 
 
-(defun >>-term-normalize/:paste-send (value &optional keywords)
-  "Adjust ':paste-send' VALUE using KEYWORDS environment."
+(defun >>-term-normalize/:paster (value &optional keywords)
+  "Adjust ':paster' VALUE using KEYWORDS environment."
   (if (stringp value)
-    (>>-term-normalize/:paste-send
+    (>>-term-normalize/:paster
       (>>=term/define-paste-magic value) keywords)
     ;; else
     (or
@@ -231,10 +231,10 @@ See `>>=terminal' and `>>-term/adjust-argument' for more information."
 	       (program (plist-get keywords :program-id))
 	       (res (assoc program options 'string-equal)))
 	  (if res
-	    (>>-term-normalize/:paste-send (cdr res))
-	    #'>>-term/paste-send))
+	    (>>-term-normalize/:paster (cdr res))
+	    #'>>-term/paster))
 	;; else
-	(error ">>= invalid ':paste-send' value '%s'" :paste-send)))))
+	(error ">>= invalid ':paster' value '%s'" :paster)))))
 
 
 (defmacro >>=define-terminal (id &optional docstring &rest keywords)
@@ -270,7 +270,7 @@ The following KEYWORDS are meaningful:
 	see below.  It defaults to 'terminal' if ID is 'ansi', or '<ID>-term'
 	otherwise.
 
-:paste-send
+:paster
 	A function to paste text into a terminal shell.  When a paste
 	operation is invoked using, current buffer selected text is extracted
 	with `>>-term/get-paste-text', then use specified function in target
@@ -278,7 +278,7 @@ The following KEYWORDS are meaningful:
 	a function using `>>=term/define-paste-magic', if a `cons' or an
 	assotiation-list is given, ':program-id' will be searched in a `car'
 	value, the `cdr' value will be the definitive value.  It defaults to
-	`>>-term/paste-send'.
+	`>>-term/paster'.
 
 Given KEYWORDS are normalized using `>>=plist-normalize', the CLASS will be
 '>>-term', and the NAME will be used but replacing '>>=' prefix for '>>-'.
@@ -312,7 +312,7 @@ without any further digits, means paste to tab with index 0."
       :function-name (intern (format ">>=%s-term" id))
       :buffer-name (if (eq id 'ansi) "terminal" (format "%s-term" id))
       :program id
-      :paste-send #'>>-term/paste-send))
+      :paster #'>>-term/paster))
   (let ((tuples (>>-term/get-mode-tuples keywords))
 	(buffer-name (plist-get keywords :buffer-name))
 	(fun-name (plist-get keywords :function-name)))
@@ -351,7 +351,7 @@ without any further digits, means paste to tab with index 0."
 	       (switch-to-buffer-other-window buffer)
 	       (when paste
 		 (if (eq major-mode 'term-mode)
-		   (>>-term/paste-send paste)
+		   (>>-term/paster paste)
 		   ;; else
 		   (unless buffer-read-only
 		     (insert paste)))))
@@ -359,7 +359,7 @@ without any further digits, means paste to tab with index 0."
 	     (switch-to-buffer-other-window buffer)
 	     (setq >>-term/state (list cur-buffer ',fun-name tab-index))
 	     (when paste
-	       (funcall ',(plist-get keywords :paste-send) paste)))
+	       (funcall ',(plist-get keywords :paster) paste)))
 	   buffer)))))
 
 
