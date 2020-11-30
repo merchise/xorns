@@ -164,7 +164,7 @@ See `>>=terminal' and `>>-term/adjust-argument' for more information."
 	      >>=term-modes)))))))
 
 
-(defun >>-term/paste-get ()
+(defun >>-term/get-paste-text ()
   "Get current buffer focused-text and adjust it for a terminal shell."
   (>>-term/adjust-string (>>=buffer-focused-text)))
 
@@ -216,11 +216,6 @@ See `>>=terminal' and `>>-term/adjust-argument' for more information."
 	;; else
 	(error ">>= invalid ':mode' value '%s', must be a symbol" mode)))
     (>>=cast-list value)))
-
-
-(defun >>-term-normalize/:paste-get (value &optional _keywords)
-  "Adjust VALUE for keyword ':paste-get'."
-  (>>=cast-function value 'validate))
 
 
 (defun >>-term-normalize/:paste-send (value &optional keywords)
@@ -275,14 +270,12 @@ The following KEYWORDS are meaningful:
 	see below.  It defaults to 'terminal' if ID is 'ansi', or '<ID>-term'
 	otherwise.
 
-:paste-get
-	A function to get the focused-text in the current buffer when a paste
-	operation is invoked.  It defaults to `>>-term/paste-get'.
-
 :paste-send
-	A function to send selected text into a terminal shell when a paste
-	operation is invoked.  If a string is given, it is converted to a
-	function using `>>=term/define-paste-magic', if a `cons' or an
+	A function to paste text into a terminal shell.  When a paste
+	operation is invoked using, current buffer selected text is extracted
+	with `>>-term/get-paste-text', then use specified function in target
+	terminal.  A string can be specified, in which case it is converted to
+	a function using `>>=term/define-paste-magic', if a `cons' or an
 	assotiation-list is given, ':program-id' will be searched in a `car'
 	value, the `cdr' value will be the definitive value.  It defaults to
 	`>>-term/paste-send'.
@@ -319,7 +312,6 @@ without any further digits, means paste to tab with index 0."
       :function-name (intern (format ">>=%s-term" id))
       :buffer-name (if (eq id 'ansi) "terminal" (format "%s-term" id))
       :program id
-      :paste-get #'>>-term/paste-get
       :paste-send #'>>-term/paste-send))
   (let ((tuples (>>-term/get-mode-tuples keywords))
 	(buffer-name (plist-get keywords :buffer-name))
@@ -341,7 +333,7 @@ without any further digits, means paste to tab with index 0."
 		(buffer (get-buffer starred))
 		(process (get-buffer-process buffer)))
 	   (when paste
-	     (setq paste (funcall ',(plist-get keywords :paste-get))))
+	     (setq paste (>>-term/get-paste-text)))
 	   (if buffer
 	     (if process
 	       (setq command nil)
