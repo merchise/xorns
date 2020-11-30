@@ -352,7 +352,8 @@ without any further digits, means paste to tab with index 0."
 	       (switch-to-buffer-other-window buffer)
 	       (when paste
 		 (if (eq major-mode 'term-mode)
-		   (>>-term/paster paste)
+		   (let ((pf (get (nth 1 >>-term/state) :paster)))
+		     (funcall (or pf '>>-term/paster) paste))
 		   ;; else
 		   (unless buffer-read-only
 		     (insert paste)))))
