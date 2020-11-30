@@ -38,7 +38,7 @@
 (defvar >>=|exwm/systemtray-icons t
   "Count of system-tray icons (useful to set `mini-modeline-right-padding').
 Could be an integer or a boolean value, if t is calculated with the length of
-`>>=|exwm/startup-applications'.)"  )
+`>>=|exwm/startup-applications'.)")
 
 
 ;; Executing `(key-binding (kbd "s-&"))' returns nil
@@ -50,10 +50,9 @@ Could be an integer or a boolean value, if t is calculated with the length of
 
 (defun >>-url-browser (url)
   "Create a web browser for a given URL."
-  (lexical-let ((url url))
-    (lambda ()
-      (interactive)
-      (browse-url url))))
+  (lambda ()
+    (interactive)
+    (browse-url url)))
 
 
 

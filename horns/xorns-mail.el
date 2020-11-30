@@ -17,7 +17,8 @@
 
 ;; Requires, auto-loads and declarations
 
-(require 'cl-lib)
+(eval-when-compile
+  (require 'cl-lib))
 
 (require 'sendmail)
 (require 'smtpmail)
@@ -109,7 +110,7 @@ empty the address defaults to \"smtp.ADDRESS-DOMAIN\".")
           (account
             (car
               ;; Chooses the first account that matches
-              (loop
+              (cl-loop
                 for account in xorns-email-smtp-accounts
                 for address = (car account)
                 for match = (string-match address from)
@@ -162,7 +163,7 @@ If BUFFER is not present, use the current buffer."
             (setq smtpmail-mail-address envelop-address))
           (setq
             smtpmail-smtp-service
-            (case stream-type
+            (cl-case stream-type
               ('ssl 465)
               ('starttls 587)
               (otherwise 25)))
