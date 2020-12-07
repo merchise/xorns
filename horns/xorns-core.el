@@ -44,7 +44,7 @@
 
 ;;; Buffers
 
-(defun >>-scratch/get-buffer-create ()
+(defun >>=scratch/get-buffer-create ()
   "Copied from `startup--get-buffer-create-scratch'."
   (or (get-buffer "*scratch*")
     (with-current-buffer (get-buffer-create "*scratch*")
@@ -57,7 +57,7 @@
 An optional argument ARG could be given to delete other windows; if
 `0' also reset `default-directory' to `xorns' default."
   (interactive "P")
-  (switch-to-buffer-other-window (>>-scratch/get-buffer-create))
+  (switch-to-buffer-other-window (>>=scratch/get-buffer-create))
   (if (= (prefix-numeric-value arg) 0)
     (>>=set-default-directory))
   (if arg (delete-other-windows)))
@@ -123,8 +123,10 @@ Possible keywords are:
 
 (defun >>-buffer-value-match (exp value)
   "Return if a buffer keyword VALUE match a ruler expression EXP."
-  (let ((aux (>>-buffer-value-to-string value)))
-    (and exp aux (string-match-p exp aux))))
+  (and exp value
+    (string-match-p
+      (>>-buffer-value-to-string exp)
+      (>>-buffer-value-to-string value))))
 
 
 (defun >>=buffer-match-p (ruler buffer)
