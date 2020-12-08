@@ -17,9 +17,10 @@
 (require 'xorns-tools)
 (require 'xorns-buffers)
 (require 'xorns-simple)
-(require 'xorns-term)
 
-(require 'use-package)
+(eval-when-compile
+  (require 'xorns-term)
+  (require 'use-package))
 
 
 

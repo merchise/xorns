@@ -416,7 +416,7 @@ The interactive argument ARG is used without modification."
     (term-send-raw-string "\C-k")
     (kill-line))
   :bind
-  (("C-c t" . >>=ansi-term)    ;; TODO: migrate to `>>=ansi-term'
+  (("C-c t" . >>=ansi-term)
    ("s-M-t" . >>=ansi-term)
    ("s-/" . >>=terminal)
    (:map term-mode-map
