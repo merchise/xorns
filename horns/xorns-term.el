@@ -17,6 +17,7 @@
 (require 'use-package)
 (require 'term)
 (require 'xorns-tools)
+(require 'xorns-core)
 (require 'xorns-simple)
 
 
@@ -280,8 +281,8 @@ The following KEYWORDS are meaningful:
 	value, the `cdr' value will be the definitive value.  It defaults to
 	`>>-term/paster'.
 
-Given KEYWORDS are normalized using `>>=plist-normalize', the CLASS will be
-'>>-term', and the NAME will be used but replacing '>>=' prefix for '>>-'.
+KEYWORDS are normalized using `>>=plist-normalize', the CLASS will be
+'>>-term', and the NAME will be used but replacing '>>-<ID>-term'.
 
 The defined terminal command takes one optional prefix argument.  It is used
 to identify both the terminal shell session TAB-INDEX and whether to execute a
@@ -327,42 +328,63 @@ without any further digits, means paste to tab with index 0."
 	 (let* ((command ,(plist-get keywords :program))
 		(tab-index (car arg))
 		(paste (cdr arg))
+		(paste-function ',paster)
 		(bn-index (if tab-index (format " - %s" tab-index) ""))
 		(buf-name (concat ,buffer-name bn-index))
-		(cur-buffer (current-buffer))
+		(source (current-buffer))
 		(starred (format "*%s*" buf-name))
-		(buffer (get-buffer starred))
-		(process (get-buffer-process buffer)))
+		(target (get-buffer starred))
+		(process (get-buffer-process target)))
 	   (when paste
 	     (setq paste (>>-term/get-paste-text)))
-	   (if buffer
+	   (when target
 	     (if process
 	       (setq command nil)
 	       ;; else
-	       (message ">>= killing '%s' terminal, process was finished."
+	       (message
+		 ">>= killing '%s' terminal buffer, process was finished."
 		 starred)
-	       (kill-buffer buffer)))
+	       (kill-buffer target)))
 	   (when command
 	     (save-window-excursion
-	       (with-current-buffer (setq buffer (ansi-term command buf-name))
-		 (make-local-variable '>>-term/state))))
-	   (if (and (eq buffer cur-buffer) >>-term/state)
-	     (progn
-	       (setq buffer (car >>-term/state))
-	       (switch-to-buffer-other-window buffer)
-	       (when paste
-		 (if (eq major-mode 'term-mode)
-		   (let ((pf (get (nth 1 >>-term/state) :paster)))
-		     (funcall (or pf '>>-term/paster) paste))
-		   ;; else
-		   (unless buffer-read-only
-		     (insert paste)))))
-	     ;; else
-	     (switch-to-buffer-other-window buffer)
-	     (setq >>-term/state (list cur-buffer ',fun-name tab-index))
-	     (when paste
-	       (funcall ',paster paste)))
-	   buffer))
+	       (with-current-buffer (setq target (ansi-term command buf-name))
+		 (set (make-local-variable '>>-term/state) '(nil)))))
+	   (when (eq target source)
+	     ;; reentering terminal to switch to associated buffer
+	     (setq
+	       ;; saved associated buffer
+	       target (car >>-term/state)
+	       ;; calculate generic paster after switch to associated buffer
+	       paste-function nil)
+	     (unless (buffer-live-p target)
+	       ;; associated buffer was killed, find a new one
+	       (setq target
+		 (or
+		   (>>=find-buffer
+		     :mode (car (rassq ',fun-name >>=term-modes)))
+		   (>>=find-buffer
+		     :mode (nth 3 >>-term/state))
+		   ;; use 'scratch' as default
+		   (>>=scratch/get-buffer-create)))))
+	   (switch-to-buffer-other-window target)
+	   (when >>-term/state
+	     (let ((mode (buffer-local-value 'major-mode source)))
+	       (setq >>-term/state (list source ',fun-name tab-index mode))))
+	   (when paste
+	     (unless paste-function
+	       (setq paste-function
+		 (or
+		   (get (nth 1 >>-term/state) :paster)
+		   (if (eq major-mode 'term-mode) '>>-term/paster)
+		   (unless buffer-read-only 'insert))))
+	     (if paste-function
+	       (funcall paste-function paste)
+	       ;; else
+	       (warn
+		 (concat
+		   ">>= invalid paste, maybe target buffer is read only.\n"
+		   "Paste text:\n%s") paste)))
+	   target))
        (put ',fun-name :paster ',paster))))
 
 
