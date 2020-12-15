@@ -119,6 +119,7 @@
   "Local install using ELPA directory as target."
   (>>=package-delete)
   (>>=package-install)
+  (>>=update-file "early-init.el")
   (>>=update-file "init.el")
   (>>=update-file "xorns.lock")
   (>>=rsync-dir "templates")

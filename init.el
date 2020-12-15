@@ -10,8 +10,9 @@
 ;; (package-initialize)
 
 (require 'package)
-(setq package-enable-at-startup nil)
-(package-initialize)
+
+(when (version< emacs-version "27")
+  (package-initialize))
 
 
 ;; Improve startup time by temporarily increment these values to prevent
