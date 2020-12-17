@@ -20,6 +20,15 @@
 
 ;;; Code
 
+;; Improve startup time by temporarily increasing these values to prevent
+;; garbage collection from running.  When the initialization is complete, the
+;; `xorns-gc' module must be executed to configure adequate values for the
+;; normal operation of the system, if this is not done, crashes or stutters
+;; may occur.
+(setq
+  gc-cons-threshold #x40000000    ; 1 GB
+  gc-cons-percentage 0.6)
+
 
 (provide 'early-init)
 ;;; early-init.el ends here

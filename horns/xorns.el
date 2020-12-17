@@ -78,6 +78,7 @@ This is set to true when executing `emacs-startup-hook'.")
     (setq >>=xorns-initialized
       (format "%.1f seconds"
 	(float-time (time-subtract after-init-time before-init-time))))
+    (require 'xorns-gc)    ; Configure GC strategy
     (message ">>= xorns initialized in %s seconds." >>=xorns-initialized)))
 
 

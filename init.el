@@ -15,27 +15,6 @@
   (package-initialize))
 
 
-;; Improve startup time by temporarily increment these values to prevent
-;; garbage collection from running.  They are reset after initialization is
-;; finished in `xorns-gc' module (if this is not done it can produce freezes
-;; or stuttering).
-(defvar >>-file-name-handler-alist file-name-handler-alist
-  "Original value of `file-name-handler-alist' variable.")
-
-(setq
-  gc-cons-threshold #x40000000    ; 1 GB
-  gc-cons-percentage 0.6
-  file-name-handler-alist nil)
-
-(add-hook
-  'emacs-startup-hook
-  (defun >>-gc/configure ()
-    "Restore original strategy for GC and variables for startup improvement."
-    (setq file-name-handler-alist >>-file-name-handler-alist)
-    (makunbound '>>-file-name-handler-alist)
-    (require 'xorns-gc)))
-
-
 (defconst >>=!base-dir
   (concat
     (if load-file-name
@@ -72,7 +51,8 @@
   (add-to-list 'load-path >>=!init-mode/standalone))
 
 
-(require 'xorns)
+(let (file-name-handler-alist)    ; Improve startup time
+  (require 'xorns))
 
 
 (provide 'init)
