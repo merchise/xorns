@@ -25,6 +25,13 @@
   "If `package-refresh-contents' is already executed in this session.")
 
 
+(setq package-archives
+  `(("melpa" . "https://melpa.org/packages/")
+    ("org" . "https://orgmode.org/elpa/")
+    ("gnu" . ,(format "http%s://elpa.gnu.org/packages/"
+                (if (gnutls-available-p) "s" "")))))
+
+
 (defun >>=package-ensure (*pkg*)
   "Ensure *PKG* is installed."
   (unless (package-installed-p *pkg*)

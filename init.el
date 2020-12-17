@@ -44,9 +44,6 @@
   "Directory containing `xorns' library (valid in both modes).")
 
 
-(load (expand-file-name "xorns.lock" >>=!base-dir) nil (not init-file-debug))
-
-
 (if >>=!init-mode/standalone
   (add-to-list 'load-path >>=!init-mode/standalone))
 

@@ -39,7 +39,11 @@
   "ELPA base directory.")
 
 
-(load (expand-file-name "xorns.lock" pkg-dir) nil (not init-file-debug))
+(setq package-archives
+  `(("melpa" . "https://melpa.org/packages/")
+    ("org" . "https://orgmode.org/elpa/")
+    ("gnu" . ,(format "http%s://elpa.gnu.org/packages/"
+                (if (gnutls-available-p) "s" "")))))
 
 
 (defun >>=pkg-desc ()
@@ -121,7 +125,6 @@
   (>>=package-install)
   (>>=update-file "early-init.el")
   (>>=update-file "init.el")
-  (>>=update-file "xorns.lock")
   (>>=rsync-dir "templates")
   (>>=rsync-dir "snippets")
   ;; (>>=copy-templates)

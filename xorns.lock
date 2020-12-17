@@ -1,7 +1,0 @@
-;; -*- mode: emacs-lisp -*-
-
-(setq package-archives
-  `(("melpa" . "https://melpa.org/packages/")
-    ("org" . "https://orgmode.org/elpa/")
-    ("gnu" . ,(format "http%s://elpa.gnu.org/packages/"
-                (if (gnutls-available-p) "s" "")))))
