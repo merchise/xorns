@@ -21,10 +21,6 @@
 ;;; Code:
 
 
-(defvar >>-package-contents-refreshed nil
-  "If `package-refresh-contents' is already executed in this session.")
-
-
 (setq package-archives
   `(("melpa" . "https://melpa.org/packages/")
     ("org" . "https://orgmode.org/elpa/")
@@ -32,13 +28,17 @@
                 (if (gnutls-available-p) "s" "")))))
 
 
-(defun >>=package-ensure (*pkg*)
-  "Ensure *PKG* is installed."
-  (unless (package-installed-p *pkg*)
-    (unless >>-package-contents-refreshed
-      (setq >>-package-contents-refreshed t)
-      (package-refresh-contents))
-    (package-install *pkg*)))
+(defun >>=package-ensure (pkg)
+  "Ensure PKG is installed."
+  (unless (package-installed-p pkg)
+    (condition-case nil
+      (package-install pkg)
+      (error
+	(progn
+          (package-refresh-contents)
+          (condition-case nil
+            (package-install pkg)
+            (error (message ">>= could not ensure '%s'" pkg))))))))
 
 
 (defmacro >>=ensure-packages (&rest packages)
