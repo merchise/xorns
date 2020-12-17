@@ -130,6 +130,7 @@ battery and time.")
 
 
 (use-package doom-modeline
+  ;; TODO: Check `(all-the-icons-install-fonts)'
   :when (eq >>=|mode-line/kind 'doom)
   :ensure t
   :config
