@@ -51,6 +51,19 @@
   (cadr (assq pkg package-alist)))
 
 
+(defun >>=package-ensure (pkg)
+  "Ensure PKG is installed."
+  (unless (package-installed-p pkg)
+    (condition-case nil
+      (package-install pkg)
+      (error
+	(progn
+          (package-refresh-contents)
+          (condition-case nil
+            (package-install pkg)
+            (error (message ">>= could not ensure '%s'" pkg))))))))
+
+
 (defun >>=package-delete ()
   "Delete installed ELPA package."
   (let ((pkg-desc (>>=pkg-desc)))
@@ -111,9 +124,11 @@
     (let ((src (expand-file-name file pkg-dir))
 	  (dst (locate-user-emacs-file file)))
       (when
-	(and
-	  (/= (shell-command (concat "diff " src " " dst)) 0)
-	  (yes-or-no-p (format ">>= outdated '%s' file, synchronize?" file)))
+	(or
+	  (not (file-exists-p dst))
+	  (and
+	    (/= (shell-command (concat "diff " src " " dst)) 0)
+	    (yes-or-no-p (format ">>= '%s' is outdated, synchronize?" file))))
 	(copy-file src dst 'ok-if-already-exists)))
     ;; else
     (message ">>= package not installed, '%s' not synchronized." file)))
@@ -121,6 +136,7 @@
 
 (defun local-install ()
   "Local install using ELPA directory as target."
+  (>>=package-ensure 'use-package)
   (>>=package-delete)
   (>>=package-install)
   (>>=update-file "early-init.el")
