@@ -133,7 +133,8 @@ command.")
 
 ;;; Reuse the current dired buffer to visit a directory
 
-(>>=require dired-single)
+(>>=package/ensure 'dired-single)    ; TODO: check `>>=package/config'
+(require 'dired-single)
 
 
 (defun >>=dired-search-forward (target)

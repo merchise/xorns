@@ -41,19 +41,28 @@
 	    (error (message ">>= could not ensure '%s'" package))))))))
 
 
-
-
-(defmacro >>=require (feature)
-  "Ensure FEATURE is properly installed; and then `require' it."
-  `(progn
-     (>>=package/ensure ',feature)
-     (require ',feature)))
+(defmacro >>=package/config (feature &rest body)
+  "Ensure FEATURE is a properly installed package.
+Similar to a `progn' special form but loading FEATURE before using `require'
+of the eval of BODY forms sequentially and return value of last one."
+  "Safe evaluate BODY forms sequentially and return value of last one.
+Use a HEADER message when `init-file-debug' is t, or in case of error, to
+report the identity of the enclosed body."
+  `(condition-case-unless-debug err
+     (progn
+       (>>=package/ensure ',feature)
+       (require ',feature)
+       ,@body)
+     (error
+       (message ">>= error configuring feature '%s': %s" ',feature err))))
 
 
 ;; TODO: Check `system-packages', and `use-package-ensure-system-package'
 (with-eval-after-load 'xorns-packages
   ;; Bootstrap 'use-package'
-  (>>=package/ensure 'use-package))
+  (>>=package/config use-package
+    ;; (setq use-package-always-ensure t)
+    ))
 
 
 (provide 'xorns-packages)

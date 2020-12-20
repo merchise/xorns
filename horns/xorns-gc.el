@@ -22,8 +22,8 @@
 
 ;;; Code:
 
-(require 'xorns-packages)
 (require 'xorns-tools)
+(require 'xorns-packages)
 
 
 (defconst >>=!gc/default-threshold-base #x4000000    ; 64M
@@ -82,8 +82,8 @@ configure defined strategy in `>>=|gc/strategy' variable."
 	gc-cons-threshold (>>=gc/threshold-from-base (car >>=|gc/strategy))
 	gc-cons-percentage (cdr >>=|gc/strategy)))
     ((and (symbolp >>=|gc/strategy) (memq >>=|gc/strategy '(smart magic)))
-      (>>=require gcmh)
-      (gcmh-mode +1))
+      (>>=package/config gcmh
+	(gcmh-mode +1)))
     (t
       (warn ">>= invalid `>>=|gc/strategy' value: %s" >>=|gc/strategy))))
 
