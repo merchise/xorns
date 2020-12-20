@@ -63,10 +63,10 @@ This is set to true when executing `emacs-startup-hook'.")
 
 
 (>>=progn "base initialization"
-  (use-package xorns-base))
+  (require 'xorns-base))
 
 
-(if >>=!emacs-as-wm
+(when >>=!emacs-as-wm
   (>>=progn "start emacs as a window manager"
     (require 'xorns-exwm)))
 
@@ -91,8 +91,8 @@ This is set to true when executing `emacs-startup-hook'.")
 
 
 (>>=progn "main initialization"
-  (use-package xorns-common-systems)
-  (use-package xorns-building-blocks))
+  (require 'xorns-common-systems)
+  (require 'xorns-building-blocks))
 
 
 (provide 'xorns)

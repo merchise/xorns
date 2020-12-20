@@ -18,11 +18,14 @@
 ;; We define a new variable `>>=|linux/logind-command' to control
 ;; Linux/systemd sub-commands (see `>>=linux/exit' function).
 
-;; To configure it when using `exwm':
+;; Load this module requiring it as the last statement of `exwm-input':
 ;;
-;;   (use-package xorns-linux
-;;     :demand t
-;;     :after exwm-input)
+;;   (use-package exwm-input
+;;     ...
+;;     :config
+;;     (progn
+;;       ...
+;;       (require 'xorns-linux)))
 
 ;; Enjoy!
 

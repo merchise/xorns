@@ -152,12 +152,8 @@ Could be an integer or a boolean value, if t is calculated with the length of
 	 ;; escape
 	 ([?\C-g] . [escape])
 	 ([?\s-q] . [?\C-w])
-	 ))))
-
-
-(use-package xorns-linux
-  :demand t
-  :after exwm-input)
+	 ))
+    (require 'xorns-linux)))
 
 
 (use-package buffer-move

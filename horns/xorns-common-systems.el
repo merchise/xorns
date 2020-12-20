@@ -24,24 +24,24 @@
 (require 'use-package)
 (require 'xorns-tools)
 
-(use-package xorns-minibuffer)
-(use-package xorns-mode-line)
-(use-package xorns-simple)
-(use-package xorns-buffers)
-(use-package xorns-dired)
-(use-package xorns-vc)
-(use-package xorns-text)
-(use-package xorns-prog)
-(use-package xorns-prog-extra)
-(use-package xorns-project)
-(use-package xorns-term)
-(use-package xorns-pim)
-(use-package xorns-bots)
+(require 'xorns-minibuffer)
+(require 'xorns-mode-line)
+(require 'xorns-simple)
+(require 'xorns-buffers)
+(require 'xorns-dired)
+(require 'xorns-vc)
+(require 'xorns-text)
+(require 'xorns-prog)
+(require 'xorns-prog-extra)
+(require 'xorns-project)
+(require 'xorns-term)
+(require 'xorns-pim)
+(require 'xorns-bots)
 
 
-(use-package xorns-mail
+(when (bound-and-true-p >>=!init-mode/package)
   ;; TODO: mail has not yet been migrated to standalone mode
-  :when (bound-and-true-p >>=!init-mode/package))
+  (require 'xorns-mail))
 
 
 (provide 'xorns-common-systems)
