@@ -28,36 +28,32 @@
                 (if (gnutls-available-p) "s" "")))))
 
 
-(defun >>=package-ensure (pkg)
-  "Ensure PKG is installed."
-  (unless (package-installed-p pkg)
+(defun >>=package/ensure (package)
+  "Ensure that PACKAGE is properly installed."
+  (unless (package-installed-p package)
     (condition-case nil
-      (package-install pkg)
+      (package-install package)
       (error
 	(progn
           (package-refresh-contents)
           (condition-case nil
-            (package-install pkg)
-            (error (message ">>= could not ensure '%s'" pkg))))))))
+	    (package-install package)
+	    (error (message ">>= could not ensure '%s'" package))))))))
 
 
-(defmacro >>=ensure-packages (&rest packages)
-  "Ensure that all PACKAGES are installed."
-  `(dolist (pkg '(,@packages))
-     (>>=package-ensure pkg)))
 
 
 (defmacro >>=require (feature)
   "Ensure FEATURE is properly installed; and then `require' it."
   `(progn
-     (>>=package-ensure ',feature)
+     (>>=package/ensure ',feature)
      (require ',feature)))
 
 
 ;; TODO: Check `system-packages', and `use-package-ensure-system-package'
 (with-eval-after-load 'xorns-packages
   ;; Bootstrap 'use-package'
-  (>>=package-ensure 'use-package))
+  (>>=package/ensure 'use-package))
 
 
 (provide 'xorns-packages)
