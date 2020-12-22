@@ -68,7 +68,11 @@ battery and time.")
   :hook
   (after-init . minions-mode)
   :config
-  (if window-system
+  ;; TODO: Use of `window-system' as a boolean is deprecated, but
+  ;; `display-*-p' predicates are specific for each frame or display. I
+  ;; discovered this in David Wilson's "Unlock the Power of the Daemon with
+  ;; emacsclient", minute 11, https://www.youtube.com/watch?v=ZjCRxAMPdNc
+  (if (display-images-p)
     (setq minions-mode-line-lighter "◆")))
 
 

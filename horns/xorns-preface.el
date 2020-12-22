@@ -47,6 +47,7 @@
 
 
 (defconst >>=!is-mac-os
+  ;; TODO: Check this, maybe use only one method.
   (or
     (eq system-type 'darwin)
     (memq (window-system) '(mac ns)))
