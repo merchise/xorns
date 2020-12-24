@@ -30,5 +30,21 @@
   gc-cons-percentage 0.6)
 
 
+(setq frame-inhibit-implied-resize t)
+
+
+;; Disable useless GUI early: menu, toolbar, scroll-bars, and tool-tips.
+(unless (eq system-type 'darwin)
+  ;; No disable menu in MacOs
+  (setq menu-bar-mode nil))
+
+(setq
+  tool-bar-mode nil
+  tooltip-mode nil)
+
+(when (fboundp 'set-scroll-bar-mode)
+  (set-scroll-bar-mode nil))
+
+
 (provide 'early-init)
 ;;; early-init.el ends here

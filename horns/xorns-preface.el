@@ -42,16 +42,7 @@
 ;;; Code:
 
 
-
 (require 'xorns-tools)
-
-
-(defconst >>=!is-mac-os
-  ;; TODO: Check this, maybe use only one method.
-  (or
-    (eq system-type 'darwin)
-    (memq (window-system) '(mac ns)))
-  "Is Mac-OS System.")
 
 
 (defconst >>-obsolete-focus-in-hook
@@ -66,7 +57,14 @@
 
 (with-eval-after-load 'xorns-preface
   (>>-visual/hidden-mode-line)
-  (>>-visual/remove-useless-gui)
+  (when (version< emacs-version "27")
+    ;; Disable useless GUI: menu, toolbar, scroll-bars, and tool-tips.
+    ;; As of Emacs 27, this is done in the `early-init.el' file.
+    (unless (eq system-type 'darwin)    ; No disable menu in MacOs
+      (menu-bar-mode -1))
+    (tool-bar-mode -1)
+    (scroll-bar-mode -1)
+    (tooltip-mode -1))
   ;; Preface and Epilogue
   (>>-visual/preface)
   ;; `focus-in-hook' is obsolete since 27.1
@@ -84,19 +82,6 @@ It will be restored later on by `xorns-mode-line' module."
   (when mode-line-format
     (setq mode-line-format nil)
     (force-mode-line-update)))
-
-
-(defun >>-visual/remove-useless-gui ()
-  "Remove useless GUI elements (menu, toolbar, scroll-bars, and tool-tips)."
-  (unless >>=!is-mac-os
-    (when (and (fboundp 'menu-bar-mode) (not (eq menu-bar-mode -1)))
-      (menu-bar-mode -1)))
-  (when (and (fboundp 'tool-bar-mode) (not (eq tool-bar-mode -1)))
-    (tool-bar-mode -1))
-  (when (and (fboundp 'scroll-bar-mode) (not (eq scroll-bar-mode -1)))
-    (scroll-bar-mode -1))
-  (when (and (fboundp 'tooltip-mode) (not (eq tooltip-mode -1)))
-    (tooltip-mode -1)))
 
 
 (defun >>-visual/preface ()
