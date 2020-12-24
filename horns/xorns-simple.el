@@ -26,44 +26,50 @@
   (global-discover-mode +1))
 
 
-(use-package simple
-  :defer t
-  :init
-  (progn
-    (defun >>=kill-new (string)
-      "Make not repeating STRING the latest kill in the kill ring."
-      (unless (equal string (car kill-ring))
-	(kill-new string)))
+
+;;; Basic editing commands
 
-    (defun >>=yank-filename ()
-      "Make buffer file-name the latest kill in the kill ring."
-      (interactive)
-      (>>=kill-new (or buffer-file-truename (buffer-name))))
+(defun >>=kill-new (string)
+  "Make STRING the latest kill in the kill ring unless it is already there."
+  (unless (equal string (car kill-ring))
+    (kill-new string)))
 
-    (defun >>=yank-default-directory ()
-      "Make default directory the latest kill in the kill ring."
-      (interactive)
-      (>>=kill-new (>>=default-directory)))
-    )
-  :hook
-  (tabulated-list-mode . hl-line-mode)
-  :bind
-  ("C-c k f" . >>=yank-filename)
-  ("C-c k d" . >>=yank-default-directory)
-  ("M-SPC" . cycle-spacing)    ;; It was `just-one-space'
-  ("M-s-;" . list-processes)
-  (:map process-menu-mode-map
-    ("k" . process-menu-delete-process))
-  :custom
-  (column-number-mode +1)
-  (async-shell-command-buffer 'new-buffer)
-  (mark-ring-max 32)
-  (global-mark-ring-max 32)
-  (kill-ring-max 128)
-  (save-interprogram-paste-before-kill t)
-  :config
-  ;; re-enable this command
-  (put 'set-goal-column 'disabled nil))
+
+(defun >>=yank-filename (&optional prefix)
+  "Make buffer abbreviate file-name the latest kill in the kill ring.
+Optional argument PREFIX controls whether the line-number must be included,
+`C-u'; or the true name representation of the file-name, `C-0'; any other
+value will combine both logics."
+  (interactive "P")
+  (let (name ln)
+    (cond
+      ((null prefix)
+	(setq name buffer-file-name))
+      ((consp prefix)
+	(setq
+	  name buffer-file-name
+	  ln t))
+      ((eq prefix 0)
+	(setq name buffer-file-truename))
+      (t
+	(setq
+	  name buffer-file-truename
+	  ln t)))
+    (>>=kill-new
+      (if name
+	(concat
+	  (abbreviate-file-name name)
+	  (if ln (format ":%s:" (line-number-at-pos)) ""))
+	;; else
+	(or
+	  (bound-and-true-p exwm-title)
+	  (buffer-name))))))
+
+
+(defun >>=yank-default-directory ()
+  "Make default directory the latest kill in the kill ring."
+  (interactive)
+  (>>=kill-new (>>=default-directory)))
 
 
 (defun >>=shell-command-to-string (command)
@@ -87,6 +93,28 @@
 	  (end-of-line)
 	  (setq end (point)))))
     (buffer-substring-no-properties begin end)))
+
+
+(use-package simple
+  :defer t
+  :hook
+  (tabulated-list-mode . hl-line-mode)    ; TODO: why is this here?
+  :bind
+  ("C-c k f" . >>=yank-filename)
+  ("C-c k d" . >>=yank-default-directory)
+  ("M-SPC" . cycle-spacing)    ;; It was `just-one-space'
+  ("M-s-;" . list-processes)
+  (:map process-menu-mode-map
+    ("k" . process-menu-delete-process))
+  :custom
+  (column-number-mode +1)
+  (async-shell-command-buffer 'new-buffer)
+  (mark-ring-max 32)
+  (global-mark-ring-max 32)
+  (kill-ring-max 128)
+  (save-interprogram-paste-before-kill t)
+  :config
+  (put 'set-goal-column 'disabled nil))
 
 
 
