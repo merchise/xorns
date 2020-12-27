@@ -57,6 +57,12 @@ report the identity of the enclosed body."
        (message ">>= error configuring feature '%s': %s" ',feature err))))
 
 
+(defmacro >>=ensure-packages (&rest packages)    ; TODO: deprecate this
+  "Ensure that all PACKAGES are installed."
+  `(dolist (pkg '(,@packages))
+     (>>=package/ensure pkg)))
+
+
 ;; TODO: Check `system-packages', and `use-package-ensure-system-package'
 (with-eval-after-load 'xorns-packages
   ;; Bootstrap 'use-package'
