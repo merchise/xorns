@@ -22,30 +22,32 @@
 (defvar >>=!font-configured nil
   "If default-font is configured or not in a graphic display.")
 
-(defvar >>=|default-font
-  `(:size ,(/ (* 13.8 (display-pixel-width)) 1920.0)
-    :weight normal :width normal)
+
+(defvar >>=|default-font nil
+  ;; `(:size ,(/ (* 13.8 (display-pixel-width)) 1920.0)
+  ;;   :weight normal :width normal)
   "Default font or prioritized list of fonts.")
 
 
 (defun >>=configure-font ()
   "Find and set the default font."
-  (if (not >>=!font-configured)
+  (when (and >>=|default-font (not >>=!font-configured))
     (if (display-graphic-p)
       (if (font-family-list)
 	(if (>>=set-default-font >>=|default-font)
 	  (setq >>=!font-configured t)
-          ; else
-	  (message ">>= warning: Cannot find any of the specified fonts (%s)!."
+          ;; else
+	  (message
+	    ">>= warning: cannot find any of the specified fonts (%s)!."
 	    (let ((aux (car >>=|default-font)))
 	      (if (listp aux)
 		(mapconcat 'car >>=|default-font ", ")
 		; else
 		aux))))
-	; if display is not initialized,
-	; this takes another try in emacs-startup hook
+	;; if display is not initialized,
+	;; this takes another try in emacs-startup hook
 	)
-      ; else
+      ;; else
       (setq >>=!font-configured 'is-not-a-graphic-display))))
 
 
