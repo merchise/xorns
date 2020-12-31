@@ -23,15 +23,6 @@
 (require 'use-package)
 
 
-(if mode-line-format
-  (warn
-    (concat
-      ">>= Variable `mode-line-format' must be nil at this point; "
-      "this code must be called just once and after `xorns-preface'."))
-  ;; else
-  (setq mode-line-format (default-value 'mode-line-format)))
-
-
 (defvar >>=|mode-line/kind nil
   "Kind of mode-line.
 When nil, the standard Emacs mode-line will be used; otherwise, the value must

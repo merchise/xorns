@@ -56,7 +56,6 @@
 
 
 (with-eval-after-load 'xorns-preface
-  (>>-visual/hidden-mode-line)
   (when (version< emacs-version "27")
     ;; Disable useless GUI: menu, toolbar, scroll-bars, and tool-tips.
     ;; As of Emacs 27, this is done in the `early-init.el' file.
@@ -72,16 +71,6 @@
     (add-hook >>-obsolete-focus-in-hook #'>>-visual/epilogue)
     ;; else: new method
     (add-function :after after-focus-change-function #'>>-visual/epilogue)))
-
-
-
-(defun >>-visual/hidden-mode-line ()
-  "Hide the mode-line in the initial buffer.
-It will be restored later on by `xorns-mode-line' module."
-  ;; Based on: http://bzg.fr/emacs-hide-mode-line.html
-  (when mode-line-format
-    (setq mode-line-format nil)
-    (force-mode-line-update)))
 
 
 (defun >>-visual/preface ()
