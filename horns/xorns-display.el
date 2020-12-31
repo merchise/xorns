@@ -73,7 +73,7 @@ The return value is nil if no font was found, truthy otherwise."
 	  ;; else: default font-name
 	  (setq font "Source Code Pro"))
 	(when (find-font (font-spec :name font))
-	  (let* ((props (>>=plist-exclude plist
+	  (let* ((props (>>=plist-remove plist
 			  :powerline-scale :powerline-offset))
 		 (fontspec (apply 'font-spec :name font props)))
 	    (set-frame-font fontspec nil t)
@@ -89,7 +89,7 @@ The return value is nil if no font was found, truthy otherwise."
 	      (when fallback-font-names
 		;; to be able to scale the fallback fonts with the default one
 		;; (for zoom-in/out for instance)
-		(let* ((fallback-props (>>=plist-exclude props :size :height))
+		(let* ((fallback-props (>>=plist-remove props :size :height))
 		       (fallback-spec (apply 'font-spec
 					:name (car fallback-font-names)
 					fallback-props))
