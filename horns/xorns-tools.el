@@ -17,10 +17,10 @@
 ;;; Code:
 
 (require 'subr-x)    ; for `string-trim'
+(eval-when-compile (require 'cl-lib))
 
 
 ;;; general
-
 
 (defmacro ->? (func &rest args)
   "Call FUNC with our remaining ARGS, only if it is bound."
@@ -272,17 +272,62 @@ so this macro can be used to iterate over tuples of two values in any list.
 		,@(cdr (cdr (cdr spec)))))))))
 
 
-(defun >>=plist-exclude (plist &rest props)
-  "Return a copy of PLIST with all PROPS excluded.
-PLIST is a property-list of the form (PROP1 VALUE1 PROP2 VALUE2 ...)."
-  (let ((pivot plist) res)
-    (while (consp pivot)
-      (let ((key (pop pivot))
-	    (value (pop pivot)))
-	(unless (memq key props)
-	  (push value res)
-	  (push key res))))
+(defun >>=plist-find-any (target &rest keys)
+  "Find first member of any of the KEYS within the TARGET property-list."
+  (let (res)
+    (while (and keys (not res))
+      (let ((aux (plist-member target (car keys))))
+	(if aux
+	  (setq res aux)
+	  ;; else
+	  (setq keys (cdr keys)))))
     res))
+
+
+(defun >>=plist-get-any (target &rest keys)
+  "Find first member of any of the KEYS within the TARGET property-list."
+  (let (res)
+    (while (and keys (not res))
+      (let ((aux (plist-get target (car keys))))
+	(if aux
+	  (setq res aux)
+	  ;; else
+	  (setq keys (cdr keys)))))
+    res))
+
+
+(defun >>=plist-delete (target &rest keys)
+  "Delete all KEYS in-place from a TARGET property-list."
+  ;; Adapted from `map--plist-delete'
+  (let ((tail target) last)
+    (when keys
+      (while (consp tail)
+	(cond
+	  ((not (memq (car tail) keys))
+            (setq
+	      last tail
+	      tail (cddr last)))
+	  (last
+            (setq tail (cddr tail))
+            (setf (cddr last) tail))
+	  (t
+            (cl-assert (eq tail target))
+            (setq
+	      target (cddr target)
+	      tail target)))))
+    target))
+
+
+(defun >>=plist-remove (target &rest keys)
+  "Return a copy of a TARGET property-list with all KEYS removed."
+  (if (apply '>>=plist-find-any target keys)
+    (apply '>>=plist-delete (copy-sequence target) keys)
+    ;; else
+    target))
+
+
+(define-obsolete-function-alias '>>=plist-exclude '>>=plist-remove
+  "xorns 1.0" "Remove all KEYS from a TARGET property-list.")
 
 
 (defun >>=split-list (pred xs)
@@ -310,6 +355,17 @@ returns a non-nil value."
       (append (>>=cast-list (plist-get target key)) values)
       ;; else
       (>>=list-value values))))
+
+
+(defun >>=plist-setdefault (target key &optional default)
+  "Insert KEY with a value of DEFAULT if KEY is not member of TARGET.
+Return the value for KEY if it is in TARGET, else DEFAULT."
+  (let ((res (plist-member target key)))
+    (if res
+      (nth 1 res)
+      ;; else
+      (plist-put target key default)
+      default)))
 
 
 (defun >>=plist-fix (source)
