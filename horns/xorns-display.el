@@ -15,18 +15,90 @@
 
 ;;; Code:
 
-
+(eval-when-compile (require 'cl-lib))
 (require 'xorns-tools)
+
+
+(defconst >>=!font/default-name "Source Code Pro"
+  "Default font-name.")
+
+
+(defconst >>=!font/sizes
+  '((nil . 12.8) (small . 11.3) (medium . 12.8) (large . 14.3))
+  "Mapping used for `>>=select-font' to convert a symbol to a font size.")
 
 
 (defvar >>=!font-configured nil
   "If default-font is configured or not in a graphic display.")
 
 
-(defvar >>=|default-font nil
-  ;; `(:size ,(/ (* 13.8 (display-pixel-width)) 1920.0)
-  ;;   :weight normal :width normal)
-  "Default font or prioritized list of fonts.")
+(defvar >>=|default-font 'medium
+  "Default font or prioritized list of fonts.
+See `>>=select-font' function for more information.")
+
+
+(defun >>=select-font (option)
+  "Select or create a font configuration from the given OPTION.
+
+OPTION can be either nil to use all properties as default; or one of the
+symbols `small', `medium', or `large' (see `>>=!font/sizes'); or a
+non-negative integer or floating point number specifying the font size; the
+form ([FONT-NAME] PROPERTIES) or a list of such (the first font that can be
+found with `find-font' will be used).
+
+The return value is a property-list that can be used with the `font-spec'
+function, or nil if no font was found."
+  (when (symbolp option)
+    (cl-assert (setq option (cdr (assq option >>=!font/sizes)))))
+  (if (numberp option)
+    `(:name ,>>=!font/default-name :size ,option :weight normal :width normal)
+    ;; else
+    (let ((choices (if (listp (car option)) option (list option)))
+	  res)
+      (while (and (not res) choices)
+	(let* ((choice (car choices))
+	       (name (car choice))
+	       op)
+	  (if (stringp name)
+	    (setq op 'cons)
+	    ;; else
+	    (unless (setq name (plist-get choice :name))
+	      (setq
+		name (or (plist-get choice :family) >>=!font/default-name)
+		op 'nconc)))
+	  (if (find-font (font-spec :name name))
+	    (setq res
+	      (cond
+		((eq op 'cons)
+		  (cl-assert (not (plist-member (cdr choice) :name)))
+		  (cons :name choice))
+		((eq op 'nconc)
+		  (nconc `(:name ,name) choice))
+		(t
+		  choice)))
+	    ;; else
+	    (setq choices (cdr choices)))))
+      res)))
+
+
+(defun >>=get-spacemacs-fallbacks ()
+  "Build a list of fallback forms as applied in `spacemacs/set-default-font'."
+  (let ((font-names
+	  (plist-get
+	    '(gnu/linux ("NanumGothic" . "NanumGothic")
+	      darwin ("Arial Unicode MS" . "Arial Unicode MS")
+	      cygwin ("MS Gothic" . "Lucida Sans Unicode")
+	      windows-nt ("MS Gothic" . "Lucida Sans Unicode"))
+	    system-type)))
+    (when font-names
+      (list
+	`(,(car font-names)
+	   (#x2776 . #x2793)        ; window numbers
+	   (#x24b6 . #x24fe)        ; mode-line circled letters
+	   (#x2295 . #x22a1))       ; mode-line additional characters
+	`(,(cdr font-names)
+	   (#x2190 . #x2200))       ; new version lighter
+	))))
 
 
 (defun >>=configure-font ()
@@ -51,65 +123,46 @@
       (setq >>=!font-configured 'is-not-a-graphic-display))))
 
 
-(defun >>=set-default-font (plists)
-  "Set the font given the passed PLISTS.
+(defun >>=set-default-font (option)
+  ;; This implementation is based in `spacemacs/set-default-font'.
+  "Set the font defined by OPTION.
+See `>>=select-font' for posible values of argument OPTION.
 
-PLISTS has either the form (\"font-name\" :prop1 value1 :prop2 value2 ...), or
-is a list of such.  The first font that can be found will be used.
-\"font-name\" is optional, if not specified \"Source Code Pro\" is assumed,
-when specify more than one form, only one can have default font-name.
+If FALLBACK is specified, it must be either the symbol `spacemacs' (see
+`>>=get-spacemacs-fallbacks'), or a form containing a font-name and a set of
+targets valid for `set-fontset-font', or a sequence of such forms.
 
-NOTE: This implementation is based in Spacemacs, but improved.
-
-The return value is nil if no font was found, truthy otherwise."
+FALLBACK if given
+must be a `list' with a font-name as its `car' and a sequence of targets as
+specified for `' `'Modify fontset NAME to use FONT-SPEC for TARGET characters."
   (>>=on-debug-message "setting default font...")
-  (unless (listp (car plists))
-    (setq plists (list plists)))
-  (catch 'break
-    (dolist (plist plists)
-      (let ((font (car plist)))
-	(if (stringp font)
-	  (setq plist (cdr plist))
-	  ;; else: default font-name
-	  (setq font "Source Code Pro"))
-	(when (find-font (font-spec :name font))
-	  (let* ((props (>>=plist-remove plist
-			  :powerline-scale :powerline-offset))
-		 (fontspec (apply 'font-spec :name font props)))
-	    (set-frame-font fontspec nil t)
-	    (push `(font . ,(frame-parameter nil 'font)) default-frame-alist)
-	    (let ((fallback-font-names
-		    (plist-get
-		      '(gnu/linux ("NanumGothic" . "NanumGothic")
-			darwin ("Arial Unicode MS" . "Arial Unicode MS")
-			cygwin ("MS Gothic" . "Lucida Sans Unicode")
-			windows-nt ("MS Gothic" . "Lucida Sans Unicode"))
-		      system-type)))
-	      ;; TODO: what if `system-type' is not listed above
-	      (when fallback-font-names
-		;; to be able to scale the fallback fonts with the default one
-		;; (for zoom-in/out for instance)
-		(let* ((fallback-props (>>=plist-remove props :size :height))
-		       (fallback-spec (apply 'font-spec
-					:name (car fallback-font-names)
-					fallback-props))
-		       (fallback-spec2 (apply 'font-spec
-					 :name (cdr fallback-font-names)
-					 fallback-props)))
-		  ;; window numbers
-		  (set-fontset-font "fontset-default"
-		    '(#x2776 . #x2793) fallback-spec nil 'prepend)
-		  ;; mode-line circled letters
-		  (set-fontset-font "fontset-default"
-		    '(#x24b6 . #x24fe) fallback-spec nil 'prepend)
-		  ;; mode-line additional characters
-		  (set-fontset-font "fontset-default"
-		    '(#x2295 . #x22a1) fallback-spec nil 'prepend)
-		  ;; new version lighter
-		  (set-fontset-font "fontset-default"
-		    '(#x2190 . #x2200) fallback-spec2 nil 'prepend)))))
-	  (throw 'break t))))
-    nil))
+  (let* ((props (>>=select-font option))
+	 (fallback (plist-get props :fallback)))
+    (when props
+      (setq props
+	(>>=plist-remove props :fallback :powerline-scale :powerline-offset))
+      (set-frame-font (apply 'font-spec props) nil t)
+      (let ((font (frame-parameter nil 'font))
+	    (cell (assq 'font default-frame-alist)))
+	(if cell
+	  (setcdr cell font)
+	  ;; else
+	  (nconc default-frame-alist `((font . ,font))))
+	(when fallback
+	  ;; to be able to scale the fallback fonts with the default one
+	  ;; (for zoom-in/out for instance)
+	  (setq props (>>=plist-remove props :name :size :height :family))
+	  (if (eq fallback 'spacemacs)
+	    (setq fallback (>>=get-spacemacs-fallbacks))
+	    ;; else
+	    (when (not (listp (car fallback)))
+	      (setq fallback (list fallback))))
+	  (dolist (fb fallback)
+	    (let ((spec (apply 'font-spec :name (car fb) props)))
+	      (dolist (target (cdr fb))
+		(set-fontset-font
+		  "fontset-default" target spec nil 'prepend)))))
+	font))))
 
 
 (provide 'xorns-display)
