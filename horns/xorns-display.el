@@ -67,15 +67,24 @@ function, or nil if no font was found."
 		name (or (plist-get choice :family) >>=!font/default-name)
 		op 'nconc)))
 	  (if (find-font (font-spec :name name))
-	    (setq res
-	      (cond
-		((eq op 'cons)
-		  (cl-assert (not (plist-member (cdr choice) :name)))
-		  (cons :name choice))
-		((eq op 'nconc)
-		  (nconc `(:name ,name) choice))
-		(t
-		  choice)))
+	    (progn
+	      (setq res
+		(cond
+		  ((eq op 'cons)
+		    (cl-assert (not (plist-member (cdr choice) :name)))
+		    (cons :name choice))
+		  ((eq op 'nconc)
+		    (nconc `(:name ,name) choice))
+		  (t
+		    choice)))
+	      (let ((size (plist-get res :size)))
+		(when (symbolp size)
+		  (cl-assert (setq size (cdr (assq size >>=!font/sizes))))
+		  (plist-put res :size size)))
+	      (when (not (plist-member res :weight))
+		(plist-put res :weight 'normal))
+	      (when (not (plist-member res :width))
+		(plist-put res :width 'normal)))
 	    ;; else
 	    (setq choices (cdr choices)))))
       res)))
