@@ -28,13 +28,29 @@
   "Mapping used for `>>=select-font' to convert a symbol to a font size.")
 
 
-(defvar >>=!font-configured nil
-  "If default-font is configured or not in a graphic display.")
+(defvar >>=font/configured nil
+  "If default-font is configured or not on a graphic display.")
 
 
 (defvar >>=|default-font 'medium
   "Default font or prioritized list of fonts.
 See `>>=select-font' function for more information.")
+
+
+(defun >>-display-system-p ()
+  "Return if the display-system is initialized."
+  (cond
+    ((boundp 'ns-initialized)
+      ns-initialized)
+    ;; on Windows, check the list of fonts instead because w32 gets
+    ;; initialized earlier than the graphics system
+    ((boundp 'w32-initialized)
+      (font-family-list))
+    ((boundp 'x-initialized)
+      x-initialized)
+    ;; fallback to normal loading behavior only if in a GUI
+    (t
+      (display-graphic-p))))
 
 
 (defun >>=select-font (option)
@@ -112,24 +128,16 @@ function, or nil if no font was found."
 
 (defun >>=configure-font ()
   "Find and set the default font."
-  (when (and >>=|default-font (not >>=!font-configured))
+  (when (and >>=|default-font (not >>=font/configured))
     (if (display-graphic-p)
-      (if (font-family-list)
-	(if (>>=set-default-font >>=|default-font)
-	  (setq >>=!font-configured t)
+      (when (>>-display-system-p)
+	;; if display is not ready, this takes another try in startup hook
+	(if-let ((res (>>=set-default-font >>=|default-font)))
+	  (setq >>=font/configured res)
           ;; else
-	  (message
-	    ">>= warning: cannot find any of the specified fonts (%s)!."
-	    (let ((aux (car >>=|default-font)))
-	      (if (listp aux)
-		(mapconcat 'car >>=|default-font ", ")
-		; else
-		aux))))
-	;; if display is not initialized,
-	;; this takes another try in emacs-startup hook
-	)
+	  (warn ">>= warning: cannot find any of the specified fonts.")))
       ;; else
-      (setq >>=!font-configured 'is-not-a-graphic-display))))
+      (setq >>=font/configured 'is-not-a-graphic-display))))
 
 
 (defun >>=set-default-font (option)
