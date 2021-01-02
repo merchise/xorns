@@ -45,12 +45,6 @@
 (require 'xorns-tools)
 
 
-(defconst >>-obsolete-focus-in-hook
-  (unless (boundp 'after-focus-change-function)
-    (intern "focus-in-hook"))
-  "This hook is obsolete since 27.1.")
-
-
 (defvar >>-visual-epilogue-called nil
   "Function `>>-visual/epilogue' must be executed only once.")
 
@@ -66,11 +60,11 @@
     (tooltip-mode -1))
   ;; Preface and Epilogue
   (>>-visual/preface)
-  ;; `focus-in-hook' is obsolete since 27.1
-  (if >>-obsolete-focus-in-hook
-    (add-hook >>-obsolete-focus-in-hook #'>>-visual/epilogue)
-    ;; else: new method
-    (add-function :after after-focus-change-function #'>>-visual/epilogue)))
+  (if (boundp 'after-focus-change-function)
+    (add-function :after after-focus-change-function '>>-visual/epilogue)
+    ;; else
+    (with-no-warnings    ; `focus-in-hook' is obsolete since 27.1
+      (add-hook focus-in-hook '>>-visual/epilogue))))
 
 
 (defun >>-visual/preface ()
