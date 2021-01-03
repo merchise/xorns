@@ -128,7 +128,7 @@ function, or nil if no font was found."
 
 (defun >>=configure-font ()
   "Find and set the default font."
-  (when (and >>=|default-font (not >>=font/configured))
+  (when (and (not >>=font/configured) >>=|default-font)
     (if (display-graphic-p)
       (when (>>-display-system-p)
 	;; if display is not ready, this takes another try in startup hook
@@ -137,7 +137,14 @@ function, or nil if no font was found."
           ;; else
 	  (warn ">>= warning: cannot find any of the specified fonts.")))
       ;; else
-      (setq >>=font/configured 'is-not-a-graphic-display))))
+      (setq >>=font/configured 'text-only-terminal))))
+
+
+(if (boundp 'after-focus-change-function)
+  (add-function :after after-focus-change-function '>>=configure-font)
+  ;; else
+  (with-no-warnings    ; `focus-in-hook' is obsolete since 27.1
+    (add-hook focus-in-hook '>>=configure-font)))
 
 
 (defun >>=set-default-font (option)

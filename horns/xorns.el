@@ -21,7 +21,7 @@
 ;; `xorns-packages' must be the first module loaded here
 (require 'xorns-packages)
 
-(require 'xorns-preface)
+(require 'xorns-display)
 (require 'use-package)
 
 
