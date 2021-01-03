@@ -19,6 +19,29 @@
 
 
 
+;;; Preface
+
+(when (version< emacs-version "27")
+  ;; Disable useless GUI: menu, toolbar, scroll-bars, and tool-tips.
+  ;; As of Emacs 27, this is done in the `early-init.el' file.
+  (unless (eq system-type 'darwin)    ; No disable menu in MacOs
+    (menu-bar-mode -1))
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (tooltip-mode -1))
+
+
+
+;;; Multilingual Environment
+
+(prefer-coding-system 'utf-8)
+(setq locale-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+
+
+
 ;;; Lisp configuration files
 
 (defun >>=read-lisp-config (file)
