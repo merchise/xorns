@@ -145,7 +145,9 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
       (>>=major-mode-trigger blacken >>=|blacken/enable >>=blacken/turn-on))
     )
   :hook
-  (python-mode . >>-blacken/may-enable-mode))
+  (python-mode . >>-blacken/may-enable-mode)
+  :custom
+  (blacken-only-if-project-is-blackened t))
 
 
 (use-package pipenv
