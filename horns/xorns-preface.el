@@ -45,46 +45,41 @@
 (require 'xorns-tools)
 
 
+(when (version< emacs-version "27")
+  ;; Disable useless GUI: menu, toolbar, scroll-bars, and tool-tips.
+  ;; As of Emacs 27, this is done in the `early-init.el' file.
+  (unless (eq system-type 'darwin)    ; No disable menu in MacOs
+    (menu-bar-mode -1))
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (tooltip-mode -1))
+
+
+;;; internationalization
+(prefer-coding-system 'utf-8)
+(setq locale-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+
+
 (defvar >>-visual-epilogue-called nil
   "Function `>>-visual/epilogue' must be executed only once.")
-
-
-(with-eval-after-load 'xorns-preface
-  (when (version< emacs-version "27")
-    ;; Disable useless GUI: menu, toolbar, scroll-bars, and tool-tips.
-    ;; As of Emacs 27, this is done in the `early-init.el' file.
-    (unless (eq system-type 'darwin)    ; No disable menu in MacOs
-      (menu-bar-mode -1))
-    (tool-bar-mode -1)
-    (scroll-bar-mode -1)
-    (tooltip-mode -1))
-  ;; Preface and Epilogue
-  (>>-visual/preface)
-  (if (boundp 'after-focus-change-function)
-    (add-function :after after-focus-change-function '>>-visual/epilogue)
-    ;; else
-    (with-no-warnings    ; `focus-in-hook' is obsolete since 27.1
-      (add-hook focus-in-hook '>>-visual/epilogue))))
-
-
-(defun >>-visual/preface ()
-  "Run at the very beginning."
-  ;; internationalization
-  (prefer-coding-system 'utf-8)
-  (setq locale-coding-system 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (set-selection-coding-system 'utf-8))
 
 
 (defun >>-visual/epilogue ()
   "Run after the frame is created and focus."
   (unless >>-visual-epilogue-called
     (setq >>-visual-epilogue-called t)
-    ;; font configuration
     (require 'xorns-display)
-    (declare-function >>=configure-font 'xorns-display)
     (>>=configure-font)))
+
+
+(if (boundp 'after-focus-change-function)
+  (add-function :after after-focus-change-function '>>-visual/epilogue)
+  ;; else
+  (with-no-warnings    ; `focus-in-hook' is obsolete since 27.1
+    (add-hook focus-in-hook '>>-visual/epilogue)))
 
 
 (provide 'xorns-preface)
