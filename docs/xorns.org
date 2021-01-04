@@ -36,6 +36,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE@.  See the GNU
 General Public License for more details.
 #+END_QUOTE
 :END:
+
 * Introduction
 
 Xorns is our way of experiencing Emacs -- it automates the configuration of
@@ -258,27 +259,8 @@ information about =.desktop= files.
 Then restart =lightdm= con =sudo systemctl restart lightdm= and choose "Emacs"
 in the button.
 
+
 * Issues and Feature Requirements
-
-** Packages `minions' and `diminish' are mutually exclusive
-
-https://www.reddit.com/r/emacs/comments/81ogys/minions/
-
-** Error starting initial frame maximized in Manjaro Linux i3 desktop
-
-Report date: 2019-09-18
-
-When I initialize Emacs in the same workspace that it has automatically
-assigned, an unwanted border appears on the right of the screen.  To correct
-that issue, I must execute full-screen mode twice.  If it is executed from a
-different workspace, this problem does not occur.
-
-** Grammarly -- Great Writing, Simplified
-
-https://www.grammarly.com/
-
-@manu advised to use this to improve commit messages.  There is n extension
-with Emacs: https://github.com/mmagnus/emacs-grammarly
 
 
 * _ :ignore:
