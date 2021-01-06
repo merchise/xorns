@@ -8,9 +8,24 @@
 
 ;;; Commentary:
 
-;; https://wiki.archlinux.org/index.php/EXWM
+;; Emacs can be configured as a Desktop Environment using this module, our
+;; configuration around EXWM package (Emacs X Window Manager).
 
-;; https://github.com/ch11ng/exwm/wiki
+;; Startup Applications
+;; --------------------
+
+;; Every Desktop Environment defines a set of applications that will be
+;; automatically launched during startup after the user has logged in.  These
+;; applications are defined in the variable `>>=|exwm/startup-applications',
+;; and managed by function `>>=exwm/run-startup-applications'.
+
+;; Each command definition must be a string, e.g. "nm-applet"; a list could be
+;; used for backward compatibility, e.g. '("GDK_BACKEND=x11" "pamac-tray").
+
+;; For this feature, Linux commonly uses XDG standard: `.desktop' files are
+;; defined in the autostart directories, `~/.config/autostart/' and
+;; `/etc/xdg/autostart/'.  We do not use these definitions because there may
+;; be applications that are not required or could be incompatible with EXWM.
 
 ;; Enjoy!
 
@@ -18,6 +33,7 @@
 ;;; Code:
 
 (require 'use-package)
+(require 'xorns-tools)
 
 
 ;;; Main definitions
@@ -27,12 +43,17 @@
     ("C-s-f" . "https://facebook.com")
     ("C-s-t" . "https://translate.google.com")
     ("C-s-c" . "https://web.telegram.org"))
-  "Pairs (KEY . URL) to be used with `browse-url' inner `exwm'.")
+  "Pairs of (KEY . URL) to be used with `browse-url'  inner EXWM.")
 
 
 (defvar >>=|exwm/startup-applications nil
-  ;; For example: '("nm-applet" "pamac-tray")
-  "Startup applications to be executed with `start-process-shell-command'.")
+  "List of applications to be executed when EXWM starts.")
+
+
+(defvar >>=|exwm/start-process-model nil
+  "Model to execute EXWM processes.
+Value could be a function receiving an unique argument string; or nil to use
+`>>=exwm/start-process', or t to use `>>=exwm/start-subprocess'.")
 
 
 (defvar >>=|exwm/systemtray-icons t
@@ -41,11 +62,33 @@ Could be an integer or a boolean value, if t is calculated with the length of
 `>>=|exwm/startup-applications'.)")
 
 
-;; Executing `(key-binding (kbd "s-&"))' returns nil
+(defun >>=exwm/start-process (command)
+  "Call COMMAND synchronously in a separate process returning immediately."
+  (unless (stringp command)
+    (setq command (mapconcat 'identity command  " ")))
+  (call-process-shell-command command nil 0))
+
+
+(defun >>=exwm/start-subprocess (command &optional name)
+  "Call COMMAND synchronously in a sub-process returning immediately.
+A process NAME can bee given as an optional argument."
+  (unless (stringp command)
+    (setq command (mapconcat 'identity command  " ")))
+  (unless name
+    (setq name (if (string-match "[[:space:]]" command) "EXWM-SP" command)))
+  (start-process-shell-command name nil command))
+
+
 (defun >>=exwm/start-command (command)
-  "Start a COMMAND in a sub-process."
+  "Start a COMMAND synchronously in separate process."
   (interactive (list (read-shell-command ">>= ")))
-  (start-process-shell-command command nil command))
+  (cond
+    ((functionp >>=|exwm/start-process-model)
+      (funcall >>=|exwm/start-process-model command))
+    ((null >>=|exwm/start-process-model)
+      (>>=exwm/start-process command))
+    (t
+      (>>=exwm/start-subprocess command))))
 
 
 (defun >>-url-browser (url)
@@ -53,6 +96,16 @@ Could be an integer or a boolean value, if t is calculated with the length of
   (lambda ()
     (interactive)
     (browse-url url)))
+
+
+(defun >>=exwm/run-startup-applications ()
+  "Run all startup applications defined in `>>=|exwm/startup-applications'."
+  (dolist (cmd >>=|exwm/startup-applications)
+    (condition-case-unless-debug err
+      (>>=exwm/start-command cmd)
+      (error
+	(message ">>= error executing '%s' startup application:\n    %s"
+	  cmd (error-message-string err))))))
 
 
 
@@ -64,18 +117,11 @@ Could be an integer or a boolean value, if t is calculated with the length of
   :config
   (progn
     (eval-when-compile
-      ;; TODO: deprecate this, only needed in local compile
+      ;; this is only needed in local compile
       (declare-function exwm-systemtray-enable 'exwm-systemtray)
       (declare-function exwm-config-example 'exwm-config))
     (message ">>= using Emacs as the Desktop Window Manager.")
-    (dolist (cmd >>=|exwm/startup-applications)
-      ;; Run all startup applications
-      (let ((name (car (split-string cmd))))
-	(condition-case-unless-debug err
-	  (start-process-shell-command name nil cmd)
-	  (error
-	    (message ">>= error executing '%s' startup application:\n    %s"
-	      cmd (error-message-string err))))))
+    (>>=exwm/run-startup-applications)
     (->? >>=window-manager/init)
     (require 'exwm-config)
     (require 'exwm-systemtray)
@@ -100,10 +146,11 @@ Could be an integer or a boolean value, if t is calculated with the length of
     (require 'xorns-term)
 
     (exwm-input-set-key
-      ;; Like in `i3' windows manager
+      ;; Like on `i3' window manager.  We use a new command because at this
+      ;; level `(key-binding (kbd "s-&"))' returns nil
       (kbd "s-d") #'>>=exwm/start-command)
     (exwm-input-set-key (kbd "<s-return>")
-      ;; Like in i3 window manager
+      ;; Like on i3 window manager
       #'>>=ansi-term)
     (exwm-input-set-key (kbd "s-r") #'exwm-reset)
     (exwm-input-set-key (kbd "<s-tab>") #'other-frame)

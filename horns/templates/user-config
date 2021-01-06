@@ -19,7 +19,14 @@ default values are not suitable for your configuration."
     ;; >>=|projectile/project-root-files '()
     ;; >>=|dired-omit-mode t
     ;; >>=|mode-line/kind 'mini
-    ;; >>=|exwm/startup-applications '("nm-applet" "pamac-tray")
+    ;; >>=|exwm/startup-applications
+    ;; '(
+    ;;    "blueman-applet"                    ; Blueman Applet
+    ;;    "nm-applet"                         ; Network Manager
+    ;;    ("GDK_BACKEND=x11" "pamac-tray")    ; Update Notifier
+    ;;    "volumeicon"                        ; Volume control
+    ;;    )
+    ;; >>=|exwm/start-process-model t         ; use sub-processes
     ;; >>=|lsp/enable-mode 'ask
     ;; >>=|blacken/enable 'ask
     ))
