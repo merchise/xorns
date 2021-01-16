@@ -27,6 +27,12 @@
 ;; `/etc/xdg/autostart/'.  We do not use these definitions because there may
 ;; be applications that are not required or could be incompatible with EXWM.
 
+;; There are two models to execute a command configured in the
+;; `>>=|exwm/start-process-model' variable.: as a separate process
+;; `>>=exwm/start-process', or as a sub-process `>>=exwm/start-subprocess'.
+;; The selected mode is used for both, the startup applications and any
+;; launched with `>>=exwm/start-command'.
+
 ;; Enjoy!
 
 

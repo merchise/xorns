@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Emacs
+Comment=Emacs Window Manager
+Exec=emacs -mm
+# Exec=dbus-launch --exit-with-session emacs -mm
+# Icon=
+Type=Application
+X-LightDM-DesktopName=emacs
+DesktopNames=emacs
+Keywords=emacs;wm;windowmanager;window;manager;
