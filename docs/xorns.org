@@ -234,30 +234,26 @@ https://github.com/ch11ng/exwm/wiki
 
 Make sure you have =emacs= and =xorg-xinit= installed.
 
-From within Emacs: M-x package-install exwm RET.
+From within Emacs: M-x package-install exwm RET.  This is done by Xorns
+automatically.
 
-Edit =xinitrc= and add: =exec emacs=
-
-To test it at startup, in the folder =/usr/share/xsessions/= add the file
-=emacs.desktop= with the content:
+To start Emacs as a Windows manager make sure you create symbolic-links for
+ =exwm/*.desktop= files into =/usr/share/xsessions=:
 
 #+BEGIN_SRC shell-script
-  [Desktop Entry]
-  Name=emacs
-  Comment=emacs window manager
-  Exec=emacs
-  # Icon=
-  Type=Application
-  X-LightDM-DesktopName=emacs
-  DesktopNames=emacs
-  Keywords=emacs;wm;windowmanager;window;manager;
+  sudo ln -f ~/.emacs.d/exwm/*.desktop /usr/share/xsessions/
 #+END_SRC
 
-See =https://wiki.archlinux.org/index.php/Desktop_entries= For more
-information about =.desktop= files.
+If you are using a Version Control System to maintain your =~/.emacs.d=
+directory, =/usr/share/xsessions/= files may become outdated.
 
-Then restart =lightdm= con =sudo systemctl restart lightdm= and choose "Emacs"
-in the button.
+NOTE that =user-emacs-directory= could use another location, for example if
+the XDG convention is used in Emacs 27 =$XDG_CONFIG_HOME/emacs/=.
+
+
+See [[https://wiki.archlinux.org/index.php/Desktop_entries][desktop entries]] for more information about =.desktop= files.
+
+The log-out and start a new session choosing one of the "Emacs" entries.
 
 
 * Issues and Feature Requirements

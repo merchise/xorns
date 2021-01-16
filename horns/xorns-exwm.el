@@ -11,6 +11,20 @@
 ;; Emacs can be configured as a Desktop Environment using this module, our
 ;; configuration around EXWM package (Emacs X Window Manager).
 
+;; Session Files
+;; -------------
+
+;; To start Emacs as a Windows manager make sure you create symbolic-links for
+;; `exwm/*.desktop' files into `/usr/share/xsessions':
+;;
+;;   sudo ln -f ~/.emacs.d/exwm/*.desktop /usr/share/xsessions/
+
+;; If you are using a Version Control System to maintain your `~/.emacs.d'
+;; directory, `/usr/share/xsessions/' files may become outdated.
+
+;; NOTE that `user-emacs-directory' could use another location, for example if
+;; the XDG convention is used in Emacs 27 `$XDG_CONFIG_HOME/emacs/'.
+
 ;; Startup Applications
 ;; --------------------
 
