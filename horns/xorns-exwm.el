@@ -280,8 +280,7 @@ A process NAME can bee given as an optional argument."
 	       mouse-face mode-line-highlight
 	       help-echo "EXWM workspace.\nclick: switch/add/delete.")
 	     ">")
-	  global-mode-string))))
-  )
+	  global-mode-string)))))
 
 
 (provide 'xorns-exwm)
