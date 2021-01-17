@@ -268,7 +268,20 @@ A process NAME can bee given as an optional argument."
     (exwm-input-set-key (kbd "s-.") #'>>-exwm/switch-workspace-0)
     (exwm-input-set-key (kbd "s-w") #'exwm-workspace-switch)
     (exwm-input-set-key (kbd "<C-s-left>") #'>>-exwm/ws-switch-left)
-    (exwm-input-set-key (kbd "<C-s-right>") #'>>-exwm/ws-switch-right)))
+    (exwm-input-set-key (kbd "<C-s-right>") #'>>-exwm/ws-switch-right)
+    (let ((map (make-sparse-keymap)))
+      (define-key map [mode-line mouse-1] 'exwm-workspace-switch)
+      (setq global-mode-string
+	(cons
+	  `("<"
+	     (:propertize (:eval (format "%d" exwm-workspace-current-index))
+	       local-map ,map
+	       face bold
+	       mouse-face mode-line-highlight
+	       help-echo "EXWM workspace.\nclick: switch/add/delete.")
+	     ">")
+	  global-mode-string))))
+  )
 
 
 (provide 'xorns-exwm)
