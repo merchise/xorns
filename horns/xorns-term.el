@@ -31,6 +31,10 @@
 ;; linked to that tab, executing a command to select an active tab will
 ;; switch, or paste, to the linked buffer.
 
+;; Customizable 256 colors are configured by default for `term' and
+;; `ansi-term', to disable it set `>>=|term/install-customizable-colors'
+;; variable to nil.
+
 ;; Enjoy!
 
 
@@ -114,6 +118,10 @@
   "Command to manage '%s' terminals.
 See `>>=define-terminal' for more information."
   "Documentation format-string to be used with a terminal ID as argument.")
+
+
+(defvar >>=|term/install-customizable-colors t
+  "Add customizable 256 color support to `term' and `ansi-term' .")
 
 
 (defvar >>=term-modes nil
@@ -449,6 +457,13 @@ The interactive argument ARG is used without modification."
      ("C-k" . >>-term/raw-kill-line)))
   :custom
   (term-input-autoexpand t))
+
+
+(use-package eterm-256color
+  :when >>=|term/install-customizable-colors
+  :ensure t
+  :hook
+  (term-mode . eterm-256color-mode))
 
 
 (provide 'xorns-term)

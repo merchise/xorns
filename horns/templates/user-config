@@ -19,6 +19,7 @@ default values are not suitable for your configuration."
     ;; >>=|projectile/project-root-files '()
     ;; >>=|dired-omit-mode t
     ;; >>=|mode-line/kind 'mini
+    ;; >>=|term/install-customizable-colors nil
     ;; >>=|exwm/startup-applications
     ;; '(
     ;;    "blueman-applet"                    ; Blueman Applet
