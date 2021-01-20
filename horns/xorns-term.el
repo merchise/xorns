@@ -54,7 +54,7 @@
     (or
       explicit-shell-file-name
       shell-file-name
-      (>>=executable-find (getenv "ESHELL") (getenv "SHELL") "bash" "sh")))
+      (>>=executable-find (getenv "ESHELL") (getenv "SHELL") "bash" "zsh")))
   "System default shell file-name.")
 
 
