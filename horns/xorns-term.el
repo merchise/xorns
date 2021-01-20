@@ -49,15 +49,6 @@
 
 ;;; Common setup
 
-(defconst >>=!default-shell-file-name
-  (purecopy
-    (or
-      explicit-shell-file-name
-      shell-file-name
-      (>>=executable-find (getenv "ESHELL") (getenv "SHELL") "bash" "zsh")))
-  "System default shell file-name.")
-
-
 (use-package eshell
   :commands (eshell eshell-command)
   :preface
@@ -132,6 +123,15 @@ information.")
 
 (defvar >>-term/state nil
   "From which buffer a terminal was called.")
+
+
+(defvar >>=|default-shell-file-name
+  (purecopy
+    (or
+      explicit-shell-file-name
+      shell-file-name
+      (>>=executable-find (getenv "ESHELL") (getenv "SHELL") "bash" "zsh")))
+  "System default shell file-name.")
 
 
 (defun >>-term/adjust-argument (prefix)
@@ -222,20 +222,18 @@ See `>>=terminal' and `>>-term/adjust-argument' for more information."
 
 (defun >>-term-normalize/:program (value &optional keywords)
   "Adjust VALUE for ':program' using KEYWORDS environment."
-  (cond
-    ((eq value 'ansi)
-      (plist-put keywords :program-id "ansi")
-      >>=!default-shell-file-name)
-    ((symbolp value)
-      (>>-term-normalize/:program (symbol-name value) keywords))
-    (t    ; string, or sequence of options
-      (let ((pair (>>=find-env-executable "%sSHELL" value)))
-	(if pair
-	  (progn
-	    (plist-put keywords :program-id (car pair))
-	    (cdr pair))
-	  ;; else
-	  (error ">>= invalid ':program' value '%s'" value))))))
+  (let ((pair (>>=find-env-executable "%sSHELL" value)))
+    (if pair
+      (progn
+	(plist-put keywords :program-id (car pair))
+	(cdr pair))
+      ;; else
+      (if (eq value 'ansi)
+	(progn
+	  (plist-put keywords :program-id "ansi")
+	  nil)
+	;; else
+	(error ">>= invalid ':program' value '%s'" value)))))
 
 
 (defun >>-term-normalize/:mode (value &optional _keywords)
@@ -251,21 +249,19 @@ See `>>=terminal' and `>>-term/adjust-argument' for more information."
 
 (defun >>-term-normalize/:paster (value &optional keywords)
   "Adjust ':paster' VALUE using KEYWORDS environment."
-  (if (stringp value)
-    (>>-term-normalize/:paster
-      (>>=term/define-paste-magic value) keywords)
-    ;; else
-    (or
-      (>>=cast-function value)
-      (if (consp value)
-	(let* ((options (>>=cast-list value))
-	       (program (plist-get keywords :program-id))
-	       (res (assoc program options 'string-equal)))
-	  (if res
-	    (>>-term-normalize/:paster (cdr res))
-	    #'>>-term/paster))
-	;; else
-	(error ">>= invalid ':paster' value '%s'" :paster)))))
+  (or
+    (and
+      (stringp value)
+      (>>=cast-function (>>=term/define-paste-magic value)))
+    (>>=cast-function value)
+    (when (consp value)
+      (let* ((options (>>=cast-list value))
+	     (program (plist-get keywords :program-id))
+	     (res (assoc program options 'string-equal)))
+	(if res
+	  (>>-term-normalize/:paster (cdr res))
+	  #'>>-term/paster)))
+    (error ">>= invalid ':paster' value '%s'" :paster)))
 
 
 (defmacro >>=define-terminal (id &optional docstring &rest keywords)
@@ -365,6 +361,8 @@ without any further digits, means paste to tab with index 0."
 		(starred (format "*%s*" buf-name))
 		(target (get-buffer starred))
 		(process (get-buffer-process target)))
+	   (unless command
+	     (setq command >>=|default-shell-file-name))
 	   (when paste
 	     (setq paste (>>-term/get-paste-text)))
 	   (when target
