@@ -25,6 +25,12 @@
 ;; NOTE that `user-emacs-directory' could use another location, for example if
 ;; the XDG convention is used in Emacs 27 `$XDG_CONFIG_HOME/emacs/'.
 
+;; If you need to use `startx', add the follwing entry to your `get_session'
+;; function in the `~/.xinitrc' file (remove the escape char starting the
+;; Emacs name):
+;;
+;;     \emacs) dbus_args+=(\emacs) ;;
+
 ;; Startup Applications
 ;; --------------------
 
