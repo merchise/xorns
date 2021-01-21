@@ -166,6 +166,16 @@ old feature will be not longer available.  All invalid options are ignored."
 
 ;;; string - symbol conversion
 
+(defun >>=str (value)
+  "Return a string only if VALUE is a symbol or a string."
+  (unless (booleanp value)
+    (if (stringp value)
+      value
+      ;; else
+      (when (symbolp value)
+	(symbol-name value)))))
+
+
 (defun >>=safe-replace (regexp rep source)
   "Replace all occurrences for REGEXP with REP in SOURCE.
 
@@ -555,7 +565,7 @@ form '(OPTION . COMMAND)'."
 	(fmt (or format "%s"))
 	res)
     (while (and aux (not res))
-      (let* ((var (car aux))
+      (let* ((var (>>=str (car aux)))
 	     (env-var (getenv (upcase (format fmt var))))
 	     (tmp (executable-find (or env-var var))))
 	(if tmp
@@ -570,7 +580,7 @@ A set of OPTIONS is searched until a valid one is found.  This function is
 safe avoiding nil commands.  If none is found, nil is returned."
   (let ((aux (delq nil (>>=cast-list options)))
 	res)
-    (while (and aux (not (setq res (executable-find (car aux)))))
+    (while (and aux (not (setq res (executable-find (>>=str (car aux))))))
       (setq aux (cdr aux)))
     res))
 
