@@ -166,6 +166,27 @@ old feature will be not longer available.  All invalid options are ignored."
 
 ;;; string - symbol conversion
 
+(defun >>=prefix (string size)
+  "Return the STRING prefix of SIZE characters."
+  (if (> size 0)
+    (if (> size (length string)) string
+      ;; else
+      (substring string 0 size))
+    ;; else
+    ""))
+
+
+(defun >>=suffix (string size)
+  "Return the STRING prefix of SIZE characters."
+  (if (> size 0)
+    (if (> size (length string))
+      string
+      ;; else
+      (substring string (- size)))
+    ;; else
+    ""))
+
+
 (defun >>=str (value)
   "Return a string only if VALUE is a symbol or a string."
   (unless (booleanp value)
@@ -347,7 +368,7 @@ HEAD is all successive items of XS for which (PRED item) returns nil.  TAIL is
 a list of all items remaining starting from the first for which (PRED item)
 returns a non-nil value."
   (let ((ys (list nil)) (zs (list nil)) flip)
-    (cl-dolist (x xs)
+    (dolist (x xs)
       (if flip
         (nconc zs (list x))
         (if (funcall pred x)
