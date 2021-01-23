@@ -451,7 +451,7 @@ KEYWORDS).  KEYWORDS will be passed as the lexical environment argument."
     (setq keywords defaults)
     ;; else
     (setq keywords (>>=plist-fix keywords))
-    (>>=plist-do (key value defaults keywords)
+    (>>=plist-do (key value defaults)
       (if (keywordp key)
 	(when (not (plist-member keywords key))
 	  (plist-put keywords key value))
@@ -745,6 +745,25 @@ conditions.  FUNCTION is called using our remaining ARGS."
   `(let ((aux (if (eq ,criteria 'ask) ',id ,criteria)))
      (if (>>=check-major-mode aux)
        (,function ,@args))))
+
+
+(defun >>=mode-command-alist (source command &rest modes)
+  "Join the SOURCE association-list with a sequence of `(MODE . COMMAND)'.
+Each item in MODES is validated and associated with the given COMMAND."
+  (if modes
+    (let
+      ((new
+	 (mapcar
+	   (lambda (mode) (cons (>>=validate-major-mode mode) command))
+	   (>>=fix-rest-list modes))))
+      (append
+	new
+	(delq nil
+	  (mapcar
+	    (lambda (tuple) (if (not (assq (car tuple) new)) tuple))
+	    source))))
+    ;; else
+    source))
 
 
 (provide 'xorns-tools)
