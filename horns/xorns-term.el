@@ -181,20 +181,6 @@ See `>>=terminal' and `>>-term/adjust-argument' for more information."
       res)))
 
 
-(defun >>-term/get-mode-tuples (keywords)
-  "Get the new ':mode' tuples from KEYWORDS to adjust `>>=term-modes'."
-  (let ((fn (plist-get keywords :function-name))
-	(modes (plist-get keywords :mode)))
-    (if modes
-      (let ((new (mapcar (lambda (mode) `(,mode . ,fn)) modes)))
-	(append
-	  new
-	  (delq nil
-	    (mapcar
-	      (lambda (tuple) (if (not (assq (car tuple) new)) tuple))
-	      >>=term-modes)))))))
-
-
 (defun >>-term/get-paste-text ()
   "Get current buffer focused-text and adjust it for a terminal shell."
   (>>-term/adjust-string (>>=buffer-focused-text)))
@@ -234,17 +220,6 @@ See `>>=terminal' and `>>-term/adjust-argument' for more information."
 	  nil)
 	;; else
 	(error ">>= invalid ':program' value '%s'" value)))))
-
-
-(defun >>-term-normalize/:mode (value &optional _keywords)
-  "Adjust VALUE for ':mode' keyword."
-  (mapcar
-    (lambda (mode)
-      (if (symbolp mode)
-	(or (intern-soft (format "%s-mode" mode)) mode)
-	;; else
-	(error ">>= invalid ':mode' value '%s', must be a symbol" mode)))
-    (>>=cast-list value)))
 
 
 (defun >>-term-normalize/:paster (value &optional keywords)
@@ -288,9 +263,8 @@ The following KEYWORDS are meaningful:
 	original value of ':program'.
 
 :mode
-	A sequence of one or more symbols representing major modes to be used
-	with terminal being defined.  See variable `>>=term-modes' and
-	function `>>=terminal'.
+	A sequence of one or more identifiers to be added to `>>=term-modes',
+	this is an association-list of `(mode . term)'.
 
 :buffer-name
 	A string prefix for buffer names, the suffix will be the TAB-INDEX,
@@ -340,13 +314,14 @@ without any further digits, means paste to tab with index 0."
       :buffer-name (if (eq id 'ansi) "terminal" (format "%s-term" id))
       :program id
       :paster #'>>-term/paster))
-  (let ((tuples (>>-term/get-mode-tuples keywords))
-	(buffer-name (plist-get keywords :buffer-name))
+  (let ((buffer-name (plist-get keywords :buffer-name))
 	(fun-name (plist-get keywords :function-name))
-	(paster (plist-get keywords :paster)))
+	(paster (plist-get keywords :paster))
+	(modes (>>=cast-list (plist-get keywords :mode))))
     `(progn
-       ,(if tuples
-	  `(setq >>=term-modes ',tuples))
+       ,(if modes
+	  `(setq >>=term-modes
+	     (>>=mode-command-alist >>=term-modes ',fun-name '(,@modes))))
        (defun ,fun-name (&optional arg)
 	 ,docstring
 	 (interactive "P")
