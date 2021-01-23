@@ -499,6 +499,26 @@ result in a pseudo property-list that needs additional normalization with
 
 
 
+;;; Value verifiers
+
+(defun >>=validate-major-mode (mode)
+  "Verify a `major-mode' symbol.
+MODE could be a symbol; or a string in which case it is converted to a symbol
+by adding the suffix '-mode' and then using using `intern'."
+  (when (and (symbolp mode) (not (booleanp mode)))
+    (setq mode (symbol-name mode)))
+  (if (stringp mode)
+    (intern
+      (let ((suffix "-mode"))
+	(if (string= (>>=suffix mode (length suffix)) suffix)
+	  mode
+	  ;; else
+	  (concat mode suffix))))
+    ;; else
+    (error ">>= invalid value '%s' for major-mode" mode)))
+
+
+
 ;;; files and directories
 
 (defconst >>=!path-separator
