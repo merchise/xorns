@@ -79,8 +79,9 @@ value will combine both logics."
 
 (defun >>=buffer-focused-text ()
   "Return focused-text in current buffer, selected region or current line."
-  (let (begin end)
-    (if (use-region-p)
+  (let (begin end
+	(region (use-region-p)))
+    (if region
       (setq
 	begin (point)
 	end (mark))
@@ -92,7 +93,10 @@ value will combine both logics."
 	  (setq begin (point))
 	  (end-of-line)
 	  (setq end (point)))))
-    (buffer-substring-no-properties begin end)))
+    (prog1
+      (buffer-substring-no-properties begin end)
+      (if region
+	(setq deactivate-mark t)))))
 
 
 (use-package simple
