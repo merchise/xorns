@@ -596,6 +596,7 @@ standard Emacs initialization file is returned."
       files)))
 
 
+;; TODO: deprecate this function
 (defun >>=find-env-executable (format &rest options)
   "Find the first valid command from a set of OPTIONS.
 This is different from `>>=executable-find' in that each option is first
@@ -617,12 +618,20 @@ form '(OPTION . COMMAND)'."
 
 (defun >>=executable-find (&rest options)
   "Search first valid command using the function `executable-find'.
-A set of OPTIONS is searched until a valid one is found.  This function is
-safe avoiding nil commands.  If none is found, nil is returned."
-  (let ((aux (delq nil (>>=cast-list options)))
-	res)
-    (while (and aux (not (setq res (executable-find (>>=str (car aux))))))
-      (setq aux (cdr aux)))
+A set of OPTIONS is searched until a valid one is found.  Any item could be a
+symbol, a string, or a `cons' like `(command . args)', nil items are just
+discarded."
+  (setq options (>>=fix-rest-list options))
+  (let (res)
+    (while (and options (null res))
+      (when-let ((item (car options)))
+	(if (consp item)
+	  (when-let (aux (executable-find (>>=str (car item))))
+	    (setq res (cons aux (cdr item))))
+	  ;; else
+	  (when-let (aux (executable-find (>>=str item)))
+	    (setq res aux))))
+      (setq options (cdr options)))
     res))
 
 
