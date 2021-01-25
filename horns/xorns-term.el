@@ -116,9 +116,8 @@ See `>>=define-terminal' for more information."
 
 
 (defvar >>=term-modes nil
-  "An association-list mapping major modes to default ansi terminals.
-See macro `>>=define-terminal' and function `>>=terminal' for more
-information.")
+  "An association-list mapping major modes to ansi terminals.
+See `>>=define-terminal' and `>>=terminal' for more information.")
 
 
 (defvar >>-term/state nil
@@ -172,6 +171,21 @@ See `>>=terminal' and `>>-term/adjust-argument' for more information."
 	  (* -1 index))))
     (t
       prefix)))
+
+
+(defsubst >>-term/cast-id (id)
+  "Create terminal command name for a given ID."
+  (or id 'ansi))
+
+
+(defsubst >>-term/create-name (id)
+  "Create terminal command name for a given ID."
+  (intern (format ">>=%s-term" (>>-term/cast-id id))))
+
+
+(defsubst >>-term/buffer-name (id)
+  "Create terminal command name for a given ID."
+  (format "%s-term" (>>-term/cast-id id)))
 
 
 (defun >>-term/adjust-string (string)
@@ -247,7 +261,7 @@ trigger/reuse a shell session, or paste.
 
 ID must be a symbol, it will be used to form the command NAME using
 '>>=<ID>-term' format, and for default values of KEYWORDS :program and
-:buffer-name.
+buffer name base.
 
 DOCSTRING is the terminal command documentation.
 
@@ -265,11 +279,6 @@ The following KEYWORDS are meaningful:
 :mode
 	A sequence of one or more identifiers to be added to `>>=term-modes',
 	this is an association-list of `(mode . term)'.
-
-:buffer-name
-	A string prefix for buffer names, the suffix will be the TAB-INDEX,
-	see below.  It defaults to 'terminal' if ID is 'ansi', or '<ID>-term'
-	otherwise.
 
 :paster
 	A function to paste text into a terminal shell.  When a paste
@@ -309,13 +318,10 @@ without any further digits, means paste to tab with index 0."
   (setq keywords
     (>>=plist-normalize '>>-term (format ">>-%s-term" id) keywords
       ;; defaults
-      :id id
-      :function-name (intern (format ">>=%s-term" id))
-      :buffer-name (if (eq id 'ansi) "terminal" (format "%s-term" id))
       :program id
       :paster #'>>-term/paster))
-  (let ((buffer-name (plist-get keywords :buffer-name))
-	(fun-name (plist-get keywords :function-name))
+  (let ((buffer-name (>>-term/buffer-name id))
+	(fun-name (>>-term/create-name id))
 	(paster (plist-get keywords :paster))
 	(modes (>>=cast-list (plist-get keywords :mode))))
     `(progn
@@ -368,7 +374,7 @@ without any further digits, means paste to tab with index 0."
 		   (>>=find-buffer
 		     :mode (nth 3 >>-term/state))
 		   ;; use 'scratch' as default
-		   (>>=scratch/get-buffer-create)))))
+		   (>>=scratch/get-buffer-create)3))))
 	   (switch-to-buffer-other-window target)
 	   (when >>-term/state
 	     (let ((mode (buffer-local-value 'major-mode source)))
