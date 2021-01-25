@@ -361,6 +361,22 @@ so this macro can be used to iterate over tuples of two values in any list.
   "xorns 1.0" "Remove all KEYS from a TARGET property-list.")
 
 
+(defun >>=map-pair (fn sequence)
+  "Apply FN to each `(key value)' pair of SEQUENCE.
+Function FN must take two arguments but return a single value, not a pair."
+  (let (key)
+    (mapcan
+      (lambda (item)
+	(if key
+	  (prog1
+	    (list key (funcall fn key item))
+	    (setq key nil))
+	  ;; else
+	  (setq key item)
+	  nil))
+      sequence)))
+
+
 (defun >>=split-list (pred xs)
   "Split list XS into a `cons' of two lists '(HEAD . TAIL)'.
 
