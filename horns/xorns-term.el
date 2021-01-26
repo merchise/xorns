@@ -6,14 +6,13 @@
 
 ;;; Commentary:
 
-;; In this module are configured all the features related to terminals, mainly
-;; extensions to the `ansi-term' emulator.
+;; In this module are configured all the features related to terminals.
 
 ;; A new terminal can be defined with the macro `>>=define-terminal' using
 ;; several optional keyword arguments to configure some parameters: the
 ;; command to execute as a shell, a list of `major-mode' symbols to associate
 ;; a terminal kind with buffers under these modes.  Example of terminals that
-;; have already been defined: `>>=ansi-term' (the default terminal), and
+;; have already been defined: `>>=main-term' (the default terminal), and
 ;; `>>=python-term' (for Python modes) defined in the module `xorns-prog'.
 
 ;; The function `>>=terminal' orchestrates all terminal kinds based on their
@@ -103,7 +102,7 @@
 
 
 
-;;; ANSI Terminal
+;;; Smart Terminals
 
 (defconst >>-!term/docstring-format
   "Command to manage '%s' terminals.
@@ -116,7 +115,7 @@ See `>>=define-terminal' for more information."
 
 
 (defvar >>=term-modes nil
-  "An association-list mapping major modes to ansi terminals.
+  "An association-list mapping major modes to smart terminals.
 See `>>=define-terminal' and `>>=terminal' for more information.")
 
 
@@ -175,7 +174,7 @@ See `>>=terminal' and `>>-term/adjust-argument' for more information."
 
 (defsubst >>-term/cast-id (id)
   "Create terminal command name for a given ID."
-  (or id 'ansi))
+  (or id 'main))
 
 
 (defsubst >>-term/create-name (id)
@@ -228,9 +227,9 @@ See `>>=terminal' and `>>-term/adjust-argument' for more information."
 	(plist-put keywords :program-id (car pair))
 	(cdr pair))
       ;; else
-      (if (eq value 'ansi)
+      (if (eq value 'main)
 	(progn
-	  (plist-put keywords :program-id "ansi")
+	  (plist-put keywords :program-id "main")
 	  nil)
 	;; else
 	(error ">>= invalid ':program' value '%s'" value)))))
@@ -397,7 +396,11 @@ without any further digits, means paste to tab with index 0."
        (put ',fun-name :paster ',paster))))
 
 
-(>>=define-terminal ansi)        ; define `>>=ansi-term'
+(>>=define-terminal main)        ; define `>>=main-term'
+
+
+(define-obsolete-function-alias '>>=ansi-term '>>=main-term
+  "xorns 1.0" "ANSI was not a good name for these terminals.")
 
 
 (defun >>=terminal (&optional arg)
@@ -414,7 +417,7 @@ The interactive argument ARG is used without modification."
     (if term
       (funcall term arg)
       ;; else
-      (>>=ansi-term arg))))
+      (>>=main-term arg))))
 
 
 (use-package term
@@ -425,8 +428,8 @@ The interactive argument ARG is used without modification."
     (term-send-raw-string "\C-k")
     (kill-line))
   :bind
-  (("C-c t" . >>=ansi-term)
-   ("s-M-t" . >>=ansi-term)
+  (("C-c t" . >>=main-term)
+   ("s-M-t" . >>=main-term)
    ("s-/" . >>=terminal)
    (:map term-mode-map
      ("C-c C-t" . term-char-mode))

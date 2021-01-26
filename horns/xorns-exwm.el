@@ -175,9 +175,10 @@ A process NAME can bee given as an optional argument."
       ;; Like on `i3' window manager.  We use a new command because at this
       ;; level `(key-binding (kbd "s-&"))' returns nil
       (kbd "s-d") #'>>=exwm/start-command)
-    (exwm-input-set-key (kbd "<s-return>")
-      ;; Like on i3 window manager
-      #'>>=ansi-term)
+    (with-no-warnings
+      (exwm-input-set-key (kbd "<s-return>")
+	;; Like on i3 window manager
+	#'>>=main-term))
     (exwm-input-set-key (kbd "s-r") #'exwm-reset)
     (exwm-input-set-key (kbd "<s-tab>") #'other-frame)
     (exwm-input-set-key (kbd "s-o") #'other-window)
