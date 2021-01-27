@@ -114,7 +114,7 @@ See `>>=define-terminal' for more information."
   "Add customizable 256 color support to `term' and `ansi-term' .")
 
 
-(defvar >>=term-modes nil
+(defvar >>-term-modes nil
   "An association-list mapping major modes to smart terminals.
 See `>>=define-terminal' and `>>=terminal' for more information.")
 
@@ -325,8 +325,8 @@ without any further digits, means paste to tab with index 0."
 	(modes (>>=cast-list (plist-get keywords :mode))))
     `(progn
        ,(if modes
-	  `(setq >>=term-modes
-	     (>>=mode-command-alist >>=term-modes ',fun-name '(,@modes))))
+	  `(setq >>-term-modes
+	     (>>=mode-command-alist >>-term-modes ',fun-name '(,@modes))))
        (defun ,fun-name (&optional arg)
 	 ,docstring
 	 (interactive "P")
@@ -369,7 +369,7 @@ without any further digits, means paste to tab with index 0."
 	       (setq target
 		 (or
 		   (>>=find-buffer
-		     :mode (car (rassq ',fun-name >>=term-modes)))
+		     :mode (car (rassq ',fun-name >>-term-modes)))
 		   (>>=find-buffer
 		     :mode (nth 3 >>-term/state))
 		   ;; use 'scratch' as default
@@ -413,7 +413,7 @@ The interactive argument ARG is used without modification."
 	term (nth 1 >>-term/state)
 	arg (>>-term/wrap-argument arg (nth 2 >>-term/state)))
       ;; else
-      (setq term (cdr (assq major-mode >>=term-modes))))
+      (setq term (cdr (assq major-mode >>-term-modes))))
     (if term
       (funcall term arg)
       ;; else
