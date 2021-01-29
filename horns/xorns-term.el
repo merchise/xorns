@@ -104,12 +104,6 @@
 
 ;;; Smart Terminals
 
-(defconst >>-!term/docstring-format
-  "Command to manage '%s' terminals.
-See `>>=define-terminal' for more information."
-  "Documentation format-string to be used with a terminal ID as argument.")
-
-
 (defvar >>=|term/install-customizable-colors t
   "Add customizable 256 color support to `term' and `ansi-term' .")
 
@@ -312,8 +306,9 @@ without any further digits, means paste to tab with index 0."
     (setq
       keywords (cons docstring keywords)
       docstring nil))
-  (when (null docstring)
-    (setq docstring (format >>-!term/docstring-format id)))
+  (unless docstring
+    (setq docstring
+      (format "Command for '%s' terminals (see `>>=define-terminal')." id)))
   (setq keywords
     (>>=plist-normalize '>>-term (format ">>-%s-term" id) keywords
       ;; defaults
