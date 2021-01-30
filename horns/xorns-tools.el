@@ -404,6 +404,24 @@ returns a non-nil value."
       (>>=list-value values))))
 
 
+(defun >>=plist2alist (&rest pairs)
+  "Convert a property-list PAIRS into an assotiation-list."
+  (setq pairs (>>=fix-rest-list pairs))
+  (let (key res)
+    (while pairs
+      (let ((value (car pairs)))
+	(if key
+	  (setq
+	    res (nconc res `((,key . ,value)))
+	    key nil)
+	  ;; else
+	  (setq key value)))
+      (setq pairs (cdr pairs)))
+    (when key
+      (setq res (nconc res `((,key)))))
+    res))
+
+
 (defun >>=plist-setdefault (target key &optional default)
   "Insert KEY with a value of DEFAULT if KEY is not member of TARGET.
 Return the value for KEY if it is in TARGET, else DEFAULT."
