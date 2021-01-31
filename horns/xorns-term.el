@@ -42,6 +42,7 @@
 (require 'use-package)
 (require 'term)
 (require 'xorns-tools)
+(require 'xorns-bindings)
 (require 'xorns-core)
 (require 'xorns-simple)
 
@@ -424,8 +425,6 @@ The interactive argument ARG is used without modification."
     (kill-line))
   :bind
   (("C-c t" . >>=main-term)
-   ("s-M-t" . >>=main-term)
-   ("s-/" . >>=terminal)
    (:map term-mode-map
      ("C-c C-t" . term-char-mode))
    (:map term-raw-map
@@ -433,7 +432,13 @@ The interactive argument ARG is used without modification."
      ("C-y" . term-paste)
      ("C-k" . >>-term/raw-kill-line)))
   :custom
-  (term-input-autoexpand t))
+  (term-input-autoexpand t)
+  :config
+  (>>=global-set-keys
+    [?\C-`] '>>=main-term
+    [?\C-~] '>>=python-term    ; migrate this key to create new terminal tab
+    '("s-/" . >>=terminal)
+    '("s-M-t" . >>=main-term)))
 
 
 (use-package eterm-256color
