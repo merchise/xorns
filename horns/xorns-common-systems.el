@@ -29,12 +29,12 @@
 (require 'xorns-simple)
 (require 'xorns-buffers)
 (require 'xorns-dired)
+(require 'xorns-term)
 (require 'xorns-vc)
 (require 'xorns-text)
 (require 'xorns-prog)
 (require 'xorns-prog-extra)
 (require 'xorns-project)
-(require 'xorns-term)
 (require 'xorns-pim)
 (require 'xorns-bots)
 
