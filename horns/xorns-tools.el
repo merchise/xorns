@@ -730,6 +730,7 @@ discarded."
 
 
 ;;; modes
+;; TODO: refactor all this section
 
 (defvar >>-criteria-mode-cache nil
   "Internal cache used for `>>-criteria-mode-y-or-n-p'.")

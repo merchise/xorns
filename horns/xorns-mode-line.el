@@ -20,6 +20,7 @@
 
 
 (require 'xorns-packages)
+(require 'xorns-init)
 (require 'use-package)
 
 
@@ -42,7 +43,7 @@ battery and time.")
   "When non-nil remap 'mini' `>>=|mode-line/kind' into value defined here.")
 
 
-(when (or >>=|mode-line/show-system-status (bound-and-true-p >>=!emacs-as-wm))
+(when (or >>=|mode-line/show-system-status >>=!emacs-as-wm)
   (display-battery-mode +1)
   (display-time-mode +1))
 

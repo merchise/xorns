@@ -16,7 +16,8 @@
 
 ;;; Code:
 
- (require 'xorns-tools)
+(require 'xorns-init)
+(require 'xorns-tools)
 
 
 (defsubst >>-kbd (key)
@@ -67,12 +68,11 @@ It uses `exwm' if enabled."
 	    (>>=fix-rest-list pairs)))
 	(when key
 	  (error ">>= final key '%s' without command pair" key)))))
-  (if (and (bound-and-true-p >>=!emacs-as-wm) (require 'exwm nil 'noerror))
-    (let ((initialized (bound-and-true-p >>=xorns-initialized)))
-      (funcall
-	(if initialized	'customize-set-variable 'customize-set-value)
-	'exwm-input-global-keys
-	(append (bound-and-true-p exwm-input-global-keys) pairs)))
+  (if (and >>=!emacs-as-wm (require 'exwm nil 'noerror))
+    (funcall
+      (if >>=xorns-initialized 'customize-set-variable 'customize-set-value)
+      'exwm-input-global-keys
+      (append (bound-and-true-p exwm-input-global-keys) pairs))
     ;; else
     (let ((map (current-global-map)))
       (dolist (pair pairs)

@@ -24,7 +24,7 @@
 
 (require 'xorns-tools)
 (require 'xorns-packages)
-
+(require 'xorns-init)
 
 (defconst >>=!gc/default-threshold-base #x4000000    ; 64M
   "Default value to be used when `>>=|gc/strategy' is t.")
@@ -89,7 +89,7 @@ configure defined strategy in `>>=|gc/strategy' variable."
 
 
 (with-eval-after-load 'xorns-gc
-  (if (bound-and-true-p >>=xorns-initialized)
+  (if >>=xorns-initialized
     (>>-gc/strategy-configure)
     ;; else
     (warn ">>= `xorns-gc' must be configured after initialization process")))

@@ -211,7 +211,6 @@ A process NAME can bee given as an optional argument."
 	 ([?\C-v] . [next])
 	 ([?\C-m] . [return])
 	 ([?\C-i] . [tab])
-	 ;; TODO: ([?\C-\[] . [escape])
 	 ;; cut/paste, selection
 	 ([?\C-d] . [delete])
 	 ([?\C-w] . [?\C-x])
