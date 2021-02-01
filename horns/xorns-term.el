@@ -42,6 +42,7 @@
 (require 'use-package)
 (require 'term)
 (require 'xorns-tools)
+(require 'xorns-init)
 (require 'xorns-bindings)
 (require 'xorns-core)
 (require 'xorns-simple)
@@ -434,11 +435,15 @@ The interactive argument ARG is used without modification."
   :custom
   (term-input-autoexpand t)
   :config
-  (>>=global-set-keys
-    [?\C-`] '>>=main-term
-    [?\C-~] '>>=python-term    ; migrate this key to create new terminal tab
-    '("s-/" . >>=terminal)
-    '("s-M-t" . >>=main-term)))
+  (progn
+    (>>=global-set-keys
+      [?\C-`] '>>=terminal
+      [?\C-~] '>>=python-term    ; migrate this key to create new terminal tab
+      "s-/" '>>=terminal
+      "s-M-t" '>>=main-term)
+    (when >>=!emacs-as-wm
+      ;; Like on i3 window manager
+      (>>=global-set-keys "<s-return>" '>>=main-term))))
 
 
 (use-package eterm-256color

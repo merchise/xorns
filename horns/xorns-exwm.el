@@ -60,6 +60,7 @@
 
 (require 'use-package)
 (require 'xorns-tools)
+(require 'xorns-bindings)
 
 
 ;;; Main definitions
@@ -169,23 +170,19 @@ A process NAME can bee given as an optional argument."
     )
   :config
   (progn
-    (require 'xorns-term)
-
-    (exwm-input-set-key
+    (>>=global-set-keys
       ;; Like on `i3' window manager.  We use a new command because at this
       ;; level `(key-binding (kbd "s-&"))' returns nil
-      (kbd "s-d") #'>>=exwm/start-command)
-    (with-no-warnings
-      (exwm-input-set-key (kbd "<s-return>")
-	;; Like on i3 window manager
-	#'>>=main-term))
-    (exwm-input-set-key (kbd "s-r") #'exwm-reset)
-    (exwm-input-set-key (kbd "<s-tab>") #'other-frame)
-    (exwm-input-set-key (kbd "s-o") #'other-window)
-    (exwm-input-set-key (kbd "s-;") #'>>-exwm/swap-last-buffers)
-    (dolist (pair >>=|exwm/url-keys)
-      (exwm-input-set-key (kbd (car pair)) (>>-url-browser (cdr pair))))
-    (exwm-input-set-key (kbd "C-s-/") #'browse-url-at-point)
+      "s-d" '>>=exwm/start-command
+      "s-r" 'exwm-reset
+      "<s-tab>" 'other-frame
+      "s-o" 'other-window
+      "s-;" '>>-exwm/swap-last-buffers
+      "C-s-/" 'browse-url-at-point)
+    (>>=global-set-keys
+      (mapcar
+	(lambda (pair) (cons (car pair) (>>-url-browser (cdr pair))))
+	>>=|exwm/url-keys))
     (let ((suspend-key ?\C-z))
       ;; Prefix key to send next literally to the application.  Default value
       ;; is `C-z' because is used for `suspend-frame' in terminals.
@@ -234,11 +231,11 @@ A process NAME can bee given as an optional argument."
   :after exwm-input
   :demand t
   :config
-  (progn
-    (exwm-input-set-key (kbd "<C-S-up>") #'buf-move-up)
-    (exwm-input-set-key (kbd "<C-S-down>") #'buf-move-down)
-    (exwm-input-set-key (kbd "<C-S-left>") #'buf-move-left)
-    (exwm-input-set-key (kbd "<C-S-right>") #'buf-move-right)))
+  (>>=global-set-keys
+    "<C-S-up>" 'buf-move-up
+    "<C-S-down>" 'buf-move-down
+    "<C-S-left>" 'buf-move-left
+    "<C-S-right>" 'buf-move-right))
 
 
 (use-package exwm-workspace
@@ -271,10 +268,12 @@ A process NAME can bee given as an optional argument."
   (exwm-layout-show-all-buffers t)
   :config
   (progn
-    (exwm-input-set-key (kbd "s-.") #'>>-exwm/switch-workspace-0)
-    (exwm-input-set-key (kbd "s-w") #'exwm-workspace-switch)
-    (exwm-input-set-key (kbd "<C-s-left>") #'>>-exwm/ws-switch-left)
-    (exwm-input-set-key (kbd "<C-s-right>") #'>>-exwm/ws-switch-right)
+    (>>=global-set-keys
+      "s-." '>>-exwm/switch-workspace-0    ; TODO: change this
+      "s-`" '>>-exwm/switch-workspace-0
+      "s-w" 'exwm-workspace-switch
+      "<C-s-left>" '>>-exwm/ws-switch-left
+      "<C-s-right>" '>>-exwm/ws-switch-right)
     (let ((map (make-sparse-keymap)))
       (define-key map [mode-line mouse-1] 'exwm-workspace-switch)
       (setq global-mode-string
