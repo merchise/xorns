@@ -35,16 +35,6 @@
   (cons (>>-kbd key) (>>-command command)))
 
 
-(defun >>=global-set-key (key command)
-  "Internal to give KEY a global binding as COMMAND.
-It uses `exwm' if enabled."
-  (if (featurep 'exwm-input)
-    (exwm-input-set-key key command)
-    ;; else
-    (let ((map (current-global-map)))
-      (define-key map key command))))
-
-
 (defun >>=global-set-keys (&rest pairs)
   "Bind on the current global keymap [KEY COMMAND] PAIRS.
 `exwm' is used when running Emacs as a window manager."
@@ -84,11 +74,10 @@ It uses `exwm' if enabled."
   "Give KEY a global binding as COMMAND.
 In this case, KEY is a standard `key-binding', whose original command will
 receive the alternative ALT-KEY binding.  See also `>>=remap*'"
-  `(let* ((kbind (kbd ,key))
-	  (abind (kbd ,alt-key))
-	  (org (key-binding kbind)))
-     (>>=global-set-key kbind ',command)
-     (>>=global-set-key abind org)))
+  `(let ((kbind (>>-kbd ,key)))
+     (>>=global-set-keys
+       kbind ',command
+       ,alt-key (key-binding kbind))))
 
 
 (defmacro >>=remap* (key command alt-key)
@@ -96,8 +85,9 @@ receive the alternative ALT-KEY binding.  See also `>>=remap*'"
 In this case KEY is NOT a `key-binding' but a base command, which will receive
 the alternative ALT-KEY binding.  See also `>>=remap'"
   `(progn
-     (>>=global-set-key [remap ,key] ',command)
-     (>>=global-set-key (kbd ,alt-key) ',key)))
+     (>>=global-set-keys
+       [remap ,key] ',command
+       ,alt-key ',key)))
 
 
 (provide 'xorns-bindings)
