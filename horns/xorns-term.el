@@ -300,7 +300,7 @@ terminal shell.
 
 The `universal-argument', or `C-u' without any further digits, means paste to
 the default tab, identified with nil.  The `negative-argument' or `C--'
-without any further digits, means paste to tab with index 0."
+without any further digits, means paste to tab with index zero."
   (declare (doc-string 2) (indent 1) (debug t))
   (unless (symbolp id)
     (error ">>= terminal ID must be a symbol, not %s" (type-of id)))
