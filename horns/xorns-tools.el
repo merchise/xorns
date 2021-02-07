@@ -86,14 +86,15 @@ report the identity of the enclosed body."
   (and object (symbolp object)))
 
 
-(defun >>=check-function (value &optional validate)
+(defsubst >>=check-function (value &optional strict)
   "Check if VALUE is an existing function.
-If VALIDATE is given and VALUE is not a function, an error is issued."
-  (if (functionp value)    ; TODO: difference with `fboundp'
+When STRICT is not nil and VALUE is not a function, an error is issued."
+  (if (functionp value)
     value
     ;; else
-    (if validate
-      (error ">>= wrong function form '%s'" value))))
+    (when strict
+      (error ">>= wrong%s function '%s'"
+	(if (eq strict t) "" (format " %s" strict)) value))))
 
 
 (defun >>=cast-function (value &optional validate)
@@ -187,14 +188,19 @@ old feature will be not longer available.  All invalid options are ignored."
     ""))
 
 
-(defun >>=str (value)
-  "Return a string only if VALUE is a symbol or a string."
-  (unless (booleanp value)
+(defsubst >>=str (value &optional strict)
+  "Return a string only if VALUE is a symbol or a string.
+When STRICT is given, and this function fails, an error is issued, otherwise
+nil is returned."
+  (or
     (if (stringp value)
       value
       ;; else
-      (when (symbolp value)
-	(symbol-name value)))))
+      (when (and (symbolp value) (not (booleanp value)))
+	(symbol-name value)))
+    (when strict
+      (error ">>= %s'%s' can not be converted to a string"
+	(if (eq strict t) "" (format "%s " strict)) value))))
 
 
 (defun >>=safe-replace (regexp rep source)
@@ -359,6 +365,13 @@ so this macro can be used to iterate over tuples of two values in any list.
 
 (define-obsolete-function-alias '>>=plist-exclude '>>=plist-remove
   "xorns 1.0" "Remove all KEYS from a TARGET property-list.")
+
+
+(defun >>=plist-update (target &rest source)
+  "Update TARGET from a SOURCE property-list."
+  (setq source (>>=fix-rest-list source))
+  (>>=plist-do (key value source target)
+    (plist-put target key value)))
 
 
 (defun >>=map-pair (fn sequence)
