@@ -32,5 +32,29 @@
 (require 'term)
 (require 'xorns-tools)
 
+
+;;; Variables
+
+(defvar >>=|default-shell-file-name
+  (purecopy
+    (or
+      explicit-shell-file-name
+      shell-file-name
+      (>>=executable-find (getenv "ESHELL") (getenv "SHELL") "bash" "zsh")))
+  "System default shell file-name.")
+
+
+(defvar >>-term/state nil
+  "Terminal state (local variable in terminal buffers).")
+
+
+(defvar >>-term/linked nil
+  "Linked tab-index (local variable in buffers that trigger a terminal).")
+
+
+(defvar >>-term-modes nil
+  "Association-list mapping major modes to smart terminals.")
+
+
 (provide 'xorns-smart-term)
 ;;; xorns-smart-term.el ends here
