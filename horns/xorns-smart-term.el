@@ -56,5 +56,177 @@
   "Association-list mapping major modes to smart terminals.")
 
 
+
+;;; Keyword value checkers
+
+(defun >>-term/check-paster (paster)
+  "Check a PASTER definition and convert it to a valid function."
+  (or
+    (when (stringp paster)
+      (>>=term/define-paste-magic paster))
+    (>>=cast-function paster)
+    (if (and (symbolp paster) (not (booleanp paster)))
+      paster
+      ;; else
+      (error ">>= wrong :paster definition '%s'" paster))))
+
+
+(defun >>-term/fix-keywords (keywords)
+  "Fix raw terminal KEYWORDS parameters."
+  (>>=map-pair
+    (lambda (key value)
+      (pcase key
+	(:program
+	  (mapcar
+	    (lambda (item)
+	      (or
+		(when (consp item)
+		  (cons
+		    (>>=str (car item) :program)
+		    (>>-term/check-paster (cdr item))))
+		(>>=str item :program)))
+	    (>>=cast-list value)))
+	(:paster
+	  (>>-term/check-paster value))
+	(:buffer-name
+	  (>>=str value :buffer-name))
+	(:mode
+	  (mapcar (lambda (mode) (>>=str mode :mode)) (>>=cast-list value)))
+	(_
+	  (error ">>= unexpected keyword '%s' with value '%s'" key value))))
+    (>>=plist-fix keywords)))
+
+
+(defsubst >>-term/default-value (term key)
+  "Get TERM default KEY value."
+  (pcase key
+    (:program >>=|default-shell-file-name)
+    (:paster '>>-term/paster)
+    (:buffer-name (replace-regexp-in-string "^>>=" "" (symbol-name term)))))
+
+
+(defun >>-term/key (term key)
+  "Get a KEY value for a given TERM."
+  (or
+    (get term key)
+    (when-let ((keywords (get term :keywords)))
+      (if (memq key '(:program :paster))
+	(let ((program (>>=executable-find (plist-get keywords :program)))
+	      paster res)
+	  (when (consp program)
+	    (setq
+	      paster (cdr program)
+	      program (car program)))
+	  (unless paster
+	    (setq paster (plist-get keywords :paster)))
+	  (when program
+	    (put term :program program)
+	    (when (eq key :program)
+	      (setq res program)))
+	  (when paster
+	    (put term :paster paster)
+	    (when (eq key :paster)
+	      (setq res paster)))
+	  res)
+	;; else
+	(when-let ((res (plist-get keywords key)))
+	  (put term key res)
+	  res)))
+    (>>-term/default-value term key)
+    (error ">>= unexpected term key '%s'" key)))
+
+
+(defsubst >>-term/buffer-name (term &optional tab-index)
+  "Get a buffer name for a given TERM and and TAB-INDEX."
+  (concat
+    ;; prefix
+    (>>-term/key term :buffer-name)
+    ;; suffix
+    (cond
+      ((or (null tab-index) (zerop tab-index))
+	"")
+      ((> tab-index 0)
+	(format " - %s" tab-index))
+      (t
+	(error ">>= invalid tab-index: %s" tab-index)))))
+
+
+(defun >>-term/get-buffer (buffer-name)
+  "Get the terminal buffer for a given BUFFER-NAME.
+If a buffer is found that does not have a live process associated, it is
+killed and nil is returned."
+  (let ((target (get-buffer (format "*%s*" buffer-name))))
+    (when target
+      (if (get-buffer-process target)
+	target
+	;; else
+	(kill-buffer target)
+	nil))))
+
+
+(defun >>-term/get-or-create-buffer (term tab-index)
+  "Get or create a TERM buffer for a given TAB-INDEX."
+  (let* ((buffer-name (>>-term/buffer-name term tab-index))
+	 (target (>>-term/get-buffer buffer-name)))
+    (unless target
+      (let (command (>>-term/key term :program))
+	(save-window-excursion
+	  (with-current-buffer
+	    (setq target (ansi-term command buffer-name))
+	    (set (make-local-variable '>>-term/state) `(:term ,term))))))
+  target))
+
+
+(defun >>-term/get-alt-buffer (term)
+  "Get alternative buffer for a TERM."
+  (let ((file-name (plist-get >>-term/state :file-name)))
+    (if (and file-name (file-exists-p file-name))
+      (find-file-noselect file-name)
+      ;; else
+      (or
+	(>>=find-buffer
+	  :mode (car (rassq term >>-term-modes)))
+	(>>=find-buffer
+	  :mode (plist-get >>-term/state :mode))
+	(>>=scratch/get-buffer-create)))))
+
+
+(defun >>-term/get-default-term ()
+  "Get the default term for the current buffer."
+  (if >>-term/state    ; called while already in a terminal
+    (or
+      (plist-get >>-term/state :term)
+      (error ">>= :term was not found in `>>-term/state': %s" >>-term/state))
+    ;; else
+    (or
+      (cdr (assq major-mode >>-term-modes))
+      '>>=main-term)))
+
+
+(defsubst >>-term/get-default-tab-index ()
+  "Get the default tab-index for the current buffer."
+  (if >>-term/state
+    (plist-get >>-term/state :tab-index)
+    ;; else
+    (or >>-term/linked 0)))
+
+
+(defun >>-term/search-new (term &optional tab-index)
+  "Get a new TAB-INDEX for the given TERM."
+  (setq tab-index (or tab-index 0))
+  (let (res)
+    (while (not res)
+      (if (>>-term/get-buffer (>>-term/buffer-name term tab-index))
+	(setq tab-index (1+ tab-index))
+	;; else
+	(setq res tab-index)))
+    res))
+
+
+	;; else
+
+
+
+
 (provide 'xorns-smart-term)
 ;;; xorns-smart-term.el ends here
