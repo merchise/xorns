@@ -11,7 +11,7 @@
 ;; under these modes.  Example of terminals are `>>=main-term' (the default
 ;; terminal), and `>>=python-term' (for Python modes).
 
-;; The function `>>=terminal' orchestrates all terminal kinds based on their
+;; The function `>>=xterminal' orchestrates all terminal kinds based on their
 ;; associations with major modes.  Each terminal kind can trigger several
 ;; tabs, each one is identified with a zero (the default) or positive integer.
 ;; To select a terminal tab a prefix argument is used.  A negative value is
@@ -44,26 +44,26 @@
   "System default shell file-name.")
 
 
-(defvar >>-term/state nil
+(defvar >>-xterm/state nil
   "Terminal state (local variable in terminal buffers).")
 
 
-(defvar >>-term/linked nil
+(defvar >>-xterm/linked nil
   "Linked tab-index (local variable in buffers that trigger a terminal).")
 
 
-(defvar >>-term-modes nil
+(defvar >>-xterm-modes nil
   "Association-list mapping major modes to smart terminals.")
 
 
 
 ;;; Keyword value checkers
 
-(defun >>-term/check-paster (paster)
+(defun >>-xterm/check-paster (paster)
   "Check a PASTER definition and convert it to a valid function."
   (or
     (when (stringp paster)
-      (>>=term/define-paste-magic paster))
+      (>>=xterm/define-paste-magic paster))
     (>>=cast-function paster)
     (if (and (symbolp paster) (not (booleanp paster)))
       paster
@@ -71,7 +71,7 @@
       (error ">>= wrong :paster definition '%s'" paster))))
 
 
-(defun >>-term/fix-keywords (keywords)
+(defun >>-xterm/fix-keywords (keywords)
   "Fix raw terminal KEYWORDS parameters."
   (>>=map-pair
     (lambda (key value)
@@ -83,11 +83,11 @@
 		(when (consp item)
 		  (cons
 		    (>>=str (car item) :program)
-		    (>>-term/check-paster (cdr item))))
+		    (>>-xterm/check-paster (cdr item))))
 		(>>=str item :program)))
 	    (>>=cast-list value)))
 	(:paster
-	  (>>-term/check-paster value))
+	  (>>-xterm/check-paster value))
 	(:buffer-name
 	  (>>=str value :buffer-name))
 	(:mode
@@ -97,15 +97,15 @@
     (>>=plist-fix keywords)))
 
 
-(defsubst >>-term/default-value (term key)
+(defsubst >>-xterm/default-value (term key)
   "Get TERM default KEY value."
   (pcase key
     (:program >>=|default-shell-file-name)
-    (:paster '>>-term/paster)
+    (:paster '>>-xterm/paster)
     (:buffer-name (replace-regexp-in-string "^>>=" "" (symbol-name term)))))
 
 
-(defun >>-term/key (term key)
+(defun >>-xterm/key (term key)
   "Get a KEY value for a given TERM."
   (or
     (get term key)
@@ -132,15 +132,15 @@
 	(when-let ((res (plist-get keywords key)))
 	  (put term key res)
 	  res)))
-    (>>-term/default-value term key)
+    (>>-xterm/default-value term key)
     (error ">>= unexpected term key '%s'" key)))
 
 
-(defsubst >>-term/buffer-name (term &optional tab-index)
+(defsubst >>-xterm/buffer-name (term &optional tab-index)
   "Get a buffer name for a given TERM and and TAB-INDEX."
   (concat
     ;; prefix
-    (>>-term/key term :buffer-name)
+    (>>-xterm/key term :buffer-name)
     ;; suffix
     (cond
       ((or (null tab-index) (zerop tab-index))
@@ -151,7 +151,7 @@
 	(error ">>= invalid tab-index: %s" tab-index)))))
 
 
-(defun >>-term/get-buffer (buffer-name)
+(defun >>-xterm/get-buffer (buffer-name)
   "Get the terminal buffer for a given BUFFER-NAME.
 If a buffer is found that does not have a live process associated, it is
 killed and nil is returned."
@@ -164,66 +164,66 @@ killed and nil is returned."
 	nil))))
 
 
-(defun >>-term/get-or-create-buffer (term tab-index)
+(defun >>-xterm/get-or-create-buffer (term tab-index)
   "Get or create a TERM buffer for a given TAB-INDEX."
-  (let* ((buffer-name (>>-term/buffer-name term tab-index))
-	 (target (>>-term/get-buffer buffer-name)))
+  (let* ((buffer-name (>>-xterm/buffer-name term tab-index))
+	 (target (>>-xterm/get-buffer buffer-name)))
     (unless target
-      (let ((command (>>-term/key term :program)))
+      (let ((command (>>-xterm/key term :program)))
 	(save-window-excursion
 	  (with-current-buffer
 	    (setq target (ansi-term command buffer-name))
-	    (set (make-local-variable '>>-term/state) `(:term ,term))))))
+	    (set (make-local-variable '>>-xterm/state) `(:term ,term))))))
   target))
 
 
-(defun >>-term/get-alt-buffer (term)
+(defun >>-xterm/get-alt-buffer (term)
   "Get alternative buffer for a TERM."
-  (let ((file-name (plist-get >>-term/state :file-name)))
+  (let ((file-name (plist-get >>-xterm/state :file-name)))
     (if (and file-name (file-exists-p file-name))
       (find-file-noselect file-name)
       ;; else
       (or
 	(>>=find-buffer
-	  :mode (car (rassq term >>-term-modes)))
+	  :mode (car (rassq term >>-xterm-modes)))
 	(>>=find-buffer
-	  :mode (plist-get >>-term/state :mode))
+	  :mode (plist-get >>-xterm/state :mode))
 	(>>=scratch/get-buffer-create)))))
 
 
-(defun >>-term/get-default-term ()
+(defun >>-xterm/get-default-term ()
   "Get the default term for the current buffer."
-  (if >>-term/state    ; called while already in a terminal
+  (if >>-xterm/state    ; called while already in a terminal
     (or
-      (plist-get >>-term/state :term)
-      (error ">>= :term was not found in `>>-term/state': %s" >>-term/state))
+      (plist-get >>-xterm/state :term)
+      (error ">>= :term was not found in `>>-xterm/state': %s" >>-xterm/state))
     ;; else
     (or
-      (cdr (assq major-mode >>-term-modes))
+      (cdr (assq major-mode >>-xterm-modes))
       '>>=main-term)))
 
 
-(defsubst >>-term/get-default-tab-index ()
+(defsubst >>-xterm/get-default-tab-index ()
   "Get the default tab-index for the current buffer."
-  (if >>-term/state
-    (plist-get >>-term/state :tab-index)
+  (if >>-xterm/state
+    (plist-get >>-xterm/state :tab-index)
     ;; else
-    (or >>-term/linked 0)))
+    (or >>-xterm/linked 0)))
 
 
-(defun >>-term/search-new (term &optional tab-index)
+(defun >>-xterm/search-new (term &optional tab-index)
   "Get a new TAB-INDEX for the given TERM."
   (setq tab-index (or tab-index 0))
   (let (res)
     (while (not res)
-      (if (>>-term/get-buffer (>>-term/buffer-name term tab-index))
+      (if (>>-xterm/get-buffer (>>-xterm/buffer-name term tab-index))
 	(setq tab-index (1+ tab-index))
 	;; else
 	(setq res tab-index)))
     res))
 
 
-(defun >>=terminal (term &optional prefix add-new)
+(defun >>=xterminal (term &optional prefix add-new)
   "Trigger a smart terminal.
 
 TERM must be a command generated by `>>=define-terminal', or nil to determine
@@ -245,9 +245,9 @@ using the first available tab-index.  In this case PREFIX is used as the
 minimum index to search."
   (interactive "i\nP")
   (unless term
-    (setq term (>>-term/get-default-term)))
+    (setq term (>>-xterm/get-default-term)))
   (let (tab-index paste
-	(paster (>>-term/key term :paster))
+	(paster (>>-xterm/key term :paster))
 	default
 	(source (current-buffer))
 	target)
@@ -264,26 +264,26 @@ minimum index to search."
 	    tab-index 0
 	    paste t))))
     (when add-new
-      (setq tab-index (>>-term/search-new term tab-index)))
+      (setq tab-index (>>-xterm/search-new term tab-index)))
     (unless tab-index
       (setq
 	default t
-	tab-index (>>-term/get-default-tab-index)))
+	tab-index (>>-xterm/get-default-tab-index)))
     (when paste
-      (setq paste (>>-term/get-paste-text)))
-    (setq target (>>-term/get-or-create-buffer term tab-index))
+      (setq paste (>>-xterm/get-paste-text)))
+    (setq target (>>-xterm/get-or-create-buffer term tab-index))
     (when (eq target source)
       (setq
-	target (plist-get >>-term/state :source)
+	target (plist-get >>-xterm/state :source)
 	paster nil
 	default t)
       (unless (buffer-live-p target)
-	(setq target (>>-term/get-alt-buffer term))))
+	(setq target (>>-xterm/get-alt-buffer term))))
     (unless default
-      (set (make-local-variable '>>-term/linked) tab-index))
+      (set (make-local-variable '>>-xterm/linked) tab-index))
     (switch-to-buffer-other-window target)
-    (when >>-term/state
-      (>>=plist-update >>-term/state
+    (when >>-xterm/state
+      (>>=plist-update >>-xterm/state
 	:source source
 	:file-name (buffer-file-name source)
 	:term term
@@ -293,8 +293,8 @@ minimum index to search."
       (unless paster
 	(setq paster
 	  (or
-	    (get (plist-get >>-term/state :term) :paster)
-	    (when (eq major-mode 'term-mode) '>>-term/paster)
+	    (get (plist-get >>-xterm/state :term) :paster)
+	    (when (eq major-mode 'term-mode) '>>-xterm/paster)
 	    (unless buffer-read-only 'insert))))
       (if paster
 	(funcall paster paste)
@@ -306,9 +306,9 @@ minimum index to search."
 
 
 (defun >>=add-new-terminal (term &optional prefix)
-  "Call `>>=terminal' using TERM, PREFIX as given, and t for 'ADD-NEW'."
+  "Call `>>=xterminal' using TERM, PREFIX as given, and t for 'ADD-NEW'."
   (interactive "i\nP")
-  (funcall '>>=terminal term prefix 'add-new))
+  (funcall '>>=xterminal term prefix 'add-new))
 
 
 (provide 'xorns-smart-term)
