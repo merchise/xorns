@@ -49,6 +49,7 @@ tramp
 /.backups/
 /url/
 /eshell/
+/snippets/
 .recentf
 .recentf~
 /recentf
