@@ -1,4 +1,4 @@
-;;; xorns-smart-term.el --- Building-block for smart terminals  -*- lexical-binding: t -*-
+;;; xorns-xterm.el --- Building-block for smart terminals  -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
@@ -346,5 +346,5 @@ minimum index to search."
   (funcall '>>=xterminal term prefix 'add-new))
 
 
-(provide 'xorns-smart-term)
-;;; xorns-smart-term.el ends here
+(provide 'xorns-xterm)
+;;; xorns-xterm.el ends here
