@@ -169,7 +169,7 @@ killed and nil is returned."
   (let* ((buffer-name (>>-term/buffer-name term tab-index))
 	 (target (>>-term/get-buffer buffer-name)))
     (unless target
-      (let (command (>>-term/key term :program))
+      (let ((command (>>-term/key term :program)))
 	(save-window-excursion
 	  (with-current-buffer
 	    (setq target (ansi-term command buffer-name))
