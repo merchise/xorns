@@ -57,7 +57,39 @@
 
 
 
-;;; Keyword value checkers
+;;; Utility functions
+
+(defun >>-xterm/adjust-string (string)
+  "Adjust a STRING to paste it into a terminal."
+  (let ((res (and string (string-trim-right string))))
+    (if (and res (not (string-empty-p res)))
+      res)))
+
+
+(defun >>-xterm/get-paste-text ()
+  "Get current buffer focused-text and adjust it for a terminal shell."
+  (>>-xterm/adjust-string (>>=buffer-focused-text)))
+
+
+(defun >>-xterm/paster (text)
+  "Send TEXT to a selected terminal shell session."
+  (term-send-raw-string (concat text "\n")))
+
+
+(defun >>=xterm/define-paste-magic (&optional magic)
+  "Create a ':paster' adapter like IPython's MAGIC '%paste' command."
+  (if (null magic)
+    (setq magic "%paste"))
+  (lambda (text)
+    (when text
+      (if (string-match-p "\n" text)
+	(progn
+	  (kill-new text)
+	  (>>-xterm/paster magic)
+	  (current-kill 1))
+	;; else
+	(>>-xterm/paster text)))))
+
 
 (defun >>-xterm/check-paster (paster)
   "Check a PASTER definition and convert it to a valid function."
@@ -222,6 +254,9 @@ killed and nil is returned."
 	(setq res tab-index)))
     res))
 
+
+
+;;; Main functions
 
 (defun >>=xterminal (term &optional prefix add-new)
   "Trigger a smart terminal.
