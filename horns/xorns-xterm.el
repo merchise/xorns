@@ -103,6 +103,19 @@
       (error ">>= wrong :paster definition '%s'" paster))))
 
 
+(defun >>-xterm/command-name (&optional id)
+  "Create a command name for a terminal from the given ID.
+If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
+`>>=main-term'"
+  (if id
+    (if (string-match-p "^[[:alnum:]]+$" (symbol-name id))
+      (intern (format ">>=%s-term" id))
+	;; else
+      id)
+    ;; else
+    '>>=main-term))
+
+
 (defun >>-xterm/fix-keywords (keywords)
   "Fix raw terminal KEYWORDS parameters."
   (>>=map-pair
@@ -232,7 +245,7 @@ killed and nil is returned."
     ;; else
     (or
       (cdr (assq major-mode >>-xterm-modes))
-      '>>=main-term)))
+      (>>-xterm/command-name))))
 
 
 (defsubst >>-xterm/get-default-tab-index ()
