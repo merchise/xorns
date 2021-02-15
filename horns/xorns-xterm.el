@@ -355,13 +355,10 @@ condition."
     target))
 
 
-
-
-
 
 ;;; Smart terminal generator
 
-(defmacro >>=define-xterminal (ID &optional docstring &rest keywords)
+(defmacro >>=define-xterminal (id &optional docstring &rest keywords)
   "Define a command to manage smart terminals (xterms).
 
 ID must be a symbol, this macro will generate two commands:
@@ -385,7 +382,7 @@ The following KEYWORDS can be used:
 The defined command is a wrapper around `>>=xterminal'."
   (declare (doc-string 2) (indent 1) (debug t))
   (unless (symbolp id)
-    (error ">>= terminal ID must be a symbol, not %s" (type-of id)))
+    (error ">>= invalid xterm ID '%s', must be a symbol" id))
   (when (and docstring (not (stringp docstring)))
     (setq
       keywords (cons docstring keywords)
@@ -407,7 +404,7 @@ The defined command is a wrapper around `>>=xterminal'."
 	   (defun ,term (&optional prefix)
 	     ,docstring
 	     (interactive "P")
-	     (>>=xterminal ',term &optional prefix))
+	     (>>=xterminal ',term prefix))
 	   )))))
 
 
