@@ -356,10 +356,6 @@ condition."
 
 
 
-(defun >>=add-new-terminal (term &optional prefix)
-  "Call `>>=xterminal' using TERM, PREFIX as given, and t for 'ADD-NEW'."
-  (interactive "i\nP")
-  (funcall '>>=xterminal term prefix 'add-new))
 
 
 
