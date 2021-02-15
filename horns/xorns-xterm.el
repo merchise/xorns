@@ -53,7 +53,7 @@
 
 
 (defvar >>-xterm-modes nil
-  "Association-list mapping major modes to smart terminals.")
+  "A mapping of '(major-mode . xterm)' pairs.")
 
 
 
@@ -248,8 +248,8 @@ killed and nil is returned."
       (>>-xterm/command-name))))
 
 
-(defsubst >>-xterm/get-default-tab-index ()
-  "Get the default tab-index for the current buffer."
+(defsubst >>-xterm/get-implicit-tab-index ()
+  "Get the implicit tab-index for the current buffer."
   (if >>-xterm/state
     (plist-get >>-xterm/state :tab-index)
     ;; else
