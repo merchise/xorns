@@ -355,6 +355,12 @@ condition."
     target))
 
 
+(defun >>=xterminal-add (&optional term)
+  "Add a new tab for a TERM smart terminal."
+  (interactive)
+  (>>=xterminal term '(16)))    ; Double `C-u' is (16), add-new indicator
+
+
 
 ;;; Smart terminal generator
 
@@ -410,16 +416,20 @@ The defined command is a wrapper around `>>=xterminal'."
 
 (>>=define-xterminal main)
 
+
 (>>=define-xterminal python
   :program (ipython . "%paste") python
   :mode python)
 
+
 (>>=global-set-keys
   "C-c t" '>>=main-term
+  "s-M-t" '>>=main-term
   [?\C-`] '>>=xterminal
-  [?\C-~] '>>=python-term    ; migrate this key to create new terminal tab
+  [?\C-~] '>>=xterminal-add
   "s-/" '>>=xterminal
-  "s-M-t" '>>=main-term)
+  "s-?" '>>=xterminal-add)
+
 
 (when >>=!emacs-as-wm
   ;; Like on i3 window manager
