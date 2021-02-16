@@ -408,5 +408,23 @@ The defined command is a wrapper around `>>=xterminal'."
 	   )))))
 
 
+(>>=define-xterminal main)
+
+(>>=define-xterminal python
+  :program (ipython . "%paste") python
+  :mode python)
+
+(>>=global-set-keys
+  "C-c t" '>>=main-term
+  [?\C-`] '>>=xterminal
+  [?\C-~] '>>=python-term    ; migrate this key to create new terminal tab
+  "s-/" '>>=xterminal
+  "s-M-t" '>>=main-term)
+
+(when >>=!emacs-as-wm
+  ;; Like on i3 window manager
+  (>>=global-set-keys "<s-return>" '>>=main-term))
+
+
 (provide 'xorns-xterm)
 ;;; xorns-xterm.el ends here
