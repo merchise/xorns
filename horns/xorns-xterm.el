@@ -301,10 +301,10 @@ condition."
     (when prefix
       (cond
 	((consp prefix)
-	  (if (< (car prefix) 10)
-	    (setq add-new t)
-	    ;;
-	    (setq paste t)))
+	  (if (<= (prefix-numeric-value prefix) 5)
+	    (setq paste t)
+	    ;; else
+	    (setq add-new t)))
 	((integerp prefix)
 	  (setq
 	    tab-index (abs prefix)
