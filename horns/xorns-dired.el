@@ -177,10 +177,11 @@ If SWITCHES contains recursive flag (see `dired-switches-recursive-p') and
 global variable `>>=|dired-omit-mode' is t, `>>=|dired-omit-ignores-switches'
 are concatenated.  See `dired-maybe-insert-subdir'."
   (interactive
-   (list (dired-get-filename)
-	 (if current-prefix-arg
-	     (read-string "Switches for listing: "
-			  (or dired-subdir-switches dired-actual-switches)))))
+    (list
+      (dired-get-filename)
+      (if current-prefix-arg
+	(read-string "Switches for listing: "
+	  (or dired-subdir-switches dired-actual-switches)))))
   (let ((opoint (point))
 	(dirname (file-name-as-directory dirname)))
     (when (and >>=|dired-omit-mode (dired-switches-recursive-p switches))
