@@ -196,17 +196,26 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
 	(error ">>= invalid tab-index: %s" tab-index)))))
 
 
+(defsubst >>-xterm/check-buffer (buffer &optional term)
+  "Check that BUFFER is a valid smart terminal.
+When TERM is given, only check buffers of that kind."
+  (when buffer
+    (when-let ((state (buffer-local-value '>>-xterm/state buffer)))
+      (if (get-buffer-process buffer)
+	(when (or (null term) (eq term (plist-get state :term)))
+	  buffer)
+	;; else
+	(kill-buffer buffer)
+	nil))))
+
+
 (defun >>-xterm/get-buffer (buffer-name)
   "Get the terminal buffer for a given BUFFER-NAME.
 If a buffer is found that does not have a live process associated, it is
 killed and nil is returned."
   (let ((target (get-buffer (format "*%s*" buffer-name))))
     (when target
-      (if (get-buffer-process target)
-	target
-	;; else
-	(kill-buffer target)
-	nil))))
+      (>>-xterm/check-buffer target))))
 
 
 (defun >>-xterm/get-or-create-buffer (term tab-index)
@@ -239,6 +248,19 @@ killed and nil is returned."
 (defsubst >>-xterm/switch-to-buffer (target)
   "Select the smart terminal TARGET buffer."
   (switch-to-buffer-other-window target))
+
+
+(defun >>-xterm/select (&optional term)
+  "Return an assotiation-list of all valid buffers for the given TERM kind."
+  (let ((source (current-buffer)))
+    (nreverse
+      (delq nil
+	(mapcar
+	  (lambda (buffer)
+	    (unless (eq source buffer)
+	      (when (>>-xterm/check-buffer buffer term)
+		(cons (buffer-name buffer) buffer))))
+	  (buffer-list))))))
 
 
 (defun >>-xterm/get-default-term ()
@@ -366,6 +388,28 @@ condition."
   (>>=xterminal term '(16)))    ; Double `C-u' is (16), add-new indicator
 
 
+(defun >>=xterm-select (&optional term)
+  "Select a smart terminal buffer from the given TERM.
+When called interactively, a TERM given as a prefix argunment will calculate
+the default value for the current buffer."
+  (interactive "P")
+  (when (and term (not (functionp term)))
+    (setq term (>>-xterm/get-default-term)))
+  (let* ((add-new ">>= add new tab.")
+	 (buffers (>>-xterm/select term))
+	 (collection (cons `(,add-new) buffers))
+	 (name (completing-read ">>= terminal: " collection nil t)))
+    (if (string-equal name add-new)
+      (>>=xterminal-add term)
+      ;; else
+      (let ((pair (assoc-string name buffers)))
+	(when-let ((buffer (>>-xterm/check-buffer (cdr pair))))
+	  (let* ((state (buffer-local-value '>>-xterm/state buffer))
+		 (term (plist-get state :term))
+		 (tab-index (plist-get state :tab-index)))
+	    (>>=xterminal term tab-index)))))))
+
+
 
 ;;; Smart terminal generator
 
@@ -433,7 +477,8 @@ The defined command is a wrapper around `>>=xterminal'."
   [?\C-`] '>>=xterminal
   [?\C-~] '>>=xterminal-add
   "s-/" '>>=xterminal
-  "s-?" '>>=xterminal-add)
+  "s-?" '>>=xterminal-add
+  "C-M-`" '>>=xterm-select)
 
 
 (when >>=!emacs-as-wm
