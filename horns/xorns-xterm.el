@@ -236,6 +236,11 @@ killed and nil is returned."
 	(>>=scratch/get-buffer-create)))))
 
 
+(defsubst >>-xterm/switch-to-buffer (target)
+  "Select the smart terminal TARGET buffer."
+  (switch-to-buffer-other-window target))
+
+
 (defun >>-xterm/get-default-term ()
   "Get the default term for the current buffer."
   (if >>-xterm/state    ; called while already in a terminal
@@ -331,7 +336,7 @@ condition."
 	(setq target (>>-xterm/get-alt-buffer term))))
     (unless implicit
       (set (make-local-variable '>>-xterm/linked) tab-index))
-    (switch-to-buffer-other-window target)
+    (>>-xterm/switch-to-buffer target)
     (when >>-xterm/state
       (>>=plist-update >>-xterm/state
 	:source source
