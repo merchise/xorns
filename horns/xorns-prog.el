@@ -158,21 +158,44 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
 
 ;;; Language Server Protocol
 
+(require 'dash)
+(require 's)
+(require 'cl-lib)
+
+
 (defvar >>=|lsp/enable-mode t
   "Determine when to enable `lsp' when entering a programming mode.
 Language server activation is based on the logic of the `>>=check-major-mode'
-function.  The possible values of this variable are the same as the CRITERIA
-argument, with the exception of the symbol 'ask' which is replaced by `lsp' to
-be used as a semantic identity in this case.")
+function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 
 (use-package lsp-mode
   :ensure t
-  :commands lsp
+  :demand t
   :preface
-  (defun >>-lsp/may-enable-server ()
-    "Determine whether `lsp' may be enabled (see `>>=|lsp/enable-mode')."
-     (>>=major-mode-trigger lsp >>=|lsp/enable-mode lsp +1))
+  (progn
+    (defun >>-lsp-buffer? ()
+      "Validate current buffer language for `lsp-language-id-configuration'."
+      ;; TODO: refactor this, this code was copied from `lsp-buffer-language'
+      ;; but skipping the warning.
+      (->> lsp-language-id-configuration
+	(-first
+	  (-lambda ((mode-or-pattern . language))
+            (cond
+	      ((and (stringp mode-or-pattern)
+		 (s-matches? mode-or-pattern (buffer-file-name))) language)
+	      ((eq mode-or-pattern major-mode) language))))
+	cl-rest))
+
+    (defun >>-lsp/may-enable-server ()
+      "Determine whether `lsp' may be enabled (see `>>=|lsp/enable-mode')."
+      (>>=major-mode-trigger
+	lsp
+	(if (eq >>=|lsp/enable-mode t)
+	  '>>-lsp-buffer?
+	  >>=|lsp/enable-mode)
+	lsp +1))
+    )
   :custom
   (lsp-auto-guess-root t)
   (lsp-keymap-prefix "C-s-l")
