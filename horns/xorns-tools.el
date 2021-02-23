@@ -789,6 +789,8 @@ default."
 	(member mode criteria))
       ((booleanp criteria)
 	criteria)
+      ((functionp criteria)
+	(funcall criteria))
       ((symbolp criteria)
 	(>>-criteria-mode-y-or-n-p criteria mode))
       (t
