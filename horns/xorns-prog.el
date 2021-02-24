@@ -178,14 +178,17 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
       "Validate current buffer language for `lsp-language-id-configuration'."
       ;; TODO: refactor this, this code was copied from `lsp-buffer-language'
       ;; but skipping the warning.
-      (->> lsp-language-id-configuration
-	(-first
-	  (-lambda ((mode-or-pattern . language))
-            (cond
-	      ((and (stringp mode-or-pattern)
-		 (s-matches? mode-or-pattern (buffer-file-name))) language)
-	      ((eq mode-or-pattern major-mode) language))))
-	cl-rest))
+      (when-let ((fn (buffer-file-name)))
+	(->> lsp-language-id-configuration
+	  (-first
+	    (-lambda ((mode-or-pattern . language))
+              (cond
+		((and (stringp mode-or-pattern)
+		   (s-matches? mode-or-pattern fn))
+		  language)
+		((eq mode-or-pattern major-mode)
+		  language))))
+	  cl-rest)))
 
     (defun >>-lsp/may-enable-server ()
       "Determine whether `lsp' may be enabled (see `>>=|lsp/enable-mode')."
