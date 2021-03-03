@@ -77,6 +77,11 @@
   "List of applications to be executed when EXWM starts.")
 
 
+(defvar >>=|mode-line/battery-icon-command nil
+  "Command to show battery as a try icon.
+This command will be used instead of the function `display-battery-mode'.")
+
+
 (defvar >>=|exwm/start-process-model nil
   "Model to execute EXWM processes.
 Value could be a function receiving an unique argument string; or nil to use
@@ -135,6 +140,18 @@ A process NAME can bee given as an optional argument."
 	  cmd (error-message-string err))))))
 
 
+(defun >>=exwm/configure-system-try ()
+  "Run all startup applications defined in `>>=|exwm/startup-applications'."
+  (require 'exwm-systemtray)
+  (if >>=|mode-line/battery-icon-command
+    (>>=exwm/start-command >>=|mode-line/battery-icon-command)
+    ;; else
+    (display-battery-mode +1))
+  (setq-default display-time-24hr-format t)
+  (display-time-mode +1)
+  (exwm-systemtray-enable))
+
+
 
 ;;; Configuration
 
@@ -148,11 +165,10 @@ A process NAME can bee given as an optional argument."
       (declare-function exwm-systemtray-enable 'exwm-systemtray)
       (declare-function exwm-config-example 'exwm-config))
     (message ">>= using Emacs as the Desktop Window Manager.")
-    (>>=exwm/run-startup-applications)
     (->? >>=window-manager/init)
+    (>>=exwm/run-startup-applications)
+    (>>=exwm/configure-system-try)
     (require 'exwm-config)
-    (require 'exwm-systemtray)
-    (exwm-systemtray-enable)
     (exwm-config-example)    ; TODO: review how to define a customized config
     ))
 
