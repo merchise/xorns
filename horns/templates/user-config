@@ -28,6 +28,7 @@ default values are not suitable for your configuration."
     ;;    ("GDK_BACKEND=x11" "pamac-tray")    ; Update Notifier
     ;;    "volumeicon"                        ; Volume control
     ;;    )
+    ;; >>=|mode-line/battery-icon-command "cbatticon"
     ;; >>=|exwm/start-process-model t         ; use sub-processes
     ;; >>=|lsp/enable-mode 'ask
     ;; >>=|blacken/enable 'ask

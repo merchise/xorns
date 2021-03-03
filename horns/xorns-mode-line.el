@@ -39,12 +39,21 @@ When non-nil, force mode-line visualization of several system statuses like
 battery and time.")
 
 
+(defvar >>=|mode-line/battery-icon-command nil
+  "Applet to show battery as a try icon.
+If battery must be show, this command is used instead of the function
+`display-battery-mode'.")
+
+
 (defvar >>=|mode-line/map-mini-kind-on-wm nil
   "When non-nil remap 'mini' `>>=|mode-line/kind' into value defined here.")
 
 
 (when (or >>=|mode-line/show-system-status >>=!emacs-as-wm)
-  (display-battery-mode +1)
+  (if (and >>=|mode-line/battery-icon-command >>=!emacs-as-wm)
+    (>>=exwm/start-command >>=|mode-line/battery-icon-command)
+    ;; else
+    (display-battery-mode +1))
   (display-time-mode +1))
 
 
