@@ -293,15 +293,14 @@ A process NAME can bee given as an optional argument."
     (let ((map (make-sparse-keymap)))
       (define-key map [mode-line mouse-1] 'exwm-workspace-switch)
       (setq global-mode-string
-	(cons
-	  `("<"
-	     (:propertize (:eval (format "%d" exwm-workspace-current-index))
+	(nconc global-mode-string
+	  `(""
+	     (:propertize
+	       (:eval (format " <%d>" exwm-workspace-current-index))
 	       local-map ,map
 	       face bold
 	       mouse-face mode-line-highlight
-	       help-echo "EXWM workspace.\nclick: switch/add/delete.")
-	     ">")
-	  global-mode-string)))))
+	       help-echo "EXWM workspace.\nclick: switch/add/delete.")))))))
 
 
 (provide 'xorns-exwm)
