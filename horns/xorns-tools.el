@@ -703,7 +703,6 @@ discarded."
     (>>=canonical-directory-name (getenv "WORKSPACE"))
     (>>=dir-join >>=!home-dir "work" "src")
     (>>=dir-join >>=!home-dir "work")
-    (>>=dir-join >>=!home-dir "src" "merchise")
     (>>=dir-join >>=!home-dir "src")
     >>=!home-dir)
   "Preferred default directory when start a new session.")
