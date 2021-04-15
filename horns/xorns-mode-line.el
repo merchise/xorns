@@ -33,19 +33,8 @@ to ; 'doom' for `doom-modeline'; and 'power' or 'space', for `spaceline'
 including `powerline'.")
 
 
-(defvar >>=|mode-line/show-system-status nil
-  "Kind of mode-line.
-When non-nil, force mode-line visualization of several system statuses like
-battery and time.")
-
-
 (defvar >>=|mode-line/map-mini-kind-on-wm nil
   "When non-nil remap 'mini' `>>=|mode-line/kind' into value defined here.")
-
-
-(when (or >>=|mode-line/show-system-status >>=!emacs-as-wm)
-  (display-battery-mode +1)
-  (display-time-mode +1))
 
 
 (when (and >>=|mode-line/map-mini-kind-on-wm (eq >>=|mode-line/kind 'mini))
