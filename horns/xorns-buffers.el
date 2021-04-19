@@ -64,23 +64,23 @@
    :map ibuffer-mode-map
    ("M-RET" . >>=ibuffer-visit-buffer))
   :custom
-  (ibuffer-saved-filter-groups
+  (ibuffer-saved-filter-groups    ; check `ibuffer-saved-filters'
     '(("Normal"
 	("System"
 	  (or
 	    (name . "[*]scratch[*]")
 	    (name . "[*]Messages[*]")
-	    (name . "[*]Backtrace[*]" )
-	    (mode . Custom-mode)))
+	    (name . "[*]Backtrace[*]")))
 	("Terms"
 	  (or
 	    (mode . term-mode)
-	    (mode . vterm-mode)))
+	    (mode . vterm-mode)
+	    (mode . eshell-mode)))
 	("Dired"
 	  (or
 	    (mode . dired-omit-mode)
 	    (mode . dired-mode)))
-	("GNUs/Org"
+	("GNUs/Org"    ; TODO: Check this
 	  (or
 	    (name . "*Deft*")
 	    (name . "bbdb")
@@ -96,43 +96,41 @@
 	    (mode . gnus-summary-mode)
 	    (mode . gnus-article-mode)))
 	("Configuration" (mode . conf-unix-mode))
-	("Python" (mode . python-mode))
-	("Haskell/Agda/Coq"
-	  (or
-	    (mode . haskell-mode)
-	    (mode . agda2-mode)
-	    (mode . coq-mode)))
-	("Lisp"
-	  (or
-	    (mode . emacs-lisp-mode)
-	    (mode . lisp-interaction-mode)
-	    (mode . lisp-mode)))
 	("Programming"
-	  (or
-	    (mode . c-mode)
-	    (mode . cc-mode)
-	    (mode . ruby-mode)
-	    (mode . rust-mode)
-	    (mode . scala-mode)
-	    (mode . java-mode)
-	    (mode . scala-mode-inf)
-	    (mode . prog-mode)))
-	("Text/Markdown/RST/TeX"
-	  (or
-	    (mode . text-mode)
-	    (mode . rst-mode)
-	    (mode . markdown)
-	    (mode . markdown-mode)
-	    (mode . tex-mode)))
-	("Web/XML/HTML/CSS"
-	  (or
-	    (mode . w3m-mode)
-	    (mode . javascript-mode)
-	    (mode . nxml-mode)
-	    (mode . html-mode)
-	    (mode . css-mode)
-	    (mode . less-mode)
-	    (mode . sass-mode)))
+          (or
+	    (derived-mode . prog-mode)
+            (mode . ess-mode)
+            (mode . compilation-mode)))
+	("Text Document"
+          (and
+	    (derived-mode . text-mode)
+            (not (starred-name))))
+	("TeX"
+          (or
+	    (derived-mode . tex-mode)
+            (mode . latex-mode)
+            (mode . context-mode)
+            (mode . ams-tex-mode)
+            (mode . bibtex-mode)))
+	("Web"
+          (or
+	    (derived-mode . sgml-mode)
+            (derived-mode . css-mode)
+            (mode . javascript-mode)
+ 	    (mode . mhtml-mode)
+ 	    (mode . w3m-mode)
+            (mode . js2-mode)
+            (mode . scss-mode)
+            (derived-mode . haml-mode)
+            (mode . sass-mode)))
+	;; ("Web/XML/HTML/CSS"
+	;;   (or
+	;;     (mode . w3m-mode)
+	;;     (mode . nxml-mode)
+	;;     (mode . html-mode)
+	;;     (mode . css-mode)
+	;;     (mode . less-mode)
+	;;     (mode . sass-mode)))
 	("Version Control"
 	  (or
 	    (name . "^magit")
@@ -157,16 +155,15 @@
 	("Help/Info/Completions/Customize"
 	  (or
 	    (name . "^[*]Help[*]$")
-	    (name . "^[*]Apropos[*]$")
 	    (name . "^[*]info[*]$")
 	    (name . "^[*]helpful")
 	    (name . "^[*]Customize")
-	    (mode . help-mode)
+	    (derived-mode . special-mode)
 	    (mode . Info-mode)
-	    (mode . Man-mode)
-	    (mode . woman-mode)
 	    (mode . rfcview-mode)
+	    (mode . Custom-mode)
 	    (mode . completion-list-mode)))
+	("X Window Manager" (mode . exwm-mode))
 	)))
   (ibuffer-show-empty-filter-groups nil)
   (ibuffer-default-sorting-mode 'major-mode)
