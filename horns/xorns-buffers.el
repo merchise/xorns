@@ -120,6 +120,7 @@
  	    (mode . mhtml-mode)
  	    (mode . w3m-mode)
             (mode . js2-mode)
+	    (mode . coffee-mode)
             (mode . scss-mode)
             (derived-mode . haml-mode)
             (mode . sass-mode)))
