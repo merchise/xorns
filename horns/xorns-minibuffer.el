@@ -52,18 +52,6 @@
 
 
 
-
-(use-package ivy
-  :when (eq >>=|minibuffer/completing-framework 'ivy)
-  :ensure t
-  :custom
-  (ivy-count-format "(%d/%d) ")
-  (ivy-fixed-height-minibuffer t)
-  :config
-  (progn
-    (ivy-mode +1)))
-
-
 (use-package swiper
   :when (eq >>=|minibuffer/completing-framework 'ivy)
   :ensure t
@@ -77,6 +65,20 @@
   :config
   (progn
     (counsel-mode +1)))
+
+
+
+
+(use-package ivy
+  :when (eq >>=|minibuffer/completing-framework 'ivy)
+  :ensure t
+  :custom
+  (ivy-count-format "(%d/%d) ")
+  (ivy-fixed-height-minibuffer t)
+  (ivy-use-virtual-buffers t)
+  :config
+  (progn
+    (ivy-mode +1)))
 
 
 
