@@ -62,6 +62,8 @@
 (use-package counsel
   :when (eq >>=|minibuffer/completing-framework 'ivy)
   :ensure t
+  :custom
+  (counsel-find-file-at-point t)
   :config
   (progn
     (counsel-mode +1)))
