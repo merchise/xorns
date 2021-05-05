@@ -64,6 +64,10 @@
   :ensure t
   :custom
   (counsel-find-file-at-point t)
+  :bind
+  ("C-x d" . counsel-dired)
+  ([remap recentf-open-files] . counsel-recentf)
+  ;; ([remap completion-at-point] . counsel-company)
   :config
   (progn
     (counsel-mode +1)))
