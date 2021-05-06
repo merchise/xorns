@@ -82,6 +82,7 @@
   (ivy-count-format "(%d/%d) ")
   (ivy-fixed-height-minibuffer t)
   (ivy-use-virtual-buffers t)
+  (ivy-virtual-abbreviate nil)    ; 'abbreviate is also nice
   :config
   (progn
     (ivy-mode +1)))
