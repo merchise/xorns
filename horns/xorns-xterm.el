@@ -83,12 +83,12 @@
   (lambda (text)
     (when text
       (if (string-match-p "\n" text)
-	(progn
-	  (kill-new text)
-	  (>>-xterm/paster magic)
-	  (current-kill 1))
-	;; else
-	(>>-xterm/paster text)))))
+        (progn
+          (kill-new text)
+          (>>-xterm/paster magic)
+          (current-kill 1))
+        ;; else
+        (>>-xterm/paster text)))))
 
 
 (defun >>-xterm/check-paster (paster)
@@ -110,7 +110,7 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
   (if id
     (if (string-match-p "^[[:alnum:]]+$" (symbol-name id))
       (intern (format ">>=%s-term" id))
-	;; else
+      ;; else
       id)
     ;; else
     '>>=main-term))
@@ -121,24 +121,24 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
   (>>=map-pair
     (lambda (key value)
       (pcase key
-	(:program
-	  (mapcar
-	    (lambda (item)
-	      (or
-		(when (consp item)
-		  (cons
-		    (>>=str (car item) :program)
-		    (>>-xterm/check-paster (cdr item))))
-		(>>=str item :program)))
-	    (>>=cast-list value)))
-	(:paster
-	  (>>-xterm/check-paster value))
-	(:buffer-name
-	  (>>=str value :buffer-name))
-	(:mode
-	  (mapcar (lambda (mode) (>>=str mode :mode)) (>>=cast-list value)))
-	(_
-	  (error ">>= unexpected keyword '%s' with value '%s'" key value))))
+        (:program
+          (mapcar
+            (lambda (item)
+              (or
+                (when (consp item)
+                  (cons
+                    (>>=str (car item) :program)
+                    (>>-xterm/check-paster (cdr item))))
+                (>>=str item :program)))
+            (>>=cast-list value)))
+        (:paster
+          (>>-xterm/check-paster value))
+        (:buffer-name
+          (>>=str value :buffer-name))
+        (:mode
+          (mapcar (lambda (mode) (>>=str mode :mode)) (>>=cast-list value)))
+        (_
+          (error ">>= unexpected keyword '%s' with value '%s'" key value))))
     (>>=plist-fix keywords)))
 
 
@@ -156,27 +156,27 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
     (get term key)
     (when-let ((keywords (get term :keywords)))
       (if (memq key '(:program :paster))
-	(let ((program (>>=executable-find (plist-get keywords :program)))
-	      paster res)
-	  (when (consp program)
-	    (setq
-	      paster (cdr program)
-	      program (car program)))
-	  (unless paster
-	    (setq paster (plist-get keywords :paster)))
-	  (when program
-	    (put term :program program)
-	    (when (eq key :program)
-	      (setq res program)))
-	  (when paster
-	    (put term :paster paster)
-	    (when (eq key :paster)
-	      (setq res paster)))
-	  res)
-	;; else
-	(when-let ((res (plist-get keywords key)))
-	  (put term key res)
-	  res)))
+        (let ((program (>>=executable-find (plist-get keywords :program)))
+              paster res)
+          (when (consp program)
+            (setq
+              paster (cdr program)
+              program (car program)))
+          (unless paster
+            (setq paster (plist-get keywords :paster)))
+          (when program
+            (put term :program program)
+            (when (eq key :program)
+              (setq res program)))
+          (when paster
+            (put term :paster paster)
+            (when (eq key :paster)
+              (setq res paster)))
+          res)
+        ;; else
+        (when-let ((res (plist-get keywords key)))
+          (put term key res)
+          res)))
     (>>-xterm/default-value term key)
     (error ">>= unexpected term key '%s'" key)))
 
@@ -189,11 +189,11 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
     ;; suffix
     (cond
       ((or (null tab-index) (zerop tab-index))
-	"")
+        "")
       ((> tab-index 0)
-	(format " - %s" tab-index))
+        (format " - %s" tab-index))
       (t
-	(error ">>= invalid tab-index: %s" tab-index)))))
+        (error ">>= invalid tab-index: %s" tab-index)))))
 
 
 (defsubst >>-xterm/check-buffer (buffer &optional term)
@@ -202,11 +202,11 @@ When TERM is given, only check buffers of that kind."
   (when buffer
     (when-let ((state (buffer-local-value '>>-xterm/state buffer)))
       (if (get-buffer-process buffer)
-	(when (or (null term) (eq term (plist-get state :term)))
-	  buffer)
-	;; else
-	(kill-buffer buffer)
-	nil))))
+        (when (or (null term) (eq term (plist-get state :term)))
+          buffer)
+        ;; else
+        (kill-buffer buffer)
+        nil))))
 
 
 (defun >>-xterm/get-buffer (buffer-name)
@@ -221,13 +221,13 @@ killed and nil is returned."
 (defun >>-xterm/get-or-create-buffer (term tab-index)
   "Get or create a TERM buffer for a given TAB-INDEX."
   (let* ((buffer-name (>>-xterm/buffer-name term tab-index))
-	 (target (>>-xterm/get-buffer buffer-name)))
+         (target (>>-xterm/get-buffer buffer-name)))
     (unless target
       (let ((command (>>-xterm/key term :program)))
-	(save-window-excursion
-	  (with-current-buffer
-	    (setq target (ansi-term command buffer-name))
-	    (set (make-local-variable '>>-xterm/state) `(:term ,term))))))
+        (save-window-excursion
+          (with-current-buffer
+            (setq target (ansi-term command buffer-name))
+            (set (make-local-variable '>>-xterm/state) `(:term ,term))))))
   target))
 
 
@@ -238,11 +238,11 @@ killed and nil is returned."
       (find-file-noselect file-name)
       ;; else
       (or
-	(>>=find-buffer
-	  :mode (car (rassq term >>-xterm-modes)))
-	(>>=find-buffer
-	  :mode (plist-get >>-xterm/state :mode))
-	(>>=scratch/get-buffer-create)))))
+        (>>=find-buffer
+          :mode (car (rassq term >>-xterm-modes)))
+        (>>=find-buffer
+          :mode (plist-get >>-xterm/state :mode))
+        (>>=scratch/get-buffer-create)))))
 
 
 (defsubst >>-xterm/switch-to-buffer (target)
@@ -255,12 +255,12 @@ killed and nil is returned."
   (let ((source (current-buffer)))
     (nreverse
       (delq nil
-	(mapcar
-	  (lambda (buffer)
-	    (unless (eq source buffer)
-	      (when (>>-xterm/check-buffer buffer term)
-		(cons (buffer-name buffer) buffer))))
-	  (buffer-list))))))
+        (mapcar
+          (lambda (buffer)
+            (unless (eq source buffer)
+              (when (>>-xterm/check-buffer buffer term)
+                (cons (buffer-name buffer) buffer))))
+          (buffer-list))))))
 
 
 (defun >>-xterm/get-default-term ()
@@ -289,9 +289,9 @@ killed and nil is returned."
   (let (res)
     (while (not res)
       (if (>>-xterm/get-buffer (>>-xterm/buffer-name term tab-index))
-	(setq tab-index (1+ tab-index))
-	;; else
-	(setq res tab-index)))
+        (setq tab-index (1+ tab-index))
+        ;; else
+        (setq res tab-index)))
     res))
 
 
@@ -321,64 +321,64 @@ condition."
   (unless term
     (setq term (>>-xterm/get-default-term)))
   (let (tab-index paste add-new
-	(paster (>>-xterm/key term :paster))
-	implicit
-	(source (current-buffer))
-	target)
+        (paster (>>-xterm/key term :paster))
+        implicit
+        (source (current-buffer))
+        target)
     (when prefix
       (cond
-	((consp prefix)
-	  (if (<= (prefix-numeric-value prefix) 5)
-	    (setq paste t)
-	    ;; else
-	    (setq add-new t)))
-	((integerp prefix)
-	  (setq
-	    tab-index (abs prefix)
-	    paste (< prefix 0)))
-	(t    ; `negative-argument'
-	  (setq
-	    tab-index 0
-	    paste t))))
+        ((consp prefix)
+          (if (<= (prefix-numeric-value prefix) 5)
+            (setq paste t)
+            ;; else
+            (setq add-new t)))
+        ((integerp prefix)
+          (setq
+            tab-index (abs prefix)
+            paste (< prefix 0)))
+        (t    ; `negative-argument'
+          (setq
+            tab-index 0
+            paste t))))
     (when add-new
       (setq tab-index (>>-xterm/search-new term)))
     (unless tab-index
       (setq
-	implicit t
-	tab-index (>>-xterm/get-implicit-tab-index)))
+        implicit t
+        tab-index (>>-xterm/get-implicit-tab-index)))
     (when paste
       (setq paste (>>-xterm/get-paste-text)))
     (setq target (>>-xterm/get-or-create-buffer term tab-index))
     (when (eq target source)
       (setq
-	target (plist-get >>-xterm/state :source)
-	paster nil
-	implicit t)
+        target (plist-get >>-xterm/state :source)
+        paster nil
+        implicit t)
       (unless (buffer-live-p target)
-	(setq target (>>-xterm/get-alt-buffer term))))
+        (setq target (>>-xterm/get-alt-buffer term))))
     (unless implicit
       (set (make-local-variable '>>-xterm/linked) tab-index))
     (>>-xterm/switch-to-buffer target)
     (when >>-xterm/state
       (>>=plist-update >>-xterm/state
-	:source source
-	:file-name (buffer-file-name source)
-	:term term
-	:tab-index tab-index
-	:mode (buffer-local-value 'major-mode source)))
+        :source source
+        :file-name (buffer-file-name source)
+        :term term
+        :tab-index tab-index
+        :mode (buffer-local-value 'major-mode source)))
     (when paste
       (unless paster
-	(setq paster
-	  (or
-	    (get (plist-get >>-xterm/state :term) :paster)
-	    (when (eq major-mode 'term-mode) '>>-xterm/paster)
-	    (unless buffer-read-only 'insert))))
+        (setq paster
+          (or
+            (get (plist-get >>-xterm/state :term) :paster)
+            (when (eq major-mode 'term-mode) '>>-xterm/paster)
+            (unless buffer-read-only 'insert))))
       (if paster
-	(funcall paster paste)
-	;; else
-	(warn (concat ">>= no valid paster found, "
-		"maybe target buffer is read only.\n"
-		"	Paste text:\n%s") paste)))
+        (funcall paster paste)
+        ;; else
+        (warn (concat ">>= no valid paster found, "
+                "maybe target buffer is read only.\n"
+                "        Paste text:\n%s") paste)))
     target))
 
 
@@ -396,18 +396,18 @@ the default value for the current buffer."
   (when (and term (not (functionp term)))
     (setq term (>>-xterm/get-default-term)))
   (let* ((add-new ">>= add new tab.")
-	 (buffers (>>-xterm/select term))
-	 (collection (cons `(,add-new) buffers))
-	 (name (completing-read ">>= terminal: " collection nil t)))
+         (buffers (>>-xterm/select term))
+         (collection (cons `(,add-new) buffers))
+         (name (completing-read ">>= terminal: " collection nil t)))
     (if (string-equal name add-new)
       (>>=xterminal-add term)
       ;; else
       (let ((pair (assoc-string name buffers)))
-	(when-let ((buffer (>>-xterm/check-buffer (cdr pair))))
-	  (let* ((state (buffer-local-value '>>-xterm/state buffer))
-		 (term (plist-get state :term))
-		 (tab-index (plist-get state :tab-index)))
-	    (>>=xterminal term tab-index)))))))
+        (when-let ((buffer (>>-xterm/check-buffer (cdr pair))))
+          (let* ((state (buffer-local-value '>>-xterm/state buffer))
+                 (term (plist-get state :term))
+                 (tab-index (plist-get state :tab-index)))
+            (>>=xterminal term tab-index)))))))
 
 
 
@@ -422,17 +422,17 @@ ID must be a symbol, this macro will generate two commands:
 The following KEYWORDS can be used:
 
 :program -- Executable command to be loaded as shell.  The value could be a
-	string or a list of choices to find the first valid option.
+        string or a list of choices to find the first valid option.
 
 :paster -- Function to paste text into a terminal.  A string is converted to a
-	function using `>>=term/define-paste-magic'.  Could be specified as
-	part of a form '(command . paster)' for a :program choice.  Its
-	default value is `>>-xterm/paster'.
+        function using `>>=term/define-paste-magic'.  Could be specified as
+        part of a form '(command . paster)' for a :program choice.  Its
+        default value is `>>-xterm/paster'.
 
 :mode -- Sequence of one or more identifiers to be added to `>>-xterm-modes'.
 
 :buffer-name -- A string to be used as `buffer-name' for terminal tabs.  It
-	defauls to the command name.
+        defauls to the command name.
 
 The defined command is a wrapper around `>>=xterminal'."
   (declare (doc-string 2) (indent 1) (debug t))
@@ -447,20 +447,20 @@ The defined command is a wrapper around `>>=xterminal'."
       (format "Command for '%s' terminals (see `>>=xterminal')." id)))
   (setq keywords (>>-xterm/fix-keywords keywords))
   (let ((term (>>-xterm/command-name id))
-	(modes (>>=cast-list (plist-get keywords :mode))))
+        (modes (>>=cast-list (plist-get keywords :mode))))
     (macroexp-progn
       (delq nil
-	`(
-	   ,(if keywords
-	      `(put ',term :keywords '(,@keywords)))
-	   ,(if modes
-	      `(setq >>-xterm-modes
-		 (>>=mode-command-alist >>-xterm-modes ',term '(,@modes))))
-	   (defun ,term (&optional prefix)
-	     ,docstring
-	     (interactive "P")
-	     (>>=xterminal ',term prefix))
-	   )))))
+        `(
+           ,(if keywords
+              `(put ',term :keywords '(,@keywords)))
+           ,(if modes
+              `(setq >>-xterm-modes
+                 (>>=mode-command-alist >>-xterm-modes ',term '(,@modes))))
+           (defun ,term (&optional prefix)
+             ,docstring
+             (interactive "P")
+             (>>=xterminal ',term prefix))
+           )))))
 
 
 (>>=define-xterminal main)

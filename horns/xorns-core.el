@@ -51,10 +51,10 @@
       (insert-file-contents file)
       (goto-char (point-min))
       (let (res)
-	(ignore-errors
+        (ignore-errors
           (while (not (eobp))
-	    (setq res (cons (read (current-buffer)) res))))
-	(nreverse res)))))
+            (setq res (cons (read (current-buffer)) res))))
+        (nreverse res)))))
 
 
 (defun >>=write-lisp-config (file form)
@@ -157,11 +157,11 @@ Possible keywords are:
   (if ruler
     (let ((res buffer))
       (while (and res ruler)
-	(let ((exp (nth 1 ruler))
-	      (value (>>=get-buffer-keyword buffer (car ruler))))
-	  (unless (>>-buffer-value-match exp value)
-	    (setq res nil))
-	  (setq ruler (cdr (cdr ruler)))))
+        (let ((exp (nth 1 ruler))
+              (value (>>=get-buffer-keyword buffer (car ruler))))
+          (unless (>>-buffer-value-match exp value)
+            (setq res nil))
+          (setq ruler (cdr (cdr ruler)))))
       res)))
 
 
@@ -174,16 +174,16 @@ expression."
   (let ((aux (>>=fix-rest-list ruler)))
     (delq nil
       (mapcar
-	(lambda (buffer) (>>=buffer-match-p aux buffer))
-	(buffer-list)))))
+        (lambda (buffer) (>>=buffer-match-p aux buffer))
+        (buffer-list)))))
 
 
 (defun >>=find-buffer (&rest ruler)
   "Find best buffer matching RULER.
 See `>>=find-buffers' for more information."
   (let* ((result (apply '>>=find-buffers ruler))
-	 (one (car result))
-	 (two (nth 1 result)))
+         (one (car result))
+         (two (nth 1 result)))
     ;; if two or more buffers are found, do not select current.
     (if (and two (eq one (current-buffer)))
       two

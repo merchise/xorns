@@ -136,8 +136,8 @@ A process NAME can bee given as an optional argument."
     (condition-case-unless-debug err
       (>>=exwm/start-command cmd)
       (error
-	(message ">>= error executing '%s' startup application:\n    %s"
-	  cmd (error-message-string err))))))
+        (message ">>= error executing '%s' startup application:\n    %s"
+          cmd (error-message-string err))))))
 
 
 (defun >>=exwm/configure-system-try ()
@@ -197,48 +197,48 @@ A process NAME can bee given as an optional argument."
       "C-s-/" 'browse-url-at-point)
     (>>=global-set-keys
       (mapcar
-	(lambda (pair) (cons (car pair) (>>-url-browser (cdr pair))))
-	>>=|exwm/url-keys))
+        (lambda (pair) (cons (car pair) (>>-url-browser (cdr pair))))
+        >>=|exwm/url-keys))
     (let ((suspend-key ?\C-z))
       ;; Prefix key to send next literally to the application.  Default value
       ;; is `C-z' because is used for `suspend-frame' in terminals.
       (add-to-list 'exwm-input-prefix-keys suspend-key)
       (define-key exwm-mode-map (vector suspend-key)
-	#'exwm-input-send-next-key))
+        #'exwm-input-send-next-key))
     (setq exwm-input-simulation-keys
       `(
-	 ;; general, movement
-	 ([?\C-b] . [left])
-	 ([?\M-b] . [C-left])
-	 ([?\C-f] . [right])
-	 ([?\M-f] . [C-right])
-	 ([?\C-\S-b] . [S-left])
-	 ([?\M-\S-b] . [C-S-left])
-	 ([?\C-\S-f] . [S-right])
-	 ([?\M-\S-f] . [C-S-right])
-	 ([?\C-p] . [up])
-	 ([?\C-n] . [down])
-	 ([?\C-a] . [home])
-	 ([?\C-e] . [end])
-	 ([?\M-v] . [prior])
-	 ([?\C-v] . [next])
-	 ([?\C-m] . [return])
-	 ([?\C-i] . [tab])
-	 ;; cut/paste, selection
-	 ([?\C-d] . [delete])
-	 ([?\C-w] . [?\C-x])
-	 ([?\M-w] . [?\C-c])
-	 ([?\C-y] . [?\C-v])
-	 ([?\M-d] . [C-S-right ?\C-x])
-	 ([?\C-k] . [S-end ?\C-x])
-	 ([M-backspace] . [C-S-left ?\C-x])
-	 ;; search
-	 ([?\C-s] . [?\C-f])
-	 ([?\C-\S-s] . [?\C-g])
-	 ;; escape
-	 ([?\C-g] . [escape])
-	 ([?\s-q] . [?\C-w])
-	 ))
+         ;; general, movement
+         ([?\C-b] . [left])
+         ([?\M-b] . [C-left])
+         ([?\C-f] . [right])
+         ([?\M-f] . [C-right])
+         ([?\C-\S-b] . [S-left])
+         ([?\M-\S-b] . [C-S-left])
+         ([?\C-\S-f] . [S-right])
+         ([?\M-\S-f] . [C-S-right])
+         ([?\C-p] . [up])
+         ([?\C-n] . [down])
+         ([?\C-a] . [home])
+         ([?\C-e] . [end])
+         ([?\M-v] . [prior])
+         ([?\C-v] . [next])
+         ([?\C-m] . [return])
+         ([?\C-i] . [tab])
+         ;; cut/paste, selection
+         ([?\C-d] . [delete])
+         ([?\C-w] . [?\C-x])
+         ([?\M-w] . [?\C-c])
+         ([?\C-y] . [?\C-v])
+         ([?\M-d] . [C-S-right ?\C-x])
+         ([?\C-k] . [S-end ?\C-x])
+         ([M-backspace] . [C-S-left ?\C-x])
+         ;; search
+         ([?\C-s] . [?\C-f])
+         ([?\C-\S-s] . [?\C-g])
+         ;; escape
+         ([?\C-g] . [escape])
+         ([?\s-q] . [?\C-w])
+         ))
     (require 'xorns-linux)))
 
 
@@ -268,16 +268,16 @@ A process NAME can bee given as an optional argument."
       "Move to left workspace. "
       (interactive)
       (let ((current (exwm-workspace--position exwm-workspace--current)))
-	(exwm-workspace-switch
-	  (1- (if (> current 0) current (exwm-workspace--count))))))
+        (exwm-workspace-switch
+          (1- (if (> current 0) current (exwm-workspace--count))))))
 
     (defun >>-exwm/ws-switch-right ()
       "Move to left workspace. "
       (interactive)
       (let ((current (exwm-workspace--position exwm-workspace--current))
-	    (maxws (1- (exwm-workspace--count))))
-	(exwm-workspace-switch
-	  (if (< current maxws) (1+ current) 0))))
+            (maxws (1- (exwm-workspace--count))))
+        (exwm-workspace-switch
+          (if (< current maxws) (1+ current) 0))))
     )
   :custom
   (exwm-workspace-show-all-buffers t)
@@ -293,14 +293,14 @@ A process NAME can bee given as an optional argument."
     (let ((map (make-sparse-keymap)))
       (define-key map [mode-line mouse-1] 'exwm-workspace-switch)
       (setq global-mode-string
-	(nconc global-mode-string
-	  `(""
-	     (:propertize
-	       (:eval (format " <%d>" exwm-workspace-current-index))
-	       local-map ,map
-	       face bold
-	       mouse-face mode-line-highlight
-	       help-echo "EXWM workspace.\nclick: switch/add/delete.")))))))
+        (nconc global-mode-string
+          `(""
+             (:propertize
+               (:eval (format " <%d>" exwm-workspace-current-index))
+               local-map ,map
+               face bold
+               mouse-face mode-line-highlight
+               help-echo "EXWM workspace.\nclick: switch/add/delete.")))))))
 
 
 (provide 'xorns-exwm)

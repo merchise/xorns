@@ -44,26 +44,26 @@ value will combine both logics."
   (let (name ln)
     (cond
       ((null prefix)
-	(setq name buffer-file-name))
+        (setq name buffer-file-name))
       ((consp prefix)
-	(setq
-	  name buffer-file-name
-	  ln t))
+        (setq
+          name buffer-file-name
+          ln t))
       ((eq prefix 0)
-	(setq name buffer-file-truename))
+        (setq name buffer-file-truename))
       (t
-	(setq
-	  name buffer-file-truename
-	  ln t)))
+        (setq
+          name buffer-file-truename
+          ln t)))
     (>>=kill-new
       (if name
-	(concat
-	  (abbreviate-file-name name)
-	  (if ln (format ":%s:" (line-number-at-pos)) ""))
-	;; else
-	(or
-	  (bound-and-true-p exwm-title)
-	  (buffer-name))))))
+        (concat
+          (abbreviate-file-name name)
+          (if ln (format ":%s:" (line-number-at-pos)) ""))
+        ;; else
+        (or
+          (bound-and-true-p exwm-title)
+          (buffer-name))))))
 
 
 (defun >>=yank-default-directory ()
@@ -80,23 +80,23 @@ value will combine both logics."
 (defun >>=buffer-focused-text ()
   "Return focused-text in current buffer, selected region or current line."
   (let (begin end
-	(region (use-region-p)))
+        (region (use-region-p)))
     (if region
       (setq
-	begin (point)
-	end (mark))
+        begin (point)
+        end (mark))
       ;; else
       (save-restriction
-	(widen)
-	(save-excursion
-	  (beginning-of-line)
-	  (setq begin (point))
-	  (end-of-line)
-	  (setq end (point)))))
+        (widen)
+        (save-excursion
+          (beginning-of-line)
+          (setq begin (point))
+          (end-of-line)
+          (setq end (point)))))
     (prog1
       (buffer-substring-no-properties begin end)
       (if region
-	(setq deactivate-mark t)))))
+        (setq deactivate-mark t)))))
 
 
 (use-package simple
@@ -179,10 +179,11 @@ value will combine both logics."
   :config
   (progn
     (dolist
-      (type '(jpg jpeg png gif    ; images
-	      mpg mjpg avi        ; videos
-	      rar zip 7z))        ; archives
-      (add-to-list 'grep-find-ignored-files (concat "*." (symbol-name type))))
+      (type
+        '(jpg jpeg png gif    ; images
+          mpg mjpg avi        ; videos
+          rar zip 7z))        ; archives
+      (add-to-list 'grep-find-ignored-files (format "*.%s" type)))
     (dolist
       (name '(".tox" ".hypothesis" ".idea" ".mypy_cache" ".vscode"))
       (add-to-list 'grep-find-ignored-directories name))))

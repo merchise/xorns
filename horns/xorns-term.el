@@ -71,13 +71,13 @@
       "Initialize eshell."
       (eshell-cmpl-initialize)
       (define-key eshell-mode-map
-	(kbd "C-c C-d") 'quit-window)
+        (kbd "C-c C-d") 'quit-window)
       (when (bound-and-true-p helm-mode)
-	(require 'helm-eshell)
-	(define-key eshell-mode-map
-	  [remap eshell-pcomplete] 'helm-esh-pcomplete)
-	(define-key eshell-mode-map
-	  [remap eshell-list-history] 'helm-eshell-history))))
+        (require 'helm-eshell)
+        (define-key eshell-mode-map
+          [remap eshell-pcomplete] 'helm-esh-pcomplete)
+        (define-key eshell-mode-map
+          [remap eshell-list-history] 'helm-eshell-history))))
   :custom
   (eshell-history-size 1024)
   (eshell-hist-ignoredups t)
@@ -101,9 +101,9 @@
     (when (bound-and-true-p helm-mode)
       (require 'helm-eshell)
       (define-key comint-mode-map
-	(kbd "C-c C-l") 'helm-comint-input-ring)
+        (kbd "C-c C-l") 'helm-comint-input-ring)
       (define-key comint-mode-map
-	(kbd "M-s f") 'helm-comint-prompts-all)))
+        (kbd "M-s f") 'helm-comint-prompts-all)))
   :hook
   (comint-mode . >>-comint/init))
 

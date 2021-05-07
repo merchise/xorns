@@ -39,7 +39,7 @@
   (if >>=!pkg-dir
     (let ((default-directory user-emacs-directory))
       (replace-regexp-in-string "^file://" ""
-	(>>=shell-command-to-string "git remote get-url origin")))))
+        (>>=shell-command-to-string "git remote get-url origin")))))
 
 
 (defun >>=bots/dired+git-status ()
@@ -72,11 +72,11 @@ If BASE argument is non-nil, open project directory instead."
   (let ((path (>>-bots-git-remote-url)))
     (if (file-exists-p path)
       (let* ((recent-files (recentf-elements recentf-max-saved-items))
-	     (res (>>=file-in-dir-tree recent-files path)))
-	(if res
-	  (find-file res)
-	  ;; else
-	  (warn ">>= no recent-file on xorns working-folder.")))
+             (res (>>=file-in-dir-tree recent-files path)))
+        (if res
+          (find-file res)
+          ;; else
+          (warn ">>= no recent-file on xorns working-folder.")))
       ;; else
       (warn ">>= xorns working-folder not found."))))
 
@@ -101,8 +101,8 @@ has an ‘.elc’ file; otherwise only those that needs recompilation."
   (if >>=!pkg-dir
     (let ((path (file-name-as-directory >>=!pkg-dir)))
       (save-some-buffers nil
-	(lambda ()
-	  (string-match (regexp-quote path) buffer-file-name)))
+        (lambda ()
+          (string-match (regexp-quote path) buffer-file-name)))
       (byte-recompile-directory path 0 force))
     ;; else
     (warn ">>= only allowed in standalone-mode.")))

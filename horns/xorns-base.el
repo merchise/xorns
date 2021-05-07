@@ -77,9 +77,9 @@ to configure for yourself: see `save-buffer' function for more information.")
     ; TODO: Move this to another place
     (when >>=|user-mail-address-template
       (if (eq >>=|user-mail-address-template t)
-	(setq >>=|user-mail-address-template "${USER}@merchise.org"))
+        (setq >>=|user-mail-address-template "${USER}@merchise.org"))
       (setq user-mail-address
-	(substitute-env-vars >>=|user-mail-address-template)))))
+        (substitute-env-vars >>=|user-mail-address-template)))))
 
 
 (use-package frame
@@ -95,9 +95,9 @@ to configure for yourself: see `save-buffer' function for more information.")
       (toggle-frame-maximized))
     (modify-all-frames-parameters
       '((internal-border-width . 0)
-    	(fullscreen . maximized)
-    	(fullscreen-restore . maximized)
-    	(undecorated . t)))
+            (fullscreen . maximized)
+            (fullscreen-restore . maximized)
+            (undecorated . t)))
     ))
 
 
@@ -117,22 +117,22 @@ to configure for yourself: see `save-buffer' function for more information.")
       "Toggle horizontal/vertical layout of 2 windows (use ARG to restore)."
       (interactive "P")
       (if (= (count-windows) 2)
-	(let* ((tree (car (window-tree)))
-	       (one (nth 2 tree))
-	       (two (nth 3 tree))
-	       (aux (car tree))                ;; t: vertical -> horizontal
-	       (v2h (if arg (not aux) aux))    ;; (xor arg v2h)
-	       (state (window-state-get two)))
-	  (delete-other-windows one)
-	  (window-state-put
-	    state
-	    (funcall
-	      (if v2h
-		#'split-window-horizontally
-		;; else
-		#'split-window-vertically))))
-	;; else
-	(warn "Only can toggle two windows!")))
+        (let* ((tree (car (window-tree)))
+               (one (nth 2 tree))
+               (two (nth 3 tree))
+               (aux (car tree))                ;; t: vertical -> horizontal
+               (v2h (if arg (not aux) aux))    ;; (xor arg v2h)
+               (state (window-state-get two)))
+          (delete-other-windows one)
+          (window-state-put
+            state
+            (funcall
+              (if v2h
+                #'split-window-horizontally
+                ;; else
+                #'split-window-vertically))))
+        ;; else
+        (warn "Only can toggle two windows!")))
 
     (defun >>-window-coach/done ()
       (interactive)
@@ -141,20 +141,20 @@ to configure for yourself: see `save-buffer' function for more information.")
 
     (defvar >>=window-coach-map
       (let ((map (make-keymap))
-	    (commands
-	      '((shrink-window "<up>" "p")
-		(enlarge-window "<down>" "n")
-		(enlarge-window-horizontally "<right>" "f")
-		(shrink-window-horizontally "<left>" "b")
-		(other-window "o")
-		(>>=window/split-toggle "t")
-		(>>-window-coach/done "C-g" "q"))))
-	(dolist (cmd commands)
-	  (let ((fn (car cmd))
-		(keys (cdr cmd)))
-	    (dolist (key keys)
-	      (define-key map (kbd key) fn))))
-	map))
+            (commands
+              '((shrink-window "<up>" "p")
+                (enlarge-window "<down>" "n")
+                (enlarge-window-horizontally "<right>" "f")
+                (shrink-window-horizontally "<left>" "b")
+                (other-window "o")
+                (>>=window/split-toggle "t")
+                (>>-window-coach/done "C-g" "q"))))
+        (dolist (cmd commands)
+          (let ((fn (car cmd))
+                (keys (cdr cmd)))
+            (dolist (key keys)
+              (define-key map (kbd key) fn))))
+        map))
 
     (define-minor-mode >>=window-coach
       "A simple window-coach minor mode."
@@ -163,11 +163,11 @@ to configure for yourself: see `save-buffer' function for more information.")
       :keymap >>=window-coach-map
       :global t
       (if (<= (count-windows) 1)
-	(progn
-	  (setq >>=window-coach nil)
-	  (message ">>= only root frame exists, abort."))
-	;; else
-	(message ">>= use arrow-keys or p/n/f/b/o/t/q to manage windows.")))
+        (progn
+          (setq >>=window-coach nil)
+          (message ">>= only root frame exists, abort."))
+        ;; else
+        (message ">>= use arrow-keys or p/n/f/b/o/t/q to manage windows.")))
 
     (provide 'window)
     )
@@ -181,7 +181,7 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 (use-package files
   :bind (("C-c f /" . revert-buffer)
-	 ("C-c f n" . normal-mode))
+         ("C-c f n" . normal-mode))
   :hook
   (before-save . delete-trailing-whitespace)
   :custom
@@ -192,7 +192,7 @@ to configure for yourself: see `save-buffer' function for more information.")
       make-backup-files t
       backup-by-copying t
       backup-directory-alist
-	`((".*" . ,(expand-file-name ".backups" user-emacs-directory)))
+        `((".*" . ,(expand-file-name ".backups" user-emacs-directory)))
       delete-old-versions t
       kept-new-versions 6
       kept-old-versions 0    ; check this
@@ -271,10 +271,10 @@ to configure for yourself: see `save-buffer' function for more information.")
     (interactive)
     (if (eq major-mode 'package-menu-mode)
       (let ((pkg-col (elt tabulated-list-format 0)))
-	(when (equal (car pkg-col) "Package")
-	  (let ((tail (cdr pkg-col)))
-	    (setcar tail >>=|package/column-width)
-	    (setcdr pkg-col tail)))))
+        (when (equal (car pkg-col) "Package")
+          (let ((tail (cdr pkg-col)))
+            (setcar tail >>=|package/column-width)
+            (setcdr pkg-col tail)))))
     ;; super
     ad-do-it))
 

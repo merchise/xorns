@@ -91,12 +91,12 @@ including `powerline'.")
   (progn
     (let ((delta (bound-and-true-p >>=|exwm/systemtray-icons)))
       (if delta
-	(setq mini-modeline-right-padding
-	  (+ mini-modeline-right-padding
-	    (if (eq delta t)
-	      (length (bound-and-true-p >>=|exwm/startup-applications))
-	      ;; else
-	      delta)))))
+        (setq mini-modeline-right-padding
+          (+ mini-modeline-right-padding
+            (if (eq delta t)
+              (length (bound-and-true-p >>=|exwm/startup-applications))
+              ;; else
+              delta)))))
     (mini-modeline-mode +1)))
 
 
@@ -124,7 +124,7 @@ including `powerline'.")
     (doom-modeline-def-modeline 'main
       '(buffer-info remote-host buffer-position)
       '(objed-state misc-info vcs checker input-method buffer-encoding lsp
-	 major-mode process " "))
+         major-mode process " "))
     (setq doom-modeline-buffer-file-name-style 'truncate-upto-root)
     (doom-modeline-mode +1)))
 
@@ -145,33 +145,33 @@ including `powerline'.")
 
     (spaceline-compile 'xorns
       '(    ;; left side (important stuff)
-	 ((buffer-modified buffer-size input-method)
-	  :face highlight-face
-	  :priority 90)
-	 anzu
-	 ((point-position line-column)
-	   :separator " | "
-	   :priority 90)
-	 ((buffer-id remote-host)
-	   :priority 90)
-	 ((buffer-encoding-abbrev buffer-position selection-info)
-	   :separator " | "
-	   :priority 75)
-	 (xorns-modes :when active :priority 15)
-	 process
-	 (flycheck-error flycheck-warning flycheck-info)
-	 (python-pyvenv :fallback python-pyenv)
-	 ;; TODO: `smart-mode-line' put project together `buffer-id'
-	 ;;       ((which-function projectile-root) :separator " @ ")
-	 ;; TODO: `minions' diminished `minor-modes' (`xorns-modes')
-	 ;;        ((minor-modes :separator spaceline-minor-modes-separator)
-	 ;;          :when active)
-	 )
+         ((buffer-modified buffer-size input-method)
+          :face highlight-face
+          :priority 90)
+         anzu
+         ((point-position line-column)
+           :separator " | "
+           :priority 90)
+         ((buffer-id remote-host)
+           :priority 90)
+         ((buffer-encoding-abbrev buffer-position selection-info)
+           :separator " | "
+           :priority 75)
+         (xorns-modes :when active :priority 15)
+         process
+         (flycheck-error flycheck-warning flycheck-info)
+         (python-pyvenv :fallback python-pyenv)
+         ;; TODO: `smart-mode-line' put project together `buffer-id'
+         ;;       ((which-function projectile-root) :separator " @ ")
+         ;; TODO: `minions' diminished `minor-modes' (`xorns-modes')
+         ;;        ((minor-modes :separator spaceline-minor-modes-separator)
+         ;;          :when active)
+         )
       '(    ;; right side
-	 (version-control :priority 50)
-	 (battery :priority 75)
-	 (global :separator " - " :tight nil :priority 90)
-	 )
+         (version-control :priority 50)
+         (battery :priority 75)
+         (global :separator " - " :tight nil :priority 90)
+         )
       )
 
     (if (eq >>=|minibuffer/completing-framework 'helm)
@@ -181,8 +181,8 @@ including `powerline'.")
 
     (when (bound-and-true-p battery-mode-line-format)
       (setq battery-mode-line-format
-	;; Function `powerline-raw' in segment 'global' reformat '%' again
-	(replace-regexp-in-string "%%[]]" "%%%%]" battery-mode-line-format)))
+        ;; Function `powerline-raw' in segment 'global' reformat '%' again
+        (replace-regexp-in-string "%%[]]" "%%%%]" battery-mode-line-format)))
     ))
 
 
@@ -204,8 +204,8 @@ including `powerline'.")
   (interactive)
   (if (not header-line-format)
       (setq header-line-format
-	'(multiple-frames "%b"
-	   (" " (:eval (abbreviate-file-name default-directory)))))
+        '(multiple-frames "%b"
+           (" " (:eval (abbreviate-file-name default-directory)))))
     ; else
     (setq header-line-format nil))
   (force-mode-line-update 'all))
@@ -231,11 +231,10 @@ See `frame-title-format' variable."
   (if (not header-line-format)
     (setq header-line-format
       '(multiple-frames "%b"
-	 (" " (:eval (abbreviate-file-name default-directory)))))
+         (" " (:eval (abbreviate-file-name default-directory)))))
     ;; else
     (setq header-line-format nil))
   (force-mode-line-update 'all))
-
 
 
 (provide 'xorns-mode-line)

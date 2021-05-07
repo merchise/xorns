@@ -8,7 +8,7 @@ TEXIPAGES = $(addsuffix .texi,$(PKG))
 INFOPAGES = $(addsuffix .info,$(PKG))
 
 distfiles = $(strip $(TEXIPAGES) AUTHORS.md makefile \
-	    $(wildcard release-notes/$(VERSION).txt))
+	$(wildcard release-notes/$(VERSION).txt))
 
 ifndef ORG_LOAD_PATH
 ORG_LOAD_PATH  = $(LOAD_PATH)

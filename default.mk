@@ -67,38 +67,7 @@ DATE_VERSION := $(or $(subst T,.,$(subst -,,$(subst :,,$(TAG_DATE)))),20010101)
 CLAST_RELEASE := $(call cversion,$(or $(GIT_TAG),0.1))
 
 DEPENDENCIES = \
-	use-package:2.4:20190405\
-
-	# transient:0.2:20190812\
-	# dash:2.16:20190424\
-	# f:0.20:20190109\
-	# s:1.12:20180406\
-	# use-package-chords:0.2:20181024.2322\
-	# bind-key:2.4:20180513\
-	# grizzl:0.1:20160818\
-	# projectile:2.1:20190509\
-	# fill-column-indicator:1.90:20171209\
-	# flycheck:32:20190503\
-	# lsp-mode:6.0:20190512\
-	# lsp-ui:6.0:20190512\
-	# company:0.9:20190430\
-	# company-lsp:2.1:20190505\
-	# yasnippet:0.13:20190502\
-	# pipenv:0.0.1:20190307\
-	# dash-functional:1.2:20180107\
-	# ht:2.3:20190404\
-	# pyvenv:1.20:20181228\
-	# spinner:1.7.3\
-	# tern:0.0.1:20181108\
-	# tern-auto-complete:0.0.1:20170521\
-	# markdown-mode:2.4:20190305\
-	# auto-complete:1.5:20170125\
-	# popup:0.5:20160709\
-	# string-utils:0.3:20140508\
-	# deft:0.8:20181226\
-	# realgud:1.4:20190504\
-	# load-relative:1.3:20170526\
-	# loc-changes:1.2:20160801
+  use-package:2.4:20190405\
 
 
 pkg_name = $(firstword $(subst :, ,$(1)))
@@ -128,6 +97,6 @@ $(or
 endef
 
 LOAD_PATH = -L $(TOP)/horns $(foreach pkg,$(DEPENDENCIES),\
-	-L $(call dependency_dir,$(call pkg_name,$(pkg))))
+  -L $(call dependency_dir,$(call pkg_name,$(pkg))))
 
 endif # LOAD_PATH

@@ -23,8 +23,8 @@
   (let ((pkg-info (assq 'xorns package-alist)))
     (if pkg-info
       (expand-file-name
-	(package-desc-full-name (cadr pkg-info))
-	package-user-dir)))
+        (package-desc-full-name (cadr pkg-info))
+        package-user-dir)))
   "Non-nil if `xorns' is used as an ELPA installed package.")
 
 
@@ -33,9 +33,9 @@
     (expand-file-name "horns"
       ;; base-dir
       (if load-file-name
-	(file-name-directory load-file-name)
-	;; else
-	default-directory)))
+        (file-name-directory load-file-name)
+        ;; else
+        default-directory)))
   "Non-nil if `xorns' is used in standalone mode.")
 
 

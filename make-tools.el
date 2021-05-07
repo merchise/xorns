@@ -57,7 +57,7 @@
     (condition-case nil
       (package-install pkg)
       (error
-	(progn
+        (progn
           (package-refresh-contents)
           (condition-case nil
             (package-install pkg)
@@ -69,8 +69,8 @@
   (let ((pkg-desc (>>=pkg-desc)))
     (if pkg-desc
       (progn
-	(message ">>= deleting old package: %s." pkg)
-	(package-delete pkg-desc 'force 'nosave))
+        (message ">>= deleting old package: %s." pkg)
+        (package-delete pkg-desc 'force 'nosave))
       ;; else
       (message ">>= old package '%s' not installed." pkg))))
 
@@ -78,8 +78,8 @@
 (defun >>=package-install ()
   "Install new version of ELPA package."
   (let ((pkg-desc (>>=pkg-desc))
-	(src (expand-file-name "horns" pkg-dir))
-	(tmp (expand-file-name (symbol-name pkg) temporary-file-directory)))
+        (src (expand-file-name "horns" pkg-dir))
+        (tmp (expand-file-name (symbol-name pkg) temporary-file-directory)))
     (message ">>= creating symbolic link: %s -> %s" src tmp)
     (make-symbolic-link src tmp 'ok-if-exists)
     (message ">>= installing new version of package.")
@@ -93,12 +93,12 @@
   (let ((pkg-desc (>>=pkg-desc)))
     (if pkg-desc
       (let ((source
-	      (concat pkg-dir (file-name-as-directory "horns") dir))
-	    (dest
-	      (file-name-as-directory
-		(concat elpa-dir (package-desc-full-name pkg-desc)))))
-	(message ">>= rsync '%s' dir to installed package folder." dir)
-	(shell-command (concat "rsync -auv " source " " dest)))
+              (concat pkg-dir (file-name-as-directory "horns") dir))
+            (dest
+              (file-name-as-directory
+                (concat elpa-dir (package-desc-full-name pkg-desc)))))
+        (message ">>= rsync '%s' dir to installed package folder." dir)
+        (shell-command (concat "rsync -auv " source " " dest)))
       ;; else
       (message ">>= '%s' dir not copied, '%s' is not installed." dir pkg))))
 
@@ -108,12 +108,12 @@
   (let ((pkg-desc (>>=pkg-desc)))
     (if pkg-desc
       (let ((source
-	      (concat pkg-dir (file-name-as-directory "horns") "templates"))
-	    (dest
-	      (file-name-as-directory
-		(concat elpa-dir (package-desc-full-name pkg-desc)))))
-	(message ">>= copying templates to installed package folder.")
-	(shell-command (concat "rsync -auv " source " " dest)))
+              (concat pkg-dir (file-name-as-directory "horns") "templates"))
+            (dest
+              (file-name-as-directory
+                (concat elpa-dir (package-desc-full-name pkg-desc)))))
+        (message ">>= copying templates to installed package folder.")
+        (shell-command (concat "rsync -auv " source " " dest)))
       ;; else
       (message ">>= templates not copied, '%s' is not installed." pkg))))
 
@@ -122,14 +122,14 @@
   "Synchronize initialization FILE."
   (if (>>=pkg-desc)
     (let ((src (expand-file-name file pkg-dir))
-	  (dst (locate-user-emacs-file file)))
+          (dst (locate-user-emacs-file file)))
       (when
-	(or
-	  (not (file-exists-p dst))
-	  (and
-	    (/= (shell-command (concat "diff " src " " dst)) 0)
-	    (yes-or-no-p (format ">>= '%s' is outdated, synchronize?" file))))
-	(copy-file src dst 'ok-if-already-exists)))
+        (or
+          (not (file-exists-p dst))
+          (and
+            (/= (shell-command (concat "diff " src " " dst)) 0)
+            (yes-or-no-p (format ">>= '%s' is outdated, synchronize?" file))))
+        (copy-file src dst 'ok-if-already-exists)))
     ;; else
     (message ">>= package not installed, '%s' not synchronized." file)))
 
