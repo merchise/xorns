@@ -48,8 +48,8 @@ command.")
   (dired-listing-switches
     (concat "-alhF"
       (let ((program (file-name-nondirectory insert-directory-program)))
-	(if (or (memq system-type '(gnu gnu/linux)) (string= program "gls"))
-	  " --group-directories-first -v"))))
+        (if (or (memq system-type '(gnu gnu/linux)) (string= program "gls"))
+          " --group-directories-first -v"))))
   (dired-ls-F-marks-symlinks t)
   (dired-recursive-deletes 'always)
   (dired-recursive-copies 'always)
@@ -74,15 +74,15 @@ command.")
   (concat "-B "
     (mapconcat (lambda (arg) (format "--ignore='%s'" arg))
       (append
-	'(".*")
-	>>=|dired-omit-extra-files
-	(mapcar
-	  (lambda (arg)
-	    (let ((wild (if (string-match-p "/$" arg) "" "*")))
-	      (concat wild arg)))
-	  (seq-filter (lambda (arg) (not (string-match-p "^\\." arg)))
-	    dired-omit-extensions))
-	)
+        '(".*")
+        >>=|dired-omit-extra-files
+        (mapcar
+          (lambda (arg)
+            (let ((wild (if (string-match-p "/$" arg) "" "*")))
+              (concat wild arg)))
+          (seq-filter (lambda (arg) (not (string-match-p "^\\." arg)))
+            dired-omit-extensions))
+        )
       " "))
   "Ignore switches when listing directory if omit-mode and recursive.")
 
@@ -101,12 +101,12 @@ command.")
   (let ((_current (current-buffer)))
     (dolist (elt dired-buffers)
       (let ((buf (cdr elt)))
-	(cond
-	  ((null (buffer-name buf))
-	    ;; Buffer is killed - clean up:
-	    (setq dired-buffers (delq elt dired-buffers)))
-	  (t
-	    (>>=dired-omit-mode buf)))))))
+        (cond
+          ((null (buffer-name buf))
+            ;; Buffer is killed - clean up:
+            (setq dired-buffers (delq elt dired-buffers)))
+          (t
+            (>>=dired-omit-mode buf)))))))
 
 
 (use-package dired-x
@@ -114,8 +114,8 @@ command.")
   (dired-omit-files
     (mapconcat 'identity
       (cons
-	"^\\.?#\\|^\\.[^.]\\|^\\.\\..+"
-	>>=|dired-omit-extra-files)
+    "^\\.?#\\|^\\.[^.]\\|^\\.\\..+"
+    >>=|dired-omit-extra-files)
       "\\|^"))
   (dired-omit-verbose nil)
   :hook
@@ -140,7 +140,7 @@ command.")
 (defun >>=dired-search-forward (target)
   "Search forward from point for directory entry TARGET."
   (when (and target
-	  (re-search-forward (format "[[:space:]]%s[/\n]" target) nil t))
+          (re-search-forward (format "[[:space:]]%s[/\n]" target) nil t))
     (left-char (1+ (length target)))
     (point)))
 
@@ -153,7 +153,7 @@ located."
   (unless (eq major-mode 'dired-mode)
     (error ">>= this function can only be called in `dired-mode'"))
   (let ((pos (point))
-	(fname (dired-get-filename 'no-dir 'no-error)))
+        (fname (dired-get-filename 'no-dir 'no-error)))
     (if (null arg)
       (goto-char (point-min)))
     (dired-single-buffer (dired-current-directory))
@@ -180,18 +180,18 @@ are concatenated.  See `dired-maybe-insert-subdir'."
     (list
       (dired-get-filename)
       (if current-prefix-arg
-	(read-string "Switches for listing: "
-	  (or dired-subdir-switches dired-actual-switches)))))
+    (read-string "Switches for listing: "
+      (or dired-subdir-switches dired-actual-switches)))))
   (let ((opoint (point))
-	(dirname (file-name-as-directory dirname)))
+        (dirname (file-name-as-directory dirname)))
     (when (and >>=|dired-omit-mode (dired-switches-recursive-p switches))
       (setq switches (concat switches " " >>=|dired-omit-ignores-switches)))
     (or (and (not switches)
-	     (when (dired-goto-subdir dirname)
-	       (unless (dired-subdir-hidden-p dirname)
-		 (dired-initial-position dirname))
-	       t))
-	(dired-insert-subdir dirname switches))
+          (when (dired-goto-subdir dirname)
+            (unless (dired-subdir-hidden-p dirname)
+              (dired-initial-position dirname))
+            t))
+      (dired-insert-subdir dirname switches))
     (push-mark opoint))
   (>>=dired-omit-mode))
 
@@ -206,11 +206,11 @@ are concatenated.  See `dired-maybe-insert-subdir'."
     (let ((dst (dired-current-directory)))
       (if (string-prefix-p dst org)
         (let* ((targets (split-string (substring org (length dst)) "/"))
-                (aux (car targets))
-                (target (if (string= aux "") (cadr targets) aux)))
-	  (goto-char (point-min))
-	  (if (null (>>=dired-search-forward target))
-	    (dired-next-line 4)))))))
+               (aux (car targets))
+               (target (if (string= aux "") (cadr targets) aux)))
+          (goto-char (point-min))
+          (if (null (>>=dired-search-forward target))
+            (dired-next-line 4)))))))
 
 
 (bind-keys :map dired-mode-map
@@ -249,18 +249,18 @@ Signal an error if invalid (e.g. user typed `i' on `..')."
   (let ((real-switches (or switches dired-subdir-switches)))
     (when real-switches
       (let (case-fold-search)
-	(mapcar
-	  (lambda (x)
-	    (or
-	      (eq
-		;; was: (string-match-p x real-switches)
-		(null (dired-check-switches real-switches x))
-		;; was: (string-match-p x dired-actual-switches)
-		(null (dired-check-switches dired-actual-switches x)))
-	      (error
-		"Can't have dirs with and without -%s switches together" x)))
-	  ;; all switches that make a difference to dired-get-filename:
-	  '("F" "b"))))))
+        (mapcar
+          (lambda (x)
+            (or
+              (eq
+                ;; was: (string-match-p x real-switches)
+                (null (dired-check-switches real-switches x))
+                ;; was: (string-match-p x dired-actual-switches)
+                (null (dired-check-switches dired-actual-switches x)))
+              (error
+                "Can't have dirs with and without -%s switches together" x)))
+          ;; all switches that make a difference to dired-get-filename:
+          '("F" "b"))))))
 
 
 (defadvice dired-replace-in-string
@@ -272,8 +272,8 @@ Signal an error if invalid (e.g. user typed `i' on `..')."
       (setq res ad-do-it))
     (if (string-equal res string)
       (progn
-	(setq regexp org)
-	ad-do-it)
+        (setq regexp org)
+        ad-do-it)
       ;; else
       res)))
 

@@ -42,22 +42,22 @@
     ;; normalize key/command pairs
     (let (key)
       (prog1
-	(delq nil
-	  (mapcar
-	    (lambda (aux)
-	      (if key
-		(prog1
-		  (>>-key-pair key aux)
-		  (setq key nil))
-		;; else
-		(if (consp aux)
-		  (>>-key-pair (car aux) (cdr aux))
-		  ;; else
-		  (setq key aux)    ; use the key in the next iteration
-		  nil)))
-	    (>>=fix-rest-list pairs)))
-	(when key
-	  (error ">>= final key '%s' without command pair" key)))))
+        (delq nil
+          (mapcar
+            (lambda (aux)
+              (if key
+                (prog1
+                  (>>-key-pair key aux)
+                  (setq key nil))
+                ;; else
+                (if (consp aux)
+                  (>>-key-pair (car aux) (cdr aux))
+                  ;; else
+                  (setq key aux)    ; use the key in the next iteration
+                  nil)))
+            (>>=fix-rest-list pairs)))
+        (when key
+          (error ">>= final key '%s' without command pair" key)))))
   (if (and >>=!emacs-as-wm (require 'exwm nil 'noerror))
     (funcall
       (if >>=xorns-initialized 'customize-set-variable 'customize-set-value)
@@ -66,7 +66,7 @@
     ;; else
     (let ((map (current-global-map)))
       (dolist (pair pairs)
-	(define-key map (car pair) (cdr pair)))))
+        (define-key map (car pair) (cdr pair)))))
   pairs)
 
 

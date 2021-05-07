@@ -113,9 +113,9 @@
       "Use `helm-mini' if nil, otherwise call `helm-multi-files'."
       (interactive "P")
       (if (null arg)
-	(helm-mini)
-	;; else
-	(helm-multi-files)))
+    (helm-mini)
+    ;; else
+    (helm-multi-files)))
     )
   :bind    ; TODO: Check this configuration
   (("M-Y" . helm-show-kill-ring)

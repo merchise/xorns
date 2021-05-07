@@ -31,34 +31,34 @@
     (require 'cus-edit)
     (setq custom-file (>>=-config-file-name))
     (let ((exists (file-exists-p custom-file))
-	  save)
+          save)
       (unless exists
-	(setq exists (>>=-copy-from-template))
-	(let ((old (>>=locate-user-emacs-file
-		     "custom-${USER}.el" "custom.el")))
-	  (when (file-exists-p old)
-	    (message ">>= migrating old `custom-file' '%s'." old)
-	    (load old (not init-file-debug))
-	    (setq save t))))
+        (setq exists (>>=-copy-from-template))
+        (let ((old (>>=locate-user-emacs-file
+                     "custom-${USER}.el" "custom.el")))
+          (when (file-exists-p old)
+            (message ">>= migrating old `custom-file' '%s'." old)
+            (load old (not init-file-debug))
+            (setq save t))))
       (when exists
-	(load custom-file (not init-file-debug))
-	(->? >>=settings/init))
+        (load custom-file (not init-file-debug))
+        (->? >>=settings/init))
       (if save
-	(if exists
-	  (let ((make-backup-files nil))
-	    (message ">>= saving migrated variables.")
-	    (custom-save-all))
-	  ;; else
-	  (warn (concat ">>= migrated variables not saved because a template "
-		  "was not found to create the new style `custom-file'; "
-		  "Fix config file manually.")))))))
+        (if exists
+          (let ((make-backup-files nil))
+            (message ">>= saving migrated variables.")
+            (custom-save-all))
+          ;; else
+          (warn (concat ">>= migrated variables not saved because a template "
+                  "was not found to create the new style `custom-file'; "
+                  "Fix config file manually.")))))))
 
 
 (defun >>=-config-file-name ()
   "Return target location for `custom-file'."
   (let ((xdg (>>=find-dir
-	       (getenv "XDG_CONFIG_HOME")
-	       (>>=dir-join "~" ".config"))))
+               (getenv "XDG_CONFIG_HOME")
+               (>>=dir-join "~" ".config"))))
     (expand-file-name
       (if xdg "xorns" ".xorns")
       (or xdg "~"))))
@@ -67,8 +67,8 @@
 (defun >>=-copy-from-template ()
   "Create new `custom-file' from template."
   (let* ((lib-dir (bound-and-true-p >>=!library-directory))
-	 (template
-	  (expand-file-name "user-config" (>>=dir-join lib-dir "templates"))))
+         (template
+           (expand-file-name "user-config" (>>=dir-join lib-dir "templates"))))
     (when (file-exists-p template)
       (copy-file template custom-file t)
       (message ">>= new `custom-file' '%s' has been created." custom-file)

@@ -80,7 +80,7 @@
        (start-process-shell-command rule nil command)))
     ((listp rule)
       (dolist (item rule)
-	(>>-linux-exit item)))
+    (>>-linux-exit item)))
     (t    ; a symbol
       (>>-linux-exit (cdr (assq rule >>=!linux/exit-commands))))))
 
@@ -93,7 +93,7 @@ See `>>=!linux/exit-commands' constant."
   (let ((rule (assoc-string kind >>=!linux/exit-commands)))
     (when rule
       (if (memq (car rule) '(exit hibernate reboot shutdown))
-	 (>>-linux/before-close-session))
+        (>>-linux/before-close-session))
       (>>-linux-exit (cdr rule)))))
 
 
