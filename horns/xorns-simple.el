@@ -167,7 +167,7 @@ value will combine both logics."
 
 ;;; grep facilities
 
-(use-package grep    ;; todo: check `wgrep', `scf-mode'
+(use-package grep    ;; todo: check `wgrep', `scf-mode', `deadgrep'
   :bind
   (("C-c C-g n" . find-name-dired)
    ("C-c C-g f" . find-grep)
