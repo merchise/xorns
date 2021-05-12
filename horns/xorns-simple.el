@@ -16,6 +16,7 @@
 
 (require 'use-package)
 (require 'xorns-tools)
+(require 'xorns-setup)
 
 
 ;; TODO: Check this, maybe convert it to a configurable component.
@@ -167,7 +168,12 @@ value will combine both logics."
 
 ;;; grep facilities
 
+(defconst >>-!ripgrep "rg"
+  "Command name for 'ripgrep'.")
+
+
 (use-package grep    ;; todo: check `wgrep', `scf-mode', `deadgrep'
+  :demand t
   :bind
   (("C-c C-g n" . find-name-dired)
    ("C-c C-g f" . find-grep)
@@ -187,6 +193,14 @@ value will combine both logics."
     (dolist
       (name '(".tox" ".hypothesis" ".idea" ".mypy_cache" ".vscode"))
       (add-to-list 'grep-find-ignored-directories name))))
+
+
+(use-package deadgrep
+  :when (>>=setup/command-check >>-!ripgrep)
+  :ensure t
+  :after grep
+  :bind
+  ([remap rgrep] . deadgrep))
 
 
 
