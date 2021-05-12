@@ -19,16 +19,33 @@
 (require 'xorns-setup)
 
 
-;; TODO: Check this, maybe convert it to a configurable component.
-;; Discover more of Emacs.  See http://t.co/IwZnrqQBRO
-(use-package discover
-  :ensure t
-  :init
-  (global-discover-mode +1))
+
+;;; setup plugins
+
+;; TODO: check these variables to migrate related concepts to use the new
+;; setup methodology
+
+
+
+(defvar >>=|file-search/ext-config t
+  "Whether a `find' and `grep' extension must be configured.
+Emacs basic configuration uses some standard tools to search for files.
+Several new tools have emerged with good extensions that are more efficient in
+flexibility and speed.
+
+If t, `ripgrep' is used, the value `fzf' is also allowed to give priority to
+this tool, and use `ripgrep' in as a secondary option.  A nil value means to
+only use the standard settings.")
 
 
 
 ;;; Basic editing commands
+
+(use-package discover    ; TODO: See http://t.co/IwZnrqQBRO
+  :ensure t
+  :init
+  (global-discover-mode +1))
+
 
 (defun >>=kill-new (string)
   "Make STRING the latest kill in the kill ring unless it is already there."

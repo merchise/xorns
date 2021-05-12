@@ -20,7 +20,8 @@
 
 
 (defvar >>=|minibuffer/completing-framework nil
-  "Kind of mini-buffer input completing framework.")
+  "Kind of mini-buffer input completing framework.
+Possible values are `ido+', `ivy', and `helm'.")
 
 
 (use-package minibuffer
