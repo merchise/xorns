@@ -82,10 +82,10 @@ If t, show line-numbers always, nil never.")
     "Activate line-numbers for buffers smaller than `>>=|linum/max-limit'."
     (let ((size (buffer-size)))
       (if (and >>=|linum/max-limit (< size >>=|linum/max-limit))
-	(linum-mode +1)
-	;; else
-	(message "Disable 'linum-mode' for a big buffer: %sK" size)
-	(linum-mode 0))))
+        (linum-mode +1)
+        ;; else
+        (message "Disable 'linum-mode' for a big buffer: %sK" size)
+        (linum-mode 0))))
   :custom
   (linum-delay t)
   :config

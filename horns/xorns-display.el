@@ -69,13 +69,13 @@ function, or nil if no font was found."
   (if (numberp option)
     `(:name ,>>=!font/default-name :size ,option :weight normal :width normal)
     ;; else
-    (let ((choices (if (listp (car option)) option (list option))) res)
+    (let ((choices (if (listp (car option)) option (list option)))
+          res)
       (while (and (not res) choices)
         (let* ((choice (car choices))
                (name (car choice))
                op)
           (if (stringp name)
-            ;; then
             (setq op 'cons)
             ;; else
             (unless (setq name (plist-get choice :name))
@@ -83,7 +83,6 @@ function, or nil if no font was found."
                 name (or (plist-get choice :family) >>=!font/default-name)
                 op 'nconc)))
           (if (find-font (font-spec :name name))
-            ;; then
             (progn
               (setq res
                 (cond
@@ -112,9 +111,9 @@ function, or nil if no font was found."
   (let ((font-names
           (plist-get
             '(gnu/linux ("NanumGothic" . "NanumGothic")
-               darwin ("Arial Unicode MS" . "Arial Unicode MS")
-               cygwin ("MS Gothic" . "Lucida Sans Unicode")
-               windows-nt ("MS Gothic" . "Lucida Sans Unicode"))
+              darwin ("Arial Unicode MS" . "Arial Unicode MS")
+              cygwin ("MS Gothic" . "Lucida Sans Unicode")
+              windows-nt ("MS Gothic" . "Lucida Sans Unicode"))
             system-type)))
     (when font-names
       (list
@@ -162,13 +161,13 @@ must be a `list' with a font-name as its `car' and a sequence of targets as
 specified for `' `'Modify fontset NAME to use FONT-SPEC for TARGET characters."
   (>>=on-debug-message "setting default font...")
   (let* ((props (>>=select-font option))
-          (fallback (plist-get props :fallback)))
+         (fallback (plist-get props :fallback)))
     (when props
       (setq props
         (>>=plist-remove props :fallback :powerline-scale :powerline-offset))
       (set-frame-font (apply 'font-spec props) nil t)
       (let ((font (frame-parameter nil 'font))
-             (cell (assq 'font default-frame-alist)))
+            (cell (assq 'font default-frame-alist)))
         (if cell
           (setcdr cell font)
           ;; else

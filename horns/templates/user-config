@@ -8,6 +8,7 @@ This function is called at the very beginning of the startup process.  It
 should only modify setting-variables (those prefixed with '>>=|') when their
 default values are not suitable for your configuration."
   (setq-default
+    ;; >>=|setup/level 'medium
     ;; >>=|default-font 'large
     ;; >>=|gc/strategy 'smart
     ;; >>=|minibuffer/completing-framework 'ido+

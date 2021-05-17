@@ -62,11 +62,20 @@
 (use-package counsel
   :when (eq >>=|minibuffer/completing-framework 'ivy)
   :ensure t
+  :preface
+  (defun >>-counsel-yank-pop (&optional arg)
+    "xorns replacement for `counsel-yank-pop' (ARG is used as in original)."
+    (interactive "*p")
+    (if (active-minibuffer-window)
+      (yank-pop arg)
+      ;; else
+      (counsel-yank-pop arg)))
   :custom
   (counsel-find-file-at-point t)
   :bind
   ("C-x d" . counsel-dired)
   ([remap recentf-open-files] . counsel-recentf)
+  ("M-y" . >>-counsel-yank-pop)
   ;; ([remap completion-at-point] . counsel-company)
   :config
   (progn
@@ -113,9 +122,9 @@
       "Use `helm-mini' if nil, otherwise call `helm-multi-files'."
       (interactive "P")
       (if (null arg)
-    (helm-mini)
-    ;; else
-    (helm-multi-files)))
+        (helm-mini)
+        ;; else
+        (helm-multi-files)))
     )
   :bind    ; TODO: Check this configuration
   (("M-Y" . helm-show-kill-ring)

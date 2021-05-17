@@ -77,9 +77,9 @@ to configure for yourself: see `save-buffer' function for more information.")
     ; TODO: Move this to another place
     (when >>=|user-mail-address-template
       (if (eq >>=|user-mail-address-template t)
-    (setq >>=|user-mail-address-template "${USER}@merchise.org"))
+        (setq >>=|user-mail-address-template "${USER}@merchise.org"))
       (setq user-mail-address
-    (substitute-env-vars >>=|user-mail-address-template)))))
+        (substitute-env-vars >>=|user-mail-address-template)))))
 
 
 (use-package frame
@@ -95,9 +95,9 @@ to configure for yourself: see `save-buffer' function for more information.")
       (toggle-frame-maximized))
     (modify-all-frames-parameters
       '((internal-border-width . 0)
-        (fullscreen . maximized)
-        (fullscreen-restore . maximized)
-        (undecorated . t)))
+            (fullscreen . maximized)
+            (fullscreen-restore . maximized)
+            (undecorated . t)))
     ))
 
 
@@ -141,20 +141,20 @@ to configure for yourself: see `save-buffer' function for more information.")
 
     (defvar >>=window-coach-map
       (let ((map (make-keymap))
-        (commands
-          '((shrink-window "<up>" "p")
-        (enlarge-window "<down>" "n")
-        (enlarge-window-horizontally "<right>" "f")
-        (shrink-window-horizontally "<left>" "b")
-        (other-window "o")
-        (>>=window/split-toggle "t")
-        (>>-window-coach/done "C-g" "q"))))
-    (dolist (cmd commands)
-      (let ((fn (car cmd))
-        (keys (cdr cmd)))
-        (dolist (key keys)
-          (define-key map (kbd key) fn))))
-    map))
+            (commands
+              '((shrink-window "<up>" "p")
+                (enlarge-window "<down>" "n")
+                (enlarge-window-horizontally "<right>" "f")
+                (shrink-window-horizontally "<left>" "b")
+                (other-window "o")
+                (>>=window/split-toggle "t")
+                (>>-window-coach/done "C-g" "q"))))
+        (dolist (cmd commands)
+          (let ((fn (car cmd))
+                (keys (cdr cmd)))
+            (dolist (key keys)
+              (define-key map (kbd key) fn))))
+        map))
 
     (define-minor-mode >>=window-coach
       "A simple window-coach minor mode."
@@ -181,7 +181,7 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 (use-package files
   :bind (("C-c f /" . revert-buffer)
-     ("C-c f n" . normal-mode))
+         ("C-c f n" . normal-mode))
   :hook
   (before-save . delete-trailing-whitespace)
   :custom
@@ -192,7 +192,7 @@ to configure for yourself: see `save-buffer' function for more information.")
       make-backup-files t
       backup-by-copying t
       backup-directory-alist
-      `((".*" . ,(expand-file-name ".backups" user-emacs-directory)))
+        `((".*" . ,(expand-file-name ".backups" user-emacs-directory)))
       delete-old-versions t
       kept-new-versions 6
       kept-old-versions 0    ; check this

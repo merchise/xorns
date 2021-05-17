@@ -33,11 +33,11 @@
     (condition-case nil
       (package-install package)
       (error
-	(progn
+        (progn
           (package-refresh-contents)
           (condition-case nil
-	    (package-install package)
-	    (error (message ">>= could not ensure '%s'" package))))))))
+            (package-install package)
+            (error (message ">>= could not ensure '%s'" package))))))))
 
 
 (defmacro >>=package/config (feature &rest body)

@@ -53,7 +53,7 @@
     (->? >>=user-code)
     (setq >>=xorns-initialized
       (format "%.1f seconds"
-    (float-time (time-subtract after-init-time before-init-time))))
+        (float-time (time-subtract after-init-time before-init-time))))
     (require 'xorns-gc)    ; Configure GC strategy
     (message ">>= xorns initialized in %s seconds." >>=xorns-initialized)))
 

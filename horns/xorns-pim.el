@@ -86,6 +86,7 @@ Valid only if `org' is included in `>>=|pim/packages'.")
   (deft-use-filter-string-for-filename t)
   (deft-use-filename-as-title t)
   (deft-auto-save-interval 60.0)
+  ;; TODO: Don't remove the TAB in the next definition
   (deft-strip-summary-regexp "\\([
 	  ]\\|=\\{3,\\}\\|-\\{3,\\}\\|^#\\+[[:upper:]_]+:.*$\\)")
   :preface
@@ -97,9 +98,9 @@ Valid only if `org' is included in `>>=|pim/packages'.")
       "Open file killing deft buffer; SWITCH is used in `deft-open-file'."
       (interactive "P")
       (let ((file (deft-filename-at-point)))
-	(when file
-	  (deft-open-file file nil switch)
-	  (kill-buffer "*Deft*")))))
+        (when file
+          (deft-open-file file nil switch)
+          (kill-buffer "*Deft*")))))
   :bind
   (("<f12>" . deft)
     (:map deft-mode-map ("M-RET" . >>=deft/open-file)))
@@ -128,10 +129,10 @@ Valid only if `org' is included in `>>=|pim/packages'.")
   (progn
     (dolist (lang >>=|pim/ob-featured-languages)
       (let ((pkg (intern (format "ob-%s" lang))))
-	(when (require pkg nil 'noerror)
-	  (unless (assoc lang org-babel-load-languages)
-	    (setq org-babel-load-languages
-	      (cons `(,lang . t) org-babel-load-languages))))))))
+        (when (require pkg nil 'noerror)
+          (unless (assoc lang org-babel-load-languages)
+            (setq org-babel-load-languages
+              (cons `(,lang . t) org-babel-load-languages))))))))
 
 
 (provide 'xorns-pim)

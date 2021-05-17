@@ -114,8 +114,8 @@ command.")
   (dired-omit-files
     (mapconcat 'identity
       (cons
-    "^\\.?#\\|^\\.[^.]\\|^\\.\\..+"
-    >>=|dired-omit-extra-files)
+        "^\\.?#\\|^\\.[^.]\\|^\\.\\..+"
+        >>=|dired-omit-extra-files)
       "\\|^"))
   (dired-omit-verbose nil)
   :hook
@@ -180,18 +180,18 @@ are concatenated.  See `dired-maybe-insert-subdir'."
     (list
       (dired-get-filename)
       (if current-prefix-arg
-    (read-string "Switches for listing: "
-      (or dired-subdir-switches dired-actual-switches)))))
+        (read-string "Switches for listing: "
+          (or dired-subdir-switches dired-actual-switches)))))
   (let ((opoint (point))
         (dirname (file-name-as-directory dirname)))
     (when (and >>=|dired-omit-mode (dired-switches-recursive-p switches))
       (setq switches (concat switches " " >>=|dired-omit-ignores-switches)))
     (or (and (not switches)
-          (when (dired-goto-subdir dirname)
-            (unless (dired-subdir-hidden-p dirname)
-              (dired-initial-position dirname))
-            t))
-      (dired-insert-subdir dirname switches))
+             (when (dired-goto-subdir dirname)
+               (unless (dired-subdir-hidden-p dirname)
+                 (dired-initial-position dirname))
+               t))
+        (dired-insert-subdir dirname switches))
     (push-mark opoint))
   (>>=dired-omit-mode))
 
@@ -206,8 +206,8 @@ are concatenated.  See `dired-maybe-insert-subdir'."
     (let ((dst (dired-current-directory)))
       (if (string-prefix-p dst org)
         (let* ((targets (split-string (substring org (length dst)) "/"))
-               (aux (car targets))
-               (target (if (string= aux "") (cadr targets) aux)))
+                (aux (car targets))
+                (target (if (string= aux "") (cadr targets) aux)))
           (goto-char (point-min))
           (if (null (>>=dired-search-forward target))
             (dired-next-line 4)))))))

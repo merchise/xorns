@@ -66,9 +66,12 @@
 
 (defun >>=-copy-from-template ()
   "Create new `custom-file' from template."
-  (let* ((lib-dir (bound-and-true-p >>=!library-directory))
-         (template
-           (expand-file-name "user-config" (>>=dir-join lib-dir "templates"))))
+  ;; TODO: Just avoid warning for free variable `>>=!library-directory'
+  (let ((template
+          (expand-file-name
+            "user-config"
+            (>>=dir-join
+              (bound-and-true-p >>=!library-directory) "templates"))))
     (when (file-exists-p template)
       (copy-file template custom-file t)
       (message ">>= new `custom-file' '%s' has been created." custom-file)

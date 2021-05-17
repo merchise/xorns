@@ -27,12 +27,12 @@
   `(when (fboundp ',func)
      (if init-file-debug
        (message ">>= calling: %s"
-	 (or (documentation ',func) ,(symbol-name func))))
+         (or (documentation ',func) ,(symbol-name func))))
      (condition-case-unless-debug err
        (,func ,@args)
        (error
-	 (message ">>= error in '%s': %s\n"
-	   ',(symbol-name func) (error-message-string err))))))
+         (message ">>= error in '%s': %s\n"
+           ',(symbol-name func) (error-message-string err))))))
 
 
 (defmacro >>=on-debug-message (format-string &rest args)
@@ -68,8 +68,8 @@ report the identity of the enclosed body."
   `(progn
      (unless
        (or
-	 (get ',symbol 'standard-value)
-	 (memq (get ',symbol 'custom-autoload) '(nil noset)))
+         (get ',symbol 'standard-value)
+         (memq (get ',symbol 'custom-autoload) '(nil noset)))
        (custom-load-symbol ',symbol))
      ;; set the variable.
      (set ',symbol ,value)))
@@ -94,7 +94,7 @@ When STRICT is not nil and VALUE is not a function, an error is issued."
     ;; else
     (when strict
       (error ">>= wrong%s function '%s'"
-	(if (eq strict t) "" (format " %s" strict)) value))))
+        (if (eq strict t) "" (format " %s" strict)) value))))
 
 
 (defun >>=cast-function (value &optional validate)
@@ -103,24 +103,24 @@ If VALIDATE is given and VALUE is not a function, an error is issued."
   (>>=check-function
     (cond
       ((symbolp value)
-	value)
+        value)
       ((and (listp value)
-	 (memq (car value) '(quote function))
-	 (>>=non-nil-symbol (cadr value)))
-	(cadr value))
+         (memq (car value) '(quote function))
+         (>>=non-nil-symbol (cadr value)))
+        (cadr value))
       ((and (consp value) (memq (car value) '(lambda closure)))
-	value)
+        value)
       ((and (listp value)
-	 (memq (car value) '(quote function))
-	 (memq (car (cadr value)) '(lambda closure)))
-	(cadr value))
+         (memq (car value) '(quote function))
+         (memq (car (cadr value)) '(lambda closure)))
+        (cadr value))
       ((and (consp value) (>>=non-nil-symbol (car value)))
-	;; macro building a function?
-	(condition-case nil
-	  (eval value)
-	  (error value)))
+        ;; macro building a function?
+        (condition-case nil
+          (eval value)
+          (error value)))
       (t
-	value))
+        value))
     validate))
 
 
@@ -132,18 +132,18 @@ For a lambda function, its documentation is returned if it exists."
       (symbol-name fun)
       ;; else
       (if (consp fun)
-	(let* ((kind (car fun))
-	       (is-closure (eq kind 'closure))
-	       (doc (nth (if is-closure 3 2) fun)))
-	  (if (stringp doc)
-	    doc
-	    ;; else
-	    (if (symbolp kind)
-	      (format "(%s %s ...)" kind (nth (if is-closure 2 1) fun))
-	      ;; else
-	      (format "%s" fun))))
-	;; else
-	(format "%s:%s" (type-of fun) fun)))))
+        (let* ((kind (car fun))
+               (is-closure (eq kind 'closure))
+               (doc (nth (if is-closure 3 2) fun)))
+          (if (stringp doc)
+            doc
+            ;; else
+            (if (symbolp kind)
+              (format "(%s %s ...)" kind (nth (if is-closure 2 1) fun))
+              ;; else
+              (format "%s" fun))))
+        ;; else
+        (format "%s:%s" (type-of fun) fun)))))
 
 
 ;; TODO: Check `make-obsolete', `define-obsolete-function-alias', ...
@@ -157,11 +157,11 @@ old feature will be not longer available.  All invalid options are ignored."
     (concat
       (format ">>= '%s' is now DEPRECATED" name)
       (apply '>>=mapconcat-alist
-	'((:current . " in '%s' module")
-	  (:new . ", use new '%s' feature instead")
-	  (:new-place . ", it is configured now in '%s' module")
-	  (:release . ", it will not be longer available after '%s' release"))
-	"" options))))
+        '((:current . " in '%s' module")
+          (:new . ", use new '%s' feature instead")
+          (:new-place . ", it is configured now in '%s' module")
+          (:release . ", it will not be longer available after '%s' release"))
+        "" options))))
 
 
 
@@ -197,10 +197,10 @@ nil is returned."
       value
       ;; else
       (when (and (symbolp value) (not (booleanp value)))
-	(symbol-name value)))
+        (symbol-name value)))
     (when strict
       (error ">>= %s'%s' can not be converted to a string"
-	(if (eq strict t) "" (format "%s " strict)) value))))
+        (if (eq strict t) "" (format "%s " strict)) value))))
 
 
 (defun >>=safe-replace (regexp rep source)
@@ -209,8 +209,8 @@ nil is returned."
 SOURCE could be either a string or a symbol, return a new value of the same
 type containing the replacements.  See `replace-regexp-in-string' function."
   (let* ((is-symbol (symbolp source))
-	 (value (if is-symbol (symbol-name source) source))
-	 (res (replace-regexp-in-string regexp rep value)))
+         (value (if is-symbol (symbol-name source) source))
+         (res (replace-regexp-in-string regexp rep value)))
     (if is-symbol (intern res) res)))
 
 
@@ -238,10 +238,10 @@ type containing the replacements.  See `replace-regexp-in-string' function."
   (let ((len (>>=length value)))
     (if len
       (if (eq len 1)
-	(let ((res (car value)))
-	  (if (>>=length res) res value))
-	;; else
-	value)
+        (let ((res (car value)))
+          (if (>>=length res) res value))
+        ;; else
+        value)
       ;; else
       (list value))))
 
@@ -256,10 +256,10 @@ implementation for an example."
   (mapconcat 'identity
     (delq nil
       (mapcar
-	(lambda (pair)
-	  (let ((value (plist-get options (car pair))))
-	    (if value (format (cdr pair) value))))
-	alist))
+        (lambda (pair)
+          (let ((value (plist-get options (car pair))))
+            (if value (format (cdr pair) value))))
+        alist))
     separator))
 
 
@@ -288,25 +288,25 @@ so this macro can be used to iterate over tuples of two values in any list.
       `(let ((,temp ,(nth 2 spec)))
          (while ,temp
            (let ((,(car spec) (car ,temp))
-		 (,(nth 1 spec) (nth 1 ,temp)))
+                 (,(nth 1 spec) (nth 1 ,temp)))
              ,@body
              (setq ,temp (cdr (cdr ,temp)))))
          ,@(cdr (cdr (cdr spec))))
       ;; else
       `(let ((,temp ,(nth 2 spec))
              ,(car spec)
-	     ,(nth 1 spec))
+             ,(nth 1 spec))
          (while ,temp
            (setq
-	     ,(car spec) (car ,temp)
-	     ,(nth 1 spec) (nth 1 ,temp))
+             ,(car spec) (car ,temp)
+             ,(nth 1 spec) (nth 1 ,temp))
            ,@body
            (setq ,temp (cdr (cdr ,temp))))
          ,@(if (cdr (cdr (cdr spec)))
              `((setq
-		 ,(car spec) nil
-		 ,(nth 1 spec) nil)
-		,@(cdr (cdr (cdr spec)))))))))
+                 ,(car spec) nil
+                 ,(nth 1 spec) nil)
+                ,@(cdr (cdr (cdr spec)))))))))
 
 
 (defun >>=plist-find-any (target &rest keys)
@@ -314,10 +314,10 @@ so this macro can be used to iterate over tuples of two values in any list.
   (let (res)
     (while (and keys (not res))
       (let ((aux (plist-member target (car keys))))
-	(if aux
-	  (setq res aux)
-	  ;; else
-	  (setq keys (cdr keys)))))
+        (if aux
+          (setq res aux)
+          ;; else
+          (setq keys (cdr keys)))))
     res))
 
 
@@ -326,10 +326,10 @@ so this macro can be used to iterate over tuples of two values in any list.
   (let (res)
     (while (and keys (not res))
       (let ((aux (plist-get target (car keys))))
-	(if aux
-	  (setq res aux)
-	  ;; else
-	  (setq keys (cdr keys)))))
+        (if aux
+          (setq res aux)
+          ;; else
+          (setq keys (cdr keys)))))
     res))
 
 
@@ -339,19 +339,19 @@ so this macro can be used to iterate over tuples of two values in any list.
   (let ((tail target) last)
     (when keys
       (while (consp tail)
-	(cond
-	  ((not (memq (car tail) keys))
+        (cond
+          ((not (memq (car tail) keys))
             (setq
-	      last tail
-	      tail (cddr last)))
-	  (last
+              last tail
+              tail (cddr last)))
+          (last
             (setq tail (cddr tail))
             (setf (cddr last) tail))
-	  (t
+          (t
             (cl-assert (eq tail target))
             (setq
-	      target (cddr target)
-	      tail target)))))
+              target (cddr target)
+              tail target)))))
     target))
 
 
@@ -380,13 +380,13 @@ Function FN must take two arguments but return a single value, not a pair."
   (let (key)
     (mapcan
       (lambda (item)
-	(if key
-	  (prog1
-	    (list key (funcall fn key item))
-	    (setq key nil))
-	  ;; else
-	  (setq key item)
-	  nil))
+        (if key
+          (prog1
+            (list key (funcall fn key item))
+            (setq key nil))
+          ;; else
+          (setq key item)
+          nil))
       sequence)))
 
 
@@ -423,12 +423,12 @@ returns a non-nil value."
   (let (key res)
     (while pairs
       (let ((value (car pairs)))
-	(if key
-	  (setq
-	    res (nconc res `((,key . ,value)))
-	    key nil)
-	  ;; else
-	  (setq key value)))
+        (if key
+          (setq
+            res (nconc res `((,key . ,value)))
+            key nil)
+          ;; else
+          (setq key value)))
       (setq pairs (cdr pairs)))
     (when key
       (setq res (nconc res `((,key)))))
@@ -452,27 +452,27 @@ Return the value for KEY if it is in TARGET, else DEFAULT."
   (let (target multi)
     (while source
       (let* ((xs (>>=split-list #'keywordp (cdr source)))
-	     (key (car source))
-	     (value (car xs)))
-	;; value
-	(setq target
-	  (plist-put target key
-	    (if (plist-member target key)
-	      (let ((current (plist-get target key)))
-		(append
-		  (if (memq key multi)
-		    current
-		    ;; else
-		    (setq multi (cons key multi))
-		    (list current))
-		  value))
-	      ;; else
-	      (if (eq (>>=length value) 1)
-		(car value)
-		;; else
-		(setq multi (cons key multi))
-		value)))
-	  source (cdr xs))))
+             (key (car source))
+             (value (car xs)))
+        ;; value
+        (setq target
+          (plist-put target key
+            (if (plist-member target key)
+              (let ((current (plist-get target key)))
+                (append
+                  (if (memq key multi)
+                    current
+                    ;; else
+                    (setq multi (cons key multi))
+                    (list current))
+                  value))
+              ;; else
+              (if (eq (>>=length value) 1)
+                (car value)
+                ;; else
+                (setq multi (cons key multi))
+                value)))
+          source (cdr xs))))
     target))
 
 
@@ -500,28 +500,28 @@ KEYWORDS).  KEYWORDS will be passed as the lexical environment argument."
     (setq keywords (>>=plist-fix keywords))
     (>>=plist-do (key value defaults)
       (if (keywordp key)
-	(when (not (plist-member keywords key))
-	  (plist-put keywords key value))
-	;; else
-	(error ">>= '%s' must be a keyword, not %s" key (type-of key)))))
+        (when (not (plist-member keywords key))
+          (plist-put keywords key value))
+        ;; else
+        (error ">>= '%s' must be a keyword, not %s" key (type-of key)))))
   (>>=plist-do (key value keywords)
     (let (changed)
       (when (and (listp value) (eq :eval (car value)))
-	(if (eq (length value) 2)
-	  (setq
-	    value (eval (cadr value) `((keywords . ,keywords)))
-	    changed t)
-	  ;; else
-	  (error ">>= eval form '%s' must have two elements, not %s"
-	    value (length value))))
+        (if (eq (length value) 2)
+          (setq
+            value (eval (cadr value) `((keywords . ,keywords)))
+            changed t)
+          ;; else
+          (error ">>= eval form '%s' must have two elements, not %s"
+            value (length value))))
       (dolist (prefix `(,class ,name))
-	(let ((check (intern-soft (format "%s-normalize/%s" prefix key))))
-	  (when (functionp check)
-	    (setq
-	      value (funcall check value keywords)
-	      changed t))))
+        (let ((check (intern-soft (format "%s-normalize/%s" prefix key))))
+          (when (functionp check)
+            (setq
+              value (funcall check value keywords)
+              changed t))))
       (if changed
-	(plist-put keywords key value))))
+        (plist-put keywords key value))))
   keywords)
 
 
@@ -534,13 +534,13 @@ result in a pseudo property-list that needs additional normalization with
   (mapc
     (lambda (pair)
       (let ((cur (car pair))
-	    (new (cdr pair))
-	    aux)
-	(if (and (keywordp cur) (keywordp new) (not (eq cur new)))
-	  (while (setq aux (memq cur target))
-	    (setcar aux new))
-	  ;; else
-	  (error ">>= must be keywords, not '%s'" pair))))
+            (new (cdr pair))
+            aux)
+        (if (and (keywordp cur) (keywordp new) (not (eq cur new)))
+          (while (setq aux (memq cur target))
+            (setcar aux new))
+          ;; else
+          (error ">>= must be keywords, not '%s'" pair))))
     (>>=fix-rest-list aliases))
   target)
 
@@ -557,10 +557,10 @@ by adding the suffix '-mode' and then using using `intern'."
   (if (stringp mode)
     (intern
       (let ((suffix "-mode"))
-	(if (string= (>>=suffix mode (length suffix)) suffix)
-	  mode
-	  ;; else
-	  (concat mode suffix))))
+        (if (string= (>>=suffix mode (length suffix)) suffix)
+          mode
+          ;; else
+          (concat mode suffix))))
     ;; else
     (error ">>= invalid value '%s' for major-mode" mode)))
 
@@ -583,8 +583,8 @@ by adding the suffix '-mode' and then using using `intern'."
   (let (res)
     (while (and (not res) (consp dirs))
       (let ((dir (pop dirs)))
-	(if (and (stringp dir) (file-directory-p dir))
-	  (setq res dir))))
+        (if (and (stringp dir) (file-directory-p dir))
+          (setq res dir))))
     res))
 
 
@@ -593,11 +593,11 @@ by adding the suffix '-mode' and then using using `intern'."
   (let ((res (apply '>>=find-dir options)))
     (unless res
       (while (and options (null (car options)))
-	(setq options (cdr options)))
+        (setq options (cdr options)))
       (setq res (car options))
       (when res
-	(message ">>= creating directory '%s'." res)
-	(make-directory res 'parents)))
+        (message ">>= creating directory '%s'." res)
+        (make-directory res 'parents)))
     res))
 
 
@@ -624,11 +624,11 @@ standard Emacs initialization file is returned."
   (let (res)
     (while (and (null res) names)
       (let ((item (locate-user-emacs-file
-		    (substitute-in-file-name (car names)))))
-	(if (file-exists-p item)
-	  (setq res item)
-	  ;; else
-	  (setq names (cdr names)))))
+                    (substitute-in-file-name (car names)))))
+        (if (file-exists-p item)
+          (setq res item)
+          ;; else
+          (setq names (cdr names)))))
     (or res (locate-user-emacs-file "init.el" ".emacs"))))
 
 
@@ -636,8 +636,8 @@ standard Emacs initialization file is returned."
   "Return the first item in FILES that is part of the BASE directory tree."
   ;; Based on `dired-in-this-tree'
   (let ((base (concat "^" (regexp-quote (expand-file-name base))))
-	(files (if (stringp files) (list files) files))
-	case-fold-search)
+        (files (if (stringp files) (list files) files))
+        case-fold-search)
     (seq-find
       (lambda (item) (string-match-p base (expand-file-name item)))
       files)))
@@ -651,14 +651,14 @@ formatted with the FORMAT string, upcased, and looked up in the environment
 using `getenv'.  Another difference is that the result is a `cons' with the
 form '(OPTION . COMMAND)'."
   (let ((aux (delq nil (>>=fix-rest-list options)))
-	(fmt (or format "%s"))
-	res)
+        (fmt (or format "%s"))
+        res)
     (while (and aux (not res))
       (let* ((var (>>=str (car aux)))
-	     (env-var (getenv (upcase (format fmt var))))
-	     (tmp (executable-find (or env-var var))))
-	(if tmp
-	  (setq res (cons var tmp))))
+             (env-var (getenv (upcase (format fmt var))))
+             (tmp (executable-find (or env-var var))))
+        (if tmp
+          (setq res (cons var tmp))))
       (setq aux (cdr aux)))
     res))
 
@@ -672,12 +672,12 @@ discarded."
   (let (res)
     (while (and options (null res))
       (when-let ((item (car options)))
-	(if (consp item)
-	  (when-let (aux (executable-find (>>=str (car item))))
-	    (setq res (cons aux (cdr item))))
-	  ;; else
-	  (when-let (aux (executable-find (>>=str item)))
-	    (setq res aux))))
+        (if (consp item)
+          (when-let (aux (executable-find (>>=str (car item))))
+            (setq res (cons aux (cdr item))))
+          ;; else
+          (when-let (aux (executable-find (>>=str item)))
+            (setq res aux))))
       (setq options (cdr options)))
     res))
 
@@ -726,17 +726,17 @@ discarded."
   "Return non-nil if current buffer is remote."
   (require 'files)
   (let ((tests
-	  (list
-	    (buffer-file-name)
-	    list-buffers-directory
-	    default-directory))
-	res)
+          (list
+            (buffer-file-name)
+            list-buffers-directory
+            default-directory))
+        res)
     (while (and tests (not res))
       (let ((aux (car tests)))
-	(if (and (stringp aux) (file-remote-p aux))
-	  (setq res aux)
-	  ; else: next item
-	  (setq tests (cdr tests)))))
+        (if (and (stringp aux) (file-remote-p aux))
+          (setq res aux)
+          ; else: next item
+          (setq tests (cdr tests)))))
     res))
 
 
@@ -754,10 +754,10 @@ Used for `>>=check-major-mode' when CRITERIA is a semantic identity."
   (when (bound-and-true-p >>=xorns-initialized)
     ;; always nil if Emacs is not yet initialized
     (let* ((pair (format "%s/%s" mode criteria))
-	   (cached (assoc-string pair >>-criteria-mode-cache)))
+           (cached (assoc-string pair >>-criteria-mode-cache)))
       (when (null cached)
-	(setq cached (cons pair (y-or-n-p (format ">>= enable '%s'? " pair))))
-	(push cached >>-criteria-mode-cache))
+        (setq cached (cons pair (y-or-n-p (format ">>= enable '%s'? " pair))))
+        (push cached >>-criteria-mode-cache))
       (cdr cached))))
 
 
@@ -785,15 +785,15 @@ default."
   (let ((mode (>>=safe-replace "-mode$" "" (or mode major-mode))))
     (cond
       ((listp criteria)
-	(member mode criteria))
+        (member mode criteria))
       ((booleanp criteria)
-	criteria)
+        criteria)
       ((functionp criteria)
-	(funcall criteria))
+        (funcall criteria))
       ((symbolp criteria)
-	(>>-criteria-mode-y-or-n-p criteria mode))
+        (>>-criteria-mode-y-or-n-p criteria mode))
       (t
-	(error ">>= invalid criteria: %s" criteria)))))
+        (error ">>= invalid criteria: %s" criteria)))))
 
 
 (defmacro >>=major-mode-trigger (id criteria function &rest args)
@@ -811,15 +811,15 @@ Each item in MODES is validated and associated with the given COMMAND."
   (if modes
     (let
       ((new
-	 (mapcar
-	   (lambda (mode) (cons (>>=validate-major-mode mode) command))
-	   (>>=fix-rest-list modes))))
+         (mapcar
+           (lambda (mode) (cons (>>=validate-major-mode mode) command))
+           (>>=fix-rest-list modes))))
       (append
-	new
-	(delq nil
-	  (mapcar
-	    (lambda (tuple) (if (not (assq (car tuple) new)) tuple))
-	    source))))
+        new
+        (delq nil
+          (mapcar
+            (lambda (tuple) (if (not (assq (car tuple) new)) tuple))
+            source))))
     ;; else
     source))
 

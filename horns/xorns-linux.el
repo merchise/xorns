@@ -80,7 +80,7 @@
        (start-process-shell-command rule nil command)))
     ((listp rule)
       (dolist (item rule)
-    (>>-linux-exit item)))
+        (>>-linux-exit item)))
     (t    ; a symbol
       (>>-linux-exit (cdr (assq rule >>=!linux/exit-commands))))))
 
