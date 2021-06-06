@@ -92,14 +92,14 @@ Once you have added your preferred archive, you need to update the
 local package list using:
 
 #+BEGIN_EXAMPLE
-  M-x package-refresh-contents RET
+M-x package-refresh-contents RET
 #+END_EXAMPLE
 
 Once "xorns" has been deployed in any ELPA repository, and you have
 done that above, you can install it using:
 
 #+BEGIN_EXAMPLE
-  M-x package-install RET xorns RET
+M-x package-install RET xorns RET
 #+END_EXAMPLE
 
 Now see [[*Post-Installation Tasks][*Post-Installation Tasks]].
@@ -111,9 +111,9 @@ There are two ways:
 *** Using Xorns as an autonomous repository
 
 #+BEGIN_SRC shell-script
-  $ cd
-  $ mv .emacs.d .emacs.d.bak
-  $ git clone --depth 1 https://github.com/merchise/xorns.git .emacs.d
+  cd
+  mv .emacs.d .emacs.d.bak
+  git clone --depth 1 https://github.com/merchise/xorns.git .emacs.d
 #+END_SRC
 
 Then start Emacs.  Wait for a while at the first startup to install all
@@ -129,10 +129,10 @@ manually from their repository.
 Then clone the Xorns repository to your softlib dir:
 
 #+BEGIN_SRC shell-script
-  $ cd <your/softlib/dir>
-  $ git clone https://github.com/merchise/xorns.git
-  $ cd xorns
-  $ make local-install
+  cd <your/softlib/dir>
+  git clone https://github.com/merchise/xorns.git
+  cd xorns
+  make local-install
 #+END_SRC
 
 Any dependency you haven't installed from ELPA or at
@@ -169,6 +169,43 @@ To be continued ...
 If Emacs is executed with the option ~--debug-init~ (see ~init-file-debug~
 variable) ~custom-file~ it is loaded activating the errors.  In addition,
 some debug messages are printed during the initialization process.
+
+* Integration with GPG + pinentry.el for authentication
+
+Check: https://stackoverflow.com/questions/60812866/emacs-gpg-pinentry-el-for-authentication
+
+** Some examples to configure GnuPG files
+
+- =~/.gnupg/gpg-agent.conf=:
+
+#+BEGIN_SRC shell-script
+  allow-emacs-pinentry
+  allow-loopback-pinentry
+  default-cache-ttl 600
+  max-cache-ttl 7200
+  enable-ssh-support
+#+END_SRC
+
+- `~/.gnupg/gpg.conf`:
+
+#+BEGIN_SRC shell-script
+  use-agent
+#+END_SRC
+
+- Add to `~/.bash_profile`:
+
+#+BEGIN_SRC shell-script
+  # GPG related
+  export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+  export GPG_TTY=$(tty)
+  # gpgconf --launch gpg-agent
+#+END_SRC
+
+** Emacs configuration
+
+See =xorns-crypt= module for =pinentry= config in Emacs.  For us was enough to
+set variable =epg-pinentry-mode=  to ='loopback=.
+
 
 * Local User Configuration
 
