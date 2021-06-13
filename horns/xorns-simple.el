@@ -20,22 +20,20 @@
 
 
 
-;;; setup plugins
+;;; configuration
 
-;; TODO: check these variables to migrate related concepts to use the new
-;; setup methodology
+(defvar >>=|ext/ripgrep "rg"
+  "Whether `ripgrep' extensions must be configured.
+Could be a boolean, or a string specifying the `ripgrep' command name, the
+default value is \"rg\".  Usually this variable is used with the function
+`>>=setup/command-check'.")
 
 
-
-(defvar >>=|file-search/ext-config t
-  "Whether a `find' and `grep' extension must be configured.
-Emacs basic configuration uses some standard tools to search for files.
-Several new tools have emerged with good extensions that are more efficient in
-flexibility and speed.
-
-If t, `ripgrep' is used, the value `fzf' is also allowed to give priority to
-this tool, and use `ripgrep' in as a secondary option.  A nil value means to
-only use the standard settings.")
+(defvar >>=|ext/fzf nil
+  "Whether `fzf' extensions must be configured.
+Could be a boolean, or a string specifying the `fzf' command name, the default
+value is nil, but use \"fzf\" if you want to activate it.  Usually this
+variable is used with the function `>>=setup/command-check'.")
 
 
 
@@ -185,10 +183,6 @@ value will combine both logics."
 
 ;;; grep facilities
 
-(defconst >>-!ripgrep "rg"
-  "Command name for 'ripgrep'.")
-
-
 (use-package grep    ;; todo: check `wgrep', `scf-mode', `deadgrep'
   :demand t
   :bind
@@ -213,11 +207,12 @@ value will combine both logics."
 
 
 (use-package deadgrep
-  :when (>>=setup/command-check >>-!ripgrep)
+  :when (>>=setup/command-check >>=|ext/ripgrep)
   :ensure t
   :after grep
   :bind
-  ([remap rgrep] . deadgrep))
+  ([remap rgrep] . deadgrep)
+  )
 
 
 
