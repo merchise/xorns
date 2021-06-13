@@ -63,6 +63,7 @@ Possible values are `ido+', `ivy', and `helm'.")
 (use-package counsel
   :when (eq >>=|minibuffer/completing-framework 'ivy)
   :ensure t
+  :demand t
   :preface
   (defun >>-counsel-yank-pop (&optional arg)
     "xorns replacement for `counsel-yank-pop' (ARG is used as in original)."
@@ -77,7 +78,6 @@ Possible values are `ido+', `ivy', and `helm'.")
   ("C-x d" . counsel-dired)
   ([remap recentf-open-files] . counsel-recentf)
   ("M-y" . >>-counsel-yank-pop)
-  ;; ([remap completion-at-point] . counsel-company)
   :config
   (progn
     (counsel-mode +1)))
