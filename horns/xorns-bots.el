@@ -108,7 +108,7 @@ has an ‘.elc’ file; otherwise only those that needs recompilation."
     (warn ">>= only allowed in standalone-mode.")))
 
 
-(define-transient-command >>=bots/menu ()
+(transient-define-prefix >>=bots/menu ()
   "Local menu standalone mode developer tools."
   ["Arguments"
     ("-f" "Force byte recompile all `.el' files"      ("-f" "force"))
