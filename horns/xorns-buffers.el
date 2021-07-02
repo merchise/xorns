@@ -34,14 +34,6 @@
 (require 'xorns-core)
 
 
-;; TODO: To use grizzl instead of ido for completion
-;;       (setq flycheck-completion-system 'grizzl)
-;; This must be moved from here, see `akheron/emacs-config'
-(use-package grizzl
-  :ensure t
-  :defer t)
-
-
 (use-package ibuffer-vc
   :ensure t)
 
