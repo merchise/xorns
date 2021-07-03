@@ -24,9 +24,26 @@
 Possible values are `ido+', `ivy', and `helm'.")
 
 
+(defvar >>=|minibuffer/configure-savehist t
+  "If the mini-buffer history should be saved between Emacs sessions.
+Always considered true when `>>=|minibuffer/completing-framework' is
+`vertico'.")
+
+
 (use-package minibuffer
   :bind
   ("C-M-," . completion-at-point))
+
+
+(use-package savehist
+  :preface
+  (defsubst >>-configure-savehist? ()
+    (or
+      >>=|minibuffer/configure-savehist
+      (eq >>=|minibuffer/completing-framework 'vertico)))
+  :when (>>-configure-savehist?)
+  :init
+  (savehist-mode +1))
 
 
 

@@ -12,6 +12,7 @@ default values are not suitable for your configuration."
     ;; >>=|default-font 'large
     ;; >>=|gc/strategy 'smart
     ;; >>=|minibuffer/completing-framework 'ido+
+    ;; >>=|minibuffer/configure-savehist nil
     ;; >>=|make-backup-files t
     ;; >>=|user-mail-address-template "${USER}@gmail.com"
     ;; >>=|show-title-in-header-line t
