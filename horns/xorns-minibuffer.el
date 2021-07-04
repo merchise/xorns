@@ -21,7 +21,7 @@
 
 (defvar >>=|minibuffer/completing-framework nil
   "Kind of mini-buffer input completing framework.
-Possible values are `ido+', `ivy', and `helm'.")
+Possible values are `ido+', `ivy', `vertico', and `helm'.")
 
 
 (defvar >>=|minibuffer/configure-savehist t
@@ -113,6 +113,18 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   :config
   (progn
     (ivy-mode +1)))
+
+
+
+
+(use-package vertico
+  :when (eq >>=|minibuffer/completing-framework 'vertico)
+  :ensure t
+  :custom
+  (vertico-cycle t)
+  :init
+  (vertico-mode +1)
+  )
 
 
 
