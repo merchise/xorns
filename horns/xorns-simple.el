@@ -39,12 +39,6 @@ variable is used with the function `>>=setup/command-check'.")
 
 ;;; Basic editing commands
 
-(use-package discover    ; TODO: See http://t.co/IwZnrqQBRO
-  :ensure t
-  :init
-  (global-discover-mode +1))
-
-
 (defun >>=kill-new (string)
   "Make STRING the latest kill in the kill ring unless it is already there."
   (unless (equal string (car kill-ring))
