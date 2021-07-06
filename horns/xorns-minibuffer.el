@@ -117,6 +117,57 @@ Always considered true when `>>=|minibuffer/completing-framework' is
 
 
 
+(use-package consult
+  :ensure t
+  :when (eq >>=|minibuffer/completing-framework 'vertico)
+  :preface
+  (defun >>-project-root (&optional dir)
+    "Return the project instance in DIR or `default-directory'."
+    (if (functionp 'projectile-project-root)
+      (funcall 'projectile-project-root dir)
+      ;; else
+      (when-let (project (project-current nil dir))
+        (car (project-roots project)))))
+  :bind
+  ;; C-c bindings (mode-specific-map)
+  ("C-c h" . consult-history)
+  ("C-c m" . consult-mode-command)
+  ("C-c b" . consult-bookmark)
+  ;; C-x bindings (ctl-x-map)
+  ([remap repeat-complex-command] . consult-complex-command)
+  ("C-x b" . consult-buffer)
+  ("C-x 4 b" . consult-buffer-other-window)
+  ("C-x 5 b" . consult-buffer-other-frame)
+  ;; Other custom bindings
+  ([remap yank-pop] . consult-yank-pop)
+  ([remap apropos-command] . consult-apropos)
+  ;; M-g bindings (goto-map)
+  ([remap goto-line] . consult-goto-line)
+  ("M-g i" . consult-imenu)
+  ("M-g I" . consult-project-imenu)
+  :hook
+  (completion-list-mode . consult-preview-at-point-mode)
+  :init
+  (setq
+    register-preview-delay 0
+    register-preview-function #'consult-register-format)
+  (advice-add #'register-preview :override #'consult-register-window)
+  (setq
+    xref-show-xrefs-function #'consult-xref
+    xref-show-definitions-function #'consult-xref)
+  :config
+  (consult-customize
+    consult-theme
+    :preview-key '(:debounce 0.2 any)
+    consult-ripgrep consult-git-grep consult-grep
+    consult-bookmark consult-recent-file consult-xref
+    consult--source-file consult--source-project-file consult--source-bookmark
+    :preview-key (kbd "M-."))
+  (setq consult-narrow-key "<")    ; (kbd "C-+")
+  (setq consult-project-root-function #'>>-project-root)
+  )
+
+
 (use-package vertico
   :when (eq >>=|minibuffer/completing-framework 'vertico)
   :ensure t
