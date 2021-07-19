@@ -22,6 +22,10 @@
 
 ;;; configuration
 
+(defvar >>=|ext/multiple-cursors nil
+  "Define whether to configure the `multiple-cursors' extension.")
+
+
 (defvar >>=|ext/ripgrep "rg"
   "Whether `ripgrep' extensions must be configured.
 Could be a boolean, or a string specifying the `ripgrep' command name, the
@@ -172,6 +176,20 @@ value will combine both logics."
   (ispell-highlight-p t)
   (ispell-silently-savep t)
   (ispell-dictionary "english"))
+
+
+
+;;; multiple-cursors
+
+(use-package multiple-cursors
+  :when >>=|ext/multiple-cursors
+  :ensure t
+  :demand t
+  :bind
+  ("C-S-c C-S-c" . mc/mark-all-dwim)
+  ("C->" . mc/mark-next-like-this)
+  ("C-<" . mc/mark-previous-like-this)
+  )
 
 
 
