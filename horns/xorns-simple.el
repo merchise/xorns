@@ -23,7 +23,9 @@
 ;;; configuration
 
 (defvar >>=|ext/multiple-cursors nil
-  "Define whether to configure the `multiple-cursors' extension.")
+  "Define whether to configure the `multiple-cursors' extension.
+Could be a boolean, or the symbol 'extra' to also install the `mc-extras'
+package.")
 
 
 (defvar >>=|ext/ripgrep "rg"
@@ -189,6 +191,30 @@ value will combine both logics."
   ("C-S-c C-S-c" . mc/mark-all-dwim)
   ("C->" . mc/mark-next-like-this)
   ("C-<" . mc/mark-previous-like-this)
+  )
+
+
+(use-package mc-extras
+  :when (eq >>=|ext/multiple-cursors 'extra)
+  :ensure t
+  :demand t
+  :after multiple-cursors
+  :bind
+  (:map mc/keymap
+    ("C-. M-C-f" . mc/mark-next-sexps)
+    ("C-. M-C-b" . mc/mark-previous-sexps)
+    ("C-. <" . mc/mark-all-above)
+    ("C-. >" . mc/mark-all-below)
+    ("C-. C-d" . mc/remove-current-cursor)
+    ("C-. C-k" . mc/remove-cursors-at-eol)
+    ("C-. d" . mc/remove-duplicated-cursors)
+    ("C-. C-o" . mc/remove-cursors-on-blank-lines)
+    ("C-. ." . mc/move-to-column)
+    ("C-. =" . mc/compare-chars))
+  (:map rectangle-mark-mode-map
+    ("C-. C-," . mc/rect-rectangle-to-multiple-cursors))
+  (:map cua--rectangle-keymap
+    ("C-. C-," . mc/cua-rectangle-to-multiple-cursors))
   )
 
 
