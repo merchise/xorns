@@ -56,7 +56,10 @@ tramp
 places
 .emacs-places
 /bookmarks
+/history
+/request/
 .lsp-session-v1
+.mc-lists.el
 ac-comphist.dat
 projectile.cache
 projectile-bookmarks.eld

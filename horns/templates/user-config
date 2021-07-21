@@ -12,10 +12,12 @@ default values are not suitable for your configuration."
     ;; >>=|default-font 'large
     ;; >>=|gc/strategy 'smart
     ;; >>=|minibuffer/completing-framework 'ido+
+    ;; >>=|minibuffer/configure-savehist nil
     ;; >>=|make-backup-files t
     ;; >>=|user-mail-address-template "${USER}@gmail.com"
     ;; >>=|show-title-in-header-line t
     ;; >>=|enable-server t
+    ;; >>=|ext/multiple-cursors 'extra
     ;; >>=|projectile/extra-ignored-directories '()
     ;; >>=|projectile/project-root-files '()
     ;; >>=|dired-omit-mode t
@@ -33,6 +35,7 @@ default values are not suitable for your configuration."
     ;; >>=|exwm/start-process-model t         ; use sub-processes
     ;; >>=|lsp/enable-mode 'ask
     ;; >>=|blacken/enable 'ask
+    ;; >>=|crypt/gpg-integration nil
     ))
 
 

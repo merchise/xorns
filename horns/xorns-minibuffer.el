@@ -20,12 +20,30 @@
 
 
 (defvar >>=|minibuffer/completing-framework nil
-  "Kind of mini-buffer input completing framework.")
+  "Kind of mini-buffer input completing framework.
+Possible values are `ido+', `ivy', `vertico', and `helm'.")
+
+
+(defvar >>=|minibuffer/configure-savehist t
+  "If the mini-buffer history should be saved between Emacs sessions.
+Always considered true when `>>=|minibuffer/completing-framework' is
+`vertico'.")
 
 
 (use-package minibuffer
   :bind
   ("C-M-," . completion-at-point))
+
+
+(use-package savehist
+  :preface
+  (defsubst >>-configure-savehist? ()
+    (or
+      >>=|minibuffer/configure-savehist
+      (eq >>=|minibuffer/completing-framework 'vertico)))
+  :when (>>-configure-savehist?)
+  :init
+  (savehist-mode +1))
 
 
 
@@ -62,6 +80,7 @@
 (use-package counsel
   :when (eq >>=|minibuffer/completing-framework 'ivy)
   :ensure t
+  :demand t
   :preface
   (defun >>-counsel-yank-pop (&optional arg)
     "xorns replacement for `counsel-yank-pop' (ARG is used as in original)."
@@ -76,7 +95,6 @@
   ("C-x d" . counsel-dired)
   ([remap recentf-open-files] . counsel-recentf)
   ("M-y" . >>-counsel-yank-pop)
-  ;; ([remap completion-at-point] . counsel-company)
   :config
   (progn
     (counsel-mode +1)))
@@ -95,6 +113,69 @@
   :config
   (progn
     (ivy-mode +1)))
+
+
+
+
+(use-package consult
+  :ensure t
+  :when (eq >>=|minibuffer/completing-framework 'vertico)
+  :preface
+  (defun >>-project-root (&optional dir)
+    "Return the project instance in DIR or `default-directory'."
+    (if (functionp 'projectile-project-root)
+      (funcall 'projectile-project-root dir)
+      ;; else
+      (when-let (project (project-current nil dir))
+        (car (project-roots project)))))
+  :bind
+  ;; C-c bindings (mode-specific-map)
+  ("C-c h" . consult-history)
+  ("C-c m" . consult-mode-command)
+  ("C-c b" . consult-bookmark)
+  ;; C-x bindings (ctl-x-map)
+  ([remap repeat-complex-command] . consult-complex-command)
+  ("C-x b" . consult-buffer)
+  ("C-x 4 b" . consult-buffer-other-window)
+  ("C-x 5 b" . consult-buffer-other-frame)
+  ;; Other custom bindings
+  ([remap yank-pop] . consult-yank-pop)
+  ([remap apropos-command] . consult-apropos)
+  ;; M-g bindings (goto-map)
+  ([remap goto-line] . consult-goto-line)
+  ("M-g i" . consult-imenu)
+  ("M-g I" . consult-project-imenu)
+  :hook
+  (completion-list-mode . consult-preview-at-point-mode)
+  :init
+  (setq
+    register-preview-delay 0
+    register-preview-function #'consult-register-format)
+  (advice-add #'register-preview :override #'consult-register-window)
+  (setq
+    xref-show-xrefs-function #'consult-xref
+    xref-show-definitions-function #'consult-xref)
+  :config
+  (consult-customize
+    consult-theme
+    :preview-key '(:debounce 0.2 any)
+    consult-ripgrep consult-git-grep consult-grep
+    consult-bookmark consult-recent-file consult-xref
+    consult--source-file consult--source-project-file consult--source-bookmark
+    :preview-key (kbd "M-."))
+  (setq consult-narrow-key "<")    ; (kbd "C-+")
+  (setq consult-project-root-function #'>>-project-root)
+  )
+
+
+(use-package vertico
+  :when (eq >>=|minibuffer/completing-framework 'vertico)
+  :ensure t
+  :custom
+  (vertico-cycle t)
+  :init
+  (vertico-mode +1)
+  )
 
 
 

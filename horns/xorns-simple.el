@@ -19,12 +19,27 @@
 (require 'xorns-setup)
 
 
-;; TODO: Check this, maybe convert it to a configurable component.
-;; Discover more of Emacs.  See http://t.co/IwZnrqQBRO
-(use-package discover
-  :ensure t
-  :init
-  (global-discover-mode +1))
+
+;;; configuration
+
+(defvar >>=|ext/multiple-cursors nil
+  "Define whether to configure the `multiple-cursors' extension.
+Could be a boolean, or the symbol 'extra' to also install the `mc-extras'
+package.")
+
+
+(defvar >>=|ext/ripgrep "rg"
+  "Whether `ripgrep' extensions must be configured.
+Could be a boolean, or a string specifying the `ripgrep' command name, the
+default value is \"rg\".  Usually this variable is used with the function
+`>>=setup/command-check'.")
+
+
+(defvar >>=|ext/fzf nil
+  "Whether `fzf' extensions must be configured.
+Could be a boolean, or a string specifying the `fzf' command name, the default
+value is nil, but use \"fzf\" if you want to activate it.  Usually this
+variable is used with the function `>>=setup/command-check'.")
 
 
 
@@ -166,11 +181,45 @@ value will combine both logics."
 
 
 
+;;; multiple-cursors
+
+(use-package multiple-cursors
+  :when >>=|ext/multiple-cursors
+  :ensure t
+  :demand t
+  :bind
+  ("C-S-c C-S-c" . mc/mark-all-dwim)
+  ("C->" . mc/mark-next-like-this)
+  ("C-<" . mc/mark-previous-like-this)
+  )
+
+
+(use-package mc-extras
+  :when (eq >>=|ext/multiple-cursors 'extra)
+  :ensure t
+  :demand t
+  :after multiple-cursors
+  :bind
+  (:map mc/keymap
+    ("C-. M-C-f" . mc/mark-next-sexps)
+    ("C-. M-C-b" . mc/mark-previous-sexps)
+    ("C-. <" . mc/mark-all-above)
+    ("C-. >" . mc/mark-all-below)
+    ("C-. C-d" . mc/remove-current-cursor)
+    ("C-. C-k" . mc/remove-cursors-at-eol)
+    ("C-. d" . mc/remove-duplicated-cursors)
+    ("C-. C-o" . mc/remove-cursors-on-blank-lines)
+    ("C-. ." . mc/move-to-column)
+    ("C-. =" . mc/compare-chars))
+  (:map rectangle-mark-mode-map
+    ("C-. C-," . mc/rect-rectangle-to-multiple-cursors))
+  (:map cua--rectangle-keymap
+    ("C-. C-," . mc/cua-rectangle-to-multiple-cursors))
+  )
+
+
+
 ;;; grep facilities
-
-(defconst >>-!ripgrep "rg"
-  "Command name for 'ripgrep'.")
-
 
 (use-package grep    ;; todo: check `wgrep', `scf-mode', `deadgrep'
   :demand t
@@ -194,11 +243,12 @@ value will combine both logics."
 
 
 (use-package deadgrep
-  :when (>>=setup/command-check >>-!ripgrep)
+  :when (>>=setup/command-check >>=|ext/ripgrep)
   :ensure t
   :after grep
   :bind
-  ([remap rgrep] . deadgrep))
+  ([remap rgrep] . deadgrep)
+  )
 
 
 

@@ -160,16 +160,52 @@ A process NAME can bee given as an optional argument."
   :demand t
   :config
   (progn
-    (eval-when-compile
-      ;; this is only needed in local compile
-      (declare-function exwm-systemtray-enable 'exwm-systemtray)
-      (declare-function exwm-config-example 'exwm-config))
+    (defun >>-exwm/config ()
+      "Xorns configuration of EXWM (replaces `exwm-config-example')."
+      ;; We don't call `exwm-config-misc' to disable dialog boxes and
+      ;; hourglass pointer here using because in `xorns' this is done in
+      ;; `early-init.el' or `/xorns-core.el' if Emacs version < 27.  Also,
+      ;; `exwm-config-ido' is not used because we configure IDO, if demanded,
+      ;; in `xorns-minibuffer.el'.
+      (unless (get 'exwm-workspace-number 'saved-value)
+        (setq exwm-workspace-number 4))
+      (add-hook 'exwm-update-class-hook
+        (lambda ()    ; make class name the buffer name
+          (exwm-workspace-rename-buffer exwm-class-name)))
+      (unless (get 'exwm-input-global-keys 'saved-value)
+        (setq exwm-input-global-keys
+          `(
+             ([?\s-&] . >>=exwm/start-command)
+             ,@(mapcar    ; 's-N' . switch to workspace
+                 (lambda (i)
+                   `(,(kbd (format "s-%d" i)) .
+                      (lambda ()
+                        (interactive)
+                        (exwm-workspace-switch-create ,i))))
+                 (number-sequence 0 9)))
+          ))
+      (unless (get 'exwm-input-simulation-keys 'saved-value)
+        (setq exwm-input-simulation-keys
+          '(([?\C-b] . [left])
+             ([?\C-f] . [right])
+             ([?\C-p] . [up])
+             ([?\C-n] . [down])
+             ([?\C-a] . [home])
+             ([?\C-e] . [end])
+             ([?\M-v] . [prior])
+             ([?\C-v] . [next])
+             ([?\C-d] . [delete])
+             ([?\C-k] . [S-end delete]))))
+      (exwm-enable)
+      )
+    (eval-when-compile    ; this is only needed in local compile
+      (declare-function exwm-systemtray-enable 'exwm-systemtray))
     (message ">>= using Emacs as the Desktop Window Manager.")
     (->? >>=window-manager/init)
     (>>=exwm/run-startup-applications)
     (>>=exwm/configure-system-try)
     (require 'exwm-config)
-    (exwm-config-example)    ; TODO: review how to define a customized config
+    (>>-exwm/config)    ;; (exwm-config-example)
     ))
 
 
