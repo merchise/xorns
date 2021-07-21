@@ -218,12 +218,6 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
       (setq mode-line-format nil))))
 
 
-(use-package company-lsp
-  :ensure t
-  :after lsp-mode
-  :commands company-lsp)
-
-
 
 ;;; Javascript, CoffeeScript and LiveScript
 
