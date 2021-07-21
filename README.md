@@ -63,7 +63,13 @@ constant `>>=!home-dir` in other module different to where it is defined (see
 `xorns-pim`).  Maybe the solution is to use `eval-when-compile`, or
 `eval-and-compile`, function.
 
-
 ### Use 'lexical-binding' in xorns modules
 
 Research how to use `lexical-binding` in most `xorns ` modules.
+
+### Improve 'multiple-cursors'
+
+- Integrate 'multiple-cursors' with 'mode-line'. Show the active cursors count
+  in the mode-line.
+- Check for alternative packages: `ace-mc`, `evil-mc`, `evil-multiedit`,
+  `smart-region`.
