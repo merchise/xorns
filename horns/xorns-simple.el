@@ -228,6 +228,7 @@ value will combine both logics."
    ("C-c C-g f" . find-grep)
    ("C-c C-g g" . grep)
    ("C-c C-g d" . find-grep-dired)
+   ("C-c r" . rgrep)
    ("C-c C-g r" . rgrep))
   :config
   (progn
