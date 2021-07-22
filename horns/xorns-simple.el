@@ -263,5 +263,36 @@ value will combine both logics."
     (not (tramp-connectable-p (buffer-file-name buffer)))))
 
 
+
+;;; Comment blocks
+
+(defun >>=uncomment-and-save (&optional fill)
+  "Uncomment the selected text and save it in the `kill-ring'.
+After uncommenting it, the selected text will be structured.  The FILL
+argument will determine the value to use of the variable `fill-column'; it
+could be an integer, or a boolean: nil will use a big value in order to no
+break lines, and a true value will use its default value for `fill-column'."
+  (interactive "P")
+  (when (null fill)
+    (setq fill 32768))
+  (let ((text (>>=buffer-focused-text))
+        (mode major-mode)
+        (try-modes '(markdown-mode rst-mode text-mode)))
+    (with-temp-buffer
+      (funcall mode)
+      (insert text)
+      (uncomment-region-default (point-min) (point-max))
+      (funcall (cl-some '>>=check-function try-modes))
+      (when (integerp fill)
+        (setq fill-column fill))
+      (fill-region (point-min) (point-max))
+      (kill-new (buffer-substring-no-properties (point-min) (point-max)))
+      )))
+
+
+(dolist (map (list text-mode-map prog-mode-map))
+  (define-key map (kbd "C-M-;") '>>=uncomment-and-save))
+
+
 (provide 'xorns-simple)
 ;;; xorns-simple.el ends here
