@@ -232,9 +232,9 @@ A process NAME can bee given as an optional argument."
       "s-o" 'other-window
       "s-;" '>>-exwm/swap-last-buffers
       "C-s-/" 'browse-url-at-point)
-    (>>=global-set-keys
-      (mapcar
-        (lambda (pair) (cons (car pair) (>>-url-browser (cdr pair))))
+    (apply '>>=global-set-keys
+      (mapcan
+        (lambda (pair) (list (car pair) (>>-url-browser (cdr pair))))
         >>=|exwm/url-keys))
     (let ((suspend-key ?\C-z))
       ;; Prefix key to send next literally to the application.  Default value
