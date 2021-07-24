@@ -20,6 +20,20 @@
 (require 'xorns-tools)
 
 
+(defvar >>-global-set-key '>>-global-set-key
+  "Function to give a KEY a global binding as COMMAND.
+This variable is intended to redefine how to set a global key sequence in some
+specialized packages, like `exwm'.  The default value is the internal function
+`>>-global-set-key'.")
+
+
+(defun >>-global-set-key (key command)
+  "Give KEY a global binding as COMMAND.
+This is an internal function, it is intended to be replaced in specialized
+packages like `exwm'."
+  (define-key (current-global-map) key command))
+
+
 (defsubst >>-kbd (key)
   "Convert KEY to its internal representation but first trying a string."
   (if (vectorp key) key (kbd key)))
@@ -36,38 +50,9 @@
 
 
 (defun >>=global-set-keys (&rest pairs)
-  "Bind on the current global keymap [KEY COMMAND] PAIRS.
-`exwm' is used when running Emacs as a window manager."
-  (setq pairs
-    ;; normalize key/command pairs
-    (let (key)
-      (prog1
-        (delq nil
-          (mapcar
-            (lambda (aux)
-              (if key
-                (prog1
-                  (>>-key-pair key aux)
-                  (setq key nil))
-                ;; else
-                (if (consp aux)
-                  (>>-key-pair (car aux) (cdr aux))
-                  ;; else
-                  (setq key aux)    ; use the key in the next iteration
-                  nil)))
-            (>>=fix-rest-list pairs)))
-        (when key
-          (error ">>= final key '%s' without command pair" key)))))
-  (if (and >>=!emacs-as-wm (require 'exwm nil 'noerror))
-    (funcall
-      (if >>=xorns-initialized 'customize-set-variable 'customize-set-value)
-      'exwm-input-global-keys
-      (append (bound-and-true-p exwm-input-global-keys) pairs))
-    ;; else
-    (let ((map (current-global-map)))
-      (dolist (pair pairs)
-        (define-key map (car pair) (cdr pair)))))
-  pairs)
+  "Bind on the current global keymap [KEY COMMAND] PAIRS."
+  (>>=plist-do (key command pairs)
+    (funcall >>-global-set-key (>>-kbd key) (>>-command command))))
 
 
 (defmacro >>=remap (key command alt-key)

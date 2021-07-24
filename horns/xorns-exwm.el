@@ -222,6 +222,7 @@ A process NAME can bee given as an optional argument."
     )
   :config
   (progn
+    (setq >>-global-set-key 'exwm-input-set-key)
     (>>=global-set-keys
       ;; Like on `i3' window manager.  We use a new command because at this
       ;; level `(key-binding (kbd "s-&"))' returns nil
