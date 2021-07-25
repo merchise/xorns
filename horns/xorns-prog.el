@@ -208,22 +208,26 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
     )
   :custom
   (lsp-auto-guess-root t)
-  (lsp-keymap-prefix "C-s-l")
+  (lsp-keymap-prefix "C-s-l")    ; "s-l" is the lock key in several laptops
   :hook
   (prog-mode . >>-lsp/may-enable-server))
 
 
 (use-package lsp-ui
   :ensure t
-  :commands lsp-ui-mode
   :hook
   (lsp-mode . lsp-ui-mode)
   :custom
   (lsp-ui-doc-position 'at-point)
+  :bind
+  (:map lsp-ui-mode-map
+    ("C-S-c C-S-j" . lsp-ui-imenu)
+    ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+    ([remap xref-find-references] . lsp-ui-peek-find-references))
   :config
-  (progn
-    (defadvice lsp-ui-imenu (after hide-lsp-ui-imenu-mode-line activate)
-      (setq mode-line-format nil))))
+  (defadvice lsp-ui-imenu (after hide-lsp-ui-imenu-mode-line activate)
+    (setq mode-line-format nil))
+  )
 
 
 
