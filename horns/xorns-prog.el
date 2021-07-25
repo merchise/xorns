@@ -212,6 +212,8 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
   :commands lsp-ui-mode
   :hook
   (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-doc-position 'at-point)
   :config
   (progn
     (defadvice lsp-ui-imenu (after hide-lsp-ui-imenu-mode-line activate)
