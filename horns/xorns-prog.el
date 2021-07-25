@@ -170,6 +170,12 @@ Language server activation is based on the logic of the `>>=check-major-mode'
 function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 
+(use-package company
+  :ensure t
+  :hook
+  (after-init . global-company-mode))
+
+
 (use-package lsp-mode
   :ensure t
   :demand t
