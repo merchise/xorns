@@ -170,10 +170,11 @@ Language server activation is based on the logic of the `>>=check-major-mode'
 function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 
+;; Next configuration allows `company-mode' to be managed internally by
+;; `lsp-mode'.  Other possible choices are to activate it globally, or by
+;; using `prog-mode-hook'.
 (use-package company
-  :ensure t
-  :hook
-  (after-init . global-company-mode))
+  :ensure t)
 
 
 (use-package lsp-mode
