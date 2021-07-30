@@ -46,6 +46,7 @@ elpa/
 tramp
 /network-security.data
 /ido.last
+/ede-projects.el
 /.backups/
 /url/
 /eshell/

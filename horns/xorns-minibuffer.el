@@ -156,15 +156,17 @@ Always considered true when `>>=|minibuffer/completing-framework' is
     xref-show-xrefs-function #'consult-xref
     xref-show-definitions-function #'consult-xref)
   :config
-  (consult-customize
-    consult-theme
-    :preview-key '(:debounce 0.2 any)
-    consult-ripgrep consult-git-grep consult-grep
-    consult-bookmark consult-recent-file consult-xref
-    consult--source-file consult--source-project-file consult--source-bookmark
-    :preview-key (kbd "M-."))
-  (setq consult-narrow-key "<")    ; (kbd "C-+")
-  (setq consult-project-root-function #'>>-project-root)
+  (with-no-warnings
+    (consult-customize
+      consult-theme
+      :preview-key '(:debounce 0.2 any)
+      consult-ripgrep consult-git-grep consult-grep
+      consult-bookmark consult-recent-file consult-xref
+      consult--source-file consult--source-project-file consult--source-bookmark
+      :preview-key (kbd "M-.")))
+  (setq
+    consult-narrow-key "<"
+    consult-project-root-function #'>>-project-root)
   )
 
 
