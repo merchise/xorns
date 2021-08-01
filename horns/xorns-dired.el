@@ -14,7 +14,7 @@
 ;;
 ;; `dired-omit-mode' use a more consistent method by hiding only files and
 ;; folders starting with a dot ("."); a initial state can be configured
-;; (~/.config/xorns) using the variable `>>=|dired-omit-mode'.  This variable
+;; (~/.config/xorns) using the variable `>>=|dired/omit-mode'.  This variable
 ;; will be used to toggle this mode globally using the command
 ;; `>>=dired-omit-mode-toggle'.
 
@@ -29,11 +29,15 @@
 (require 'xorns-packages)
 
 
-(defvar >>=|dired-omit-mode nil
+(define-obsolete-variable-alias
+  '>>=|dired-omit-mode '>>=|dired/omit-mode "1.0")
+(defvar >>=|dired/omit-mode nil
   "Non-nil opens new `dired' buffers with `dired-omit-mode' enabled.")
 
 
-(defvar >>=|dired-omit-extra-files '("__pycache__")
+(define-obsolete-variable-alias
+  '>>=|dired-omit-extra-files '>>=|dired/omit-extra-files "1.0")
+(defvar >>=|dired/omit-extra-files '("__pycache__")
   "A list of extra files (strings) to omit from Dired listings.
 This value will complement both `dired-omit-files' main custom variable and
 `dired-subdir-switches' when used with `>>=dired-insert-recursive-subdir' new
@@ -75,7 +79,7 @@ command.")
     (mapconcat (lambda (arg) (format "--ignore='%s'" arg))
       (append
         '(".*")
-        >>=|dired-omit-extra-files
+        >>=|dired/omit-extra-files
         (mapcar
           (lambda (arg)
             (let ((wild (if (string-match-p "/$" arg) "" "*")))
@@ -88,15 +92,15 @@ command.")
 
 
 (defun >>=dired-omit-mode (&optional buffer)
-  "Setup `dired-omit-mode' in BUFFER using `>>=|dired-omit-mode' value."
+  "Setup `dired-omit-mode' in BUFFER using `>>=|dired/omit-mode' value."
   (with-current-buffer (or buffer (current-buffer))
-    (dired-omit-mode (if >>=|dired-omit-mode +1 -1))))
+    (dired-omit-mode (if >>=|dired/omit-mode +1 -1))))
 
 
 (defun >>=dired-omit-mode-toggle ()
-  "Toggle `>>=|dired-omit-mode' globally."
+  "Toggle `>>=|dired/omit-mode' globally."
   (interactive)
-  (setq >>=|dired-omit-mode (not >>=|dired-omit-mode))
+  (setq >>=|dired/omit-mode (not >>=|dired/omit-mode))
   ;; TODO: check why `_current' is unused
   (let ((_current (current-buffer)))
     (dolist (elt dired-buffers)
@@ -115,7 +119,7 @@ command.")
     (mapconcat 'identity
       (cons
         "^\\.?#\\|^\\.[^.]\\|^\\.\\..+"
-        >>=|dired-omit-extra-files)
+        >>=|dired/omit-extra-files)
       "\\|^"))
   (dired-omit-verbose nil)
   :hook
@@ -167,14 +171,14 @@ Very similar to `dired-insert-subdir'."
   (interactive (list (dired-get-filename)))
   (dired-insert-subdir dirname
     (concat (or dired-subdir-switches dired-actual-switches) " -R "
-      (if >>=|dired-omit-mode >>=|dired-omit-ignores-switches)))
+      (if >>=|dired/omit-mode >>=|dired-omit-ignores-switches)))
   (>>=dired-omit-mode))
 
 
 (defun >>=dired-maybe-insert-subdir (dirname &optional switches)
   "Insert sub-directory DIRNAME into the same dired buffer.
 If SWITCHES contains recursive flag (see `dired-switches-recursive-p') and
-global variable `>>=|dired-omit-mode' is t, `>>=|dired-omit-ignores-switches'
+global variable `>>=|dired/omit-mode' is t, `>>=|dired-omit-ignores-switches'
 are concatenated.  See `dired-maybe-insert-subdir'."
   (interactive
     (list
@@ -184,7 +188,7 @@ are concatenated.  See `dired-maybe-insert-subdir'."
           (or dired-subdir-switches dired-actual-switches)))))
   (let ((opoint (point))
         (dirname (file-name-as-directory dirname)))
-    (when (and >>=|dired-omit-mode (dired-switches-recursive-p switches))
+    (when (and >>=|dired/omit-mode (dired-switches-recursive-p switches))
       (setq switches (concat switches " " >>=|dired-omit-ignores-switches)))
     (or (and (not switches)
              (when (dired-goto-subdir dirname)

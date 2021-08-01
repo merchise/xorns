@@ -20,7 +20,7 @@ default values are not suitable for your configuration."
     ;; >>=|ext/multiple-cursors 'extra
     ;; >>=|projectile/extra-ignored-directories '()
     ;; >>=|projectile/project-root-files '()
-    ;; >>=|dired-omit-mode t
+    ;; >>=|dired/omit-mode t
     ;; >>=|mode-line/kind 'mini
     ;; >>=|default-shell-file-name "/usr/bin/zsh"
     ;; >>=|term/install-customizable-colors nil
