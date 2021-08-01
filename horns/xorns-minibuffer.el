@@ -144,7 +144,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   ;; M-g bindings (goto-map)
   ([remap goto-line] . consult-goto-line)
   ("M-g i" . consult-imenu)
-  ("M-g I" . consult-project-imenu)
+  ("M-g I" . consult-imenu-multi)
   :hook
   (completion-list-mode . consult-preview-at-point-mode)
   :init
