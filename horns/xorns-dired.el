@@ -44,16 +44,45 @@ This value will complement both `dired-omit-files' main custom variable and
 command.")
 
 
+(defvar >>=|dired/force-group-directories-first t
+  "Advice `dired' functions if ls command don't support this option.")
+
+
 
 ;;; Main modules
 
 (use-package dired
+  :preface
+  (defsubst >>-gdf-p ()
+    "True if `insert-directory-program' support grouping directories first."
+    (or
+      (memq system-type '(gnu gnu/linux))
+      (string= (file-name-nondirectory insert-directory-program) "gls")))
+
+  (defun >>-dired-readin-sort ()
+    "Used when `>>=|dired/force-group-directories-first' is demanded."
+    (save-excursion
+      (let (buffer-read-only
+            start
+            (end (point-max))
+            (saved (point)))
+        (unwind-protect
+          (dolist (item dired-subdir-alist)
+            (goto-char (cdr item))
+            (setq start (point))
+            (forward-line 2)
+            (sort-regexp-fields t "^.*$" "[ ]*." (point) end)
+            (setq end (1- start)))
+          ;; finally
+          (goto-char saved)
+          (set-buffer-modified-p nil)))))
+  :init
+  (put 'dired-find-alternate-file 'disabled nil)    ; re-enable it for "M-RET"
+  :bind
+  (:map dired-mode-map
+    ("M-RET" . dired-find-alternate-file))
   :custom
-  (dired-listing-switches
-    (concat "-alhF"
-      (let ((program (file-name-nondirectory insert-directory-program)))
-        (if (or (memq system-type '(gnu gnu/linux)) (string= program "gls"))
-          " --group-directories-first -v"))))
+  (dired-listing-switches "-alhF")
   (dired-ls-F-marks-symlinks t)
   (dired-recursive-deletes 'always)
   (dired-recursive-copies 'always)
@@ -64,8 +93,22 @@ command.")
   (dired-dwim-target t)
   (dired-isearch-filenames 'dwim)
   :config
-  ;; Enable a disabled command (assign to "M-RET")
-  (put 'dired-find-alternate-file 'disabled nil))
+  (if (>>-gdf-p)
+    (setq dired-listing-switches
+      (concat dired-listing-switches " --group-directories-first -v"))
+    ;; else
+    (when >>=|dired/force-group-directories-first
+      ;; See https://www.emacswiki.org/emacs/DiredSortDirectoriesFirst
+      (defadvice dired-readin
+        (after >>-dired-after-updating-hook first () activate)
+        "Sort dired listings with directories first before adding marks."
+        (>>-dired-readin-sort))
+      (defadvice dired-insert-subdir
+        (after >>-dired-after-updating-hook first () activate)
+        "Sort dired listings with directories first before adding marks."
+        (>>-dired-readin-sort))
+      ))
+  )
 
 
 
