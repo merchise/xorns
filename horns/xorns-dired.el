@@ -118,6 +118,10 @@ This variable is only used when dired functions are adviced, see variable
         (after >>-dired-after-updating-hook first () activate)
         "Sort dired listings with directories first before adding marks."
         (>>-dired-readin-sort))
+      (defadvice dired-revert
+        (before >>-dired-revert first () activate)
+        "When reread the Dired buffer, clear `>>-dired/sorted-directories'."
+        (setq >>-dired/sorted-directories nil))
       ))
   )
 
@@ -148,6 +152,7 @@ This variable is only used when dired functions are adviced, see variable
 (defun >>=dired-omit-mode (&optional buffer)
   "Setup `dired-omit-mode' in BUFFER using `>>=|dired/omit-mode' value."
   (with-current-buffer (or buffer (current-buffer))
+    (setq >>-dired/sorted-directories nil)
     (dired-omit-mode (if >>=|dired/omit-mode +1 -1))))
 
 
@@ -258,6 +263,7 @@ are concatenated.  See `dired-maybe-insert-subdir'."
   "Select source directory item position when navigating up."
   (interactive)
   (let ((org (dired-current-directory)))
+    (setq >>-dired/sorted-directories nil)
     ;; super
     ad-do-it
     ;;
