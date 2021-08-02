@@ -48,6 +48,12 @@ command.")
   "Advice `dired' functions if ls command don't support this option.")
 
 
+(defvar-local >>-dired/sorted-directories nil
+  "A list of already sorted directories.
+This variable is only used when dired functions are adviced, see variable
+`>>=|dired/force-group-directories-first'."  )
+
+
 
 ;;; Main modules
 
@@ -68,10 +74,15 @@ command.")
             (saved (point)))
         (unwind-protect
           (dolist (item dired-subdir-alist)
-            (goto-char (cdr item))
-            (setq start (point))
-            (forward-line 2)
-            (sort-regexp-fields t "^.*$" "[ ]*." (point) end)
+            (let ((dir-name (car item))
+                  (start-marker (cdr item)))
+              (goto-char start-marker)
+              (setq start (point))
+              (when (not (member dir-name >>-dired/sorted-directories))
+                (forward-line 2)
+                (sort-regexp-fields t "^.*$" "[ ]*." (point) end)
+                (setq >>-dired/sorted-directories
+                  (cons dir-name >>-dired/sorted-directories))))
             (setq end (1- start)))
           ;; finally
           (goto-char saved)
