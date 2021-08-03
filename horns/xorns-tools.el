@@ -546,7 +546,7 @@ result in a pseudo property-list that needs additional normalization with
 
 
 
-;;; Value verifiers
+;;; value verifiers
 
 (defun >>=validate-major-mode (mode)
   "Verify a `major-mode' symbol.
@@ -822,6 +822,21 @@ Each item in MODES is validated and associated with the given COMMAND."
             source))))
     ;; else
     source))
+
+
+
+;;; projects
+
+(defun >>=project-root (&optional dir)
+  "Retrieves the root directory of a project if available.
+If DIR is not supplied its set to the current directory by default."
+  "Return the project instance in DIR or `default-directory'."
+  (>>=canonical-directory-name
+    (if (functionp 'projectile-project-root)
+      (funcall 'projectile-project-root dir)
+      ;; else
+      (when-let (project (project-current nil dir))
+        (car (project-roots project))))))
 
 
 (provide 'xorns-tools)

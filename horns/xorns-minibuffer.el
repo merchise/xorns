@@ -120,14 +120,6 @@ Always considered true when `>>=|minibuffer/completing-framework' is
 (use-package consult
   :ensure t
   :when (eq >>=|minibuffer/completing-framework 'vertico)
-  :preface
-  (defun >>-project-root (&optional dir)
-    "Return the project instance in DIR or `default-directory'."
-    (if (functionp 'projectile-project-root)
-      (funcall 'projectile-project-root dir)
-      ;; else
-      (when-let (project (project-current nil dir))
-        (car (project-roots project)))))
   :bind
   ;; C-c bindings (mode-specific-map)
   ("C-c h" . consult-history)
@@ -166,7 +158,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
       :preview-key (kbd "M-.")))
   (setq
     consult-narrow-key "<"
-    consult-project-root-function #'>>-project-root)
+    consult-project-root-function #'>>=project-root)
   )
 
 
