@@ -18,6 +18,7 @@
 
 (require 'subr-x)    ; for `string-trim'
 (eval-when-compile (require 'cl-lib))
+(require 'project)
 
 
 ;;; general
@@ -827,6 +828,10 @@ Each item in MODES is validated and associated with the given COMMAND."
 
 ;;; projects
 
+(defvar >>-project/variables '()
+  "Association list mapping project variables.")
+
+
 (defun >>=project-root (&optional dir)
   "Retrieves the root directory of a project if available.
 If DIR is not supplied its set to the current directory by default."
@@ -837,6 +842,43 @@ If DIR is not supplied its set to the current directory by default."
       ;; else
       (when-let (project (project-current nil dir))
         (car (project-roots project))))))
+
+
+(defun >>=project/get-value (symbol &optional dir)
+  "Return SYMBOL's value in the context of a project.
+Argument DIR is used to determine the project root; when not given, the
+current directory is used by default.  If the symbol is not found in the
+project's local variable mapping, the standard value is returned if bound."
+  (cdr
+    (or
+      (when-let*
+        ((prj (>>=project-root dir))
+         (vars (alist-get prj >>-project/variables nil nil #'string=)))
+        (assq symbol vars))
+      (cons nil (and (boundp symbol) (symbol-value symbol))))))
+
+
+(defun >>=project/set-value (symbol value &optional dir)
+  "Set SYMBOL's VALUE in the context of a project.
+Argument DIR is used to determine the project root; when not given, the
+current directory is used by default.  An error is issued if no project is
+found in DIR."
+  (let ((prj (>>=project-root dir)))
+    (if prj
+      (let ((vars (assoc prj >>-project/variables #'string=)))
+      ;; (let ((vars (alist-get prj >>-project/variables nil nil #'string=)))
+      (if vars
+        (setf (alist-get symbol (cdr vars) nil 'remove) value)
+        ;; else
+        (nconc
+          >>-project/variables
+          (list (list prj (cons symbol value))))))
+      ;; else
+      (if (boundp symbol)
+        (set symbol value)
+        ;; else
+        (let ((aux (if dir (format "'%s'" dir) "default-directory")))
+          (error ">>= void variable '%s' for project %s" symbol aux))))))
 
 
 (provide 'xorns-tools)
