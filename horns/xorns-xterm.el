@@ -35,13 +35,12 @@
 
 ;;; Variables
 
-(defvar >>=|default-shell-file-name
-  (purecopy
-    (or
-      explicit-shell-file-name
-      shell-file-name
-      (>>=executable-find (getenv "ESHELL") (getenv "SHELL") "bash" "zsh")))
-  "System default shell file-name.")
+(defvar >>=|default-shell-file-name nil
+  "Default shell file-name (see `>>-xterm/get-default-shell-file-name').")
+(make-obsolete-variable
+  '>>=|default-shell-file-name
+  " It will no longer exists.  Customize `shell-file-name' instead."
+  "0.9")
 
 
 (defvar >>-xterm/state nil
@@ -58,6 +57,16 @@
 
 
 ;;; Utility functions
+
+(defsubst >>-xterm/get-default-shell-file-name ()
+  "Adjust a STRING to paste it into a terminal."
+  (purecopy
+    (or
+      >>=|default-shell-file-name
+      explicit-shell-file-name
+      shell-file-name
+      (>>=executable-find (getenv "ESHELL") (getenv "SHELL") "bash" "zsh"))))
+
 
 (defun >>-xterm/adjust-string (string)
   "Adjust a STRING to paste it into a terminal."
@@ -145,7 +154,7 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
 (defsubst >>-xterm/default-value (term key)
   "Get TERM default KEY value."
   (pcase key
-    (:program >>=|default-shell-file-name)
+    (:program (>>-xterm/get-default-shell-file-name))
     (:paster '>>-xterm/paster)
     (:buffer-name (replace-regexp-in-string "^>>=" "" (symbol-name term)))))
 
