@@ -47,7 +47,7 @@ nil).")
 
 (defvar >>=|base/extra-packages nil
   "List of optional base packages to install.
-A full of options are (autorevert recentf saveplace gcmh).")
+A full of options are (autorevert recentf saveplace).")
 
 
 (defvar >>=|make-backup-files nil
@@ -323,8 +323,7 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 
 (when (memq 'gcmh >>=|base/extra-packages)
-  ;; TODO: remove this in release 1.0
-  (>>=deprecate 'gcmh :current 'xorns-base :new 'xorns-gc))
+  (warn ">>= `gcmh' is no longer configured, see `xorns-gc'"))
 
 
 (provide 'xorns-base)
