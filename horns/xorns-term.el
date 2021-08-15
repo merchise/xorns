@@ -51,8 +51,33 @@
 
 ;;; Common setup
 
+(defvar >>=|term/preserve-finished-buffer nil
+  "Preserve terminal buffer when finished.
+After a terminal is closed, you get a useless buffer with no process.  That
+buffer is killed automatically unless this variable is not nil.")
+
+
 (defvar >>=|term/install-customizable-colors t
   "Add customizable 256 color support to `term' and `ansi-term' .")
+
+
+(defun >>-term/kill-finished-buffer ()
+  "Internal function to be used on `term-exec-hook'."
+  ;; Adapted from https://oremacs.com/2015/01/01/three-ansi-term-tips/ and
+  ;; function `kill-buffer-and-window'
+  (let* ((hook (lambda () (ignore-errors (delete-window))))
+         (buff (current-buffer))
+         (proc (get-buffer-process buff)))
+    (set-process-sentinel
+      proc
+      `(lambda (process event)
+         (if (string= event "finished\n")
+           (unwind-protect
+	     (add-hook 'kill-buffer-hook ,hook t t)
+             (kill-buffer ,buff)
+             (ignore-errors
+               (with-current-buffer ,buff
+	         (remove-hook 'kill-buffer-hook ,hook t)))))))))
 
 
 (use-package eshell
@@ -123,7 +148,10 @@
      ("C-y" . term-paste)
      ("C-k" . >>-term/raw-kill-line)))
   :custom
-  (term-input-autoexpand t))
+  (term-input-autoexpand t)
+  :config
+  (unless >>=|term/preserve-finished-buffer
+    (add-hook 'term-exec-hook '>>-term/kill-finished-buffer)))
 
 
 (use-package eterm-256color
