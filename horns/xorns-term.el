@@ -63,21 +63,14 @@ buffer is killed automatically unless this variable is not nil.")
 
 (defun >>-term/kill-finished-buffer ()
   "Internal function to be used on `term-exec-hook'."
-  ;; Adapted from https://oremacs.com/2015/01/01/three-ansi-term-tips/ and
-  ;; function `kill-buffer-and-window'
-  (let* ((hook (lambda () (ignore-errors (delete-window))))
-         (buff (current-buffer))
+  ;; Based on https://oremacs.com/2015/01/01/three-ansi-term-tips/
+  (let* ((buff (current-buffer))
          (proc (get-buffer-process buff)))
     (set-process-sentinel
       proc
       `(lambda (process event)
          (if (string= event "finished\n")
-           (unwind-protect
-	     (add-hook 'kill-buffer-hook ,hook t t)
-             (kill-buffer ,buff)
-             (ignore-errors
-               (with-current-buffer ,buff
-	         (remove-hook 'kill-buffer-hook ,hook t)))))))))
+           (>>=kill-buffer-and-window ,buff))))))
 
 
 (use-package eshell

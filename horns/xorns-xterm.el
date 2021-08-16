@@ -214,7 +214,7 @@ When TERM is given, only check buffers of that kind."
         (when (or (null term) (eq term (plist-get state :term)))
           buffer)
         ;; else
-        (kill-buffer buffer)
+        (>>=kill-buffer-and-window buffer)
         nil))))
 
 
