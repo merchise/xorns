@@ -706,6 +706,18 @@ discarded."
     res))
 
 
+(defun >>=kill-buffer-and-window (&optional buffer)
+  "Kill the specified BUFFER, and delete the window currently displaying it.
+Argument nil or omitted means kill the current buffer."
+  (setq buffer (or buffer (current-buffer)))
+  (let ((win (get-buffer-window buffer)))
+    (prog1
+      (kill-buffer buffer)
+      (when win
+        (ignore-errors
+          (delete-window win))))))
+
+
 
 ;;; modes
 ;; TODO: refactor all this section
