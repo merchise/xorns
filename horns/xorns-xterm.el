@@ -227,6 +227,25 @@ killed and nil is returned."
       (>>-xterm/check-buffer target))))
 
 
+(defun >>-xterm/current-buffer ()
+  "Return the `current-buffer'.
+When it is a finished terminal, re-create it."
+  (let ((res (current-buffer)))
+    (when (and >>-xterm/state (not (get-buffer-process res)))
+      (let* ((state >>-xterm/state)
+             (term (plist-get state :term))
+             (command (>>-xterm/key term :program))
+             (tab-index (plist-get state :tab-index))
+             (buffer-name (>>-xterm/buffer-name term tab-index)))
+        (kill-buffer res)
+        (save-window-excursion
+          (with-current-buffer
+            (setq res (ansi-term command buffer-name))
+            (set (make-local-variable '>>-xterm/state) state))))
+      (switch-to-buffer res nil 'force-same-window))
+    res))
+
+
 (defun >>-xterm/get-or-create-buffer (term tab-index)
   "Get or create a TERM buffer for a given TAB-INDEX."
   (let* ((buffer-name (>>-xterm/buffer-name term tab-index))
@@ -332,7 +351,7 @@ condition."
   (let (tab-index paste add-new
         (paster (>>-xterm/key term :paster))
         implicit
-        (source (current-buffer))
+        (source (>>-xterm/current-buffer))
         target)
     (when prefix
       (cond
