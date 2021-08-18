@@ -205,6 +205,17 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
         (error ">>= invalid tab-index: %s" tab-index)))))
 
 
+(defsubst >>-xterm/get-paster ()
+  (let ((term (plist-get >>-xterm/state :term)))
+    (if term
+      (>>-xterm/key term :paster)
+      ;; else
+      (if (eq major-mode 'term-mode)
+        '>>-xterm/paster
+        ;; else
+        (unless buffer-read-only 'insert)))))
+
+
 (defsubst >>-xterm/check-buffer (buffer &optional term)
   "Check that BUFFER is a valid smart terminal.
 When TERM is given, only check buffers of that kind."
@@ -346,10 +357,8 @@ A nil PREFIX means the implicit tab-index, a paste operation to it by a plain
 `universal-argument', or `C-u'.  A double `C-u' issues the add new tab
 condition."
   (interactive "i\nP")
-  (unless term
-    (setq term (>>-xterm/get-default-term)))
+  (setq term (or term (>>-xterm/get-default-term)))
   (let (tab-index paste add-new
-        (paster (>>-xterm/key term :paster))
         implicit
         (source (>>-xterm/current-buffer))
         target)
@@ -380,7 +389,6 @@ condition."
     (when (eq target source)
       (setq
         target (plist-get >>-xterm/state :source)
-        paster nil
         implicit t)
       (unless (buffer-live-p target)
         (setq target (>>-xterm/get-alt-buffer term))))
@@ -395,18 +403,11 @@ condition."
         :tab-index tab-index
         :mode (buffer-local-value 'major-mode source)))
     (when paste
-      (unless paster
-        (setq paster
-          (or
-            (get (plist-get >>-xterm/state :term) :paster)
-            (when (eq major-mode 'term-mode) '>>-xterm/paster)
-            (unless buffer-read-only 'insert))))
-      (if paster
-        (funcall paster paste)
-        ;; else
-        (warn (concat ">>= no valid paster found, "
-                "maybe target buffer is read only.\n"
-                "        Paste text:\n%s") paste)))
+      (let ((paster (>>-xterm/get-paster)))
+        (if paster
+          (funcall paster paste)
+          ;; else
+          (warn ">>= cannot paste, maybe target buffer is read only."))))
     target))
 
 
