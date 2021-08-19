@@ -190,6 +190,14 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
     (error ">>= unexpected term key '%s'" key)))
 
 
+(defsubst >>-xterm/get-implicit-tab-index ()
+  "Get the implicit tab-index for the current buffer."
+  (if >>-xterm/state
+    (plist-get >>-xterm/state :tab-index)
+    ;; else
+    (or >>-xterm/linked 0)))
+
+
 (defsubst >>-xterm/buffer-name (term &optional tab-index)
   "Get a buffer name for a given TERM and and TAB-INDEX."
   (concat
@@ -206,6 +214,7 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
 
 
 (defsubst >>-xterm/get-paster ()
+  "Get the paster function for current buffer."
   (let ((term (plist-get >>-xterm/state :term)))
     (if term
       (>>-xterm/key term :paster)
@@ -314,14 +323,6 @@ When it is a finished terminal, re-create it."
       (>>-xterm/command-name))))
 
 
-(defsubst >>-xterm/get-implicit-tab-index ()
-  "Get the implicit tab-index for the current buffer."
-  (if >>-xterm/state
-    (plist-get >>-xterm/state :tab-index)
-    ;; else
-    (or >>-xterm/linked 0)))
-
-
 (defun >>-xterm/search-new (term &optional tab-index)
   "Get a new TAB-INDEX for the given TERM."
   (setq tab-index (or tab-index 0))
@@ -365,7 +366,7 @@ condition."
     (when prefix
       (cond
         ((consp prefix)
-          (if (<= (prefix-numeric-value prefix) 5)
+          (if (< (prefix-numeric-value prefix) 16)
             (setq paste t)
             ;; else
             (setq add-new t)))
@@ -379,12 +380,12 @@ condition."
             paste t))))
     (when add-new
       (setq tab-index (>>-xterm/search-new term)))
+    (when paste
+      (setq paste (>>-xterm/get-paste-text)))
     (unless tab-index
       (setq
         implicit t
         tab-index (>>-xterm/get-implicit-tab-index)))
-    (when paste
-      (setq paste (>>-xterm/get-paste-text)))
     (setq target (>>-xterm/get-or-create-buffer term tab-index))
     (when (eq target source)
       (setq
