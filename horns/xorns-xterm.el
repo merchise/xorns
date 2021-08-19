@@ -199,7 +199,7 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
 
 
 (defsubst >>-xterm/buffer-name (term &optional tab-index)
-  "Get a buffer name for a given TERM and and TAB-INDEX."
+  "Get a buffer name for a given TERM and TAB-INDEX."
   (concat
     ;; prefix
     (>>-xterm/key term :buffer-name)
@@ -238,13 +238,9 @@ When TERM is given, only check buffers of that kind."
         nil))))
 
 
-(defun >>-xterm/get-buffer (buffer-name)
-  "Get the terminal buffer for a given BUFFER-NAME.
-If a buffer is found that does not have a live process associated, it is
-killed and nil is returned."
-  (let ((target (get-buffer (format "*%s*" buffer-name))))
-    (when target
-      (>>-xterm/check-buffer target))))
+(defsubst >>-xterm/get-buffer (buffer-name)
+  "Get the terminal buffer for a given BUFFER-NAME."
+  (get-buffer (format "*%s*" buffer-name)))
 
 
 (defun >>-xterm/current-buffer ()
@@ -323,16 +319,16 @@ When it is a finished terminal, re-create it."
       (>>-xterm/command-name))))
 
 
-(defun >>-xterm/search-new (term &optional tab-index)
-  "Get a new TAB-INDEX for the given TERM."
-  (setq tab-index (or tab-index 0))
-  (let (res)
-    (while (not res)
-      (if (>>-xterm/get-buffer (>>-xterm/buffer-name term tab-index))
-        (setq tab-index (1+ tab-index))
+(defun >>-xterm/search-new (term)
+  "Get a new tab-index for the given TERM."
+  (let ((index 0)
+        found)
+    (while (not found)
+      (if (>>-xterm/get-buffer (>>-xterm/buffer-name term index))
+        (setq index (1+ index))
         ;; else
-        (setq res tab-index)))
-    res))
+        (setq found t)))
+    index))
 
 
 
@@ -359,7 +355,7 @@ A nil PREFIX means the implicit tab-index, a paste operation to it by a plain
 condition."
   (interactive "i\nP")
   (setq term (or term (>>-xterm/get-default-term)))
-  (let (tab-index paste add-new
+  (let (tab-index paste
         implicit
         (source (>>-xterm/current-buffer))
         target)
@@ -368,8 +364,8 @@ condition."
         ((consp prefix)
           (if (< (prefix-numeric-value prefix) 16)
             (setq paste t)
-            ;; else
-            (setq add-new t)))
+            ;; else, `>>=xterminal-add'
+            (setq tab-index (>>-xterm/search-new term))))
         ((integerp prefix)
           (setq
             tab-index (abs prefix)
@@ -378,8 +374,6 @@ condition."
           (setq
             tab-index 0
             paste t))))
-    (when add-new
-      (setq tab-index (>>-xterm/search-new term)))
     (when paste
       (setq paste (>>-xterm/get-paste-text)))
     (unless tab-index
@@ -415,7 +409,8 @@ condition."
 (defun >>=xterminal-add (&optional term)
   "Add a new tab for a TERM smart terminal."
   (interactive)
-  (>>=xterminal term '(16)))    ; Double `C-u' is (16), add-new indicator
+  ;; more than one `C-u' is interpreted as the add-new indicator
+  (>>=xterminal term '(16)))
 
 
 (defun >>=xterm-select (&optional term)
