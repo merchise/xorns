@@ -294,17 +294,26 @@ When it is a finished terminal, re-create it."
   (switch-to-buffer-other-window target))
 
 
+(defun >>-xterm/buffer-list (&optional term)
+  "Return a list of smart TERM buffers."
+  (delq nil
+    (mapcar
+      (lambda (buffer)
+        (when-let ((state (buffer-local-value '>>-xterm/state buffer)))
+          (when (or (null term) (eq (plist-get state :term) term))
+            buffer)))
+      (buffer-list))))
+
+
 (defun >>-xterm/select (&optional term)
-  "Return an assotiation-list of all valid buffers for the given TERM kind."
-  (let ((source (current-buffer)))
-    (nreverse
-      (delq nil
-        (mapcar
-          (lambda (buffer)
-            (unless (eq source buffer)
-              (when (>>-xterm/check-buffer buffer term)
-                (cons (buffer-name buffer) buffer))))
-          (buffer-list))))))
+  "Return an assotiation-list of all TERM buffers."
+  (mapcar
+    (lambda (buffer)
+      (let ((name (buffer-name buffer)))
+	(unless (get-buffer-process buffer)
+	  (setq name (concat name " [finished]")))
+	(cons name buffer)))
+    (>>-xterm/buffer-list term)))
 
 
 (defun >>-xterm/get-default-term ()
@@ -420,19 +429,22 @@ the default value for the current buffer."
   (interactive "P")
   (when (and term (not (functionp term)))
     (setq term (>>-xterm/get-default-term)))
-  (let* ((add-new ">>= add new tab.")
+  (let* ((add-new "[add new tab]")
+         (kill-finished "[kill finished buffers]")
          (buffers (>>-xterm/select term))
-         (collection (cons `(,add-new) buffers))
+         (collection (append (list `(,add-new) `(,kill-finished)) buffers))
          (name (completing-read ">>= terminal: " collection nil t)))
-    (if (string-equal name add-new)
-      (>>=xterminal-add term)
-      ;; else
-      (let ((pair (assoc-string name buffers)))
-        (when-let ((buffer (>>-xterm/check-buffer (cdr pair))))
-          (let* ((state (buffer-local-value '>>-xterm/state buffer))
-                 (term (plist-get state :term))
-                 (tab-index (plist-get state :tab-index)))
-            (>>=xterminal term tab-index)))))))
+    (cond
+      ((string-equal name add-new)
+        (>>=xterminal-add term))
+      ((string-equal name kill-finished)
+        (dolist (pair buffers)
+          (let ((buffer (cdr pair)))
+            (unless (get-buffer-process buffer)
+              (kill-buffer buffer)))))
+      (t
+        (let ((buffer (cdr (assoc-string name buffers))))
+          (switch-to-buffer buffer))))))
 
 
 
