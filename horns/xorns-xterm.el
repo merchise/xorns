@@ -262,17 +262,21 @@ When it is a finished terminal, re-create it."
     res))
 
 
+(defsubst >>-xterm/create-buffer (term buffer-name)
+  "Internal function to create a TERM buffer with the given BUFFER-NAME."
+  (save-window-excursion
+    (let ((target (ansi-term (>>-xterm/key term :program) buffer-name)))
+      (with-current-buffer target
+        (set (make-local-variable '>>-xterm/state) `(:term ,term))
+        target))))
+
+
 (defun >>-xterm/get-or-create-buffer (term tab-index)
   "Get or create a TERM buffer for a given TAB-INDEX."
-  (let* ((buffer-name (>>-xterm/buffer-name term tab-index))
-         (target (>>-xterm/get-buffer buffer-name)))
-    (unless target
-      (let ((command (>>-xterm/key term :program)))
-        (save-window-excursion
-          (with-current-buffer
-            (setq target (ansi-term command buffer-name))
-            (set (make-local-variable '>>-xterm/state) `(:term ,term))))))
-  target))
+  (let ((buffer-name (>>-xterm/buffer-name term tab-index)))
+    (or
+      (>>-xterm/get-buffer buffer-name)
+      (>>-xterm/create-buffer term buffer-name))))
 
 
 (defun >>-xterm/get-alt-buffer (term)
@@ -303,17 +307,6 @@ When it is a finished terminal, re-create it."
           (when (or (null term) (eq (plist-get state :term) term))
             buffer)))
       (buffer-list))))
-
-
-(defun >>-xterm/select (&optional term)
-  "Return an assotiation-list of all TERM buffers."
-  (mapcar
-    (lambda (buffer)
-      (let ((name (buffer-name buffer)))
-	(unless (get-buffer-process buffer)
-	  (setq name (concat name " [finished]")))
-	(cons name buffer)))
-    (>>-xterm/buffer-list term)))
 
 
 (defun >>-xterm/get-default-term ()
@@ -373,7 +366,7 @@ condition."
         ((consp prefix)
           (if (< (prefix-numeric-value prefix) 16)
             (setq paste t)
-            ;; else, `>>=xterminal-add'
+            ;; else, `>>=xterm/add'
             (setq tab-index (>>-xterm/search-new term))))
         ((integerp prefix)
           (setq
@@ -415,36 +408,49 @@ condition."
     target))
 
 
-(defun >>=xterminal-add (&optional term)
+(defun >>=xterm/add (&optional term)
   "Add a new tab for a TERM smart terminal."
   (interactive)
   ;; more than one `C-u' is interpreted as the add-new indicator
   (>>=xterminal term '(16)))
 
 
-(defun >>=xterm-select (&optional term)
+(defun >>=xterm/select (&optional term)
   "Select a smart terminal buffer from the given TERM.
 When called interactively, a TERM given as a prefix argunment will calculate
 the default value for the current buffer."
   (interactive "P")
   (when (and term (not (functionp term)))
     (setq term (>>-xterm/get-default-term)))
-  (let* ((add-new "[add new tab]")
-         (kill-finished "[kill finished buffers]")
-         (buffers (>>-xterm/select term))
-         (collection (append (list `(,add-new) `(,kill-finished)) buffers))
-         (name (completing-read ">>= terminal: " collection nil t)))
+  (let ((add-new "[add new tab]")
+        (kill-finished "[kill finished buffers]")
+        (buffers (>>-xterm/buffer-list term))
+        collection
+        finished
+        name)
+    (setq collection
+      (mapcar
+        (lambda (buffer)
+          (let ((label (buffer-name buffer)))
+	    (unless (get-buffer-process buffer)
+              (setq finished (cons buffer finished))
+	      (setq label (concat label " [finished]")))
+	    (cons label buffer)))
+        buffers))
+    (when finished
+      (setq collection (cons `(,kill-finished) collection)))
+    (setq collection (cons `(,add-new) collection))
+    (setq name (completing-read ">>= terminal: " collection nil t))
     (cond
       ((string-equal name add-new)
-        (>>=xterminal-add term))
+        (>>=xterm/add term))
       ((string-equal name kill-finished)
-        (dolist (pair buffers)
-          (let ((buffer (cdr pair)))
-            (unless (get-buffer-process buffer)
-              (kill-buffer buffer)))))
+        (dolist (buffer finished)
+          (kill-buffer buffer)))
       (t
-        (let ((buffer (cdr (assoc-string name buffers))))
+        (let ((buffer (cdr (assoc-string name collection))))
           (switch-to-buffer buffer))))))
+
 
 
 
@@ -512,10 +518,10 @@ The defined command is a wrapper around `>>=xterminal'."
   "C-c t" '>>=main-term
   "s-M-t" '>>=main-term
   [?\C-`] '>>=xterminal
-  [?\C-~] '>>=xterminal-add
+  [?\C-~] '>>=xterm/add
   "s-/" '>>=xterminal
-  "s-?" '>>=xterminal-add
-  "C-M-`" '>>=xterm-select)
+  "s-?" '>>=xterm/add
+  "C-M-`" '>>=xterm/select)
 
 
 (when >>=!emacs-as-wm
