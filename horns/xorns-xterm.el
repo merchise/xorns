@@ -243,25 +243,6 @@ When TERM is given, only check buffers of that kind."
   (get-buffer (format "*%s*" buffer-name)))
 
 
-(defun >>-xterm/current-buffer ()
-  "Return the `current-buffer'.
-When it is a finished terminal, re-create it."
-  (let ((res (current-buffer)))
-    (when (and >>-xterm/state (not (get-buffer-process res)))
-      (let* ((state >>-xterm/state)
-             (term (plist-get state :term))
-             (command (>>-xterm/key term :program))
-             (tab-index (plist-get state :tab-index))
-             (buffer-name (>>-xterm/buffer-name term tab-index)))
-        (kill-buffer res)
-        (save-window-excursion
-          (with-current-buffer
-            (setq res (ansi-term command buffer-name))
-            (set (make-local-variable '>>-xterm/state) state))))
-      (switch-to-buffer res nil 'force-same-window))
-    res))
-
-
 (defsubst >>-xterm/create-buffer (term buffer-name)
   "Internal function to create a TERM buffer with the given BUFFER-NAME."
   (save-window-excursion
@@ -359,7 +340,7 @@ condition."
   (setq term (or term (>>-xterm/get-default-term)))
   (let (tab-index paste
         implicit
-        (source (>>-xterm/current-buffer))
+        (source (current-buffer))
         target)
     (when prefix
       (cond
