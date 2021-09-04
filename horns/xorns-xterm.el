@@ -35,6 +35,11 @@
 
 ;;; Variables
 
+(defvar >>=|xterm/switch-to-buffer-mode nil
+  "Mode to switch smart between terminal buffers.
+Posible values are: nil is an alias to `other-window', the default value; t is
+an alias to `selected-window'.  Other less common choices are `other-frame',
+`other-tab', `vertically', and `horizontally'.")
 
 
 (defvar >>-xterm/state nil
@@ -267,9 +272,31 @@ When TERM is given, only check buffers of that kind."
         (>>=scratch/get-buffer-create)))))
 
 
-(defsubst >>-xterm/switch-to-buffer (target)
-  "Select the smart terminal TARGET buffer."
-  (switch-to-buffer-other-window target))
+(defun >>-xterm/switch-to-buffer (target &optional mode)
+  "Select the smart terminal TARGET buffer.
+The optional argument MODE will take precedence over the variable
+`>>=|xterm/switch-to-buffer-mode'."
+  (setq mode (or mode >>=|xterm/switch-to-buffer-mode))
+  (cond
+    ((or (null mode) (eq mode 'other-window))
+      (switch-to-buffer-other-window target))
+    ((or (eq mode t) (eq mode 'selected-window))
+      (if (get-buffer-window target)
+        (switch-to-buffer-other-frame target)
+        ;; else
+        (switch-to-buffer target)))
+    ((eq mode 'other-frame)
+      (switch-to-buffer-other-frame target))
+    ((eq mode 'other-tab)
+      (switch-to-buffer-other-tab target))
+    ((eq mode 'vertically)
+      (let ((split-width-threshold nil))
+        (switch-to-buffer-other-window target)))
+    ((eq mode 'horizontally)
+      (let ((split-height-threshold nil))
+        (switch-to-buffer-other-window target)))
+    (t
+      (switch-to-buffer-other-window target))))
 
 
 (defun >>-xterm/buffer-list (&optional term)

@@ -23,6 +23,7 @@ default values are not suitable for your configuration."
     ;; >>=|dired/omit-mode t
     ;; >>=|mode-line/kind 'mini
     ;; >>=|term/install-customizable-colors nil
+    ;; >>=|xterm/switch-to-buffer-mode t
     ;; >>=|exwm/startup-applications
     ;; '(
     ;;    "blueman-applet"                    ; Blueman Applet
