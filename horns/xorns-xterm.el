@@ -35,12 +35,6 @@
 
 ;;; Variables
 
-(defvar >>=|default-shell-file-name nil
-  "Default shell file-name (see `>>-xterm/get-default-shell-file-name').")
-(make-obsolete-variable
-  '>>=|default-shell-file-name
-  " It will no longer exists.  Customize `shell-file-name' instead."
-  "0.9")
 
 
 (defvar >>-xterm/state nil
@@ -62,7 +56,6 @@
   "Adjust a STRING to paste it into a terminal."
   (purecopy
     (or
-      >>=|default-shell-file-name
       explicit-shell-file-name
       shell-file-name
       (>>=executable-find (getenv "ESHELL") (getenv "SHELL") "bash" "zsh"))))
