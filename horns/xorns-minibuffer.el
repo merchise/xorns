@@ -92,7 +92,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   :custom
   (counsel-find-file-at-point t)
   :bind
-  ("C-x d" . counsel-dired)
+  ;; ("C-x d" . counsel-dired)
   ([remap recentf-open-files] . counsel-recentf)
   ("M-y" . >>-counsel-yank-pop)
   :config
