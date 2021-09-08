@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Emacs (Using DBUS, with debugger)
+Comment=Emacs Window Manager with init-debug activated
+# Exec=emacs -mm --debug-init
+Exec=dbus-launch --exit-with-session emacs -mm --debug-init
+# Icon=
+Type=Application
+X-LightDM-DesktopName=emacs
+DesktopNames=emacs
+Keywords=emacs;wm;windowmanager;window;manager;
