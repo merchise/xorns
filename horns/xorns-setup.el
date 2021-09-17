@@ -64,7 +64,7 @@ function."
       ;; else
       (let ((res (executable-find command)))
         (when (null res)
-          (warn ">>= '%s' command is not installed" command))
+          (message ">>= warning: '%s' command is not installed" command))
         res))))
 
 
