@@ -114,7 +114,7 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
   :defer t
   :init
   (defun -inferior-python-setup()
-    (setq-default indent-tabs-mode nil)
+    ;; (setq-default indent-tabs-mode nil)
     (linum-mode 0))
   :bind
   (:map python-mode-map

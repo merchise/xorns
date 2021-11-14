@@ -98,7 +98,7 @@ If t, show line-numbers always, nil never.")
 (use-package text-mode
   :init
   (defun >>=init-text-mode ()
-    "Init `prog-mode' based modes."
+    "Init `text-mode' based modes."
     (>>=try-linum-mode)
     (>>=fci-mode-on))
   :mode
