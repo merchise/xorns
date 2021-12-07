@@ -123,8 +123,12 @@ Valid only if `org' is included in `>>=|pim/packages'.")
   (org-src-fontify-natively t)
   (org-imenu-depth 8)
   :bind
-  ("C-c o l" . org-store-link)
-  ("C-c o a" . org-agenda)
+  ("C-c l" . org-store-link)
+  ("C-c a" . org-agenda)
+  ("C-c c" . org-capture)
+  ("C-c b" . org-switchb)
+  (:map org-mode-map
+    ("C-c o" . org-toggle-link-display))
   :config
   (progn
     (dolist (lang >>=|pim/ob-featured-languages)
