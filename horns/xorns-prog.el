@@ -218,8 +218,7 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
   :ensure t
   :hook
   (lsp-mode . lsp-ui-mode)
-  :custom
-  (lsp-ui-doc-position 'at-point)
+  ;; :custom (lsp-ui-doc-delay 1.0)
   :bind
   (:map lsp-ui-mode-map
     ("C-S-c C-S-j" . lsp-ui-imenu)
