@@ -95,13 +95,11 @@ Valid only if `org' is included in `>>=|pim/packages'.")
   (:map org-mode-map
     ("C-c o" . org-toggle-link-display))
   :config
-  (progn
-    (dolist (lang >>=|pim/ob-featured-languages)
-      (let ((pkg (intern (format "ob-%s" lang))))
-        (when (require pkg nil 'noerror)
-          (unless (assoc lang org-babel-load-languages)
-            (setq org-babel-load-languages
-              (cons `(,lang . t) org-babel-load-languages))))))))
+  ;; Configure `org-babel' languages from our variable
+  (dolist (lang >>=|pim/ob-featured-languages)
+    (when (require (intern (format "ob-%s" lang)) nil 'noerror)
+      (setf (alist-get lang org-babel-load-languages) t)))
+  )
 
 
 
