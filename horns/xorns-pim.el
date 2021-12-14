@@ -23,8 +23,8 @@
 
 
 (defvar >>=|pim/packages
-  '(dictionary deft org)
-  "List of miscellaneous packages to install.")
+  '(dictionary deft)
+  "List of extra PIM packages to configure.")
 
 
 (defmacro >>=-pim/configure? (*pkg*)
@@ -78,7 +78,6 @@ Valid only if `org' is included in `>>=|pim/packages'.")
 
 
 (use-package org
-  :when (>>=-pim/configure? org)
   :commands (org-store-link org-agenda)
   :defer t
   :custom
