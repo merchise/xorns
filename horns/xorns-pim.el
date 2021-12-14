@@ -32,12 +32,6 @@
   `(memq ',*pkg* >>=|pim/packages))
 
 
-(defvar >>=|pim/ob-featured-languages
-  '(shell python)
-  "List of languages to be featured by `org-babel-load-languages'.
-Valid only if `org' is included in `>>=|pim/packages'.")
-
-
 (defconst >>=!pim/prefered-directory (>>=dir-join >>=!home-dir ".pim")
   "List of miscellaneous packages to install.")
 
@@ -75,6 +69,42 @@ Valid only if `org' is included in `>>=|pim/packages'.")
 
 
 
+;;; Organizer
+
+(defvar >>=|pim/ob-featured-languages
+  '(shell python)
+  "List of languages to be featured by `org-babel-load-languages'.
+Valid only if `org' is included in `>>=|pim/packages'.")
+
+
+(use-package org
+  :when (>>=-pim/configure? org)
+  :commands (org-store-link org-agenda)
+  :defer t
+  :custom
+  (org-startup-folded nil)
+  (org-reverse-note-order t)
+  (org-startup-with-inline-images t)
+  (org-src-fontify-natively t)
+  (org-imenu-depth 8)
+  :bind
+  ("C-c l" . org-store-link)
+  ("C-c a" . org-agenda)
+  ("C-c c" . org-capture)
+  ("C-c b" . org-switchb)
+  (:map org-mode-map
+    ("C-c o" . org-toggle-link-display))
+  :config
+  (progn
+    (dolist (lang >>=|pim/ob-featured-languages)
+      (let ((pkg (intern (format "ob-%s" lang))))
+        (when (require pkg nil 'noerror)
+          (unless (assoc lang org-babel-load-languages)
+            (setq org-babel-load-languages
+              (cons `(,lang . t) org-babel-load-languages))))))))
+
+
+
 ;;; Edit plain text notes
 
 (use-package deft
@@ -107,36 +137,6 @@ Valid only if `org' is included in `>>=|pim/packages'.")
   :config
   (>>=dir-set deft-directory
     (>>=dir-join >>=!pim/prefered-directory "notes")))
-
-
-
-;;; Organizer
-
-(use-package org
-  :when (>>=-pim/configure? org)
-  :commands (org-store-link org-agenda)
-  :defer t
-  :custom
-  (org-startup-folded nil)
-  (org-reverse-note-order t)
-  (org-startup-with-inline-images t)
-  (org-src-fontify-natively t)
-  (org-imenu-depth 8)
-  :bind
-  ("C-c l" . org-store-link)
-  ("C-c a" . org-agenda)
-  ("C-c c" . org-capture)
-  ("C-c b" . org-switchb)
-  (:map org-mode-map
-    ("C-c o" . org-toggle-link-display))
-  :config
-  (progn
-    (dolist (lang >>=|pim/ob-featured-languages)
-      (let ((pkg (intern (format "ob-%s" lang))))
-        (when (require pkg nil 'noerror)
-          (unless (assoc lang org-babel-load-languages)
-            (setq org-babel-load-languages
-              (cons `(,lang . t) org-babel-load-languages))))))))
 
 
 (provide 'xorns-pim)
