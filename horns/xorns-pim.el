@@ -71,6 +71,11 @@
 
 ;;; Organizer
 
+(defconst >>=!org/prefered-directory
+  (>>=dir-join >>=!pim/prefered-directory "org")
+  "Prefered default location to look for Org files.")
+
+
 (defvar >>=|pim/ob-featured-languages
   '(shell python)
   "List of languages to be featured by `org-babel-load-languages'.
@@ -80,12 +85,6 @@ Valid only if `org' is included in `>>=|pim/packages'.")
 (use-package org
   :commands (org-store-link org-agenda)
   :defer t
-  :custom
-  (org-startup-folded nil)
-  (org-reverse-note-order t)
-  (org-startup-with-inline-images t)
-  (org-src-fontify-natively t)
-  (org-imenu-depth 8)
   :bind
   ("C-c l" . org-store-link)
   ("C-c a" . org-agenda)
@@ -98,8 +97,17 @@ Valid only if `org' is included in `>>=|pim/packages'.")
   (dolist (lang >>=|pim/ob-featured-languages)
     (when (require (intern (format "ob-%s" lang)) nil 'noerror)
       (setf (alist-get lang org-babel-load-languages) t)))
+  ;; Set some custom variables
+  (>>:custom
+    (org-imenu-depth 8)
+    (org-log-done 'time)
+    (org-startup-folded nil)
+    (org-reverse-note-order t)
+    (org-startup-with-inline-images t)
+    (org-src-fontify-natively t)
+    (org-directory (>>=ensure-dir >>=!org/prefered-directory org-directory))
+    )
   )
-
 
 
 ;;; Edit plain text notes
