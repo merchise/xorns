@@ -39,14 +39,16 @@ Meanwhile, execute:
 git clone -b feature-new-age https://github.com/merchise/xorns.git ~/.emacs.d
 ```
 
-## Xorns conventions
+## Conventions
 
-Most Xorns structures are prefixed with ">>=".  There are other prefixes:
+Most structures are prefixed, next are some conventions:
 
-- ">>=!" for constants
-- ">>=|" for configuration variables
-- ">>=+" for building blocks configuration variables
-- ">>=-" for module internals, , ...
+- `>>=` for general definitions,
+- `>>=!` for constants,
+- `>>=|` for configuration variables,
+- `>>=+` for building blocks configuration variables,
+- `>>=-` for module internals, and
+- `>>:` for declarative functions in package configuration options.
 
 Standard modules will use "-" separator in its names (for example
 "xorns-startup.el").  Building-block modules (units) will use "+" instead (for
