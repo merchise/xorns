@@ -50,22 +50,16 @@ This is done by comparing the given LEVEL against defined `>>=|setup/level'."
     (>>-setup/int-level level)))
 
 
-(defun >>=setup/command-check (command &optional level)
-  "Check a COMMAND to find out if a feature can be configured.
-The COMMAND argument must be a string to be checked against `executable-find',
-In this case, a warning will be issued if the COMMAND is not found.  A boolean
-value can also be used, in which case it is returned without further checking.
-If a setup LEVEL is given, it is verified with the `>>=setup/level-check'
-function."
-  (and
-    (>>=setup/level-check level)
-    (if (booleanp command)
-      command
-      ;; else
-      (let ((res (executable-find command)))
-        (when (null res)
-          (message ">>= warning: '%s' command is not installed" command))
-        res))))
+(defun >>=setup/command-check (command)
+  "Check if a system COMMAND is installed.
+Intended to find out if a feature that depends on the given command can be
+configured."
+  ;; See `use-package-ensure-system-package' fo a more elaborated solution.
+  (or
+    (executable-find command)
+    (progn
+      (message ">>= warning: '%s' command is not installed" command)
+      nil)))
 
 
 (provide 'xorns-setup)
