@@ -17,8 +17,8 @@
 
 ;;; Code:
 
-(require 'use-package)
 (require 'xorns-tools)
+(require 'xorns-setup)
 (require 'xorns-packages)
 
 
