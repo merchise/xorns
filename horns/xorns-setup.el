@@ -112,6 +112,24 @@ function.  ARGS is a sequence of pairs [SYMBOL VALUE]...
     `(>>:custom ,@(nreverse exps))))
 
 
+
+;;; `use-package' extensions
+
+
+(defalias 'use-package-normalize/:custom? 'use-package-normalize/:custom
+  "Normalize use-package ARGS for `:custom?' KEYWORD.")
+
+
+(defun use-package-handler/:custom? (name _keyword args rest state)
+  "Generate use-package `:custom?' keyword code.
+Arguments used: NAME, ARGS, REST, and STATE."
+  (use-package-concat
+    `(,(macroexpand `(>>:custom ,@args)))
+    (use-package-process-keywords name rest state)))
+
+
+(add-to-list 'use-package-keywords :custom? t)    ; t -> append
+
 
 (provide 'xorns-setup)
 ;;; xorns-setup.el ends here
