@@ -128,7 +128,15 @@ Arguments used: NAME, ARGS, REST, and STATE."
     (use-package-process-keywords name rest state)))
 
 
-(add-to-list 'use-package-keywords :custom? t)    ; t -> append
+(setq use-package-keywords
+  ;; `:custom?' may cause problems if added after `:config'
+  (cl-loop for item in use-package-keywords
+    if (eq item :config)
+      collect :custom? and collect :config
+    else
+      unless (eq item :custom?)    ; avoid duplicates
+        collect item)
+  )
 
 
 (provide 'xorns-setup)

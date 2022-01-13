@@ -17,9 +17,10 @@
 
 ;;; Code:
 
-(require 'xorns-tools)
-(require 'xorns-setup)
-(require 'xorns-packages)
+(eval-and-compile
+  (require 'xorns-tools)
+  (require 'xorns-setup)
+  (require 'xorns-packages))
 
 
 (defvar >>=|pim/packages
@@ -92,21 +93,19 @@ Valid only if `org' is included in `>>=|pim/packages'.")
   ("C-c b" . org-switchb)
   (:map org-mode-map
     ("C-c o" . org-toggle-link-display))
+  :custom
+  (org-imenu-depth 8)
+  (org-log-done 'time)
+  (org-startup-folded nil)
+  (org-reverse-note-order t)
+  (org-startup-with-inline-images t)
+  (org-src-fontify-natively t)
+  (org-directory (>>=ensure-dir >>=!org/prefered-directory org-directory))
   :config
   ;; Configure `org-babel' languages from our variable
   (dolist (lang >>=|pim/ob-featured-languages)
     (when (require (intern (format "ob-%s" lang)) nil 'noerror)
       (setf (alist-get lang org-babel-load-languages) t)))
-  ;; Set some custom variables
-  (>>:custom
-    (org-imenu-depth 8)
-    (org-log-done 'time)
-    (org-startup-folded nil)
-    (org-reverse-note-order t)
-    (org-startup-with-inline-images t)
-    (org-src-fontify-natively t)
-    (org-directory (>>=ensure-dir >>=!org/prefered-directory org-directory))
-    )
   )
 
 

@@ -15,7 +15,8 @@
 
 ;;; Code:
 
-(require 'use-package)
+(eval-and-compile
+  (require 'xorns-setup))
 (require 'xorns-bindings)
 
 

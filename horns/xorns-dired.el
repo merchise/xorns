@@ -24,9 +24,11 @@
 ;;; Code:
 
 (require 'bind-key)
-(require 'use-package)
-(require 'xorns-tools)
-(require 'xorns-packages)
+
+(eval-and-compile
+  (require 'xorns-tools)
+  (require 'xorns-setup)
+  (require 'xorns-packages))
 
 
 (define-obsolete-variable-alias

@@ -28,8 +28,10 @@
 
 ;;; Code:
 
-(require 'use-package)
-(require 'xorns-tools)
+(eval-and-compile
+  (require 'xorns-tools)
+  (require 'xorns-setup))
+
 (require 'ibuf-ext)
 (require 'xorns-core)
 

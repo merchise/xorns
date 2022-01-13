@@ -14,9 +14,9 @@
 
 ;;; Code:
 
-(require 'use-package)
-(require 'xorns-tools)
-(require 'xorns-setup)
+(eval-and-compile
+  (require 'xorns-tools)
+  (require 'xorns-setup))
 
 
 

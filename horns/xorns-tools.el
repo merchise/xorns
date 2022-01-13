@@ -17,7 +17,8 @@
 ;;; Code:
 
 (require 'subr-x)    ; for `string-trim'
-(eval-when-compile (require 'cl-lib))
+(eval-when-compile
+  (require 'cl-lib))
 (require 'project)
 
 
