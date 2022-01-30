@@ -114,16 +114,16 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
   :defer t
   :init
   (defun >>-compute-local-venv (root)
-    (let ((local-venv (concat root "/.venv")))
+    (let ((local-venv (>>=dir-join root ".venv")))
       (when (file-exists-p local-venv) local-venv)))
 
   (defun >>-compute-pipfile-env (root)
-    (let ((pipfile-lock-fname (concat root "/Pipfile.lock")))
+    (let ((pipfile-lock-fname (expand-file-name "Pipfile.lock" root)))
       (when (file-exists-p pipfile-lock-fname)
         nil)))
 
   (defun >>-compute-poetry-env (root)
-    (let ((poetry-lock-fname (concat root "/poetry.lock")))
+    (let ((poetry-lock-fname (expand-file-name "poetry.lock" root)))
       (when (file-exists-p poetry-lock-fname)
         nil)))
 
