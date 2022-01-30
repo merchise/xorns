@@ -113,6 +113,7 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
 (use-package python
   :defer t
   :init
+
   (defun >>-compute-local-venv (root)
     (let ((local-venv (>>=dir-join root ".venv")))
       (when (file-exists-p local-venv) local-venv)))
@@ -120,12 +121,14 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
   (defun >>-compute-pipfile-env (root)
     (let ((pipfile-lock-fname (expand-file-name "Pipfile.lock" root)))
       (when (file-exists-p pipfile-lock-fname)
-        nil)))
+        (condition-case nil
+          (car-safe (process-lines (>>=executable-find "pipenv") "--venv"))))))
 
   (defun >>-compute-poetry-env (root)
     (let ((poetry-lock-fname (expand-file-name "poetry.lock" root)))
       (when (file-exists-p poetry-lock-fname)
-        nil)))
+        (condition-case nil
+          (car-safe (process-lines (>>=executable-find "poetry") "env" "info" "-p"))))))
 
   (defun >>-compute-jedi-environment()
     (or
