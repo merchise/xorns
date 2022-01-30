@@ -113,6 +113,34 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
 (use-package python
   :defer t
   :init
+  (defun >>-compute-local-venv (root)
+    (let ((local-venv (concat root "/.venv")))
+      (when (file-exists-p local-venv) local-venv)))
+
+  (defun >>-compute-pipfile-env (root)
+    (let ((pipfile-lock-fname (concat root "/Pipfile.lock")))
+      (when (file-exists-p pipfile-lock-fname)
+        nil)))
+
+  (defun >>-compute-poetry-env (root)
+    (let ((poetry-lock-fname (concat root "/poetry.lock")))
+      (when (file-exists-p poetry-lock-fname)
+        nil)))
+
+  (defun >>-compute-jedi-environment()
+    (or
+      (when-let ((root (projectile-project-root)))
+        (or
+          (>>-compute-local-venv root)
+          (>>-compute-pipfile-env root)
+          (>>-compute-poetry-env root)))
+      nil))
+
+  (defun -python-mode-setup()
+    (outline-minor-mode)
+    (let ((jedi-environment (>>-compute-jedi-environment)))
+      (progn (setq lsp-pylsp-plugins-jedi-environment jedi-environment))))
+
   (defun -inferior-python-setup()
     ;; (setq-default indent-tabs-mode nil)
     (linum-mode 0))
@@ -120,8 +148,8 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
   (:map python-mode-map
     ("C-m" . newline-and-indent))
   :hook
-  ((python-mode . outline-minor-mode)
-   (inferior-python-mode . -inferior-python-setup)))
+  ((python-mode . -python-mode-setup)
+    (inferior-python-mode . -inferior-python-setup)))
 
 
 (use-package blacken
