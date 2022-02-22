@@ -131,6 +131,8 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
           (car-safe (process-lines (>>=executable-find "poetry") "env" "info" "-p"))))))
 
   (defun >>-compute-jedi-environment()
+    (unless (fboundp 'projectile-project-root)    ; use autoload function
+      (projectile-mode))
     (or
       (when-let ((root (projectile-project-root)))
         (or
@@ -140,7 +142,6 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
       nil))
 
   (defun -python-mode-setup()
-    (projectile-mode)
     (outline-minor-mode)
     (let ((jedi-environment (>>-compute-jedi-environment)))
       (progn (setq lsp-pylsp-plugins-jedi-environment jedi-environment))))
