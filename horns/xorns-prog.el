@@ -112,7 +112,7 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
 
 (use-package python
   :defer t
-  :init
+  :preface
 
   (defun >>-compute-local-venv (root)
     (let ((local-venv (>>=dir-join root ".venv")))
