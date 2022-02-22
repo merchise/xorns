@@ -142,9 +142,10 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
       nil))
 
   (defun -python-mode-setup()
+    (defvar lsp-pylsp-plugins-jedi-environment)    ; avoid compile warning
     (outline-minor-mode)
     (let ((jedi-environment (>>-compute-jedi-environment)))
-      (progn (setq lsp-pylsp-plugins-jedi-environment jedi-environment))))
+      (setq lsp-pylsp-plugins-jedi-environment jedi-environment)))
 
   (defun -inferior-python-setup()
     ;; (setq-default indent-tabs-mode nil)
