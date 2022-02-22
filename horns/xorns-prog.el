@@ -140,6 +140,7 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
       nil))
 
   (defun -python-mode-setup()
+    (projectile-mode)
     (outline-minor-mode)
     (let ((jedi-environment (>>-compute-jedi-environment)))
       (progn (setq lsp-pylsp-plugins-jedi-environment jedi-environment))))
