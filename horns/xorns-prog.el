@@ -133,13 +133,11 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
   (defun >>-compute-jedi-environment()
     (unless (fboundp 'projectile-project-root)    ; use autoload function
       (projectile-mode))
-    (or
-      (when-let ((root (projectile-project-root)))
-        (or
-          (>>-compute-local-venv root)
-          (>>-compute-pipfile-env root)
-          (>>-compute-poetry-env root)))
-      nil))
+    (when-let ((root (projectile-project-root)))
+      (or
+        (>>-compute-local-venv root)
+        (>>-compute-pipfile-env root)
+        (>>-compute-poetry-env root))))
 
   (defun -python-mode-setup()
     (defvar lsp-pylsp-plugins-jedi-environment)    ; avoid compile warning
