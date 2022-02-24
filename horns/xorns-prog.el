@@ -131,9 +131,7 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
           (car-safe (process-lines (>>=executable-find "poetry") "env" "info" "-p"))))))
 
   (defun >>-compute-jedi-environment()
-    (unless (fboundp 'projectile-project-root)    ; use autoload function
-      (projectile-mode))
-    (when-let ((root (projectile-project-root)))
+    (when-let ((root (>>=project-root)))
       (or
         (>>-compute-local-venv root)
         (>>-compute-pipfile-env root)
