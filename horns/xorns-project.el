@@ -27,6 +27,7 @@
 
 (use-package projectile
   :ensure t
+  :commands projectile-project-root
   :bind-keymap
   ("C-c p" . projectile-command-map)
   :bind
