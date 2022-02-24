@@ -813,8 +813,10 @@ Each item in MODES is validated and associated with the given COMMAND."
   "Retrieves the root directory of a project if available.
 If DIR is not supplied its set to the current directory by default."
   "Return the project instance in DIR or `default-directory'."
+  ;; Function `projectile-project-root' was added to commands section in
+  ;; `projectile' configuration (see `xorns-project' module).
   (>>=canonical-directory-name
-    (if (functionp 'projectile-project-root)
+    (if (fboundp 'projectile-project-root)
       (funcall 'projectile-project-root dir)
       ;; else
       (when-let (project (project-current nil dir))
