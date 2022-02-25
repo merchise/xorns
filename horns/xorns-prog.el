@@ -130,7 +130,8 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
         (condition-case nil
           (car-safe (process-lines (>>=executable-find "poetry") "env" "info" "-p"))))))
 
-  (defun >>-compute-jedi-environment()
+  (defun >>-get-venv-path()
+    "Get the virtual the environment's path, nil if none."
     (when-let ((root (>>=project-root)))
       (or
         (>>-compute-local-venv root)
@@ -138,10 +139,13 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
         (>>-compute-poetry-env root))))
 
   (defun -python-mode-setup()
-    (defvar lsp-pylsp-plugins-jedi-environment)    ; avoid compile warning
     (outline-minor-mode)
-    (let ((jedi-environment (>>-compute-jedi-environment)))
-      (setq lsp-pylsp-plugins-jedi-environment jedi-environment)))
+    (let ((venv-path (>>-get-venv-path)))
+      (cond
+        ((boundp 'lsp-pylsp-plugins-jedi-environment)
+          (>>=set 'lsp-pylsp-plugins-jedi-environment venv-path))
+        (t
+          (message "No python venv plugin discovered for '%s'" venv-path)))))
 
   (defun -inferior-python-setup()
     ;; (setq-default indent-tabs-mode nil)
