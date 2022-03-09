@@ -144,6 +144,14 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
       (cond
         ((boundp 'lsp-pylsp-plugins-jedi-environment)
           (>>=set 'lsp-pylsp-plugins-jedi-environment venv-path))
+        ((boundp 'lsp-pyls-plugins-jedi-environment)
+          (>>=set 'lsp-pyls-plugins-jedi-environment venv-path))
+        ;; TODO: See other options:
+        ;; https://github.com/emacs-lsp/lsp-pyright/blob/master/lsp-pyright.el
+        ;; - lsp-pyright-venv-path, lsp-pyright-venv-directory
+        ;; https://github.com/emacs-lsp/lsp-python-ms/blob/master/lsp-python-ms.el
+        ;; - lsp-python-ms--dominating-{pyenv|asdf|venv|conda}-python,
+        ;; - lsp-python-ms-python-executable-cmd
         (t
           (message "No python venv plugin discovered for '%s'" venv-path)))))
 
