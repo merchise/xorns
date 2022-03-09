@@ -140,7 +140,7 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
 
   (defun -python-mode-setup()
     (outline-minor-mode)
-    (let ((venv-path (>>-get-venv-path)))
+    (when-let ((venv-path (>>-get-venv-path)))
       (cond
         ((boundp 'lsp-pylsp-plugins-jedi-environment)
           (>>=set 'lsp-pylsp-plugins-jedi-environment venv-path))
