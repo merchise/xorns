@@ -36,7 +36,7 @@
 ;; Disable useless GUI early: menu, toolbar, scroll-bars, and tool-tips.
 (unless (eq system-type 'darwin)
   ;; No disable menu in MacOs
-  (setq menu-bar-mode nil))
+  (menu-bar-mode -1))
 
 (setq
   tool-bar-mode nil
