@@ -159,7 +159,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
       :preview-key (kbd "M-.")))
   (setq
     consult-narrow-key "<"
-    consult-project-root-function #'>>=project-root)
+    consult-project-function #'>>=project-root)
   )
 
 
