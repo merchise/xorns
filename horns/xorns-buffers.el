@@ -140,6 +140,9 @@
             (mode . magit-stashes-mode)
             (mode . magit-status-mode)
             (mode . diff-mode)))
+        ("Background Processes"
+          (or
+            (name . "lsp")))
         ("Help/Info/Completions/Customize"
           (or
             (name . "^[*]Help[*]$")
