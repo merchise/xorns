@@ -75,3 +75,27 @@ Research how to use `lexical-binding` in most `xorns ` modules.
   in the mode-line.
 - Check for alternative packages: `ace-mc`, `evil-mc`, `evil-multiedit`,
   `smart-region`.
+
+
+### Fix loss of focus for Brave when using EXWM
+
+It happens when changing the workspace.  Below is an experimental code being
+tested:
+
+```lisp
+(add-hook
+  'exwm-workspace-switch-hook
+  (defun >>-workspace-switch ()
+    (when (eq exwm-workspace-current-index 2)
+      (let* ((frame (selected-frame))
+             (buf (current-buffer))
+             (win (frame-selected-window frame)) )
+        (message ">>= current buffer %s." buf)
+        (next-window)
+        (switch-to-buffer buf nil 'force)
+        )
+      ))
+  )
+
+(setq exwm-workspace-switch-hook '(exwm-systemtray--on-workspace-switch))
+```

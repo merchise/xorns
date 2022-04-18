@@ -93,6 +93,7 @@
         ("Programming"
           (or
             (derived-mode . prog-mode)
+            (derived-mode . conf-mode)
             (mode . ess-mode)
             (mode . compilation-mode)))
         ("Text Document"
