@@ -162,6 +162,7 @@ to configure for yourself: see `save-buffer' function for more information.")
       :lighter " Window-Coach"
       :keymap >>=window-coach-map
       :global t
+      :group 'window
       (if (<= (count-windows) 1)
         (progn
           (setq >>=window-coach nil)
