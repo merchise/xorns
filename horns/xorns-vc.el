@@ -17,6 +17,11 @@
 (require 'use-package)
 
 
+(use-package git-modes
+  :ensure t
+  :defer t)
+
+
 (use-package magit
   :ensure t
   :bind
