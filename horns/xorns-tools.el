@@ -820,7 +820,7 @@ If DIR is not supplied its set to the current directory by default."
       (funcall 'projectile-project-root dir)
       ;; else
       (when-let (project (project-current nil dir))
-        (car (project-roots project))))))
+        (project-root project)))))
 
 
 (defun >>=project/get-value (symbol &optional dir)
