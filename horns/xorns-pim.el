@@ -100,12 +100,15 @@ Valid only if `org' is included in `>>=|pim/packages'.")
   (org-reverse-note-order t)
   (org-startup-with-inline-images t)
   (org-src-fontify-natively t)
-  (org-directory (>>=ensure-dir >>=!org/prefered-directory org-directory))
   :config
   ;; Configure `org-babel' languages from our variable
   (dolist (lang >>=|pim/ob-featured-languages)
     (when (require (intern (format "ob-%s" lang)) nil 'noerror)
       (setf (alist-get lang org-babel-load-languages) t)))
+  ;; Ensures that the `org-directory' directory exists.
+  (when (and (not (>>=customized? 'org-directory)) >>=!org/prefered-directory)
+    (setq org-directory >>=!org/prefered-directory))
+  (>>=ensure-dir org-directory)
   )
 
 
