@@ -126,10 +126,12 @@ Valid only if `org' is included in `>>=|pim/packages'.")
   ;; TODO: Don't remove the TAB in the next definition
   (deft-strip-summary-regexp "\\([
 	  ]\\|=\\{3,\\}\\|-\\{3,\\}\\|^#\\+[[:upper:]_]+:.*$\\)")
+  ;; (deft-file-limit 128)
   :preface
   (progn
     (declare-function deft-open-file 'deft)
     (declare-function deft-filename-at-point 'deft)
+    (declare-function deft-chomp 'deft)
 
     (defun >>=deft/open-file (&optional switch)
       "Open file killing deft buffer; SWITCH is used in `deft-open-file'."
@@ -142,8 +144,35 @@ Valid only if `org' is included in `>>=|pim/packages'.")
   (("<f12>" . deft)
     (:map deft-mode-map ("M-RET" . >>=deft/open-file)))
   :config
-  (>>=dir-set deft-directory
-    (>>=dir-join >>=!pim/prefered-directory "notes")))
+  (progn
+    (defun deft-parse-summary (contents title)
+      ;; TODO: Check backlog in README file
+      "Parse the file CONTENTS, given the TITLE, and extract a summary."
+      (let* ((summary
+               (let (case-fold-search)
+                 (replace-regexp-in-string
+                   deft-strip-summary-regexp
+                   " "
+                   contents)))
+             (summary-processed
+               (deft-chomp
+                 (if (and
+                       title
+                       (not deft-use-filename-as-title)
+                       (string-match
+                         (regexp-quote
+                           (if deft-org-mode-title-prefix
+                             (concat "^#+TITLE: " title)
+                             title))
+                         summary))
+                   (substring summary (match-end 0) nil)
+                   summary))))
+        (substring
+          summary-processed 0 (min 256 (string-width summary-processed)))))
+
+    (>>=dir-set deft-directory
+      (>>=dir-join >>=!pim/prefered-directory "notes"))
+    ))
 
 
 (provide 'xorns-pim)
