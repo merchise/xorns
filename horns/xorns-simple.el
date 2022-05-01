@@ -198,30 +198,6 @@ value will combine both logics."
   )
 
 
-(use-package mc-extras
-  :when (eq >>=|ext/multiple-cursors 'extra)
-  :ensure t
-  :demand t
-  :after multiple-cursors
-  :bind
-  (:map mc/keymap
-    ("C-. M-C-f" . mc/mark-next-sexps)
-    ("C-. M-C-b" . mc/mark-previous-sexps)
-    ("C-. <" . mc/mark-all-above)
-    ("C-. >" . mc/mark-all-below)
-    ("C-. C-d" . mc/remove-current-cursor)
-    ("C-. C-k" . mc/remove-cursors-at-eol)
-    ("C-. d" . mc/remove-duplicated-cursors)
-    ("C-. C-o" . mc/remove-cursors-on-blank-lines)
-    ("C-. ." . mc/move-to-column)
-    ("C-. =" . mc/compare-chars))
-  (:map rectangle-mark-mode-map
-    ("C-. C-," . mc/rect-rectangle-to-multiple-cursors))
-  (:map cua--rectangle-keymap
-    ("C-. C-," . mc/cua-rectangle-to-multiple-cursors))
-  )
-
-
 
 ;;; grep facilities
 
