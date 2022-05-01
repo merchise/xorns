@@ -24,7 +24,7 @@
 
 
 (defvar >>=|pim/packages
-  '(dictionary deft)
+  '(deft)
   "List of extra PIM packages to configure.")
 
 
@@ -41,12 +41,8 @@
 ;;; Dictionary servers
 
 (use-package dictionary
-  :when (>>=-pim/configure? dictionary)
-  :ensure t
   :bind
-  ("C-c w" . dictionary-search)
-  :custom
-  (dictionary-use-single-buffer t))
+  ("C-c w" . dictionary-search))
 
 
 
