@@ -362,6 +362,8 @@ This variant of `rx' supports common Python named REGEXPS."
   `(rx-let ((block-start       (seq symbol-start
                                     (or "def" "class" "if" "elif" "else" "try"
                                         "except" "finally" "for" "while" "with"
+                                        ;; added by me for python 3.10
+                                        "match" "case"
                                         ;; Python 3.5+ PEP492
                                         (and "async" (+ space)
                                              (or "def" "for" "with")))
@@ -555,6 +557,8 @@ class declarations.")
           "assert" "else" "if" "pass" "yield" "break" "except" "import" "class"
           "in" "raise" "continue" "finally" "is" "return" "def" "for" "lambda"
           "try"
+          ;; added by me for python 3.10
+          "match" "case"
           ;; False, None, and True are listed as keywords on the Python 3
           ;; documentation, but since they also qualify as constants they are
           ;; fontified like that in order to keep font-lock consistent between
