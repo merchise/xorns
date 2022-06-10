@@ -20,6 +20,10 @@
 
 ;;; Code:
 
+(eval-and-compile
+  (require 'package))
+
+
 (setq package-archives
   `(("melpa" . "https://melpa.org/packages/")
     ("org" . "https://orgmode.org/elpa/")
