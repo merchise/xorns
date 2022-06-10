@@ -32,7 +32,11 @@
 
 ;;; Code:
 
-(require 'use-package)
+(eval-and-compile
+  (require 'use-package nil 'noerror)
+  (require 'desktop-environment nil 'noerror))
+
+
 (require 'xorns-tools)
 
 
