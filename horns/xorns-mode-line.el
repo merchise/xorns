@@ -18,10 +18,19 @@
 
 ;;; Code:
 
+(eval-and-compile
+  (require 'use-package nil 'noerror)
+  (require 'spaceline-config nil 'noerror)
+  (require 'doom-modeline nil 'noerror)
+  (require 'doom-themes-ext-org nil 'noerror)
+  (require 'doom-themes-ext-visual-bell nil 'noerror)
+  (require 'doom-themes-ext-treemacs nil 'noerror)
+  (require 'mini-modeline nil 'noerror)
+  (require 'smart-mode-line nil 'noerror))
 
 (require 'xorns-packages)
 (require 'xorns-init)
-(require 'use-package)
+
 
 
 (defvar >>=|mode-line/kind nil
@@ -174,7 +183,7 @@ including `powerline'.")
          )
       )
 
-    (if (eq >>=|minibuffer/completing-framework 'helm)
+    (if (eq (bound-and-true-p >>=|minibuffer/completing-framework) 'helm)
       (spaceline-helm-mode +1))
 
     (setq-default mode-line-format '("%e" (:eval (spaceline-ml-xorns))))
