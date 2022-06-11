@@ -71,3 +71,5 @@ llvm/
 rescript-vscode-*/
 emojis/
 .lsp-eslint-choices
+
+.dap-breakpoints
