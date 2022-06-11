@@ -39,7 +39,14 @@
 
 ;;; Code:
 
-(require 'use-package)
+;; 95  variable ‘eshell-mode-map’ -
+;; 109 function ‘eshell/alias’ -
+
+(eval-and-compile
+  (require 'esh-mode)
+  (require 'em-alias)
+  (require 'use-package nil 'noerror))
+
 (require 'term)
 (require 'xorns-tools)
 (require 'xorns-init)
