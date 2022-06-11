@@ -56,15 +56,9 @@
 
 ;;; Graphically indicate the fill column
 
-(use-package fill-column-indicator
-  :ensure t
-  :preface
-  (defun >>=fci-mode-on ()
-    "Set `fci-mode' on."
-    (fci-mode +1))
+(use-package display-fill-column-indicator
   :custom
-  (fill-column 78)
-  (fci-rule-width 1))
+  (fill-column 78))
 
 
 
@@ -77,7 +71,7 @@ If t, show line-numbers always, nil never.")
 ;; todo: @see `display-line-numbers', and `line-number-display-limit'
 
 (use-package linum
-  :init
+  :preface
   (defun >>=try-linum-mode ()
     "Activate line-numbers for buffers smaller than `>>=|linum/max-limit'."
     (let ((size (buffer-size)))
@@ -96,11 +90,12 @@ If t, show line-numbers always, nil never.")
 ;;; text-modes
 
 (use-package text-mode
+  :after linum
   :init
   (defun >>=init-text-mode ()
     "Init `text-mode' based modes."
     (>>=try-linum-mode)
-    (>>=fci-mode-on))
+    (display-fill-column-indicator-mode +1))
   :mode
   ("\\.log\\'" "/LICENSE\\'")
   :hook
