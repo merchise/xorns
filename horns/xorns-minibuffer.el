@@ -16,8 +16,20 @@
 ;;; Code:
 
 (eval-and-compile
-  (require 'xorns-setup))
+  (require 'xorns-setup)
+  (require 'helm-mode nil 'noerror)
+  (require 'helm-for-files nil 'noerror)
+  (require 'helm-buffers nil 'noerror)
+  (require 'vertico nil 'noerror)
+  (require 'counsel nil 'noerror)
+  (require 'consult-xref nil 'noerror)
+  (require 'consult-register nil 'noerror)
+  (require 'ivy nil 'noerror)
+  (require 'ido nil 'noerror)
+  (require 'ido-completing-read+ nil 'noerror))
+
 (require 'xorns-bindings)
+
 
 
 (defvar >>=|minibuffer/completing-framework nil
@@ -57,10 +69,9 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   (ido-auto-merge-work-directories-length -1)
   (ido-auto-merge-delay-time 1.5)
   :config
-  (progn
-    (when (eq >>=|minibuffer/completing-framework 'ido+)
-      (ido-everywhere +1))
-    (ido-mode +1)))
+  (when (eq >>=|minibuffer/completing-framework 'ido+)
+    (ido-everywhere +1))
+  (ido-mode +1))
 
 
 (use-package ido-completing-read+
@@ -97,8 +108,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   ([remap recentf-open-files] . counsel-recentf)
   ("M-y" . >>-counsel-yank-pop)
   :config
-  (progn
-    (counsel-mode +1)))
+  (counsel-mode +1))
 
 
 
@@ -112,8 +122,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   (ivy-use-virtual-buffers t)
   (ivy-virtual-abbreviate nil)    ; 'abbreviate is also nice
   :config
-  (progn
-    (ivy-mode +1)))
+  (ivy-mode +1))
 
 
 
@@ -189,9 +198,8 @@ Always considered true when `>>=|minibuffer/completing-framework' is
     ("<C-M-left>" . helm-previous-source)
     ("<C-M-right>" . helm-next-source))
   :config
-  (progn
-    (>>=remap "M-x" helm-M-x "M-X")
-    (helm-mode +1)))
+  (>>=remap "M-x" helm-M-x "M-X")
+  (helm-mode +1))
 
 
 (use-package helm-config
@@ -199,15 +207,13 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   :ensure helm
   :demand t
   :preface
-  (progn
-    (defun >>=helm/multi (&optional arg)
-      "Use `helm-mini' if nil, otherwise call `helm-multi-files'."
-      (interactive "P")
-      (if (null arg)
-        (helm-mini)
-        ;; else
-        (helm-multi-files)))
-    )
+  (defun >>=helm/multi (&optional arg)
+    "Use `helm-mini' if nil, otherwise call `helm-multi-files'."
+    (interactive "P")
+    (if (null arg)
+      (helm-mini)
+      ;; else
+      (helm-multi-files)))
   :bind    ; TODO: Check this configuration
   (("M-Y" . helm-show-kill-ring)
    ("C-h SPC" . helm-all-mark-rings)
@@ -216,21 +222,19 @@ Always considered true when `>>=|minibuffer/completing-framework' is
    :map minibuffer-local-map
    ("C-c C-l" . helm-minibuffer-history))
   :config
-  (progn
-    ;; Note: Do not remove `:demand' option.  "C-x c" is very similar to
-    ;; `kill-emacs' ("C-x C-c"), so we use "C-c h".  Global method is used
-    ;; because `helm-command-prefix-key' do not work if changed after
-    ;; `helm-config' is loaded
-    (global-set-key (kbd "C-c h") 'helm-command-prefix)
-    (global-unset-key (kbd "C-x c"))))
+  ;; Note: Do not remove `:demand' option.  "C-x c" is very similar to
+  ;; `kill-emacs' ("C-x C-c"), so we use "C-c h".  Global method is used
+  ;; because `helm-command-prefix-key' do not work if changed after
+  ;; `helm-config' is loaded
+  (global-set-key (kbd "C-c h") 'helm-command-prefix)
+  (global-unset-key (kbd "C-x c")))
 
 
 (use-package swiper-helm
   :when (eq >>=|minibuffer/completing-framework 'helm)
   :ensure t
   :config
-  (progn
-    (>>=remap "C-s" swiper-helm "C-S-s")))
+  (>>=remap "C-s" swiper-helm "C-S-s"))
 
 
 (provide 'xorns-minibuffer)
