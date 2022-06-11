@@ -32,6 +32,11 @@
 (require 'term)
 (require 'xorns-tools)
 
+(eval-and-compile
+  (require 'xorns-bindings)
+  (require 'xorns-core)
+  (require 'xorns-simple))
+
 
 
 ;;; Variables
@@ -84,70 +89,69 @@ an alias to `selected-window'.  Other less common choices are `other-frame',
   (term-send-raw-string (concat text "\n")))
 
 
-(defun >>=xterm/define-paste-magic (&optional magic)
-  "Create a ':paster' adapter like IPython's MAGIC '%paste' command."
-  (if (null magic)
-    (setq magic "%paste"))
-  (lambda (text)
-    (when text
-      (if (string-match-p "\n" text)
-        (progn
-          (kill-new text)
-          (>>-xterm/paster magic)
-          (current-kill 1))
+(eval-and-compile
+  (defun >>=xterm/define-paste-magic (&optional magic)
+    "Create a ':paster' adapter like IPython's MAGIC '%paste' command."
+    (if (null magic)
+      (setq magic "%paste"))
+    (lambda (text)
+      (when text
+        (if (string-match-p "\n" text)
+          (progn
+            (kill-new text)
+            (>>-xterm/paster magic)
+            (current-kill 1))
+          ;; else
+          (>>-xterm/paster text)))))
+
+  (defun >>-xterm/check-paster (paster)
+    "Check a PASTER definition and convert it to a valid function."
+    (or
+      (when (stringp paster)
+        (>>=xterm/define-paste-magic paster))
+      (>>=cast-function paster)
+      (if (and (symbolp paster) (not (booleanp paster)))
+        paster
         ;; else
-        (>>-xterm/paster text)))))
+        (error ">>= wrong :paster definition '%s'" paster))))
 
-
-(defun >>-xterm/check-paster (paster)
-  "Check a PASTER definition and convert it to a valid function."
-  (or
-    (when (stringp paster)
-      (>>=xterm/define-paste-magic paster))
-    (>>=cast-function paster)
-    (if (and (symbolp paster) (not (booleanp paster)))
-      paster
-      ;; else
-      (error ">>= wrong :paster definition '%s'" paster))))
-
-
-(defun >>-xterm/command-name (&optional id)
-  "Create a command name for a terminal from the given ID.
+  (defun >>-xterm/command-name (&optional id)
+    "Create a command name for a terminal from the given ID.
 If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
 `>>=main-term'"
-  (if id
-    (if (string-match-p "^[[:alnum:]]+$" (symbol-name id))
-      (intern (format ">>=%s-term" id))
+    (if id
+      (if (string-match-p "^[[:alnum:]]+$" (symbol-name id))
+        (intern (format ">>=%s-term" id))
+        ;; else
+        id)
       ;; else
-      id)
-    ;; else
-    '>>=main-term))
+      '>>=main-term))
 
-
-(defun >>-xterm/fix-keywords (keywords)
-  "Fix raw terminal KEYWORDS parameters."
-  (>>=map-pair
-    (lambda (key value)
-      (pcase key
-        (:program
-          (mapcar
-            (lambda (item)
-              (or
-                (when (consp item)
-                  (cons
-                    (>>=str (car item) :program)
-                    (>>-xterm/check-paster (cdr item))))
-                (>>=str item :program)))
-            (>>=cast-list value)))
-        (:paster
-          (>>-xterm/check-paster value))
-        (:buffer-name
-          (>>=str value :buffer-name))
-        (:mode
-          (mapcar (lambda (mode) (>>=str mode :mode)) (>>=cast-list value)))
-        (_
-          (error ">>= unexpected keyword '%s' with value '%s'" key value))))
-    (>>=plist-fix keywords)))
+  (defun >>-xterm/fix-keywords (keywords)
+    "Fix raw terminal KEYWORDS parameters."
+    (>>=map-pair
+      (lambda (key value)
+        (pcase key
+          (:program
+            (mapcar
+              (lambda (item)
+                (or
+                  (when (consp item)
+                    (cons
+                      (>>=str (car item) :program)
+                      (>>-xterm/check-paster (cdr item))))
+                  (>>=str item :program)))
+              (>>=cast-list value)))
+          (:paster
+            (>>-xterm/check-paster value))
+          (:buffer-name
+            (>>=str value :buffer-name))
+          (:mode
+            (mapcar (lambda (mode) (>>=str mode :mode)) (>>=cast-list value)))
+          (_
+            (error ">>= unexpected keyword '%s' with value '%s'" key value))))
+      (>>=plist-fix keywords)))
+  )
 
 
 (defsubst >>-xterm/default-value (term key)
