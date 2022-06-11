@@ -58,6 +58,12 @@ example "xorns+python.el", "").  Sub-levels are joined with "/" (for example
 
 ## Backlog
 
+### Deft is too slow after Emacs 28
+
+Function `deft-parse-summary` was replaced.  Check after Emacs or Deft are
+updated.
+
+
 ### Avoid compiler errors
 
 Sometimes, there are errors depending on module load; for example, using

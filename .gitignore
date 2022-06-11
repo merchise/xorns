@@ -65,7 +65,7 @@ ac-comphist.dat
 projectile.cache
 projectile-bookmarks.eld
 javadoc-cache
-
+/eln-cache/
 
 llvm/
 rescript-vscode-*/
