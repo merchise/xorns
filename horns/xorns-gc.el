@@ -26,6 +26,9 @@
 (require 'xorns-packages)
 (require 'xorns-init)
 
+(eval-and-compile
+  (require 'use-package nil 'noerror))
+
 
 (defconst >>=!gc/default-threshold-base #x4000000    ; 64M
   "Default value to be used when `>>=|gc/strategy' is t.")
@@ -83,7 +86,10 @@ configure defined strategy in `>>=|gc/strategy' variable."
         gc-cons-threshold (>>=gc/threshold-from-base (car >>=|gc/strategy))
         gc-cons-percentage (cdr >>=|gc/strategy)))
     ((and (symbolp >>=|gc/strategy) (memq >>=|gc/strategy '(smart magic)))
-      (>>=package/config gcmh
+      (use-package gcmh
+        :ensure t
+        :config
+        (declare-function gcmh-mode 'gcmh)    ; WTF
         (gcmh-mode +1)))
     (t
       (warn ">>= invalid `>>=|gc/strategy' value: %s" >>=|gc/strategy))))
