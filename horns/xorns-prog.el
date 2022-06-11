@@ -19,8 +19,9 @@
 (require 'xorns-simple)
 
 (eval-and-compile
+  (require 'hideshow)
   (require 'xorns-term)
-  (require 'use-package))
+  (require 'use-package nil 'noerror))
 
 
 
@@ -28,36 +29,40 @@
 
 (use-package auto-complete
   :ensure t
+  :preface
+  (declare-function ac-flyspell-workaround 'auto-complete)
   :custom
   (ac-trigger-key "TAB")
   :config
-  (progn
-    (ac-flyspell-workaround)))
+  ;; TODO: check `global-auto-complete-mode'
+  (ac-flyspell-workaround))
 
 
 (use-package yasnippet
   :ensure t
   :preface
-  (progn
-    (defun >>=snippets/initialize ()
-      "Initialize `xorns' snippets."
-      (let* ((lib-dir (bound-and-true-p >>=!library-directory))
-             (snip-dir (expand-file-name "snippets" lib-dir)))
-        (if (file-exists-p snip-dir)
-          (progn
-            (add-to-list 'yas-snippet-dirs snip-dir t)
-            (yas-load-directory snip-dir))
-          ;; else
-          (message ">>= snippets directory '%s' does not exist." snip-dir)))))
+  (declare-function yas-global-mode 'yasnippet)
+  (declare-function yas-load-directory 'yasnippet)
+
+  (defun >>=snippets/initialize ()
+    "Initialize `xorns' snippets."
+    (let* ((lib-dir (bound-and-true-p >>=!library-directory))
+           (snip-dir (expand-file-name "snippets" lib-dir)))
+      (if (file-exists-p snip-dir)
+        (progn
+          (add-to-list 'yas-snippet-dirs snip-dir t)
+          (yas-load-directory snip-dir))
+        ;; else
+        (message ">>= snippets directory '%s' does not exist." snip-dir))))
   :config
-  (progn
-    (yas-global-mode +1)
-    (>>=snippets/initialize)))
+  (yas-global-mode +1)
+  (>>=snippets/initialize))
 
 
 (use-package flycheck
   :ensure t
-  :functions global-flycheck-mode
+  :preface
+  (declare-function global-flycheck-mode 'flycheck)
   :custom
   (flycheck-idle-change-delay 10)
   :config
@@ -65,6 +70,8 @@
 
 
 (use-package prog-mode
+  :preface
+  (declare-function auto-complete-mode 'auto-complete)
   :init
   (defun >>=init-prog-mode ()
     "Init `prog-mode' based modes."
@@ -169,17 +176,17 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
 (use-package blacken
   :ensure t
   :preface
-  (progn
-    (defun >>=blacken/turn-on ()
-      "Setup `blacken' inner a file in `python-mode'."
-      (interactive)
-      (turn-off-auto-fill)
-      (blacken-mode))
+  (declare-function blacken-mode 'blacken)
 
-    (defun >>-blacken/may-enable-mode ()
-      "Determine whether `blacken' may be enabled (see `>>=|blacken/enable')."
-      (>>=major-mode-trigger blacken >>=|blacken/enable >>=blacken/turn-on))
-    )
+  (defun >>=blacken/turn-on ()
+    "Setup `blacken' inner a file in `python-mode'."
+    (interactive)
+    (turn-off-auto-fill)
+    (blacken-mode))
+
+  (defun >>-blacken/may-enable-mode ()
+    "Determine whether `blacken' may be enabled (see `>>=|blacken/enable')."
+    (>>=major-mode-trigger blacken >>=|blacken/enable >>=blacken/turn-on))
   :hook
   (python-mode . >>-blacken/may-enable-mode)
   :custom
@@ -223,32 +230,32 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
   :ensure t
   :demand t
   :preface
-  (progn
-    (defun >>-lsp-buffer? ()
-      "Validate current buffer language for `lsp-language-id-configuration'."
-      ;; TODO: refactor this, this code was copied from `lsp-buffer-language'
-      ;; but skipping the warning.
-      (when-let ((fn (buffer-file-name)))
-        (->> lsp-language-id-configuration
-          (-first
-            (-lambda ((mode-or-pattern . language))
-              (cond
-                ((and (stringp mode-or-pattern)
-                   (s-matches? mode-or-pattern fn))
-                  language)
-                ((eq mode-or-pattern major-mode)
-                  language))))
-          cl-rest)))
+  (declare-function lsp 'lsp-mode)
 
-    (defun >>-lsp/may-enable-server ()
-      "Determine whether `lsp' may be enabled (see `>>=|lsp/enable-mode')."
-      (>>=major-mode-trigger
-        lsp
-        (if (eq >>=|lsp/enable-mode t)
-          '>>-lsp-buffer?
-          >>=|lsp/enable-mode)
-        lsp +1))
-    )
+  (defun >>-lsp-buffer? ()
+    "Validate current buffer language for `lsp-language-id-configuration'."
+    ;; TODO: refactor this, this code was copied from `lsp-buffer-language'
+    ;; but skipping the warning.
+    (when-let ((fn (buffer-file-name)))
+      (->> lsp-language-id-configuration
+        (-first
+          (-lambda ((mode-or-pattern . language))
+            (cond
+              ((and (stringp mode-or-pattern)
+                 (s-matches? mode-or-pattern fn))
+                language)
+              ((eq mode-or-pattern major-mode)
+                language))))
+        cl-rest)))
+
+  (defun >>-lsp/may-enable-server ()
+    "Determine whether `lsp' may be enabled (see `>>=|lsp/enable-mode')."
+    (>>=major-mode-trigger
+      lsp
+      (if (eq >>=|lsp/enable-mode t)
+        '>>-lsp-buffer?
+        >>=|lsp/enable-mode)
+      lsp +1))
   :custom
   (lsp-auto-guess-root t)
   (lsp-keymap-prefix "C-s-l")    ; "s-l" is the lock key in several laptops
@@ -285,6 +292,8 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 (use-package tern-auto-complete
   :ensure t
+  :preface
+  (declare-function tern-ac-setup 'tern-auto-complete)
   :after tern
   :config
   (tern-ac-setup))
@@ -303,7 +312,6 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
     ;; TODO: What about to add also all interpreters currently using `js-mode'
     ;;       ("rhino", "gjs", and "nodejs")
     (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
-    (require 'tern-auto-complete)
     (tern-ac-setup)))
 
 
