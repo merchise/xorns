@@ -142,7 +142,8 @@
             (mode . diff-mode)))
         ("Background Processes"
           (or
-            (name . "lsp")))
+            (name . "lsp")
+            (name . "blacken")))
         ("Help/Info/Completions/Customize"
           (or
             (name . "^[*]Help[*]$")
