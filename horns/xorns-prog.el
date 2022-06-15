@@ -283,8 +283,7 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 ;;; Javascript, CoffeeScript and LiveScript
 
 (use-package tern
-  ;; This requires you have the `tern' program installed in your system and in
-  ;; the exec-path.
+  ;; `tern' program must be installed in your system
   :ensure t
   :config
   (add-hook 'js2-mode-hook #'tern-mode))
@@ -299,12 +298,18 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
   (tern-ac-setup))
 
 
+(use-package prettier
+  ;; `prettier' program must be installed in your system
+  :ensure t)
+
+
 (use-package js2-mode
   :ensure t
-  :after tern-auto-complete
+  :after (tern-auto-complete prettier)
   :mode ("\\.js\\'" "\\.pac\\'" "node")
   :hook
   (js-mode . tern-mode)
+  (js-mode . prettier-mode)
   :custom
   (js-indent-level 2)
   :config
@@ -323,7 +328,8 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
   :hook
   (json-mode .
     (lambda ()
-      (setq flycheck-checker 'json-jsonlint))))
+      (setq flycheck-checker 'json-jsonlint)))
+  (json-mode . prettier-mode))
 
 
 
