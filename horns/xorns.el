@@ -58,7 +58,9 @@
       (format "%.1f seconds"
         (float-time (time-subtract after-init-time before-init-time))))
     (require 'xorns-gc)    ; Configure GC strategy
-    (message ">>= xorns initialized in %s seconds." >>=xorns-initialized)))
+    (run-with-timer 1 nil
+      'message ">>= xorns initialized in %s seconds." >>=xorns-initialized)
+    ))
 
 
 (when (and >>=|enable-server (not noninteractive))
