@@ -33,6 +33,7 @@
 (require 'xorns-text)
 (require 'xorns-prog)
 (require 'xorns-prog-extra)
+(require 'xorns-devop)
 (require 'xorns-project)
 (require 'xorns-crypt)
 (require 'xorns-pim)
