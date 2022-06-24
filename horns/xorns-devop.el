@@ -25,7 +25,9 @@
 
 
 (use-package dockerfile-mode
-  :ensure t)
+  :ensure t
+  :init
+  (add-to-list 'auto-mode-alist '("\\.docker\\'" . dockerfile-mode)))
 
 
 (use-package docker-compose-mode
