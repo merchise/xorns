@@ -15,6 +15,7 @@
 ;;; Code:
 
 (eval-and-compile
+  (require 'tramp)
   (require 'xorns-tools)
   (require 'xorns-setup))
 
@@ -235,12 +236,10 @@ value will combine both logics."
 
 ;;; Remote Access Protocol
 
-(use-package tramp
-  :config
-  (defun >>=local-buffer (&optional buffer)
-    "Not nil if BUFFER visits a local (not remote) file."
-    (interactive "b")
-    (not (tramp-connectable-p (buffer-file-name buffer)))))
+(defun >>=local-buffer (&optional buffer)
+  "Not nil if BUFFER visits a local (not remote) file."
+  (interactive "b")
+  (not (tramp-connectable-p (buffer-file-name buffer))))
 
 
 

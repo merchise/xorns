@@ -2,7 +2,7 @@
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 ;; URL: https://github.com/merchise/xorns
-;; Version: 0.8.14
+;; Version: 0.8.15
 
 ;;; Commentary:
 
@@ -21,8 +21,11 @@
 ;; `xorns-packages' must be the first module loaded here
 (require 'xorns-packages)
 
+(eval-and-compile
+  (require 'server)
+  (require 'use-package nil 'noerror))
+
 (require 'xorns-display)
-(require 'use-package)
 (require 'xorns-init)
 
 
@@ -58,9 +61,7 @@
     (message ">>= xorns initialized in %s seconds." >>=xorns-initialized)))
 
 
-(use-package server
-  :when (and >>=|enable-server (not noninteractive))
-  :config
+(when (and >>=|enable-server (not noninteractive))
   (unless (or (daemonp) (server-running-p))
     (message ">>= starting server...")
     (server-start)))
