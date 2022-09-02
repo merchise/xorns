@@ -141,19 +141,22 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
   (defun -python-mode-setup()
     (outline-minor-mode)
     (when-let ((venv-path (>>-get-venv-path)))
-      (cond
-        ((boundp 'lsp-pylsp-plugins-jedi-environment)
-          (>>=set 'lsp-pylsp-plugins-jedi-environment venv-path))
-        ((boundp 'lsp-pyls-plugins-jedi-environment)
-          (>>=set 'lsp-pyls-plugins-jedi-environment venv-path))
-        ;; TODO: See other options:
-        ;; https://github.com/emacs-lsp/lsp-pyright/blob/master/lsp-pyright.el
-        ;; - lsp-pyright-venv-path, lsp-pyright-venv-directory
-        ;; https://github.com/emacs-lsp/lsp-python-ms/blob/master/lsp-python-ms.el
-        ;; - lsp-python-ms--dominating-{pyenv|asdf|venv|conda}-python,
-        ;; - lsp-python-ms-python-executable-cmd
-        (t
-          (message "No python venv plugin discovered for '%s'" venv-path)))))
+      (message "Found venv path '%s'" venv-path)
+      (when (boundp 'lsp-pylsp-plugins-jedi-environment)
+        (progn
+          (message "Setting '%s' in pylsp" venv-path)
+          (>>=set 'lsp-pylsp-plugins-jedi-environment venv-path)))
+      (when (boundp 'lsp-pyls-plugins-jedi-environment)
+        (progn
+          (message "Setting '%s' in pyls" venv-path)
+          (>>=set 'lsp-pyls-plugins-jedi-environment venv-path)))
+      ;; lsp-pyrigth does its own lookup with the function
+      ;; lsp-pyright-locate-venv; so we don't need to do anything here for it.
+      ;; TODO: See other options:
+      ;; https://github.com/emacs-lsp/lsp-python-ms/blob/master/lsp-python-ms.el
+      ;; - lsp-python-ms--dominating-{pyenv|asdf|venv|conda}-python,
+      ;; - lsp-python-ms-python-executable-cmd
+      ))
 
   (defun -inferior-python-setup()
     ;; (setq-default indent-tabs-mode nil)
