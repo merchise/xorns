@@ -20,7 +20,7 @@
 (require 'xorns-tools)
 
 
-(defconst >>=!font/default-name "Roboto Mono"
+(defconst >>=!font/default-name "Source Code Pro"
   "Default font-name.")
 
 
