@@ -32,6 +32,9 @@ CLEAN OPTIONS
     clean-lisp     - clean emacs-lisp library
     clean-docs     - clean documentation
     clean-info     - clean documentation
+
+RELEASE OPTIONS
+    release        - use command "VERSION=<new-release> make release"
 endef
 
 
