@@ -137,8 +137,8 @@ OPTION could be:
       res)))
 
 
-(defun >>=get-spacemacs-fallbacks ()
-  "Build a list of fallback forms as applied in `spacemacs/set-default-font'."
+(defun >>-font/get-default-fallbacks ()
+  "Build a fallback form to apply as default by `>>=set-default-font'."
   (let ((font-names
           (plist-get
             '(gnu/linux ("NanumGothic" . "NanumGothic")
@@ -184,9 +184,9 @@ The given OPTION will be normalized to a property-list as used for the
 `font-spec' function arguments.  See the function `>>-font/normalize-attrs'
 for more details.
 
-If `:fallback' is specified, it must be either the symbol `spacemacs' (see
-`>>=get-spacemacs-fallbacks'), or a form containing a font-name and a set of
-targets valid for `set-fontset-font', or a sequence of such forms."
+If `:fallback' is specified, it must be either t for a default form (see
+`>>-font/get-default-fallbacks'), or a form containing a font-name and a set
+of targets valid for `set-fontset-font', or a sequence of such forms."
   (>>=on-debug-message "setting default font...")
   (let* ((props (>>-font/normalize-attrs option))
          (fallback (plist-get props :fallback)))
@@ -204,8 +204,8 @@ targets valid for `set-fontset-font', or a sequence of such forms."
           ;; to be able to scale the fallback fonts with the default one
           ;; (for zoom-in/out for instance)
           (setq props (>>=plist-remove props :name :size :height :family))
-          (if (eq fallback 'spacemacs)
-            (setq fallback (>>=get-spacemacs-fallbacks))
+          (if (eq fallback t)
+            (setq fallback (>>-font/get-default-fallbacks))
             ;; else
             (when (not (listp (car fallback)))
               (setq fallback (list fallback))))
