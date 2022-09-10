@@ -10,6 +10,9 @@
 
 ;; This library defines several utilities to configure display-system.
 
+;; This module used some ideas of Spacemacs for font configuration tools
+;; implementation.
+
 ;; Enjoy!
 
 
@@ -20,22 +23,36 @@
 (require 'xorns-tools)
 
 
-(defconst >>=!font/default-name "Source Code Pro"
-  "Default font-name.")
+(defvar >>=|default-font 'medium
+  "Variable to configure the default font to be used.
+See `>>=set-default-font' function for details about allowed values.")
 
 
-(defconst >>=!font/sizes
-  '((nil . 12.8) (small . 11.3) (medium . 12.8) (large . 14.3))
-  "Mapping used for `>>=select-font' to convert a symbol to a font size.")
+(defconst >>-!font/default-name "Source Code Pro"
+  "Default font-name when none is spefied.")
 
 
-(defvar >>=font/configured nil
+(defconst >>-!font/default-size 'medium
+  "Default font-size when none is spefied.")
+
+
+(defconst >>-!font/sizes
+  '((tiny . 9.8) (small . 11.3) (medium . 12.8) (large . 14.3) (extra . 15.8))
+  "Semantic symbol aliases for several standard font-sizes.")
+
+
+(defvar -font/configured nil
   "If default-font is configured or not on a graphic display.")
 
 
-(defvar >>=|default-font 'medium
-  "Default font or prioritized list of fonts.
-See `>>=select-font' function for more information.")
+(defsubst -font/size->plist (size)
+  "Build default font properties based only in a SIZE."
+  `(:name ,>>-!font/default-name :size ,size :weight normal :width normal))
+
+
+(defmacro -font/cast-size (size)
+  "Change value of font SIZE if a symbo alias is given."
+  `(cl-assert (setq ,size (cdr (assq ,size >>-!font/sizes)))))
 
 
 (defun >>-display-system-p ()
@@ -54,21 +71,33 @@ See `>>=select-font' function for more information.")
       (display-graphic-p))))
 
 
-(defun >>=select-font (option)
-  "Select or create a font configuration from the given OPTION.
+(defun >>-font/normalize-attrs (&optional option)
+  "Normalize arguments to create a font-object using the function `font-spec'.
+OPTION could be:
 
-OPTION can be either nil to use all properties as default; or one of the
-symbols `small', `medium', or `large' (see `>>=!font/sizes'); or a
-non-negative integer or floating point number specifying the font size; the
-form ([FONT-NAME] PROPERTIES) or a list of such (the first font that can be
-found with `find-font' will be used).
+- nil, equivalent to use `>>-!font/default-size' (see non-negative number
+  below).
 
-The return value is a property-list that can be used with the `font-spec'
-function, or nil if no font was found."
+- A symbol, mapping `>>-!font/sizes' is used to get a size (non-negative
+ number).
+
+- A non-negative number, integer or floating point, specifies a font-size that
+  is complemented with some extra default values (see `-font/size->plist'
+  function).
+
+- A property-list, is the standard format.  If the first element is a string,
+  it is considered the font-name, and the key `:name' is added as the new
+  `car'.
+
+- A prioritized set of choices, each item must be a list using a font-name
+  (a string) as first element.  The function `find-font' will be used until a
+  valid value is found."
+  (unless option
+    (setq option >>-!font/default-size))
   (when (symbolp option)
-    (cl-assert (setq option (cdr (assq option >>=!font/sizes)))))
+    (-font/cast-size option))
   (if (numberp option)
-    `(:name ,>>=!font/default-name :size ,option :weight normal :width normal)
+    (-font/size->plist option)
     ;; else
     (let ((choices (if (listp (car option)) option (list option)))
           res)
@@ -81,7 +110,7 @@ function, or nil if no font was found."
             ;; else
             (unless (setq name (plist-get choice :name))
               (setq
-                name (or (plist-get choice :family) >>=!font/default-name)
+                name (or (plist-get choice :family) >>-!font/default-name)
                 op 'nconc)))
           (if (find-font (font-spec :name name))
             (progn
@@ -96,7 +125,7 @@ function, or nil if no font was found."
                     choice)))
               (let ((size (plist-get res :size)))
                 (when (symbolp size)
-                  (cl-assert (setq size (cdr (assq size >>=!font/sizes))))
+                  (-font/cast-size size)
                   (plist-put res :size size)))
               (when (not (plist-member res :weight))
                 (plist-put res :weight 'normal))
@@ -104,6 +133,7 @@ function, or nil if no font was found."
                 (plist-put res :width 'normal)))
             ;; else
             (setq choices (cdr choices)))))
+      (cl-assert res nil "No valid option found for font.")
       res)))
 
 
@@ -129,16 +159,16 @@ function, or nil if no font was found."
 
 (defun >>=configure-font ()
   "Find and set the default font."
-  (when (and (not >>=font/configured) >>=|default-font)
+  (when (and (not -font/configured) >>=|default-font)
     (if (display-graphic-p)
       (when (>>-display-system-p)
         ;; if display is not ready, this takes another try in startup hook
         (if-let ((res (>>=set-default-font >>=|default-font)))
-          (setq >>=font/configured res)
+          (setq -font/configured res)
           ;; else
           (warn ">>= warning: cannot find any of the specified fonts.")))
       ;; else
-      (setq >>=font/configured 'text-only-terminal))))
+      (setq -font/configured 'text-only-terminal))))
 
 
 (if (boundp 'after-focus-change-function)
@@ -148,20 +178,17 @@ function, or nil if no font was found."
     (add-hook focus-in-hook '>>=configure-font)))
 
 
-(defun >>=set-default-font (option)
-  ;; This implementation is based in `spacemacs/set-default-font'.
+(defun >>=set-default-font (&optional option)
   "Set the font defined by OPTION.
-See `>>=select-font' for posible values of argument OPTION.
+The given OPTION will be normalized to a property-list as used for the
+`font-spec' function arguments.  See the function `>>-font/normalize-attrs'
+for more details.
 
-If FALLBACK is specified, it must be either the symbol `spacemacs' (see
+If `:fallback' is specified, it must be either the symbol `spacemacs' (see
 `>>=get-spacemacs-fallbacks'), or a form containing a font-name and a set of
-targets valid for `set-fontset-font', or a sequence of such forms.
-
-FALLBACK if given
-must be a `list' with a font-name as its `car' and a sequence of targets as
-specified for `' `'Modify fontset NAME to use FONT-SPEC for TARGET characters."
+targets valid for `set-fontset-font', or a sequence of such forms."
   (>>=on-debug-message "setting default font...")
-  (let* ((props (>>=select-font option))
+  (let* ((props (>>-font/normalize-attrs option))
          (fallback (plist-get props :fallback)))
     (when props
       (setq props
