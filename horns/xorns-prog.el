@@ -180,18 +180,27 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
   :ensure t
   :preface
   (declare-function blacken-mode 'blacken)
+  (declare-function blacken-buffer 'blacken)
 
   (defun >>=blacken/turn-on ()
     "Setup `blacken' inner a file in `python-mode'."
     (interactive)
     (turn-off-auto-fill)
-    (blacken-mode))
+    (blacken-mode +1))
+
+  (defun >>=blacken/try-reformat-buffer ()
+    "Reformat current buffer if `blacken-mode' is active."
+    (when blacken-mode
+      (blacken-buffer init-file-debug)))
 
   (defun >>-blacken/may-enable-mode ()
     "Determine whether `blacken' may be enabled (see `>>=|blacken/enable')."
     (>>=major-mode-trigger blacken >>=|blacken/enable >>=blacken/turn-on))
+
   :hook
   (python-mode . >>-blacken/may-enable-mode)
+  (before-save . >>=blacken/try-reformat-buffer)
+
   :custom
   (blacken-line-length 'fill)
   (blacken-only-if-project-is-blackened t))
