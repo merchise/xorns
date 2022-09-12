@@ -94,8 +94,11 @@ OPTION could be:
   valid value is found."
   (unless option
     (setq option >>-!font/default-size))
-  (when (symbolp option)
-    (-font/cast-size option))
+  (if (symbolp option)
+    (-font/cast-size option)
+    ;; else
+    (when (stringp option)
+      (setq option (list option))))
   (if (numberp option)
     (-font/size->plist option)
     ;; else
@@ -124,6 +127,8 @@ OPTION could be:
                   (t
                     choice)))
               (let ((size (plist-get res :size)))
+                (unless size
+                  (setq size >>-!font/default-size))
                 (when (symbolp size)
                   (-font/cast-size size)
                   (plist-put res :size size)))
