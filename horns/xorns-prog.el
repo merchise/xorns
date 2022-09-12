@@ -190,7 +190,7 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
 
   (defun >>=blacken/try-reformat-buffer ()
     "Reformat current buffer if `blacken-mode' is active."
-    (when blacken-mode
+    (when (bound-and-true-p blacken-mode)
       (blacken-buffer init-file-debug)))
 
   (defun >>-blacken/may-enable-mode ()
