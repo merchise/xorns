@@ -101,7 +101,7 @@ See `>>=set-default-font' function for details about allowed values.")
       (if (not (plist-member (cdr option) :name))
         (setq option (cons :name option))
         ;; else
-        (error "Double name specified: %s" head))
+        (error "Double font name specified: %s" head))
       ;; else
       (unless (plist-member option :name)
         (let ((name (or (plist-get option :family) >>-!font/default-name)))
@@ -133,25 +133,7 @@ list."
 
 
 (defun >>-font/option->plist (&optional option)
-  "Build default font properties based on incomplete OPTION.
-OPTION could be:
-
-- nil, equivalent to use `>>-!font/default-size' (see non-negative number
-  below).
-
-- A symbol, mapping `>>-!font/sizes' is used to get a size (non-negative
- number).
-
-- A non-negative number, integer or floating point, specifies a font-size that
-  is complemented with some extra default values.
-
-- A property-list, is the standard format.  If the first element is a string,
-  it is considered the font-name, and the key `:name' is added as the new
-  `car'.
-
-- A prioritized set of choices, each item must be a list using a font-name
-  (a string) as first element.  The function `find-font' will be used until a
-  valid value is found."
+  "Build default font properties based on possibly incomplete OPTION."
   (cond
     ((null option)
       (>>-font/option->plist (list >>-!font/default-name)))
@@ -221,8 +203,24 @@ OPTION could be:
 (defun >>=set-default-font (&optional option)
   "Set the font defined by OPTION.
 The given OPTION will be normalized to a property-list as used for the
-`font-spec' function arguments.  See the function `>>-font/option->plist'
-for more details.
+`font-spec' function arguments.
+
+OPTION could be:
+
+- nil, all properties are set to default values.
+
+- A non-negative number, integer or floating point, specifies a font-size that
+  is complemented with some extra default values.
+
+- A symbol, a size alias, the mapping `>>-!font/sizes' is used to get the
+  equivalent non-negative number.
+
+- A property-list, the standard format.  If the first element is a string, it
+  is considered the font-name, and the key `:name' is added as the new `car'.
+
+- A prioritized set of choices, a list that uses another list as its first
+  element.  Each item must have a font-name specification, the function
+  `find-font' will be used until a valid value is found.
 
 If `:fallback' is specified, it must be either t for a default form (see
 `>>-font/get-default-fallbacks'), or a form containing a font-name and a set
