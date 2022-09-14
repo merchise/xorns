@@ -143,7 +143,9 @@
         ("Background Processes"
           (or
             (name . "lsp")
-            (name . "blacken")))
+            (name . "blacken")
+            (name . "prettier")
+            (name . "eslint")))
         ("Help/Info/Completions/Customize"
           (or
             (name . "^[*]Help[*]$")
