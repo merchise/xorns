@@ -120,8 +120,8 @@ Valid only if `org' is included in `>>=|pim/packages'.")
   (deft-use-filename-as-title t)
   (deft-auto-save-interval 60.0)
   ;; TODO: Don't remove the TAB in the next definition
-  (deft-strip-summary-regexp "\\([
-	  ]\\|=\\{3,\\}\\|-\\{3,\\}\\|^#\\+[[:upper:]_]+:.*$\\)")
+  (deft-strip-summary-regexp
+    "\\([=+*~-]\\{2,\\}\\|[}{[]\\|]\\|^#\\+[[:upper:]_]+:.*$\\)")
   ;; (deft-file-limit 128)
   :preface
   (progn
@@ -147,9 +147,12 @@ Valid only if `org' is included in `>>=|pim/packages'.")
       (let* ((summary
                (let (case-fold-search)
                  (replace-regexp-in-string
-                   deft-strip-summary-regexp
+                   "[[:space:]]+"
                    " "
-                   contents)))
+                   (replace-regexp-in-string
+                     deft-strip-summary-regexp
+                     " "
+                     contents))))
              (summary-processed
                (deft-chomp
                  (if (and
