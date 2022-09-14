@@ -312,7 +312,15 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 (use-package prettier
   ;; `prettier' program must be installed in your system
-  :ensure t)
+  :ensure t
+  :init
+  (defvar >>=|prettier/enable-mode t
+    "Configure when to enable `prettier-mode'.")
+
+  (defun >>-prettier-mode? ()
+    "Enable `prettier-mode' depending on `>>=|prettier/enable-mode' variable."
+    (when (fboundp 'prettier-mode)
+      (funcall 'prettier-mode (if >>=|prettier/enable-mode +1 -1)))))
 
 
 (use-package js2-mode
@@ -321,7 +329,7 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
   :mode ("\\.js\\'" "\\.pac\\'" "node")
   :hook
   (js-mode . tern-mode)
-  (js-mode . prettier-mode)
+  (js-mode . >>-prettier-mode?)
   :custom
   (js-indent-level 2)
   :config
@@ -336,12 +344,13 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
   ;; TODO: Requires npm package `json-ls' (JSON Language Server)
   :mode "\\.json\\'"
   :ensure t
+  :after prettier
   :requires (flycheck)
   :hook
   (json-mode .
     (lambda ()
       (setq flycheck-checker 'json-jsonlint)))
-  (json-mode . prettier-mode))
+  (json-mode . >>-prettier-mode?))
 
 
 
