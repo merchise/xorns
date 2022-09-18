@@ -96,31 +96,31 @@
             (derived-mode . conf-mode)
             (mode . ess-mode)
             (mode . compilation-mode)))
-        ("Text Document"
-          (and
-            (derived-mode . text-mode)
-            (not (starred-name))))
-        ("TeX"
-          (or
-            (derived-mode . tex-mode)
-            (mode . latex-mode)
-            (mode . context-mode)
-            (mode . ams-tex-mode)
-            (mode . bibtex-mode)))
         ("Web"
           (or
+            (derived-mode . html-mode)
             (derived-mode . sgml-mode)
             (derived-mode . css-mode)
             (mode . javascript-mode)
-            (mode . mhtml-mode)
             (mode . w3m-mode)
             (mode . js2-mode)
             (mode . coffee-mode)
             (mode . scss-mode)
             (derived-mode . haml-mode)
             (mode . sass-mode)))
+        ("Text/TeX"
+          (or
+            (and
+              (derived-mode . text-mode)
+              (not (starred-name)))
+            (derived-mode . tex-mode)
+            (mode . latex-mode)
+            (mode . context-mode)
+            (mode . ams-tex-mode)
+            (mode . bibtex-mode)))
         ("Version Control"
           (or
+            (name . "^[.]git")
             (name . "^magit")
             (mode . git-commit-mode)
             (mode . git-commit-major-mode)
@@ -140,12 +140,14 @@
             (mode . magit-stashes-mode)
             (mode . magit-status-mode)
             (mode . diff-mode)))
-        ("Background Processes"
+        ("LSP/Linters"
           (or
             (name . "lsp")
             (name . "blacken")
             (name . "prettier")
-            (name . "eslint")))
+            (name . "eslint")
+            (name . "json-ls")
+            (name . "html-ls")))
         ("Help/Info/Completions/Customize"
           (or
             (name . "^[*]Help[*]$")
