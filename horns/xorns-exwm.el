@@ -125,6 +125,20 @@ A process NAME can bee given as an optional argument."
       (>>=exwm/start-subprocess command))))
 
 
+(defun >>=exwm/enlarge-window-horizontally (&optional delta)
+  "Make the selected window DELTA*50 pixels wider."
+  (interactive "p")
+  (declare-function exwm-layout-enlarge-window-horizontally 'exwm-layout)
+  (exwm-layout-enlarge-window-horizontally (* +50 delta)))
+
+
+(defun >>=exwm/reduce-window-horizontally (&optional delta)
+  "Make the selected window DELTA*50 pixels narrower."
+  (interactive "p")
+  (declare-function exwm-layout-enlarge-window-horizontally 'exwm-layout)
+  (exwm-layout-enlarge-window-horizontally (* -50 delta)))
+
+
 (defun >>-url-browser (url)
   "Create a web browser for a given URL."
   (lambda ()
@@ -236,6 +250,8 @@ A process NAME can bee given as an optional argument."
     "<s-tab>" 'other-frame
     "s-o" 'other-window
     "s-;" '>>-exwm/swap-last-buffers
+    "s-{" '>>=exwm/reduce-window-horizontally
+    "s-}" '>>=exwm/enlarge-window-horizontally
     "C-s-/" 'browse-url-at-point)
   (apply '>>=global-set-keys
     (mapcan
