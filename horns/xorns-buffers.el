@@ -122,6 +122,7 @@
           (or
             (name . "^[.]git")
             (name . "^magit")
+            (name . "[*]vc[*]")
             (mode . git-commit-mode)
             (mode . git-commit-major-mode)
             (mode . git-rebase-mode)
