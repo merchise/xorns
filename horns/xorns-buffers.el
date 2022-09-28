@@ -122,6 +122,7 @@
           (or
             (name . "^[.]git")
             (name . "^magit")
+            (name . "[*]vc[*]")
             (mode . git-commit-mode)
             (mode . git-commit-major-mode)
             (mode . git-rebase-mode)
@@ -140,14 +141,17 @@
             (mode . magit-stashes-mode)
             (mode . magit-status-mode)
             (mode . diff-mode)))
-        ("LSP/Linters"
+        ("LSP/Linters/Logs"
           (or
             (name . "lsp")
             (name . "blacken")
             (name . "prettier")
             (name . "eslint")
+            (name . "bash-ls")
             (name . "json-ls")
-            (name . "html-ls")))
+            (name . "html-ls")
+            (name . "^[*]Flycheck")
+            (name . "^[*]Dired log[*]$")))
         ("Help/Info/Completions/Customize"
           (or
             (name . "^[*]Help[*]$")
