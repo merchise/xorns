@@ -53,7 +53,7 @@ command.")
 
 (defvar-local >>-dired/sorted-directories nil
   "A list of already sorted directories.
-This variable is only used when dired functions are adviced, see variable
+This variable is only used when `dired' functions are adviced, see variable
 `>>=|dired/force-group-directories-first'."  )
 
 
