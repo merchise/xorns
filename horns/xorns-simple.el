@@ -15,7 +15,7 @@
 ;;; Code:
 
 (eval-and-compile
-  (require 'tramp)
+  (require 'files)
   (require 'xorns-tools)
   (require 'xorns-setup))
 
@@ -238,8 +238,8 @@ value will combine both logics."
 
 (defun >>=local-buffer (&optional buffer)
   "Not nil if BUFFER visits a local (not remote) file."
-  (interactive "b")
-  (not (tramp-connectable-p (buffer-file-name buffer))))
+  (let ((fname (buffer-file-name buffer)))
+    (and fname (not (file-remote-p fname)))))
 
 
 
