@@ -50,6 +50,12 @@
     (require 'xorns-exwm)))
 
 
+(defun >>-initialized ()
+  "Function called after `xorns' is completely initialized."
+  (>>=configure-font)
+  (message ">>= xorns initialized in %s seconds." >>=xorns-initialized))
+
+
 (add-hook
   'emacs-startup-hook
   (defun >>=startup-hook ()
@@ -58,8 +64,7 @@
       (format "%.1f seconds"
         (float-time (time-subtract after-init-time before-init-time))))
     (require 'xorns-gc)    ; Configure GC strategy
-    (run-with-timer 1 nil
-      'message ">>= xorns initialized in %s seconds." >>=xorns-initialized)
+    (run-with-timer 1 nil '>>-initialized)
     ))
 
 
