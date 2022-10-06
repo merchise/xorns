@@ -42,6 +42,7 @@
 
 (use-package dictionary
   :bind
+  ("M-#" . dictionary-lookup-definition)
   ("C-c w" . dictionary-search))
 
 
