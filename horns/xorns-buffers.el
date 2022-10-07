@@ -152,6 +152,9 @@
             (name . "html-ls")
             (name . "^[*]Flycheck")
             (name . "^[*]Dired log[*]$")))
+        ("Backup files"
+          (or
+            (name . "^[#].*[#]$")))
         ("Help/Info/Completions/Customize"
           (or
             (name . "^[*]Help[*]$")
