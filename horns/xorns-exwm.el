@@ -284,11 +284,17 @@ A process NAME can bee given as an optional argument."
        ([?\C-i] . [tab])
        ;; cut/paste, selection
        ([?\C-d] . [delete])
+       ([?\C-D] . [delete])
        ([?\C-w] . [?\C-x])
+       ([?\C-W] . [?\C-x])
        ([?\M-w] . [?\C-c])
+       ([?\M-W] . [?\C-c])
        ([?\C-y] . [?\C-v])
+       ([?\C-Y] . [?\C-v])
        ([?\M-d] . [C-S-right ?\C-x])
+       ([?\M-D] . [C-S-right ?\C-x])
        ([?\C-k] . [S-end ?\C-x])
+       ([?\C-K] . [S-end ?\C-x])
        ([M-backspace] . [C-S-left ?\C-x])
        ;; search
        ([?\C-s] . [?\C-f])
