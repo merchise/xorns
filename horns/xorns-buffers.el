@@ -92,8 +92,10 @@
         ("Configuration" (mode . conf-unix-mode))
         ("Programming"
           (or
+            (name . "^[.]env")
             (derived-mode . prog-mode)
             (derived-mode . conf-mode)
+            (derived-mode . yaml-mode)
             (mode . ess-mode)
             (mode . compilation-mode)))
         ("Web"
@@ -150,6 +152,7 @@
             (name . "bash-ls")
             (name . "json-ls")
             (name . "html-ls")
+            (name . "dockerfile-ls")
             (name . "^[*]Flycheck")
             (name . "^[*]Dired log[*]$")))
         ("Backup files"
