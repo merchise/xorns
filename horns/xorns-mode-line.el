@@ -76,6 +76,14 @@ including `powerline'.")
   (sml/name-width 30)
   :config
   (progn
+    (eval-and-compile
+      (defun -sml/get-directory (org-func &rest args)
+        "Advice `sml/get-directory'."
+        (if (eq major-mode 'term-mode)
+          ""
+          ;; else
+          (apply org-func args)))
+      (advice-add 'sml/get-directory :around #'-sml/get-directory))
     (when (bound-and-true-p battery-mode-line-format)
       (setq sml/battery-format battery-mode-line-format))
     (sml/setup)))
