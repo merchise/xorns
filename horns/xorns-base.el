@@ -310,7 +310,7 @@ to configure for yourself: see `save-buffer' function for more information.")
   ;; enabled, that unnecessarily slows down Emacs.
   (recentf-auto-cleanup 300)
   :bind
-  ("C-c C-r" . recentf-open-files)
+  ("C-x M-r" . recentf-open-files)
   :config
   (progn
     (run-with-idle-timer (* 2 recentf-auto-cleanup) t 'recentf-save-list)
