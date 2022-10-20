@@ -311,6 +311,7 @@ to configure for yourself: see `save-buffer' function for more information.")
   (recentf-auto-cleanup 300)
   :bind
   ("C-x M-r" . recentf-open-files)
+  ("C-x C-/" . recentf-open-files)
   :config
   (progn
     (run-with-idle-timer (* 2 recentf-auto-cleanup) t 'recentf-save-list)
