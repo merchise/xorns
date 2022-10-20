@@ -152,6 +152,7 @@
             (name . "bash-ls")
             (name . "json-ls")
             (name . "html-ls")
+            (name . "css-ls")
             (name . "dockerfile-ls")
             (name . "^[*]Flycheck")
             (name . "^[*]Dired log[*]$")))
