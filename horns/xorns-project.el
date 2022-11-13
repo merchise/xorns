@@ -30,10 +30,6 @@
   :commands projectile-project-root
   :bind-keymap
   ("C-c p" . projectile-command-map)
-  :bind
-  ("C-c C-d" . projectile-dired)
-  ("C-c C-b" . projectile-ibuffer)
-  ("C-c C-k" . projectile-kill-buffers)
   :custom
   (projectile-enable-caching t)
   (projectile-switch-project-action 'projectile-dired)
