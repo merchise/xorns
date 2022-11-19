@@ -86,7 +86,8 @@ value will combine both logics."
 (defun >>=yank-default-directory ()
   "Make default directory the latest kill in the kill ring."
   (interactive)
-  (>>=kill-new (>>=default-directory)))
+  (>>=kill-new
+    (file-name-as-directory (abbreviate-file-name default-directory))))
 
 
 (defun >>=shell-command-to-string (command)

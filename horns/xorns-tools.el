@@ -541,7 +541,10 @@ by adding the suffix '-mode' and then using using `intern'."
 
 (defun >>=dir-join (&rest parts)
   "Join PARTS to a single path."
-  (mapconcat 'file-name-as-directory parts ""))
+  (setq parts (delq nil parts))
+  (when parts
+    (let ((res (mapconcat 'file-name-as-directory parts "")))
+      (if (file-directory-p res) res (directory-file-name res)))))
 
 
 (defun >>=find-dir (&rest dirs)
@@ -569,7 +572,7 @@ by adding the suffix '-mode' and then using using `intern'."
 
 (defun >>=canonical-directory-name (name)
   "Convert directory NAME to absolute canonical form."
-  (if name
+  (when name
     (expand-file-name (file-name-as-directory name))))
 
 
@@ -660,7 +663,7 @@ discarded."
 ;;; workspace management
 
 (defconst >>=!home-dir
-  (purecopy (>>=canonical-directory-name (or (getenv "HOME") "~")))
+  (purecopy (>>=canonical-directory-name "~"))
   "Home directory.")
 
 
@@ -676,13 +679,8 @@ discarded."
 
 (defun >>=set-default-directory ()
   "Set the default directory to its original value."
-  (if (equal (>>=canonical-directory-name default-directory) >>=!home-dir)
+  (when (equal (>>=canonical-directory-name default-directory) >>=!home-dir)
     (setq default-directory >>=|preferred-default-directory)))
-
-
-(defun >>=default-directory ()
-  "Return a shortened version of `default-directory'."
-  (file-name-as-directory (abbreviate-file-name default-directory)))
 
 
 
