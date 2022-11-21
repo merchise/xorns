@@ -113,50 +113,99 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
 `blacken-mode'.")
 
 
+(defconst >>-!python/env-locators
+  '(
+     "venv"
+     ".venv"
+     ("poetry.lock" "poetry" "env" "info" "-p")
+     ("Pipfile.lock" "pipenv" "--venv")
+     (".python-version" "pyenv" "prefix")
+     )
+  "Default python (virtual) environment locators.
+See `>>=|python/env-locators' for more information.")
+
+
+(defvar >>=|python/env-locators nil
+  "Python (virtual) environment locators.
+Extra definitions to be appended to `>>-!python/env-locators' default
+definitions.  Each item must be either a string representing the MARK-FILE or
+a list with the form (MARK-FILE [COMMAND]).  The result list will be used by
+the function `>>=python/locate-env'.")
+
+
 (autoload 'po-mode "po-mode"    ; TODO: Check this
-  "Major mode for translators to edit PO files" t)
+  "Major mode for translators when they edit PO files." t)
+
+
+(defun >>-python/get-env-via-command (command args)
+  "Get Python (virtual) environment via execute a COMMAND with ARGS."
+  (when-let ((executable (>>=executable-find command)))
+    (condition-case nil
+      (car-safe
+        (apply 'process-lines executable args))
+      (error nil))))
+
+
+(defun >>-python/check-env (path)
+  "Check if PATH is a correct Python (virtual) environment."
+  (when (stringp path)
+    (setq path (expand-file-name path))
+    (and
+      (or
+        (string-prefix-p >>=!home-dir path)
+        (string-prefix-p temporary-file-directory path))
+      (file-executable-p (>>=dir-join path "bin" "python"))
+      path)))
+
+
+(defun >>-python/get-env (base item)
+  "Get a Python environment from a BASE directory given an ITEM definition."
+  (when (stringp item)
+    (setq item (list item)))
+  (let ((name (car item))
+        (command (cadr item))
+        (args (cddr item)))
+    (when-let ((root (locate-dominating-file base name)))
+      (let ((default-directory root))
+        (>>-python/check-env
+          (if command
+            (if (stringp command)
+              (>>-python/get-env-via-command command args)
+              ;; else
+              (apply command name args))
+            ;; else
+            name))))))
+
+
+(defun >>=python/locate-env (&optional root)
+  "Look a Python (virtual) environment in the context of a ROOT workspace."
+  (unless root
+    (setq root default-directory))
+  (seq-some
+    (lambda (item) (>>-python/get-env root item))
+    (append >>-!python/env-locators >>=|python/env-locators)))
 
 
 (use-package python
   :defer t
   :preface
-
-  (defun >>-compute-local-venv (root)
-    (let ((local-venv (>>=dir-join root ".venv")))
-      (when (file-exists-p local-venv) local-venv)))
-
-  (defun >>-compute-pipfile-env (root)
-    (let ((pipfile-lock-fname (expand-file-name "Pipfile.lock" root)))
-      (when (file-exists-p pipfile-lock-fname)
-        (condition-case nil
-          (car-safe (process-lines (>>=executable-find "pipenv") "--venv"))))))
-
-  (defun >>-compute-poetry-env (root)
-    (let ((poetry-lock-fname (expand-file-name "poetry.lock" root)))
-      (when (file-exists-p poetry-lock-fname)
-        (condition-case nil
-          (car-safe (process-lines (>>=executable-find "poetry") "env" "info" "-p"))))))
-
-  (defun >>-get-venv-path()
-    "Get the virtual the environment's path, nil if none."
-    (when-let ((root (>>=project-root)))
-      (or
-        (>>-compute-local-venv root)
-        (>>-compute-pipfile-env root)
-        (>>-compute-poetry-env root))))
-
   (defun -python-mode-setup()
     (outline-minor-mode)
-    (when-let ((venv-path (>>-get-venv-path)))
-      (message "Found venv path '%s'" venv-path)
-      (when (boundp 'lsp-pylsp-plugins-jedi-environment)
-        (progn
-          (message "Setting '%s' in pylsp" venv-path)
-          (>>=set 'lsp-pylsp-plugins-jedi-environment venv-path)))
-      (when (boundp 'lsp-pyls-plugins-jedi-environment)
-        (progn
-          (message "Setting '%s' in pyls" venv-path)
-          (>>=set 'lsp-pyls-plugins-jedi-environment venv-path)))
+    (when-let ((venv-path (>>=python/locate-env (>>=project-root))))
+      ;; TODO: Check `lsp-pylsp-get-pyenv-environment' function, and
+      ;; `lsp-after-initialize-hook' in Python: `lsp-pylsp-after-open-hook'.
+      ;; (rename 'pylsp' -> 'pyls' for all cases)
+      (let (modules)
+        (when (boundp 'lsp-pylsp-plugins-jedi-environment)
+          (>>=set 'lsp-pylsp-plugins-jedi-environment venv-path)
+          (setq modules (cons "pylsp" modules)))
+        (when (boundp 'lsp-pyls-plugins-jedi-environment)
+          (>>=set 'lsp-pyls-plugins-jedi-environment venv-path)
+          (setq modules (cons "pyls" modules)))
+        (when (and modules init-file-debug)
+          (message
+            "Setting Python (virtual) environment '%s' in (%s) modules"
+            venv-path (string-join modules ", "))))
       ;; lsp-pyrigth does its own lookup with the function
       ;; lsp-pyright-locate-venv; so we don't need to do anything here for it.
       ;; TODO: See other options:
@@ -172,8 +221,8 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
   (:map python-mode-map
     ("C-m" . newline-and-indent))
   :hook
-  ((python-mode . -python-mode-setup)
-    (inferior-python-mode . -inferior-python-setup)))
+  (python-mode . -python-mode-setup)
+  (inferior-python-mode . -inferior-python-setup))
 
 
 (use-package blacken
