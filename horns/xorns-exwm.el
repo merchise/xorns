@@ -69,7 +69,6 @@
 
 (defvar >>=|exwm/url-keys
   `(("<s-f2>" . "http://")    ;; Empty browser
-    ("C-s-f" . "https://facebook.com")
     ("C-s-t" . "https://translate.google.com")
     ("C-s-c" . "https://web.telegram.org"))
   "Pairs of (KEY . URL) to be used with `browse-url'  inner EXWM.")
