@@ -336,6 +336,33 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 
 
+;;; Debug Adapter Protocol
+
+(use-package dap-mode
+  :ensure t
+  :after lsp-mode
+  :commands dap-debug
+  :preface
+  (defvar >>=|dap/python-debugger nil
+    "Which Python debugger to use (calculated if not given).")
+
+  (defun >>-dap/python-debugger ()
+    "Calculate which Python debugger is active ('debugpy' or `ptvsd')."
+    (or
+      >>=|dap/python-debugger
+      (seq-find
+        (lambda (pkg)
+          (>>=process/safe-lines
+            "python" "-m" (symbol-name pkg) "--version"))
+        '(debugpy ptvsd))))
+  :config
+  (require 'dap-lldb)
+  (when-let ((debugger (>>-dap/python-debugger)))
+    (require 'dap-python)    ; TODO: check if this is the right place
+    (setq-default dap-python-debugger debugger)))
+
+
+
 ;;; Javascript, CoffeeScript and LiveScript
 
 (use-package tern
