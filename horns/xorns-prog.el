@@ -356,10 +356,11 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
             "python" "-m" (symbol-name pkg) "--version"))
         '(debugpy ptvsd))))
   :config
-  (require 'dap-lldb)
-  (when-let ((debugger (>>-dap/python-debugger)))
-    (require 'dap-python)    ; TODO: check if this is the right place
-    (setq-default dap-python-debugger debugger)))
+  (use-package dap-lldb)
+  (use-package dap-python
+    :config
+    (when-let ((debugger (>>-dap/python-debugger)))
+      (setq dap-python-debugger debugger))))
 
 
 
