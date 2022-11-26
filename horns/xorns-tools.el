@@ -801,6 +801,20 @@ Each item in MODES is validated and associated with the given COMMAND."
 
 
 
+;;; system
+
+(defun >>=process/safe-lines (program &rest args)
+  "Execute PROGRAM with ARGS, returning its output as a list of lines.
+Returns nil, if an error is signaled."
+  (when-let ((executable (>>=executable-find program)))
+    (when (and (eq (length args) 1) (listp (car args)))
+      (setq args (car args)))
+    (condition-case nil
+      (apply 'process-lines executable args)
+      (error nil))))
+
+
+
 ;;; projects
 
 (defvar >>-project/variables '()

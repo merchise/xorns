@@ -137,15 +137,6 @@ the function `>>=python/locate-env'.")
   "Major mode for translators when they edit PO files." t)
 
 
-(defun >>-python/get-env-via-command (command args)
-  "Get Python (virtual) environment via execute a COMMAND with ARGS."
-  (when-let ((executable (>>=executable-find command)))
-    (condition-case nil
-      (car-safe
-        (apply 'process-lines executable args))
-      (error nil))))
-
-
 (defun >>-python/check-env (path)
   "Check if PATH is a correct Python (virtual) environment."
   (when (stringp path)
@@ -170,7 +161,7 @@ the function `>>=python/locate-env'.")
         (>>-python/check-env
           (if command
             (if (stringp command)
-              (>>-python/get-env-via-command command args)
+              (car-safe (>>=process/safe-lines command args))
               ;; else
               (apply command name args))
             ;; else
