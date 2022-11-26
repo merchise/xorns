@@ -225,6 +225,10 @@ the function `>>=python/locate-env'.")
   (inferior-python-mode . -inferior-python-setup))
 
 
+(use-package with-venv
+  :ensure t)
+
+
 (use-package blacken
   :ensure t
   :preface
