@@ -21,6 +21,7 @@
 (eval-and-compile
   (require 'hideshow)
   (require 'xorns-term)
+  (require 'transient)
   (require 'use-package nil 'noerror))
 
 
@@ -355,6 +356,48 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
           (>>=process/safe-lines
             "python" "-m" (symbol-name pkg) "--version"))
         '(debugpy ptvsd))))
+  :init
+  (transient-define-prefix >>=dap/menu ()
+    "DAP local menu."
+    [["Stepping"
+       ("n" "Next" dap-next)
+       ("i" "Step in" dap-step-in)
+       ("o" "Step out" dap-step-out)
+       ("c" "Continue" dap-continue)
+       ("r" "Restart frame" dap-restart-frame)
+       ("q" "Disconnect" dap-disconnect)]
+     ["Switch"
+       ("ss" "Session" dap-switch-session)
+       ("st" "Thread" dap-switch-thread)
+       ("sf" "Stack frame" dap-switch-stack-frame)
+       ("su" "Up stack frame" dap-up-stack-frame)
+       ("sd" "Down stack frame" dap-down-stack-frame)
+       ("sl" "List locals" dap-ui-locals)
+       ("sb" "List breakpoints" dap-ui-breakpoints)
+       ("sS" "List sessions" dap-ui-sessions)]
+     ["Breakpoints"
+       ("bb" "Toggle" dap-breakpoint-toggle)
+       ("ba" "Add" dap-breakpoint-add)
+       ("bd" "Delete" dap-breakpoint-delete)
+       ("bc" "Set condition" dap-breakpoint-condition)
+       ("bh" "Set hit condition" dap-breakpoint-hit-condition)
+       ("bl" "Set log message" dap-breakpoint-log-message)]
+     ["Debug"
+       ("dd" "Debug" dap-debug)
+       ("ds" "Debug restart" dap-debug-restart)
+       ("dr" "Debug recent" dap-debug-recent)
+       ("dl" "Debug last" dap-debug-last)
+       ("de" "Edit debug template" dap-debug-edit-template)]
+     ["Eval"
+       ("ee" "Eval" dap-eval)
+       ("ea" "Add expression" dap-ui-expressions-add)
+       ("er" "Eval region" dap-eval-region)
+       ("es" "Eval thing at point" dap-eval-thing-at-point)]]
+    (interactive)
+    (transient-setup '>>=dap/menu))
+  :bind
+  (:map dap-mode-map
+    ("C-s-d" . >>=dap/menu))
   :config
   (use-package dap-lldb)
   (use-package dap-python
