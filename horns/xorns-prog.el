@@ -387,17 +387,17 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
        ("bc" "Set condition" dap-breakpoint-condition)
        ("bh" "Set hit condition" dap-breakpoint-hit-condition)
        ("bl" "Set log message" dap-breakpoint-log-message)]
+     ["Eval"
+       ("ee" "Eval" dap-eval)
+       ("ea" "Add expression" dap-ui-expressions-add)
+       ("er" "Eval region" dap-eval-region)
+       ("es" "Eval thing at point" dap-eval-thing-at-point)]
      ["Debug"
        ("dd" "Debug" dap-debug)
        ("ds" "Debug restart" dap-debug-restart)
        ("dr" "Debug recent" dap-debug-recent)
        ("dl" "Debug last" dap-debug-last)
-       ("de" "Edit debug template" dap-debug-edit-template)]
-     ["Eval"
-       ("ee" "Eval" dap-eval)
-       ("ea" "Add expression" dap-ui-expressions-add)
-       ("er" "Eval region" dap-eval-region)
-       ("es" "Eval thing at point" dap-eval-thing-at-point)]]
+       ("de" "Edit debug template" dap-debug-edit-template)]]
     (interactive)
     (transient-setup '>>=dap/menu))
   :bind
