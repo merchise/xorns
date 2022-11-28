@@ -339,7 +339,12 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 ;;; Debug Adapter Protocol
 
+(defvar >>=|dap/enable t
+  "Determines if `dap-mode' (Debug Adapter Protocol) is configured.")
+
+
 (use-package dap-mode
+  :when >>=|dap/enable
   :ensure t
   :after lsp-mode
   :commands dap-debug
