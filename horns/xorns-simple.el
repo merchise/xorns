@@ -15,7 +15,7 @@
 ;;; Code:
 
 (eval-and-compile
-  (require 'tramp)
+  (require 'files)
   (require 'xorns-tools)
   (require 'xorns-setup))
 
@@ -86,7 +86,8 @@ value will combine both logics."
 (defun >>=yank-default-directory ()
   "Make default directory the latest kill in the kill ring."
   (interactive)
-  (>>=kill-new (>>=default-directory)))
+  (>>=kill-new
+    (file-name-as-directory (abbreviate-file-name default-directory))))
 
 
 (defun >>=shell-command-to-string (command)
@@ -202,6 +203,7 @@ value will combine both logics."
 
 ;;; grep facilities
 
+
 (use-package grep    ;; todo: check `wgrep', `scf-mode', `deadgrep'
   :demand t
   :bind
@@ -228,9 +230,20 @@ value will combine both logics."
   :when (>>=setup/command-check >>=|ext/ripgrep)
   :ensure t
   :after grep
+  :init
+  (use-package rg
+    :ensure t
+    :init
+    (defvar >>=|rg/max-columns 512
+      "Override value for `--max-columns' option.")
+    :bind
+    ("C-c s" . rg-project)
+    :config
+    (when >>=|rg/max-columns
+      (let ((max (format "--max-columns=%s" >>=|rg/max-columns)))
+        (setq rg-command-line-flags (cons max rg-command-line-flags)))))
   :bind
-  ([remap rgrep] . deadgrep)
-  )
+  ([remap rgrep] . deadgrep))
 
 
 
@@ -238,8 +251,8 @@ value will combine both logics."
 
 (defun >>=local-buffer (&optional buffer)
   "Not nil if BUFFER visits a local (not remote) file."
-  (interactive "b")
-  (not (tramp-connectable-p (buffer-file-name buffer))))
+  (let ((fname (buffer-file-name buffer)))
+    (and fname (not (file-remote-p fname)))))
 
 
 

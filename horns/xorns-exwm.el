@@ -69,7 +69,6 @@
 
 (defvar >>=|exwm/url-keys
   `(("<s-f2>" . "http://")    ;; Empty browser
-    ("C-s-f" . "https://facebook.com")
     ("C-s-t" . "https://translate.google.com")
     ("C-s-c" . "https://web.telegram.org"))
   "Pairs of (KEY . URL) to be used with `browse-url'  inner EXWM.")
@@ -123,6 +122,20 @@ A process NAME can bee given as an optional argument."
       (>>=exwm/start-process command))
     (t
       (>>=exwm/start-subprocess command))))
+
+
+(defun >>=exwm/enlarge-window-horizontally (&optional delta)
+  "Make the selected window DELTA*50 pixels wider."
+  (interactive "p")
+  (declare-function exwm-layout-enlarge-window-horizontally 'exwm-layout)
+  (exwm-layout-enlarge-window-horizontally (* +50 delta)))
+
+
+(defun >>=exwm/reduce-window-horizontally (&optional delta)
+  "Make the selected window DELTA*50 pixels narrower."
+  (interactive "p")
+  (declare-function exwm-layout-enlarge-window-horizontally 'exwm-layout)
+  (exwm-layout-enlarge-window-horizontally (* -50 delta)))
 
 
 (defun >>-url-browser (url)
@@ -236,6 +249,8 @@ A process NAME can bee given as an optional argument."
     "<s-tab>" 'other-frame
     "s-o" 'other-window
     "s-;" '>>-exwm/swap-last-buffers
+    "s-{" '>>=exwm/reduce-window-horizontally
+    "s-}" '>>=exwm/enlarge-window-horizontally
     "C-s-/" 'browse-url-at-point)
   (apply '>>=global-set-keys
     (mapcan
@@ -268,11 +283,17 @@ A process NAME can bee given as an optional argument."
        ([?\C-i] . [tab])
        ;; cut/paste, selection
        ([?\C-d] . [delete])
+       ([?\C-D] . [delete])
        ([?\C-w] . [?\C-x])
+       ([?\C-W] . [?\C-x])
        ([?\M-w] . [?\C-c])
+       ([?\M-W] . [?\C-c])
        ([?\C-y] . [?\C-v])
+       ([?\C-Y] . [?\C-v])
        ([?\M-d] . [C-S-right ?\C-x])
+       ([?\M-D] . [C-S-right ?\C-x])
        ([?\C-k] . [S-end ?\C-x])
+       ([?\C-K] . [S-end ?\C-x])
        ([M-backspace] . [C-S-left ?\C-x])
        ;; search
        ([?\C-s] . [?\C-f])

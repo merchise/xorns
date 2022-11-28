@@ -45,16 +45,6 @@ See `>>=set-default-font' function for details about allowed values.")
   "If default-font is configured or not on a graphic display.")
 
 
-(defsubst -font/size->plist (size)
-  "Build default font properties based only in a SIZE."
-  `(:name ,>>-!font/default-name :size ,size :weight normal :width normal))
-
-
-(defmacro -font/cast-size (size)
-  "Change value of font SIZE if a symbo alias is given."
-  `(cl-assert (setq ,size (cdr (assq ,size >>-!font/sizes)))))
-
-
 (defun >>-display-system-p ()
   "Return if the display-system is initialized."
   (cond
@@ -71,70 +61,102 @@ See `>>=set-default-font' function for details about allowed values.")
       (display-graphic-p))))
 
 
-(defun >>-font/normalize-attrs (&optional option)
-  "Normalize arguments to create a font-object using the function `font-spec'.
-OPTION could be:
+(defun -font/raw-option->name (option)
+  "Get a font-name from a raw OPTION."
+  (cond
+    ((stringp option)
+      option)
+    ((and option (listp option))
+      (let ((head (car option)))
+        (if (stringp head)
+          head
+          ;; else
+          (-font/raw-option->name
+            (or
+              (plist-get option :name)
+              (plist-get option :family))))))))
 
-- nil, equivalent to use `>>-!font/default-size' (see non-negative number
-  below).
 
-- A symbol, mapping `>>-!font/sizes' is used to get a size (non-negative
- number).
+(defsubst -font/alias->size (alias)
+  "Convert a font-size ALIAS to its numeric value."
+  (let ((size (assq alias >>-!font/sizes)))
+    (if size
+      (cdr size)
+      ;; else
+      (error "Invalid font-size alias: %s" alias))))
 
-- A non-negative number, integer or floating point, specifies a font-size that
-  is complemented with some extra default values (see `-font/size->plist'
-  function).
 
-- A property-list, is the standard format.  If the first element is a string,
-  it is considered the font-name, and the key `:name' is added as the new
-  `car'.
-
-- A prioritized set of choices, each item must be a list using a font-name
-  (a string) as first element.  The function `find-font' will be used until a
-  valid value is found."
-  (unless option
-    (setq option >>-!font/default-size))
-  (when (symbolp option)
-    (-font/cast-size option))
+(defsubst -font/cast-size (option)
+  "Cast OPTION as a valid number intended as a font-size value."
   (if (numberp option)
-    (-font/size->plist option)
+    option
     ;; else
-    (let ((choices (if (listp (car option)) option (list option)))
-          res)
-      (while (and (not res) choices)
-        (let* ((choice (car choices))
-               (name (car choice))
-               op)
-          (if (stringp name)
-            (setq op 'cons)
-            ;; else
-            (unless (setq name (plist-get choice :name))
-              (setq
-                name (or (plist-get choice :family) >>-!font/default-name)
-                op 'nconc)))
-          (if (find-font (font-spec :name name))
-            (progn
-              (setq res
-                (cond
-                  ((eq op 'cons)
-                    (cl-assert (not (plist-member (cdr choice) :name)))
-                    (cons :name choice))
-                  ((eq op 'nconc)
-                    (nconc `(:name ,name) choice))
-                  (t
-                    choice)))
-              (let ((size (plist-get res :size)))
-                (when (symbolp size)
-                  (-font/cast-size size)
-                  (plist-put res :size size)))
-              (when (not (plist-member res :weight))
-                (plist-put res :weight 'normal))
-              (when (not (plist-member res :width))
-                (plist-put res :width 'normal)))
-            ;; else
-            (setq choices (cdr choices)))))
-      (cl-assert res nil "No valid option found for font.")
-      res)))
+    (-font/alias->size option)))
+
+
+(defun -font/complement-plist (option)
+  "Complement a font property-list OPTION with default values."
+  (let ((head (car option)))
+    (if (stringp head)
+      (if (not (plist-member (cdr option) :name))
+        (setq option (cons :name option))
+        ;; else
+        (error "Double font name specified: %s" head))
+      ;; else
+      (unless (plist-member option :name)
+        (let ((name (or (plist-get option :family) >>-!font/default-name)))
+          (setq option (nconc `(:name ,name) option))))))
+  (let ((size (plist-get option :size)))
+    (unless (numberp size)
+      (unless size
+        (setq size >>-!font/default-size))
+      (plist-put option :size (-font/cast-size size))))
+  (unless (plist-member option :weight)
+    (plist-put option :weight 'normal))
+  (unless (plist-member option :width)
+    (plist-put option :width 'normal))
+  option)
+
+
+(defun -font/find-valid-option (choices)
+  "Find an existing font option from a list of CHOICES.
+First option must be a list, tails options could be either a string or a
+list."
+  (seq-find
+    (lambda (option)
+      (let ((name (-font/raw-option->name option)))
+        (if (stringp name)
+          (find-font (font-spec :name name))
+          ;;
+          (error "Missing or wrong name for option: %s" option))))
+    choices))
+
+
+(defun >>-font/option->plist (&optional option)
+  "Build default font properties based on possibly incomplete OPTION."
+  (cond
+    ((null option)
+      (>>-font/option->plist (list >>-!font/default-name)))
+    ((stringp option)
+      (>>-font/option->plist (list option)))
+    ((symbolp option)
+      (>>-font/option->plist (-font/alias->size option)))
+    ((numberp option)
+      (>>-font/option->plist `(:size ,option)))
+    ((listp option)
+      (let ((head (car option)))
+        (cond
+          ((stringp head)
+            (>>-font/option->plist (cons :name option)))
+          ((listp head)
+            (let ((valid (-font/find-valid-option option)))
+              (if valid
+                (>>-font/option->plist valid)
+                ;;
+                (error "No valid font option found"))))
+          (t
+            ;; assert head is a :prop
+            (-font/complement-plist option)))))))
 
 
 (defun >>-font/get-default-fallbacks ()
@@ -181,14 +203,30 @@ OPTION could be:
 (defun >>=set-default-font (&optional option)
   "Set the font defined by OPTION.
 The given OPTION will be normalized to a property-list as used for the
-`font-spec' function arguments.  See the function `>>-font/normalize-attrs'
-for more details.
+`font-spec' function arguments.
+
+OPTION could be:
+
+- nil, all properties are set to default values.
+
+- A non-negative number, integer or floating point, specifies a font-size that
+  is complemented with some extra default values.
+
+- A symbol, a size alias, the mapping `>>-!font/sizes' is used to get the
+  equivalent non-negative number.
+
+- A property-list, the standard format.  If the first element is a string, it
+  is considered the font-name, and the key `:name' is added as the new `car'.
+
+- A prioritized set of choices, a list that uses another list as its first
+  element.  Each item must have a font-name specification, the function
+  `find-font' will be used until a valid value is found.
 
 If `:fallback' is specified, it must be either t for a default form (see
 `>>-font/get-default-fallbacks'), or a form containing a font-name and a set
 of targets valid for `set-fontset-font', or a sequence of such forms."
   (>>=on-debug-message "setting default font...")
-  (let* ((props (>>-font/normalize-attrs option))
+  (let* ((props (>>-font/option->plist option))
          (fallback (plist-get props :fallback)))
     (when props
       (setq props

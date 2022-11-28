@@ -21,6 +21,7 @@
 (eval-and-compile
   (require 'hideshow)
   (require 'xorns-term)
+  (require 'transient)
   (require 'use-package nil 'noerror))
 
 
@@ -113,50 +114,90 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
 `blacken-mode'.")
 
 
+(defconst >>-!python/env-locators
+  '(
+     "venv"
+     ".venv"
+     ("poetry.lock" "poetry" "env" "info" "-p")
+     ("Pipfile.lock" "pipenv" "--venv")
+     (".python-version" "pyenv" "prefix")
+     )
+  "Default python (virtual) environment locators.
+See `>>=|python/env-locators' for more information.")
+
+
+(defvar >>=|python/env-locators nil
+  "Python (virtual) environment locators.
+Extra definitions to be appended to `>>-!python/env-locators' default
+definitions.  Each item must be either a string representing the MARK-FILE or
+a list with the form (MARK-FILE [COMMAND]).  The result list will be used by
+the function `>>=python/locate-env'.")
+
+
 (autoload 'po-mode "po-mode"    ; TODO: Check this
-  "Major mode for translators to edit PO files" t)
+  "Major mode for translators when they edit PO files." t)
+
+
+(defun >>-python/check-env (path)
+  "Check if PATH is a correct Python (virtual) environment."
+  (when (stringp path)
+    (setq path (expand-file-name path))
+    (and
+      (or
+        (string-prefix-p >>=!home-dir path)
+        (string-prefix-p temporary-file-directory path))
+      (file-executable-p (>>=dir-join path "bin" "python"))
+      path)))
+
+
+(defun >>-python/get-env (base item)
+  "Get a Python environment from a BASE directory given an ITEM definition."
+  (when (stringp item)
+    (setq item (list item)))
+  (let ((name (car item))
+        (command (cadr item))
+        (args (cddr item)))
+    (when-let ((root (locate-dominating-file base name)))
+      (let ((default-directory root))
+        (>>-python/check-env
+          (if command
+            (if (stringp command)
+              (car-safe (>>=process/safe-lines command args))
+              ;; else
+              (apply command name args))
+            ;; else
+            name))))))
+
+
+(defun >>=python/locate-env (&optional root)
+  "Look a Python (virtual) environment in the context of a ROOT workspace."
+  (unless root
+    (setq root default-directory))
+  (seq-some
+    (lambda (item) (>>-python/get-env root item))
+    (append >>-!python/env-locators >>=|python/env-locators)))
 
 
 (use-package python
   :defer t
   :preface
-
-  (defun >>-compute-local-venv (root)
-    (let ((local-venv (>>=dir-join root ".venv")))
-      (when (file-exists-p local-venv) local-venv)))
-
-  (defun >>-compute-pipfile-env (root)
-    (let ((pipfile-lock-fname (expand-file-name "Pipfile.lock" root)))
-      (when (file-exists-p pipfile-lock-fname)
-        (condition-case nil
-          (car-safe (process-lines (>>=executable-find "pipenv") "--venv"))))))
-
-  (defun >>-compute-poetry-env (root)
-    (let ((poetry-lock-fname (expand-file-name "poetry.lock" root)))
-      (when (file-exists-p poetry-lock-fname)
-        (condition-case nil
-          (car-safe (process-lines (>>=executable-find "poetry") "env" "info" "-p"))))))
-
-  (defun >>-get-venv-path()
-    "Get the virtual the environment's path, nil if none."
-    (when-let ((root (>>=project-root)))
-      (or
-        (>>-compute-local-venv root)
-        (>>-compute-pipfile-env root)
-        (>>-compute-poetry-env root))))
-
   (defun -python-mode-setup()
     (outline-minor-mode)
-    (when-let ((venv-path (>>-get-venv-path)))
-      (message "Found venv path '%s'" venv-path)
-      (when (boundp 'lsp-pylsp-plugins-jedi-environment)
-        (progn
-          (message "Setting '%s' in pylsp" venv-path)
-          (>>=set 'lsp-pylsp-plugins-jedi-environment venv-path)))
-      (when (boundp 'lsp-pyls-plugins-jedi-environment)
-        (progn
-          (message "Setting '%s' in pyls" venv-path)
-          (>>=set 'lsp-pyls-plugins-jedi-environment venv-path)))
+    (when-let ((venv-path (>>=python/locate-env (>>=project-root))))
+      ;; TODO: Check `lsp-pylsp-get-pyenv-environment' function, and
+      ;; `lsp-after-initialize-hook' in Python: `lsp-pylsp-after-open-hook'.
+      ;; (rename 'pylsp' -> 'pyls' for all cases)
+      (let (modules)
+        (when (boundp 'lsp-pylsp-plugins-jedi-environment)
+          (>>=set 'lsp-pylsp-plugins-jedi-environment venv-path)
+          (setq modules (cons "pylsp" modules)))
+        (when (boundp 'lsp-pyls-plugins-jedi-environment)
+          (>>=set 'lsp-pyls-plugins-jedi-environment venv-path)
+          (setq modules (cons "pyls" modules)))
+        (when (and modules init-file-debug)
+          (message
+            "Setting Python (virtual) environment '%s' in (%s) modules"
+            venv-path (string-join modules ", "))))
       ;; lsp-pyrigth does its own lookup with the function
       ;; lsp-pyright-locate-venv; so we don't need to do anything here for it.
       ;; TODO: See other options:
@@ -172,26 +213,39 @@ You always can manually enable this mode using `>>=blacken/turn-on' or
   (:map python-mode-map
     ("C-m" . newline-and-indent))
   :hook
-  ((python-mode . -python-mode-setup)
-    (inferior-python-mode . -inferior-python-setup)))
+  (python-mode . -python-mode-setup)
+  (inferior-python-mode . -inferior-python-setup))
+
+
+(use-package with-venv
+  :ensure t)
 
 
 (use-package blacken
   :ensure t
   :preface
   (declare-function blacken-mode 'blacken)
+  (declare-function blacken-buffer 'blacken)
 
   (defun >>=blacken/turn-on ()
     "Setup `blacken' inner a file in `python-mode'."
     (interactive)
     (turn-off-auto-fill)
-    (blacken-mode))
+    (blacken-mode +1))
+
+  (defun >>=blacken/try-reformat-buffer ()
+    "Reformat current buffer if `blacken-mode' is active."
+    (when (bound-and-true-p blacken-mode)
+      (blacken-buffer init-file-debug)))
 
   (defun >>-blacken/may-enable-mode ()
     "Determine whether `blacken' may be enabled (see `>>=|blacken/enable')."
     (>>=major-mode-trigger blacken >>=|blacken/enable >>=blacken/turn-on))
+
   :hook
   (python-mode . >>-blacken/may-enable-mode)
+  (before-save . >>=blacken/try-reformat-buffer)
+
   :custom
   (blacken-line-length 'fill)
   (blacken-only-if-project-is-blackened t))
@@ -283,6 +337,81 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 
 
+;;; Debug Adapter Protocol
+
+(defvar >>=|dap/enable t
+  "Determines if `dap-mode' (Debug Adapter Protocol) is configured.")
+
+
+(use-package dap-mode
+  :when >>=|dap/enable
+  :ensure t
+  :after lsp-mode
+  :commands dap-debug
+  :preface
+  (defvar >>=|dap/python-debugger nil
+    "Which Python debugger to use (calculated if not given).")
+
+  (defun >>-dap/python-debugger ()
+    "Calculate which Python debugger is active ('debugpy' or `ptvsd')."
+    (or
+      >>=|dap/python-debugger
+      (seq-find
+        (lambda (pkg)
+          (>>=process/safe-lines
+            "python" "-m" (symbol-name pkg) "--version"))
+        '(debugpy ptvsd))))
+  :init
+  (transient-define-prefix >>=dap/menu ()
+    "DAP local menu."
+    [["Stepping"
+       ("n" "Next" dap-next)
+       ("i" "Step in" dap-step-in)
+       ("o" "Step out" dap-step-out)
+       ("c" "Continue" dap-continue)
+       ("r" "Restart frame" dap-restart-frame)
+       ("q" "Disconnect" dap-disconnect)]
+     ["Switch"
+       ("ss" "Session" dap-switch-session)
+       ("st" "Thread" dap-switch-thread)
+       ("sf" "Stack frame" dap-switch-stack-frame)
+       ("su" "Up stack frame" dap-up-stack-frame)
+       ("sd" "Down stack frame" dap-down-stack-frame)
+       ("sl" "List locals" dap-ui-locals)
+       ("sb" "List breakpoints" dap-ui-breakpoints)
+       ("sS" "List sessions" dap-ui-sessions)]
+     ["Breakpoints"
+       ("bb" "Toggle" dap-breakpoint-toggle)
+       ("ba" "Add" dap-breakpoint-add)
+       ("bd" "Delete" dap-breakpoint-delete)
+       ("bc" "Set condition" dap-breakpoint-condition)
+       ("bh" "Set hit condition" dap-breakpoint-hit-condition)
+       ("bl" "Set log message" dap-breakpoint-log-message)]
+     ["Eval"
+       ("ee" "Eval" dap-eval)
+       ("ea" "Add expression" dap-ui-expressions-add)
+       ("er" "Eval region" dap-eval-region)
+       ("es" "Eval thing at point" dap-eval-thing-at-point)]
+     ["Debug"
+       ("dd" "Debug" dap-debug)
+       ("ds" "Debug restart" dap-debug-restart)
+       ("dr" "Debug recent" dap-debug-recent)
+       ("dl" "Debug last" dap-debug-last)
+       ("de" "Edit debug template" dap-debug-edit-template)]]
+    (interactive)
+    (transient-setup '>>=dap/menu))
+  :bind
+  (:map dap-mode-map
+    ("C-s-d" . >>=dap/menu))
+  :config
+  (use-package dap-lldb)
+  (use-package dap-python
+    :config
+    (when-let ((debugger (>>-dap/python-debugger)))
+      (setq dap-python-debugger debugger))))
+
+
+
 ;;; Javascript, CoffeeScript and LiveScript
 
 (use-package tern
@@ -303,7 +432,15 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 (use-package prettier
   ;; `prettier' program must be installed in your system
-  :ensure t)
+  :ensure t
+  :init
+  (defvar >>=|prettier/enable-mode t
+    "Configure when to enable `prettier-mode'.")
+
+  (defun >>-prettier-mode? ()
+    "Enable `prettier-mode' depending on `>>=|prettier/enable-mode' variable."
+    (when (fboundp 'prettier-mode)
+      (funcall 'prettier-mode (if >>=|prettier/enable-mode +1 -1)))))
 
 
 (use-package js2-mode
@@ -312,7 +449,7 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
   :mode ("\\.js\\'" "\\.pac\\'" "node")
   :hook
   (js-mode . tern-mode)
-  (js-mode . prettier-mode)
+  (js-mode . >>-prettier-mode?)
   :custom
   (js-indent-level 2)
   :config
@@ -327,12 +464,13 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
   ;; TODO: Requires npm package `json-ls' (JSON Language Server)
   :mode "\\.json\\'"
   :ensure t
+  :after prettier
   :requires (flycheck)
   :hook
   (json-mode .
     (lambda ()
       (setq flycheck-checker 'json-jsonlint)))
-  (json-mode . prettier-mode))
+  (json-mode . >>-prettier-mode?))
 
 
 

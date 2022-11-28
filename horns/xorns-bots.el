@@ -80,7 +80,7 @@ If BASE argument is non-nil, open project directory instead."
         (if res
           (find-file res)
           ;; else
-          (warn ">>= no recent-file on xorns working-folder.")))
+          (>>=bots/dired-working-folder)))
       ;; else
       (warn ">>= xorns working-folder not found."))))
 
