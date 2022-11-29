@@ -42,8 +42,10 @@
 
 (use-package dictionary
   :bind
-  ("M-#" . dictionary-lookup-definition)
-  ("C-c w" . dictionary-search))
+  ("C-c w" . dictionary-search)
+  ;; Mickey Petersen prefers to use `dictionary-lookup-definition'
+  ;; https://www.masteringemacs.org/article/wordsmithing-in-emacs
+  ("M-#" . dictionary-search))
 
 
 

@@ -24,6 +24,7 @@ default values are not suitable for your configuration."
     ;; >>=|mode-line/kind 'mini
     ;; >>=|term/install-customizable-colors nil
     ;; >>=|xterm/switch-to-buffer-mode t
+    ;; >>=|dap/enable nil                     ; Debug Adapter Protocol
     ;; >>=|exwm/startup-applications
     ;; '(
     ;;    "blueman-applet"                    ; Blueman Applet

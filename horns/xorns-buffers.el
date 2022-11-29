@@ -92,8 +92,10 @@
         ("Configuration" (mode . conf-unix-mode))
         ("Programming"
           (or
+            (name . "^[.]env")
             (derived-mode . prog-mode)
             (derived-mode . conf-mode)
+            (derived-mode . yaml-mode)
             (mode . ess-mode)
             (mode . compilation-mode)))
         ("Web"
@@ -141,14 +143,22 @@
             (mode . magit-stashes-mode)
             (mode . magit-status-mode)
             (mode . diff-mode)))
-        ("LSP/Linters"
+        ("LSP/Linters/Logs"
           (or
             (name . "lsp")
             (name . "blacken")
             (name . "prettier")
             (name . "eslint")
+            (name . "bash-ls")
             (name . "json-ls")
-            (name . "html-ls")))
+            (name . "html-ls")
+            (name . "css-ls")
+            (name . "dockerfile-ls")
+            (name . "^[*]Flycheck")
+            (name . "^[*]Dired log[*]$")))
+        ("Backup files"
+          (or
+            (name . "^[#].*[#]$")))
         ("Help/Info/Completions/Customize"
           (or
             (name . "^[*]Help[*]$")
@@ -159,7 +169,8 @@
             (mode . Info-mode)
             (mode . rfcview-mode)
             (mode . Custom-mode)
-            (mode . completion-list-mode)))
+            (mode . completion-list-mode)
+            (mode . rg-mode)))
         ("X Window Manager" (mode . exwm-mode))
         )))
   (ibuffer-show-empty-filter-groups nil)
@@ -186,7 +197,7 @@
 ;;; Misc
 
 (global-set-key (kbd "C-x <f2>") 'rename-buffer)
-(global-set-key (kbd "C-c s") '>>=scratch/force)
+(global-set-key (kbd "C-c M-s") '>>=scratch/force)
 ;; (global-set-key (kbd "C-c h") '>>=toggle-header-mode-line)
 
 (add-hook 'after-init-hook '>>=set-default-directory)
