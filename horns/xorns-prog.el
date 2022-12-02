@@ -384,6 +384,7 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
        ("bb" "Toggle" dap-breakpoint-toggle)
        ("ba" "Add" dap-breakpoint-add)
        ("bd" "Delete" dap-breakpoint-delete)
+       ("bk" "Delete All" dap-breakpoint-delete-all)
        ("bc" "Set condition" dap-breakpoint-condition)
        ("bh" "Set hit condition" dap-breakpoint-hit-condition)
        ("bl" "Set log message" dap-breakpoint-log-message)]
