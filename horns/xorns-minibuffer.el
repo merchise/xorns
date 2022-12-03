@@ -82,6 +82,37 @@ Always considered true when `>>=|minibuffer/completing-framework' is
 
 
 
+
+(use-package marginalia
+  :when >>=|minibuffer/completing-framework
+  :ensure t
+  :preface
+  (eval-when-compile
+    (declare-function marginalia-mode 'marginalia))
+  :config
+  (marginalia-mode))
+
+
+(use-package embark
+  :when >>=|minibuffer/completing-framework
+  :ensure t
+  :preface
+  (eval-when-compile
+    (declare-function embark-prefix-help-command 'embark))
+  :bind
+  ("C-'" . embark-act)
+  ("C-." . embark-dwim)
+  ("C-h B" . embark-bindings)
+  :config
+  (setq prefix-help-command #'embark-prefix-help-command)
+  (add-to-list    ;; TODO: check this
+    'display-buffer-alist
+    '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+       nil
+       (window-parameters (mode-line-format . none)))))
+
+
+
 (use-package swiper
   :when (eq >>=|minibuffer/completing-framework 'ivy)
   :ensure t
@@ -142,7 +173,6 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   ("C-x 5 b" . consult-buffer-other-frame)
   ;; Other custom bindings
   ([remap yank-pop] . consult-yank-pop)
-  ([remap apropos-command] . consult-apropos)
   ;; M-g bindings (goto-map)
   ([remap goto-line] . consult-goto-line)
   ("M-g i" . consult-imenu)
@@ -162,7 +192,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
     (consult-customize
       consult-theme
       :preview-key '(:debounce 0.2 any)
-      consult-ripgrep    ;;
+      consult-ripgrep
       consult-git-grep
       consult-grep
       consult-bookmark
@@ -170,6 +200,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
       consult-xref
       consult--source-bookmark
       consult--source-recent-file
+      consult--source-file-register
       consult--source-project-recent-file
       :preview-key (kbd "M-.")))
   (setq
@@ -184,8 +215,14 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   :custom
   (vertico-cycle t)
   :init
-  (vertico-mode +1)
-  )
+  (vertico-mode +1))
+
+
+(use-package embark-consult
+  :when (eq >>=|minibuffer/completing-framework 'vertico)
+  :ensure t
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
 
 
 
