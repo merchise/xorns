@@ -100,8 +100,8 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   (eval-when-compile
     (declare-function embark-prefix-help-command 'embark))
   :bind
-  ("C-." . embark-act)
-  ("C-;" . embark-dwim)
+  ("C-'" . embark-act)
+  ("C-." . embark-dwim)
   ("C-h B" . embark-bindings)
   :config
   (setq prefix-help-command #'embark-prefix-help-command)
