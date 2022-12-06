@@ -89,6 +89,10 @@ Value could be a function receiving an unique argument string; or nil to use
 `>>=exwm/start-process', or t to use `>>=exwm/start-subprocess'.")
 
 
+(defvar >>=|exwm/systemtray-height 25
+  "Value to configure `System tray height' variable' inner EXWM.")
+
+
 (defvar >>=|exwm/systemtray-icons t
   "Count of system-tray icons (useful to set `mini-modeline-right-padding').
 Could be an integer or a boolean value, if t is calculated with the length of
@@ -155,16 +159,22 @@ A process NAME can bee given as an optional argument."
           cmd (error-message-string err))))))
 
 
-(defun >>=exwm/configure-system-try ()
+(defun >>=exwm/configure-system-tray ()
   "Run all startup applications defined in `>>=|exwm/startup-applications'."
-  (require 'exwm-systemtray)
+  (eval-and-compile
+    (require 'exwm-systemtray))
   (if >>=|mode-line/battery-icon-command
     (>>=exwm/start-command >>=|mode-line/battery-icon-command)
     ;; else
     (display-battery-mode +1))
   (setq-default display-time-24hr-format t)
   (display-time-mode +1)
-  (exwm-systemtray-enable))
+  (exwm-systemtray-enable)
+  ;; (eval-when-compile
+  ;;   (defvar exwm-systemtray-height))
+  (when >>=|exwm/systemtray-height
+    (setq exwm-systemtray-height >>=|exwm/systemtray-height))
+  )
 
 
 
@@ -222,10 +232,13 @@ A process NAME can bee given as an optional argument."
     (declare-function exwm-systemtray-enable 'exwm-systemtray))
   (message ">>= using Emacs as the Desktop Window Manager.")
   (->? >>=window-manager/init)
-  (>>=exwm/run-startup-applications)
-  (>>=exwm/configure-system-try)
+  (>>=exwm/configure-system-tray)
+  ;; (add-hook 'after-init-hook '>>=exwm/run-startup-applications)
+  (add-hook 'exwm-init-hook '>>=exwm/run-startup-applications)
   (>>-exwm/config)    ;; (exwm-config-example)
   )
+
+;; (slot-value (alist-get <ID> exwm-systemtray--list) 'visible)
 
 
 (use-package exwm-input
