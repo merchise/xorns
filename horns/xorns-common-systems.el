@@ -30,6 +30,7 @@
 (require 'xorns-dired)
 (require 'xorns-term)
 (require 'xorns-vc)
+(require 'xorns-trees)
 (require 'xorns-text)
 (require 'xorns-prog)
 (require 'xorns-prog-extra)
