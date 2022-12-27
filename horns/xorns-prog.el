@@ -13,14 +13,13 @@
 
 ;;; Code:
 
-(require 'xorns-text)
-(require 'xorns-tools)
-(require 'xorns-buffers)
-(require 'xorns-simple)
 
 (eval-and-compile
-  (require 'hideshow)
+  (require 'xorns-text)
+  (require 'xorns-tools)
+  (require 'xorns-buffers)
   (require 'xorns-term)
+  (require 'hideshow)
   (require 'transient)
   (require 'use-package nil 'noerror))
 

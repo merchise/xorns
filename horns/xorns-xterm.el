@@ -34,8 +34,7 @@
 
 (eval-and-compile
   (require 'xorns-bindings)
-  (require 'xorns-core)
-  (require 'xorns-simple))
+  (require 'xorns-core))
 
 
 

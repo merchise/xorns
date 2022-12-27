@@ -19,7 +19,6 @@
   (require 'magit-status nil 'noerror))
 
 (require 'xorns-bindings)
-(require 'xorns-simple)
 
 
 (defconst >>=!pkg-dir (bound-and-true-p >>=!init-mode/standalone)

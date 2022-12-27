@@ -52,7 +52,6 @@
 (require 'xorns-init)
 (require 'xorns-bindings)
 (require 'xorns-core)
-(require 'xorns-simple)
 (require 'xorns-xterm)
 
 
