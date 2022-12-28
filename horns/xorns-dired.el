@@ -240,7 +240,7 @@ Very similar to `dired-insert-subdir'."
 
 
 (defun >>=dired-maybe-insert-subdir (dirname &optional switches)
-  "Insert sub-directory DIRNAME into the same dired buffer.
+  "Insert sub-directory DIRNAME into the same Dired buffer.
 If SWITCHES contains recursive flag (see `dired-switches-recursive-p') and
 global variable `>>=|dired/omit-mode' is t, `>>=|dired-omit-ignores-switches'
 are concatenated.  See `dired-maybe-insert-subdir'."
@@ -310,8 +310,9 @@ are concatenated.  See `dired-maybe-insert-subdir'."
 ;; TODO: try to advice original function.
 
 (defun dired-insert-subdir-validate (dirname &optional switches)
-  "Check that it is valid to insert DIRNAME with SWITCHES.
-Signal an error if invalid (e.g. user typed `i' on `..')."
+  "Check if DIRNAME is valid to insert.
+A SWITCHES option can be specified.  Signal an error if invalid (e.g. user
+typed `i' on `..')."
   (or
     (>>=file-in-dir-tree dirname default-directory)
     (error  "%s: not in this directory tree" dirname))

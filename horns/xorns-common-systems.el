@@ -29,15 +29,13 @@
 (require 'xorns-buffers)
 (require 'xorns-dired)
 (require 'xorns-term)
-(require 'xorns-vc)
-(require 'xorns-trees)
 (require 'xorns-text)
 (require 'xorns-prog)
 (require 'xorns-prog-extra)
+(require 'xorns-system)
 (require 'xorns-devop)
-(require 'xorns-search)
 (require 'xorns-project)
-(require 'xorns-crypt)
+
 (require 'xorns-pim)
 (require 'xorns-bots)
 
