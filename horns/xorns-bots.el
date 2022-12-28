@@ -96,6 +96,20 @@ repository."
     (warn ">>= only allowed in standalone-mode.")))
 
 
+(defun >>=bots/remove-compiled ()
+  "Remove `.elc' compiled files in `xorns' standalone directory."
+  (interactive)
+  (if >>=!pkg-dir
+    (mapc
+      (lambda (file)
+        (when (string-equal (>>=suffix file 4) ".elc")
+          (delete-file (>>=dir-join >>=!pkg-dir file) 'trash)
+          ))
+      (directory-files >>=!pkg-dir))
+    ;; else
+    (warn ">>= only allowed in standalone-mode.")))
+
+
 (defun >>=bots/byte-recompile (&optional force)
   "Recompile `.el' files in `xorns' standalone directory.
 If FORCE argument is non-nil, recompile every ‘.el’ file even if it already
@@ -119,6 +133,7 @@ has an ‘.elc’ file; otherwise only those that needs recompilation."
   [["Production"
      ("p" "Pull from source"    >>=bots/git-pull)
      ("d" "Open dired+magit"    >>=bots/dired+git-status)
+     ("l" "Clean `.elc' files"  >>=bots/remove-compiled)
      ("c" "Byte recompile"      >>=bots/byte-recompile)]
    ["Development"
      ("w" "Open dired"          >>=bots/dired-working-folder)
