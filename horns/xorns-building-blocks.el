@@ -9,6 +9,10 @@
 
 ;;; Code:
 
+(when (bound-and-true-p >>=!init-mode/package)
+  ;; TODO: mail has not yet been migrated to standalone mode
+  (require 'xorns-mail))
+
 
 (provide 'xorns-building-blocks)
 ;;; xorns-building-blocks.el ends here
