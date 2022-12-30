@@ -36,6 +36,7 @@ default values are not suitable for your configuration."
     ;; >>=|lsp/enable-mode 'ask
     ;; >>=|blacken/enable 'ask
     ;; >>=|crypt/gpg-integration nil
+    ;; >>=|which-key/enable nil
     ;; >>=|treemacs/enable nil
     ))
 

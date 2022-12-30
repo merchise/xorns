@@ -98,6 +98,27 @@ default value is \"rg\".  Usually this variable is used with the function
 
 
 
+;;; which-key
+
+(defvar >>=|which-key/enable t
+  "Whether `which-key' package must be configured.
+If not a boolean value, a side-window will be configured and should be one of
+top, bottom, left or right symbols.")
+
+
+(use-package which-key
+  :when >>=|which-key/enable
+  :ensure t
+  :hook
+  (after-init . which-key-mode)
+  :config
+  (unless (eq >>=|which-key/enable t)
+    (setq
+      which-key-popup-type 'side-window
+      which-key-side-window-location >>=|which-key/enable)))
+
+
+
 ;;; Cryptography or techniques for secure communications
 
 ;; GnuPG
