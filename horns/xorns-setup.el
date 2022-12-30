@@ -17,40 +17,6 @@
 (require 'xorns-tools)
 
 
-
-;;; setup levels
-
-(defvar >>=|setup/level nil
-  "Desired setup level for `xorns' components.
-An integer value between 0 and 10.  There are three symbols defining standard
-levels in `>>=!setup/levels'.")
-
-
-(defconst >>=!setup/levels '((basic . 0) (medium . 5) (high . 10))
-  "Possible setup levels with its associated integer values.")
-
-
-(defsubst >>-setup/int-level (level)
-  "Convert a setup LEVEL into an integer value."
-  (cond
-    ((integerp level)
-      level)
-    ((null level)
-      0)
-    (t
-      (or
-        (cdr (assq level >>=!setup/levels))
-        (error ">>= invalid setup level '%s'" level)))))
-
-
-(defsubst >>=setup/level-check (&optional level)
-  "Check if a given setup LEVEL is OK to configure a feature.
-This is done by comparing the given LEVEL against defined `>>=|setup/level'."
-  (>=
-    (>>-setup/int-level >>=|setup/level)
-    (>>-setup/int-level level)))
-
-
 (defun >>=setup/command-check (command)
   "Check if a system COMMAND is installed.
 Intended to find out if a feature that depends on the given command can be

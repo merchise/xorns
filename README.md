@@ -58,30 +58,11 @@ example "xorns+python.el", "").  Sub-levels are joined with "/" (for example
 
 ## Backlog
 
-### Deft is too slow after Emacs 28
+### Misc
 
-Function `deft-parse-summary` was replaced.  Check after Emacs or Deft are
-updated.
-
-
-### Avoid compiler errors
-
-Sometimes, there are errors depending on module load; for example, using
-constant `>>=!home-dir` in other module different to where it is defined (see
-`xorns-pim`).  Maybe the solution is to use `eval-when-compile`, or
-`eval-and-compile`, function.
-
-### Use 'lexical-binding' in xorns modules
-
-Research how to use `lexical-binding` in most `xorns ` modules.
-
-### Improve 'multiple-cursors'
-
-- Integrate 'multiple-cursors' with 'mode-line'. Show the active cursors count
-  in the mode-line.
-- Check for alternative packages: `ace-mc`, `evil-mc`, `evil-multiedit`,
-  `smart-region`.
-
+- Integrate `xorns-setup` and `xorns-packages` modules.
+- Deft is too slow after Emacs 28.  Function `deft-parse-summary` was
+  replaced.  Check after Emacs or Deft are updated.
 
 ### Fix loss of focus for Brave when using EXWM
 

@@ -23,100 +23,6 @@
 
 ;;; configuration
 
-(defvar >>=|ext/multiple-cursors nil
-  "Define whether to configure the `multiple-cursors' extension.
-Could be a boolean, or the symbol 'extra' to also install the `mc-extras'
-package.")
-
-
-(defvar >>=|ext/ripgrep "rg"
-  "Whether `ripgrep' extensions must be configured.
-Could be a boolean, or a string specifying the `ripgrep' command name, the
-default value is \"rg\".  Usually this variable is used with the function
-`>>=setup/command-check'.")
-
-
-(defvar >>=|ext/fzf nil
-  "Whether `fzf' extensions must be configured.
-Could be a boolean, or a string specifying the `fzf' command name, the default
-value is nil, but use \"fzf\" if you want to activate it.  Usually this
-variable is used with the function `>>=setup/command-check'.")
-
-
-
-;;; Basic editing commands
-
-(defun >>=kill-new (string)
-  "Make STRING the latest kill in the kill ring unless it is already there."
-  (unless (equal string (car kill-ring))
-    (kill-new string)))
-
-
-(defun >>=yank-filename (&optional prefix)
-  "Make buffer abbreviate file-name the latest kill in the kill ring.
-Optional argument PREFIX controls whether the line-number must be included,
-`C-u'; or the true name representation of the file-name, `C-0'; any other
-value will combine both logics."
-  (interactive "P")
-  (let (name ln)
-    (cond
-      ((null prefix)
-        (setq name buffer-file-name))
-      ((consp prefix)
-        (setq
-          name buffer-file-name
-          ln t))
-      ((eq prefix 0)
-        (setq name buffer-file-truename))
-      (t
-        (setq
-          name buffer-file-truename
-          ln t)))
-    (>>=kill-new
-      (if name
-        (concat
-          (abbreviate-file-name name)
-          (if ln (format ":%s:" (line-number-at-pos)) ""))
-        ;; else
-        (or
-          (bound-and-true-p exwm-title)
-          (buffer-name))))))
-
-
-(defun >>=yank-default-directory ()
-  "Make default directory the latest kill in the kill ring."
-  (interactive)
-  (>>=kill-new
-    (file-name-as-directory (abbreviate-file-name default-directory))))
-
-
-(defun >>=shell-command-to-string (command)
-  "Execute shell COMMAND and return its output as a trimmed string."
-  (string-trim (shell-command-to-string command)))
-
-
-(defun >>=buffer-focused-text ()
-  "Return focused-text in current buffer, selected region or current line."
-  (let (begin end
-        (region (use-region-p)))
-    (if region
-      (setq
-        begin (point)
-        end (mark))
-      ;; else
-      (save-restriction
-        (widen)
-        (save-excursion
-          (beginning-of-line)
-          (setq begin (point))
-          (end-of-line)
-          (setq end (point)))))
-    (prog1
-      (buffer-substring-no-properties begin end)
-      (if region
-        (setq deactivate-mark t)))))
-
-
 (use-package simple
   :defer t
   :hook
@@ -173,117 +79,17 @@ value will combine both logics."
 
 (use-package ispell
   :bind
-  (("C-c i d" . ispell-change-dictionary)
-   ("C-c i l" . ispell-change-dictionary)
-   ("C-c i r" . ispell-region)
-   ("C-c i b" . ispell-buffer)
-   ("C-c i c" . ispell-comments-and-strings)
-   ("C-c i k" . ispell-kill-ispell)
-   ("C-c i m" . ispell-message))
+  ("C-c i d" . ispell-change-dictionary)
+  ("C-c i l" . ispell-change-dictionary)
+  ("C-c i r" . ispell-region)
+  ("C-c i b" . ispell-buffer)
+  ("C-c i c" . ispell-comments-and-strings)
+  ("C-c i k" . ispell-kill-ispell)
+  ("C-c i m" . ispell-message)
   :custom
   (ispell-highlight-p t)
   (ispell-silently-savep t)
   (ispell-dictionary "english"))
-
-
-
-;;; multiple-cursors
-
-(use-package multiple-cursors
-  :when >>=|ext/multiple-cursors
-  :ensure t
-  :demand t
-  :bind
-  ("C-S-c C-S-c" . mc/mark-all-dwim)
-  ("C->" . mc/mark-next-like-this)
-  ("C-<" . mc/mark-previous-like-this)
-  )
-
-
-
-;;; grep facilities
-
-
-(use-package grep    ;; todo: check `wgrep', `scf-mode', `deadgrep'
-  :demand t
-  :bind
-  (("C-c C-g n" . find-name-dired)
-   ("C-c C-g f" . find-grep)
-   ("C-c C-g g" . grep)
-   ("C-c C-g d" . find-grep-dired)
-   ("C-c r" . rgrep)
-   ("C-c C-g r" . rgrep))
-  :config
-  (progn
-    (dolist
-      (type
-        '(jpg jpeg png gif    ; images
-          mpg mjpg avi        ; videos
-          rar zip 7z))        ; archives
-      (add-to-list 'grep-find-ignored-files (format "*.%s" type)))
-    (dolist
-      (name '(".tox" ".hypothesis" ".idea" ".mypy_cache" ".vscode"))
-      (add-to-list 'grep-find-ignored-directories name))))
-
-
-(use-package deadgrep
-  :when (>>=setup/command-check >>=|ext/ripgrep)
-  :ensure t
-  :after grep
-  :init
-  (use-package rg
-    :ensure t
-    :init
-    (defvar >>=|rg/max-columns 512
-      "Override value for `--max-columns' option.")
-    :bind
-    ("C-c s" . rg-project)
-    :config
-    (when >>=|rg/max-columns
-      (let ((max (format "--max-columns=%s" >>=|rg/max-columns)))
-        (setq rg-command-line-flags (cons max rg-command-line-flags)))))
-  :bind
-  ([remap rgrep] . deadgrep))
-
-
-
-;;; Remote Access Protocol
-
-(defun >>=local-buffer (&optional buffer)
-  "Not nil if BUFFER visits a local (not remote) file."
-  (let ((fname (buffer-file-name buffer)))
-    (and fname (not (file-remote-p fname)))))
-
-
-
-;;; Comment blocks
-
-(defun >>=uncomment-and-save (&optional fill)
-  "Uncomment the selected text and save it in the `kill-ring'.
-After uncommenting it, the selected text will be structured.  The FILL
-argument will determine the value to use of the variable `fill-column'; it
-could be an integer, or a boolean: nil will use a big value in order to no
-break lines, and a true value will use its default value for `fill-column'."
-  (interactive "P")
-  (when (null fill)
-    (setq fill 32768))
-  (let ((text (>>=buffer-focused-text))
-        (mode major-mode)
-        (try-modes '(markdown-mode rst-mode text-mode)))
-    (with-temp-buffer
-      (funcall mode)
-      (insert text)
-      (uncomment-region-default (point-min) (point-max))
-      (funcall (cl-some '>>=check-function try-modes))
-      (when (integerp fill)
-        (setq fill-column fill))
-      (fill-region (point-min) (point-max))
-      (kill-new (buffer-substring-no-properties (point-min) (point-max)))
-      )))
-
-
-(dolist (map (list text-mode-map prog-mode-map))
-  (define-key map (kbd "C-M-;") '>>=uncomment-and-save))
 
 
 (provide 'xorns-simple)

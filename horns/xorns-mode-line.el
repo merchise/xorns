@@ -105,16 +105,14 @@ including `powerline'.")
   ;; Hide all minor modes from the mode-line
   (rm-blacklist "")
   :config
-  (progn
-    (let ((delta (bound-and-true-p >>=|exwm/systemtray-icons)))
-      (if delta
-        (setq mini-modeline-right-padding
-          (+ mini-modeline-right-padding
-            (if (eq delta t)
-              (length (bound-and-true-p >>=|exwm/startup-applications))
-              ;; else
-              delta)))))
-    (mini-modeline-mode +1)))
+  (when-let ((delta (bound-and-true-p >>=|exwm/systemtray-icons)))
+    (setq mini-modeline-right-padding
+      (+ mini-modeline-right-padding
+        (if (eq delta t)
+          (max 1 (length (bound-and-true-p >>=|exwm/startup-applications)))
+          ;; else
+          delta))))
+  (mini-modeline-mode +1))
 
 
 (use-package doom-themes

@@ -7,7 +7,7 @@
 ;;; Commentary:
 
 ;; This module is intended for Personal Information Management (PIM) stuffs
-;; like: Notes taking, Dictionaries, Calendar, Planner, Organizer, etc.
+;; like: Notes taking, Calendar, Planner, Organizer, etc.
 ;;
 ;; For more information see:
 ;; https://en.wikipedia.org/wiki/Personal_information_management
@@ -35,24 +35,6 @@
 
 (defconst >>=!pim/prefered-directory (>>=dir-join >>=!home-dir ".pim")
   "List of miscellaneous packages to install.")
-
-
-
-;;; Dictionary servers
-
-(use-package dictionary
-  :bind
-  ("M-#" . dictionary-lookup-definition)
-  ("C-c w" . dictionary-search))
-
-
-
-;;; Processes and commands
-
-(use-package proced
-  :unless (eq system-type 'darwin)    ;; unavailable on OS-X
-  :bind
-  ("C-x p" . proced))
 
 
 

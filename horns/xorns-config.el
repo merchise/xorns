@@ -19,6 +19,7 @@
 ;;; Code:
 
 (require 'xorns-tools)
+(require 'warnings)
 
 
 
@@ -40,6 +41,10 @@
             (message ">>= migrating old `custom-file' '%s'." old)
             (load old (not init-file-debug))
             (setq save t))))
+      (when (and (not init-file-debug) (eq warning-minimum-level :warning))
+        (setq
+          warning-minimum-level :error
+          warning-minimum-log-level :error))
       (when exists
         (load custom-file (not init-file-debug))
         (->? >>=settings/init))
