@@ -160,7 +160,7 @@ A process NAME can bee given as an optional argument."
 
 
 (defun >>=exwm/configure-system-tray ()
-  "Run all startup applications defined in `>>=|exwm/startup-applications'."
+  "Configure EXWM system-tray."
   (eval-and-compile
     (require 'exwm-systemtray))
   (if >>=|mode-line/battery-icon-command
@@ -173,8 +173,7 @@ A process NAME can bee given as an optional argument."
   ;; (eval-when-compile
   ;;   (defvar exwm-systemtray-height))
   (when >>=|exwm/systemtray-height
-    (setq exwm-systemtray-height >>=|exwm/systemtray-height))
-  )
+    (setq exwm-systemtray-height >>=|exwm/systemtray-height)))
 
 
 
@@ -188,6 +187,10 @@ A process NAME can bee given as an optional argument."
   (declare-function exwm-workspace-rename-buffer 'exwm-workspace)
   :init
   ;; (require 'exwm-config)
+  (defun >>-exwm/rename-buffer ()
+    "Rename a newly created EXWM buffer."
+    (let ((name exwm-class-name))
+      ))
   (defun >>-exwm/config ()
     "Xorns configuration of EXWM (replaces `exwm-config-example')."
     ;; We don't call `exwm-config-misc' to disable dialog boxes and
@@ -195,6 +198,7 @@ A process NAME can bee given as an optional argument."
     ;; `early-init.el' or `/xorns-core.el' if Emacs version < 27.  Also,
     ;; `exwm-config-ido' is not used because we configure IDO, if demanded,
     ;; in `xorns-minibuffer.el'.
+    (>>=exwm/configure-system-tray)
     (unless (get 'exwm-workspace-number 'saved-value)
       (setq exwm-workspace-number 4))
     (add-hook 'exwm-update-class-hook
@@ -226,15 +230,14 @@ A process NAME can bee given as an optional argument."
            ([?\C-d] . [delete])
            ([?\C-k] . [S-end delete]))))
     (exwm-enable))
+  :hook
+  (exwm-init . >>=exwm/run-startup-applications)
   :config
   (eval-when-compile    ; this is only needed in local compile
     (declare-function >>-exwm/config 'xorns-exwm)    ; WTF
     (declare-function exwm-systemtray-enable 'exwm-systemtray))
   (message ">>= using Emacs as the Desktop Window Manager.")
   (->? >>=window-manager/init)
-  (>>=exwm/configure-system-tray)
-  ;; (add-hook 'after-init-hook '>>=exwm/run-startup-applications)
-  (add-hook 'exwm-init-hook '>>=exwm/run-startup-applications)
   (>>-exwm/config)    ;; (exwm-config-example)
   )
 
