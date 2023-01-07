@@ -186,6 +186,15 @@ nil is returned."
         (if (eq strict t) "" (format "%s " strict)) value))))
 
 
+(defsubst >>=str-trim (string &optional trim-left trim-right)
+  "Trim a STRING using `string-trim' but returning nil on an empty result.
+
+Arguments TRIM-LEFT and TRIM-RIGHT are used verbatim."
+  (when string
+    (let ((res (string-trim string trim-left trim-right)))
+      (unless (eq res "") res))))
+
+
 (defun >>=safe-replace (regexp rep source)
   "Replace all occurrences for REGEXP with REP in SOURCE.
 
