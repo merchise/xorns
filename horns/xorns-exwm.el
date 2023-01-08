@@ -36,8 +36,7 @@
 
 ;; Every Desktop Environment defines a set of applications that will be
 ;; automatically launched during startup after the user has logged in.  These
-;; applications are defined in the variable `>>=|exwm/startup-applications',
-;; and managed by function `>>=exwm/run-startup-applications'.
+;; applications are defined in the variable `>>=|exwm/startup-applications'.
 
 ;; Each command definition must be a string, e.g. "nm-applet"; a list could be
 ;; used for backward compatibility, e.g. '("GDK_BACKEND=x11" "pamac-tray").
@@ -167,14 +166,19 @@ A process NAME can bee given as an optional argument."
     (browse-url url)))
 
 
-(defun >>=exwm/run-startup-applications ()
-  "Run all startup applications defined in `>>=|exwm/startup-applications'."
+(defun >>--startup-applications ()
+  "Private function to run all startup applications."
   (dolist (cmd >>=|exwm/startup-applications)
     (condition-case-unless-debug err
       (>>=exwm/start-command cmd)
       (error
         (message ">>= error executing '%s' startup application:\n    %s"
           cmd (error-message-string err))))))
+
+
+(defun >>-exwm/startup-applications ()
+  "Run all startup applications defined in `>>=|exwm/startup-applications'."
+  (run-with-timer 1 nil '>>--startup-applications))
 
 
 (defun >>=exwm/configure-system-tray ()
@@ -279,7 +283,7 @@ A process NAME can bee given as an optional argument."
            ([?\C-k] . [S-end delete]))))
     (exwm-enable))
   :hook
-  (exwm-init . >>=exwm/run-startup-applications)
+  (exwm-init . >>-exwm/startup-applications)
   (exwm-update-class . >>-exwm/update-class)
   :config
   (eval-when-compile    ; this is only needed in local compile
