@@ -36,8 +36,7 @@
 
 ;; Every Desktop Environment defines a set of applications that will be
 ;; automatically launched during startup after the user has logged in.  These
-;; applications are defined in the variable `>>=|exwm/startup-applications',
-;; and managed by function `>>=exwm/run-startup-applications'.
+;; applications are defined in the variable `>>=|exwm/startup-applications'.
 
 ;; Each command definition must be a string, e.g. "nm-applet"; a list could be
 ;; used for backward compatibility, e.g. '("GDK_BACKEND=x11" "pamac-tray").
@@ -99,6 +98,24 @@ Could be an integer or a boolean value, if t is calculated with the length of
 `>>=|exwm/startup-applications'.)")
 
 
+(defvar >>=|exwm/web-names '("browser" "brave-browser" "firefox" "chromium")
+  "Class names for web browser applications.
+Used together with `>>=|exwm/web-alts' to complement `>>=|exwm/name-alist'.")
+
+
+(defvar >>=|exwm/web-alts '("web-main" "web-misc" "web")
+  "Alternative names for web browser applications.
+Used together with `>>=|exwm/web-alts' to complement `>>=|exwm/name-alist'.")
+
+
+(defvar >>=|exwm/name-alist nil
+  "Association list of buffer names replacements.
+The key of each cons cell (`car') will be the windows class-name, and the
+associated value (`cdr') the proposed alternative names.  Values could be a
+string or a list of strings.  This list will be complemented with
+`>>=|exwm/web-names' and `>>=|exwm/web-alts'.")
+
+
 (defun >>=exwm/start-process (command)
   "Call COMMAND synchronously in a separate process returning immediately."
   (unless (stringp command)
@@ -149,8 +166,8 @@ A process NAME can bee given as an optional argument."
     (browse-url url)))
 
 
-(defun >>=exwm/run-startup-applications ()
-  "Run all startup applications defined in `>>=|exwm/startup-applications'."
+(defun >>--startup-applications ()
+  "Private function to run all startup applications."
   (dolist (cmd >>=|exwm/startup-applications)
     (condition-case-unless-debug err
       (>>=exwm/start-command cmd)
@@ -159,8 +176,13 @@ A process NAME can bee given as an optional argument."
           cmd (error-message-string err))))))
 
 
-(defun >>=exwm/configure-system-tray ()
+(defun >>-exwm/startup-applications ()
   "Run all startup applications defined in `>>=|exwm/startup-applications'."
+  (run-with-timer 1 nil '>>--startup-applications))
+
+
+(defun >>=exwm/configure-system-tray ()
+  "Configure EXWM system-tray."
   (eval-and-compile
     (require 'exwm-systemtray))
   (if >>=|mode-line/battery-icon-command
@@ -173,8 +195,7 @@ A process NAME can bee given as an optional argument."
   ;; (eval-when-compile
   ;;   (defvar exwm-systemtray-height))
   (when >>=|exwm/systemtray-height
-    (setq exwm-systemtray-height >>=|exwm/systemtray-height))
-  )
+    (setq exwm-systemtray-height >>=|exwm/systemtray-height)))
 
 
 
@@ -188,19 +209,54 @@ A process NAME can bee given as an optional argument."
   (declare-function exwm-workspace-rename-buffer 'exwm-workspace)
   :init
   ;; (require 'exwm-config)
+  (defsubst >>-exwm/class-name ()
+    "Get the class name (WM_CLASS) for a newly created EXWM buffer."
+    (or
+      (>>=str-trim exwm-class-name)
+      (>>=str-trim exwm-instance-name)
+      "unnamed"))
+
+  (defsubst >>-exwm/name-alist ()
+    "Get the class name (WM_CLASS) for a newly created EXWM buffer."
+    (unless (boundp '>>-exwm/name-alist)
+      (defvar >>-exwm/name-alist
+        (append
+          >>=|exwm/name-alist
+          (when (and >>=|exwm/web-names >>=|exwm/web-alts)
+            (mapcar
+              (lambda (name) (cons name >>=|exwm/web-alts))
+              >>=|exwm/web-names)))))
+    >>-exwm/name-alist)
+
+  (defun >>-exwm/rename-new-buffer ()
+    "Rename a newly created EXWM buffer."
+    (let* ((name (>>-exwm/class-name))
+           (replacements (>>-exwm/name-alist))
+           (rep (cdr (assoc-string name replacements 'case-fold))))
+      (when rep
+        (if (stringp rep)
+          (setq name rep)
+          ;; else
+          (while rep
+            (setq
+              name (car rep)
+              rep (if (get-buffer name) (cdr rep) nil)))))
+      (rename-buffer name 'unique)))
+
+  (defun >>-exwm/update-class ()
+    "Run when window class is updated."
+    (>>-exwm/rename-new-buffer))
+
   (defun >>-exwm/config ()
-    "Xorns configuration of EXWM (replaces `exwm-config-example')."
+    "Xorns configuration for EXWM (replaces `exwm-config-example')."
     ;; We don't call `exwm-config-misc' to disable dialog boxes and
     ;; hourglass pointer here using because in `xorns' this is done in
     ;; `early-init.el' or `/xorns-core.el' if Emacs version < 27.  Also,
     ;; `exwm-config-ido' is not used because we configure IDO, if demanded,
     ;; in `xorns-minibuffer.el'.
+    (>>=exwm/configure-system-tray)
     (unless (get 'exwm-workspace-number 'saved-value)
       (setq exwm-workspace-number 4))
-    (add-hook 'exwm-update-class-hook
-      ;; TODO: maybe move this to `exwm-workspace'
-      (lambda ()    ; make class name the buffer name
-        (exwm-workspace-rename-buffer exwm-class-name)))
     (unless (get 'exwm-input-global-keys 'saved-value)
       (setq exwm-input-global-keys
         `(
@@ -226,15 +282,15 @@ A process NAME can bee given as an optional argument."
            ([?\C-d] . [delete])
            ([?\C-k] . [S-end delete]))))
     (exwm-enable))
+  :hook
+  (exwm-init . >>-exwm/startup-applications)
+  (exwm-update-class . >>-exwm/update-class)
   :config
   (eval-when-compile    ; this is only needed in local compile
     (declare-function >>-exwm/config 'xorns-exwm)    ; WTF
     (declare-function exwm-systemtray-enable 'exwm-systemtray))
   (message ">>= using Emacs as the Desktop Window Manager.")
   (->? >>=window-manager/init)
-  (>>=exwm/configure-system-tray)
-  ;; (add-hook 'after-init-hook '>>=exwm/run-startup-applications)
-  (add-hook 'exwm-init-hook '>>=exwm/run-startup-applications)
   (>>-exwm/config)    ;; (exwm-config-example)
   )
 
