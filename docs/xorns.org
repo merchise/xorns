@@ -203,41 +203,41 @@ Check: https://stackoverflow.com/questions/60812866/emacs-gpg-pinentry-el-for-au
 
 ** Emacs configuration
 
-See =xorns-crypt= module for =pinentry= config in Emacs.  For us was enough to
-set variable =epg-pinentry-mode=  to ='loopback=.
+See ~xorns-crypt~ module for ~pinentry~ config in Emacs.  For us was enough to
+set variable ~epg-pinentry-mode~  to ~'loopback~.
 
 
 * Local User Configuration
 
-In Xorns, local user configuration file (see =custom-file= Emacs variable)
+In Xorns, local user configuration file (see ~custom-file~ Emacs variable)
 will be stored in the standard directory for user-specific configurations
 (XDG_CONFIG_HOME), defaults to =~/.config/xorns=.  If that folder does not
 exist on your system, the user home is used =~/.xorns=.
 
 The first version of this file is copied from =horns/templates/user-config=.
 
-Because there are former releases of Xorns using old style =custom-file=, the
+Because there are former releases of Xorns using old style ~custom-file~, the
 first time the new style file is create, old variables are imported from
 =~/.emacs.d/custom-${USER}.el= (or =~/.emacs.d/custom.el=).
 
 New style user configuration file use three functions:
 
-- =>>=settings/init=: Configuration code for user-settings.
+- ~>>=settings/init~: Configuration code for user-settings.
 
   This function is called at the very beginning of the startup process.  It
   should only modify setting-variables (those prefixed with '>>=|') when their
   default values are not suitable for your configuration.  See for example
-  =>>=|default-font= to configure your system font (=custom-set-faces= is
+  ~>>=|font-settings~ to configure your system font (=custom-set-faces= is
   overwritten in this version of Xorns).
 
-- =>>=building-blocks/configuration=: Configuration code for building-blocks
+- ~>>=building-blocks/configuration~: Configuration code for building-blocks
   customization.
 
   This function should only modify variables to customize how building-blocks
   are loaded (those prefixed with '>>=+') when their default values are not
   suitable for your configuration.
 
-- =>>=user-code=: User-code executed after initialization process.
+- ~>>=user-code~: User-code executed after initialization process.
 
 * Display and Buffer Geometry Configuration
 
@@ -269,7 +269,7 @@ https://github.com/ch11ng/exwm/wiki
 
 ** Install
 
-Make sure you have =emacs= and =xorg-xinit= installed.
+Make sure you have ~emacs~ and ~xorg-xinit~ installed.
 
 From within Emacs: M-x package-install exwm RET.  This is done by Xorns
 automatically.
@@ -284,7 +284,7 @@ To start Emacs as a Windows manager make sure you create symbolic-links for
 If you are using a Version Control System to maintain your =~/.emacs.d=
 directory, =/usr/share/xsessions/= files may become outdated.
 
-NOTE that =user-emacs-directory= could use another location, for example if
+NOTE that ~user-emacs-directory~ could use another location, for example if
 the XDG convention is used in Emacs 27 =$XDG_CONFIG_HOME/emacs/=.
 
 
