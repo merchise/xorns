@@ -66,6 +66,7 @@ projectile.cache
 projectile-bookmarks.eld
 javadoc-cache
 /eln-cache/
+/var/
 
 llvm/
 rescript-vscode-*/
