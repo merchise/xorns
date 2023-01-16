@@ -112,8 +112,13 @@ Used together with `>>=|exwm/web-alts' to complement `>>=|exwm/name-alist'.")
   "Association list of buffer names replacements.
 The key of each cons cell (`car') will be the windows class-name, and the
 associated value (`cdr') the proposed alternative names.  Values could be a
-string or a list of strings.  This list will be complemented with
-`>>=|exwm/web-names' and `>>=|exwm/web-alts'.")
+string or a list of strings.")
+
+
+(defvar >>-exwm/name-alist nil
+  "Private variable with the complete list of buffer name replacements.
+This value is obtained by appending `>>=|exwm/name-alist' with calculated
+pairs from `>>=|exwm/web-names' and `>>=|exwm/web-alts'.")
 
 
 (defun >>=exwm/start-process (command)
@@ -209,24 +214,25 @@ A process NAME can bee given as an optional argument."
   (declare-function exwm-workspace-rename-buffer 'exwm-workspace)
   :init
   ;; (require 'exwm-config)
-  (defsubst >>-exwm/class-name ()
+  (defun >>-exwm/class-name ()
     "Get the class name (WM_CLASS) for a newly created EXWM buffer."
     (or
       (>>=str-trim exwm-class-name)
       (>>=str-trim exwm-instance-name)
       "unnamed"))
 
-  (defsubst >>-exwm/name-alist ()
+  (defun >>-exwm/name-alist ()
     "Get the class name (WM_CLASS) for a newly created EXWM buffer."
-    (unless (boundp '>>-exwm/name-alist)
-      (defvar >>-exwm/name-alist
+    (or
+      >>-exwm/name-alist
+      (setq >>-exwm/name-alist
         (append
           >>=|exwm/name-alist
           (when (and >>=|exwm/web-names >>=|exwm/web-alts)
             (mapcar
               (lambda (name) (cons name >>=|exwm/web-alts))
-              >>=|exwm/web-names)))))
-    >>-exwm/name-alist)
+              >>=|exwm/web-names))))))
+
 
   (defun >>-exwm/rename-new-buffer ()
     "Rename a newly created EXWM buffer."
