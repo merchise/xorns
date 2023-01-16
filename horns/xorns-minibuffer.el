@@ -230,19 +230,6 @@ Always considered true when `>>=|minibuffer/completing-framework' is
 (use-package helm
   :when (eq >>=|minibuffer/completing-framework 'helm)
   :ensure t
-  :bind
-  (:map helm-map
-    ("<C-M-left>" . helm-previous-source)
-    ("<C-M-right>" . helm-next-source))
-  :config
-  (>>=remap "M-x" helm-M-x "M-X")
-  (helm-mode +1))
-
-
-(use-package helm-config
-  :when (eq >>=|minibuffer/completing-framework 'helm)
-  :ensure helm
-  :demand t
   :preface
   (defun >>=helm/multi (&optional arg)
     "Use `helm-mini' if nil, otherwise call `helm-multi-files'."
@@ -251,20 +238,22 @@ Always considered true when `>>=|minibuffer/completing-framework' is
       (helm-mini)
       ;; else
       (helm-multi-files)))
-  :bind    ; TODO: Check this configuration
-  (("M-Y" . helm-show-kill-ring)
+  :bind
+  ;; we use 'C-c h' because 'C-x c' is similar to `kill-emacs' ('C-x C-c')
+  ;; maybe use -> (global-unset-key (kbd "C-x c")
+  (("C-c h" . helm-command-prefix)
+   ("M-Y" . helm-show-kill-ring)
    ("C-h SPC" . helm-all-mark-rings)
    ("C-x C-f" . helm-find-files)
    ("C-x b" . >>=helm/multi)
    :map minibuffer-local-map
-   ("C-c C-l" . helm-minibuffer-history))
+   ("C-c C-l" . helm-minibuffer-history)
+   :map helm-map
+   ("<C-M-left>" . helm-previous-source)
+   ("<C-M-right>" . helm-next-source))
   :config
-  ;; Note: Do not remove `:demand' option.  "C-x c" is very similar to
-  ;; `kill-emacs' ("C-x C-c"), so we use "C-c h".  Global method is used
-  ;; because `helm-command-prefix-key' do not work if changed after
-  ;; `helm-config' is loaded
-  (global-set-key (kbd "C-c h") 'helm-command-prefix)
-  (global-unset-key (kbd "C-x c")))
+  (>>=remap "M-x" helm-M-x "M-X")
+  (helm-mode +1))
 
 
 (use-package swiper-helm
