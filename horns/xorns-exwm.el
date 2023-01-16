@@ -213,81 +213,82 @@ A process NAME can bee given as an optional argument."
   (declare-function exwm-enable 'exwm)
   (declare-function exwm-workspace-rename-buffer 'exwm-workspace)
   :init
-  ;; (require 'exwm-config)
-  (defun >>-exwm/class-name ()
-    "Get the class name (WM_CLASS) for a newly created EXWM buffer."
-    (or
-      (>>=str-trim exwm-class-name)
-      (>>=str-trim exwm-instance-name)
-      "unnamed"))
+  (eval-and-compile
+    (defun >>-exwm/class-name ()
+      "Get the class name (WM_CLASS) for a newly created EXWM buffer."
+      (or
+        (>>=str-trim exwm-class-name)
+        (>>=str-trim exwm-instance-name)
+        "unnamed"))
 
-  (defun >>-exwm/name-alist ()
-    "Get the class name (WM_CLASS) for a newly created EXWM buffer."
-    (or
-      >>-exwm/name-alist
-      (setq >>-exwm/name-alist
-        (append
-          >>=|exwm/name-alist
-          (when (and >>=|exwm/web-names >>=|exwm/web-alts)
-            (mapcar
-              (lambda (name) (cons name >>=|exwm/web-alts))
-              >>=|exwm/web-names))))))
+    (defun >>-exwm/name-alist ()
+      "Get the class name (WM_CLASS) for a newly created EXWM buffer."
+      (or
+        >>-exwm/name-alist
+        (setq >>-exwm/name-alist
+          (append
+            >>=|exwm/name-alist
+            (when (and >>=|exwm/web-names >>=|exwm/web-alts)
+              (mapcar
+                (lambda (name) (cons name >>=|exwm/web-alts))
+                >>=|exwm/web-names))))))
 
 
-  (defun >>-exwm/rename-new-buffer ()
-    "Rename a newly created EXWM buffer."
-    (let* ((name (>>-exwm/class-name))
-           (replacements (>>-exwm/name-alist))
-           (rep (cdr (assoc-string name replacements 'case-fold))))
-      (when rep
-        (if (stringp rep)
-          (setq name rep)
-          ;; else
-          (while rep
-            (setq
-              name (car rep)
-              rep (if (get-buffer name) (cdr rep) nil)))))
-      (rename-buffer name 'unique)))
+    (defun >>-exwm/rename-new-buffer ()
+      "Rename a newly created EXWM buffer."
+      (let* ((name (>>-exwm/class-name))
+             (replacements (>>-exwm/name-alist))
+             (rep (cdr (assoc-string name replacements 'case-fold))))
+        (when rep
+          (if (stringp rep)
+            (setq name rep)
+            ;; else
+            (while rep
+              (setq
+                name (car rep)
+                rep (if (get-buffer name) (cdr rep) nil)))))
+        (rename-buffer name 'unique)))
 
-  (defun >>-exwm/update-class ()
-    "Run when window class is updated."
-    (>>-exwm/rename-new-buffer))
+    (defun >>-exwm/update-class ()
+      "Run when window class is updated."
+      (>>-exwm/rename-new-buffer))
 
-  (defun >>-exwm/config ()
-    "Xorns configuration for EXWM (replaces `exwm-config-example')."
-    ;; We don't call `exwm-config-misc' to disable dialog boxes and
-    ;; hourglass pointer here using because in `xorns' this is done in
-    ;; `early-init.el' or `/xorns-core.el' if Emacs version < 27.  Also,
-    ;; `exwm-config-ido' is not used because we configure IDO, if demanded,
-    ;; in `xorns-minibuffer.el'.
-    (>>=exwm/configure-system-tray)
-    (unless (get 'exwm-workspace-number 'saved-value)
-      (setq exwm-workspace-number 4))
-    (unless (get 'exwm-input-global-keys 'saved-value)
-      (setq exwm-input-global-keys
-        `(
-           ([?\s-&] . >>=exwm/start-command)
-           ,@(mapcar    ; 's-N' . switch to workspace
-               (lambda (i)
-                 `(,(kbd (format "s-%d" i)) .
-                    (lambda ()
-                      (interactive)
-                      (exwm-workspace-switch-create ,i))))
-               (number-sequence 0 9)))
-        ))
-    (unless (get 'exwm-input-simulation-keys 'saved-value)
-      (setq exwm-input-simulation-keys
-        '(([?\C-b] . [left])
-           ([?\C-f] . [right])
-           ([?\C-p] . [up])
-           ([?\C-n] . [down])
-           ([?\C-a] . [home])
-           ([?\C-e] . [end])
-           ([?\M-v] . [prior])
-           ([?\C-v] . [next])
-           ([?\C-d] . [delete])
-           ([?\C-k] . [S-end delete]))))
-    (exwm-enable))
+    (defun >>-exwm/config ()
+      "Xorns configuration for EXWM (replaces `exwm-config-example')."
+      ;; We don't call `exwm-config-misc' to disable dialog boxes and
+      ;; hourglass pointer here using because in `xorns' this is done in
+      ;; `early-init.el' or `/xorns-core.el' if Emacs version < 27.  Also,
+      ;; `exwm-config-ido' is not used because we configure IDO, if demanded,
+      ;; in `xorns-minibuffer.el'.
+      (>>=exwm/configure-system-tray)
+      (unless (get 'exwm-workspace-number 'saved-value)
+        (setq exwm-workspace-number 4))
+      (unless (get 'exwm-input-global-keys 'saved-value)
+        (setq exwm-input-global-keys
+          `(
+             ([?\s-&] . >>=exwm/start-command)
+             ,@(mapcar    ; 's-N' . switch to workspace
+                 (lambda (i)
+                   `(,(kbd (format "s-%d" i)) .
+                      (lambda ()
+                        (interactive)
+                        (exwm-workspace-switch-create ,i))))
+                 (number-sequence 0 9)))
+          ))
+      (unless (get 'exwm-input-simulation-keys 'saved-value)
+        (setq exwm-input-simulation-keys
+          '(([?\C-b] . [left])
+             ([?\C-f] . [right])
+             ([?\C-p] . [up])
+             ([?\C-n] . [down])
+             ([?\C-a] . [home])
+             ([?\C-e] . [end])
+             ([?\M-v] . [prior])
+             ([?\C-v] . [next])
+             ([?\C-d] . [delete])
+             ([?\C-k] . [S-end delete]))))
+      (exwm-enable))
+    )
   :hook
   (exwm-init . >>-exwm/startup-applications)
   (exwm-update-class . >>-exwm/update-class)
