@@ -180,27 +180,6 @@ list."
         ))))
 
 
-(defun >>=configure-font ()
-  "Find and set the default font."
-  (when (and (not >>-font/configured) >>=|font-settings)
-    (if (display-graphic-p)
-      (when (>>-display-graphic-p)
-        ;; if display is not ready, this takes another try in startup hook
-        (if-let ((res (>>=set-font >>=|font-settings)))
-          (setq >>-font/configured res)
-          ;; else
-          (warn ">>= warning: cannot find any of the specified fonts.")))
-      ;; else
-      (setq >>-font/configured 'text-only-terminal))))
-
-
-(if (boundp 'after-focus-change-function)
-  (add-function :after after-focus-change-function '>>=configure-font)
-  ;; else
-  (with-no-warnings    ; `focus-in-hook' is obsolete since 27.1
-    (add-hook focus-in-hook '>>=configure-font)))
-
-
 (define-obsolete-function-alias '>>=set-default-font '>>=set-font "0.9")
 (defun >>=set-font (&optional option)
   "Set the font defined by OPTION.
@@ -255,6 +234,30 @@ of targets valid for `set-fontset-font', or a sequence of such forms."
                 (set-fontset-font
                   "fontset-default" target spec nil 'prepend)))))
         font))))
+
+
+(defun >>=configure-font ()
+  "Find and set the default font."
+  (when (and (not >>-font/configured) >>=|font-settings)
+    (if (display-graphic-p)
+      (when (>>-display-graphic-p)
+        ;; if display is not ready, this takes another try in startup hook
+        (if-let ((res (>>=set-font >>=|font-settings)))
+          (setq >>-font/configured res)
+          ;; else
+          (warn ">>= warning: cannot find any of the specified fonts.")))
+      ;; else
+      (setq >>-font/configured 'text-only-terminal))))
+
+
+(defun >>=font/configure ()
+  "Called after `xorns' is completely initialized to configure fonts."
+  (if (boundp 'after-focus-change-function)
+    (add-function :after after-focus-change-function '>>=configure-font)
+    ;; else
+    (with-no-warnings    ; `focus-in-hook' is obsolete since 27.1
+      (add-hook focus-in-hook '>>=configure-font)))
+  (>>=configure-font))
 
 
 (provide 'xorns-display)
