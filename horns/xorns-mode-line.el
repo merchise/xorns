@@ -32,7 +32,6 @@
 (require 'xorns-init)
 
 
-
 (defvar >>=|mode-line/kind nil
   "Kind of mode-line.
 When nil, the standard Emacs mode-line will be used; otherwise, the value must
@@ -58,10 +57,11 @@ including `powerline'.")
   :hook
   (after-init . minions-mode)
   :config
-  ;; TODO: Use of `window-system' as a boolean is deprecated, but
-  ;; `display-*-p' predicates are specific for each frame or display. I
-  ;; discovered this in David Wilson's "Unlock the Power of the Daemon with
-  ;; emacsclient", minute 11, https://www.youtube.com/watch?v=ZjCRxAMPdNc
+  ;; TODO: This must be checked when multiple displays are used because
+  ;; predicates `display-*-p' are specific for each frame or display and use
+  ;; of `window-system' variable as a boolean is deprecated.  See David
+  ;; Wilson's video https://www.youtube.com/watch?v=ZjCRxAMPdNc ("Unlock the
+  ;; Power of the Daemon with emacsclient", minute 11)
   (if (display-images-p)
     (setq minions-mode-line-lighter "◆")))
 
