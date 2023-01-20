@@ -76,6 +76,11 @@ Similar to `set' but calling `custom-load-symbol' if needed."
   (set symbol value))
 
 
+(defmacro >>=value-of (symbol)
+  "Return the value of SYMBOL if it is bound, else nil."
+  `(if (boundp ',symbol) ,symbol))
+
+
 (defmacro >>=get-original-value (symbol)
   "Return SYMBOL's original value or nil if that is void."
   `(if (boundp ',symbol)
