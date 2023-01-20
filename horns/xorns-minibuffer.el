@@ -31,7 +31,6 @@
 (require 'xorns-bindings)
 
 
-
 (defvar >>=|minibuffer/completing-framework nil
   "Kind of mini-buffer input completing framework.
 Possible values are `ido+', `ivy', `vertico', and `helm'.")

@@ -29,10 +29,9 @@
 
 ;;; Code:
 
-(require 'term)
-(require 'xorns-tools)
-
 (eval-and-compile
+  (require 'term)
+  (require 'xorns-tools)
   (require 'xorns-bindings)
   (require 'xorns-core))
 

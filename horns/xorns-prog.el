@@ -13,7 +13,6 @@
 
 ;;; Code:
 
-
 (eval-and-compile
   (require 'xorns-text)
   (require 'xorns-tools)
