@@ -19,34 +19,30 @@
   (package-initialize))
 
 
-(defconst >>=!init-mode/package
-  (let ((pkg-info (assq 'xorns package-alist)))
-    (if pkg-info
-      (expand-file-name
-        (package-desc-full-name (cadr pkg-info))
-        package-user-dir)))
-  "Non-nil if `xorns' is used as an ELPA installed package.")
-
-
-(defconst >>=!init-mode/standalone
-  (if (not >>=!init-mode/package)
-    (expand-file-name "horns"
-      ;; base-dir
-      (if load-file-name
-        (file-name-directory load-file-name)
-        ;; else
-        default-directory)))
+(defconst >>=!xorns/standalone-dir
+  (let ((lib-dir (expand-file-name "horns" user-emacs-directory)))
+    (if (file-directory-p lib-dir) lib-dir))
   "Non-nil if `xorns' is used in standalone mode.")
 
 
-(defconst >>=!library-directory
-  (or >>=!init-mode/package >>=!init-mode/standalone)
+(defun >>=xorns/elpa-dir ()
+  "Return library directory if `xorns' is used as an ELPA installed package."
+  ;; TODO: using `xorns' is used as an ELPA package is deprecated if favor of
+  ;; standalone mode.
+  (when-let ((pkg-info (assq 'xorns package-alist)))
+    (expand-file-name
+      (package-desc-full-name (cadr pkg-info))
+      package-user-dir)))
+
+
+(defconst >>=!xorns/lib-dir
+  (or >>=!xorns/standalone-dir (>>=xorns/elpa-dir))
   "Directory containing `xorns' library (valid in both modes).")
 
 
 (let (file-name-handler-alist)    ; Improve startup time
-  (if >>=!init-mode/standalone
-    (add-to-list 'load-path >>=!init-mode/standalone))
+  (when >>=!xorns/standalone-dir
+    (add-to-list 'load-path >>=!xorns/standalone-dir))
   (require 'xorns))
 
 
