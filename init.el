@@ -12,11 +12,16 @@
 ;; Without this comment emacs25 adds (package-initialize) here
 ;; (package-initialize)
 
-(require 'package)
+
+(defconst >>=!xorns/emacs-min-version "27.1"
+  "Minimal version of Emacs.")
 
 
-(when (version< emacs-version "27")
-  (package-initialize))
+(unless (version<= >>=!xorns/emacs-min-version emacs-version)
+  (error
+    "Emacs version '%s' is too old, Xorns requires version %s or above"
+    emacs-version
+    >>=!xorns/emacs-min-version))
 
 
 (defconst >>=!xorns/standalone-dir
