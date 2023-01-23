@@ -84,3 +84,15 @@ tested:
 
 (setq exwm-workspace-switch-hook '(exwm-systemtray--on-workspace-switch))
 ```
+
+### Startup error "Symbol's value as variable is void"
+
+Emacs might fail to start with error "Symbol's value as variable is void" if
+`file-name-handler-alist` variable is set to nil to improve startup time.
+This can be avoided by not setting `file-name-handler-alist` to nil, or by
+removing `--without-compress-install` when building Emacs.
+
+See:
+ - Const `>>-startup-file-name-handler-alist` in `init.el` file.
+ - https://github.com/syl20bnr/spacemacs/issues/11585
+ - https://mail.gnu.org/archive/html/emacs-devel/2022-08/msg00234.html

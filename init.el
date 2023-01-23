@@ -45,7 +45,20 @@
   "Directory containing `xorns' library (valid in both modes).")
 
 
-(let (file-name-handler-alist)    ; Improve startup time
+;; Emacs might fail to start with error "Symbol's value as variable is void"
+;; if `file-name-handler-alist` variable is set to nil and option
+;; `--without-compress-install` was used to build Emacs.  See:
+;; https://github.com/syl20bnr/spacemacs/issues/11585 and
+;; https://mail.gnu.org/archive/html/emacs-devel/2022-08/msg00234.html
+
+(defconst >>-startup-file-name-handler-alist
+  (let ((needle "--without-compress-install"))
+    (when (string-search needle system-configuration-options)
+      file-name-handler-alist))
+  "Safe value of `file-name-handler-alist' trying to improve startup time.")
+
+
+(let ((file-name-handler-alist >>-startup-file-name-handler-alist))
   (when >>=!xorns/standalone-dir
     (add-to-list 'load-path >>=!xorns/standalone-dir))
   (require 'xorns))
