@@ -9,7 +9,11 @@
 
 ;;; Code:
 
-(when (bound-and-true-p >>=!init-mode/package)
+(eval-and-compile
+  (require 'xorns-tools))
+
+
+(unless (>>=value-of >>=!xorns/standalone-dir)
   ;; TODO: mail has not yet been migrated to standalone mode
   (require 'xorns-mail))
 

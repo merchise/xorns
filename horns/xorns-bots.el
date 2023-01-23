@@ -21,7 +21,7 @@
 (require 'xorns-bindings)
 
 
-(defconst >>=!pkg-dir (bound-and-true-p >>=!init-mode/standalone)
+(defconst >>=!pkg-dir (bound-and-true-p >>=!xorns/standalone-dir)
   "Package directory if `xorns' is initialized in standalone mode.")
 
 
