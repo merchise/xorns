@@ -2,52 +2,50 @@
 
 ## An improved way to use Emacs
 
-Xorns automates Emacs configurations for those packages commonly used for
-Merchise members in development tasks.
+The initial goal of Xorns is to automate the Emacs configuration for Merchise
+members.  It has now become a set of packages that could be used generally by
+any Emacs user.
+
+To develop Xorns, tutorials and other similar packages are studied: [David
+Wilson's video series](https://www.youtube.com/@SystemCrafters) and the
+[Spacemacs package](https://github.com/syl20bnr/spacemacs) deserve special
+mention.
+
 
 ## Xorns stages
 
-Xorns has two stages: (1) as an Emacs Lisp Package, and (2) as the User Emacs
-Directory.
+You have two options to use Xorns:
 
-The first stage will be deprecated soon, its maximum version number is
-"0.4.9", second stage will start at "0.5.0".
+  1. installing it as a standard package or
+  2. cloning the repository to the User Emacs Directory `"~/.emacs.d"`.
 
-To install locally in (1):
+**Note**: Option (1) is deprecated now, option (2) is preferred.
 
-```shell
-git clone https://github.com/merchise/xorns.git
-cd xorns
-make local-install
-```
-
-You must have a User Emacs Directory prepared with all dependencies installed.
-
-To install a stage two version:
+To install Xorns using option (1) you must have the User Emacs Directory
+prepared with all dependencies already installed.  Use:
 
 ```shell
-git clone https://github.com/merchise/xorns.git ~/.emacs.d
+  git clone https://github.com/merchise/xorns.git
+  cd xorns
+  make local-install
 ```
 
-Remember backup all your previous Emacs files and directories from the user
-home.
-
-A version of stage two has not yet been released in the "stable" branch.
-Meanwhile, execute:
+To use option (2), just:
 
 ```shell
-git clone -b feature-new-age https://github.com/merchise/xorns.git ~/.emacs.d
+  git clone https://github.com/merchise/xorns.git ~/.emacs.d
 ```
+
 
 ## Conventions
 
-Most structures are prefixed, next are some conventions:
+We prefixes most symbols, next are some conventions:
 
 - `>>=` for general definitions,
 - `>>=!` for constants,
 - `>>=|` for configuration variables,
 - `>>=+` for building blocks configuration variables,
-- `>>=-` for module internals, and
+- `>>=-` or `>>-` for module internals, and
 - `>>:` for declarative functions in package configuration options.
 
 Standard modules will use "-" separator in its names (for example
@@ -60,9 +58,9 @@ example "xorns+python.el", "").  Sub-levels are joined with "/" (for example
 
 ### Misc
 
-- Integrate `xorns-setup` and `xorns-packages` modules.
-- Deft is too slow after Emacs 28.  Function `deft-parse-summary` was
-  replaced.  Check after Emacs or Deft are updated.
+  - Integrate `xorns-setup` and `xorns-packages` modules.
+  - Deft is too slow after Emacs 28.  Function `deft-parse-summary` was
+    replaced.  Check after Emacs or Deft are updated.
 
 ### Fix loss of focus for Brave when using EXWM
 
