@@ -152,6 +152,12 @@ For a lambda function, its documentation is returned if it exists."
         (format "%s:%s" (type-of fun) fun)))))
 
 
+(defsubst >>=load (file)
+  "Load a FILE silently except if in debug mode."
+  (let ((silent (not init-file-debug)))
+    (load file silent silent)))
+
+
 
 ;;; string - symbol conversion
 
