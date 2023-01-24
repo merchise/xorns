@@ -189,19 +189,11 @@ be needed in the future..")
   (treemacs-follow-after-init t)
   (treemacs-width-is-initially-locked nil)
   :config
-  (eval-when-compile
-    (require 'treemacs-async nil 'noerror)
-    (require 'treemacs-fringe-indicator nil 'noerror)
-    (require 'treemacs-filewatch-mode nil 'noerror)
-    (require 'treemacs-follow-mode nil 'noerror)
-    )
-  ;; (eval-when-compile
-  ;;   treemacs-hide-gitignored-files-mode treemacs-async
-  ;;   treemacs-git-mode treemacs-async
-  ;;   treemacs-fringe-indicator-mode treemacs-fringe-indicator
-  ;;   treemacs-filewatch-mode treemacs-filewatch-mode
-  ;;   treemacs-follow-mode treemacs-follow-mode
-  ;;   )
+  (declare-function treemacs-hide-gitignored-files-mode 'treemacs-async)
+  (declare-function treemacs-git-mode 'treemacs-async)
+  (declare-function treemacs-fringe-indicator-mode 'treemacs-fringe-indicator)
+  (declare-function treemacs-filewatch-mode 'treemacs-filewatch-mode)
+  (declare-function treemacs-follow-mode 'treemacs-follow-mode)
   (treemacs-follow-mode t)
   (treemacs-project-follow-mode)
   (treemacs-filewatch-mode t)
