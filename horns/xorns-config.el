@@ -39,14 +39,14 @@
                      "custom-${USER}.el" "custom.el")))
           (when (file-exists-p old)
             (message ">>= migrating old `custom-file' '%s'." old)
-            (load old (not init-file-debug))
+            (>>=load old)
             (setq save t))))
       (when (and (not init-file-debug) (eq warning-minimum-level :warning))
         (setq
           warning-minimum-level :error
           warning-minimum-log-level :error))
       (when exists
-        (load custom-file (not init-file-debug))
+        (>>=load custom-file)
         (->? >>=settings/init))
       (if save
         (if exists
