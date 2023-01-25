@@ -45,7 +45,7 @@ We prefixes most symbols, next are some conventions:
 - `>>=!` for constants,
 - `>>=|` for configuration variables,
 - `>>=+` for building blocks configuration variables,
-- `>>=-` or `>>-` for module internals, and
+- `>>-` for module internals, and
 - `>>:` for declarative functions in package configuration options.
 
 Standard modules will use "-" separator in its names (for example

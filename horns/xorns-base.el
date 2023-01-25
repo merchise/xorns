@@ -288,7 +288,7 @@ to configure for yourself: see `save-buffer' function for more information.")
 (use-package autorevert
   :when (memq 'autorevert >>=|base/extra-packages)
   :init
-  (defun >>=-auto-revert? ()
+  (defun >>-auto-revert? ()
     (unless (>>=current-buffer-remote?)
       (auto-revert-mode)))
   :defer t
@@ -297,7 +297,7 @@ to configure for yourself: see `save-buffer' function for more information.")
   (auto-revert-verbose nil)
   (auto-revert-check-vc-info nil)
   :hook
-  (find-file . >>=-auto-revert?)
+  (find-file . >>-auto-revert?)
   (dired-mode . auto-revert-mode))
 
 

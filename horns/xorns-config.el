@@ -30,11 +30,11 @@
     (warn ">>= `custom-file' already assigned: '%s'." custom-file)
     ;; else
     (require 'cus-edit)
-    (setq custom-file (>>=-config-file-name))
+    (setq custom-file (>>-config-file-name))
     (let ((exists (file-exists-p custom-file))
           save)
       (unless exists
-        (setq exists (>>=-copy-from-template))
+        (setq exists (>>-copy-from-template))
         (let ((old (>>=locate-user-emacs-file
                      "custom-${USER}.el" "custom.el")))
           (when (file-exists-p old)
@@ -48,7 +48,7 @@
       (when exists
         (>>=load custom-file)
         (->? >>=settings/init))
-      (if save
+      (when save
         (if exists
           (let ((make-backup-files nil))
             (message ">>= saving migrated variables.")
@@ -59,18 +59,22 @@
                   "Fix config file manually.")))))))
 
 
-(defun >>=-config-file-name ()
+(defsubst >>-xdg-config-home ()
+  "Get XDG configuration directory."
+  (>>=find-dir
+    (getenv "XDG_CONFIG_HOME")
+    (>>=dir-join "~" ".config")))
+
+
+(defun >>-config-file-name ()
   "Return target location for `custom-file'."
-  (let ((xdg
-          (>>=find-dir
-            (getenv "XDG_CONFIG_HOME")
-            (>>=dir-join "~" ".config"))))
+  (let ((xdg (>>-xdg-config-home)))
     (expand-file-name
       (if xdg "xorns" ".xorns")
       (or xdg "~"))))
 
 
-(defun >>=-copy-from-template ()
+(defun >>-copy-from-template ()
   "Create new `custom-file' from template."
   (let ((template
           (expand-file-name

@@ -28,7 +28,7 @@
   "List of extra PIM packages to configure.")
 
 
-(defmacro >>=-pim/configure? (*pkg*)
+(defmacro >>-pim/configure? (*pkg*)
   "True if a PIM *PKG* must be configured."
   `(memq ',*pkg* >>=|pim/packages))
 
@@ -94,7 +94,7 @@ Valid only if `org' is included in `>>=|pim/packages'.")
 ;;; Edit plain text notes
 
 (use-package deft
-  :when (>>=-pim/configure? deft)
+  :when (>>-pim/configure? deft)
   :ensure t
   :defer t
   :custom
