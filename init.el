@@ -34,6 +34,7 @@
   "Return library directory if `xorns' is used as an ELPA installed package."
   ;; TODO: using `xorns' is used as an ELPA package is deprecated if favor of
   ;; standalone mode.
+  (eval-and-compile (require 'package))
   (when-let ((pkg-info (assq 'xorns package-alist)))
     (expand-file-name
       (package-desc-full-name (cadr pkg-info))
@@ -43,6 +44,11 @@
 (defconst >>=!xorns/lib-dir
   (or >>=!xorns/standalone-dir (>>=xorns/elpa-dir))
   "Directory containing `xorns' library (valid in both modes).")
+
+
+;; fallback compatibility
+(when (version<= emacs-version "29.0")
+  (add-to-list 'load-path (expand-file-name "compat" >>=!xorns/lib-dir)))
 
 
 ;; Emacs might fail to start with error "Symbol's value as variable is void"
