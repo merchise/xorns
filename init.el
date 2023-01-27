@@ -19,7 +19,7 @@
 
 (unless (version<= >>=!xorns/emacs-min-version emacs-version)
   (error
-    "Emacs version '%s' is too old, Xorns requires version %s or above"
+    "Emacs version '%s' is too old, Xorns requires version '%s' or above"
     emacs-version
     >>=!xorns/emacs-min-version))
 
@@ -30,41 +30,32 @@
   "Non-nil if `xorns' is used in standalone mode.")
 
 
-(defun >>=xorns/elpa-dir ()
-  "Return library directory if `xorns' is used as an ELPA installed package."
-  ;; TODO: using `xorns' is used as an ELPA package is deprecated if favor of
-  ;; standalone mode.
-  (eval-and-compile (require 'package))
-  (when-let ((pkg-info (assq 'xorns package-alist)))
-    (expand-file-name
-      (package-desc-full-name (cadr pkg-info))
-      package-user-dir)))
-
-
 (defconst >>=!xorns/lib-dir
-  (or >>=!xorns/standalone-dir (>>=xorns/elpa-dir))
-  "Directory containing `xorns' library (valid in both modes).")
+  (or
+    >>=!xorns/standalone-dir
+    (progn
+      ;; `xorns' is used as an ELPA package
+      (eval-and-compile (require 'package))
+      (when-let ((pkg-info (assq 'xorns package-alist)))
+        (expand-file-name
+          (package-desc-full-name (cadr pkg-info))
+          package-user-dir))))
+  "Directory containing `xorns' library.
+Valid in standalone mode or as an ELPA pacxkage.")
 
 
-;; fallback compatibility
-(when (version<= emacs-version "29.0")
+(when (version<= emacs-version "29.0")    ; some fallback compatibility
   (add-to-list 'load-path (expand-file-name "compat" >>=!xorns/lib-dir)))
 
 
-;; Emacs might fail to start with error "Symbol's value as variable is void"
-;; if `file-name-handler-alist` variable is set to nil and option
-;; `--without-compress-install` was used to build Emacs.  See:
-;; https://github.com/syl20bnr/spacemacs/issues/11585 and
-;; https://mail.gnu.org/archive/html/emacs-devel/2022-08/msg00234.html
-
-(defconst >>-startup-file-name-handler-alist
-  (let ((needle "--without-compress-install"))
-    (when (string-search needle system-configuration-options)
-      file-name-handler-alist))
-  "Safe value of `file-name-handler-alist' trying to improve startup time.")
+(defsubst >>-startup-file-name-handler-alist ()
+  "Safe value of `file-name-handler-alist' trying to improve startup time."
+  (let ((option "--without-compress-install"))
+    (when (string-search option system-configuration-options)
+      file-name-handler-alist)))
 
 
-(let ((file-name-handler-alist >>-startup-file-name-handler-alist))
+(let ((file-name-handler-alist (>>-startup-file-name-handler-alist)))
   (when >>=!xorns/standalone-dir
     (add-to-list 'load-path >>=!xorns/standalone-dir))
   (require 'xorns))
