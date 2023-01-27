@@ -88,11 +88,11 @@ tested:
 ### Startup error "Symbol's value as variable is void"
 
 Emacs might fail to start with error "Symbol's value as variable is void" if
-`file-name-handler-alist` variable is set to nil to improve startup time.
-This can be avoided by not setting `file-name-handler-alist` to nil, or by
-removing `--without-compress-install` when building Emacs.
+`file-name-handler-alist` variable is set to nil.  This is done to improve
+startup time.  This not happens when option `--without-compress-install` is
+not used building Emacs.  We created the `>>-startup-file-name-handler-alist`
+function to avoid this in `init.el` file.
 
-See:
- - Const `>>-startup-file-name-handler-alist` in `init.el` file.
+See also:
  - https://github.com/syl20bnr/spacemacs/issues/11585
  - https://mail.gnu.org/archive/html/emacs-devel/2022-08/msg00234.html
