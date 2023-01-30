@@ -399,14 +399,6 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 
 ;;; Javascript, CoffeeScript and LiveScript
-
-(use-package tern
-  ;; `tern' program must be installed in your system
-  :ensure t
-  :config
-  (add-hook 'js2-mode-hook #'tern-mode))
-
-
 (use-package prettier
   ;; `prettier' program must be installed in your system
   :ensure t
