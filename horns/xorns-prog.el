@@ -397,23 +397,6 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 
 
-;;; Javascript, CoffeeScript and LiveScript
-
-;; see https://emacs-lsp.github.io/lsp-mode/page/lsp-typescript/
-
-(use-package json-mode
-  ;; TODO: Requires npm package `json-ls' (JSON Language Server)
-  :mode "\\.json\\'"
-  :ensure t
-  :requires (flycheck)
-  :hook
-  (json-mode .
-    (lambda ()
-      (setq flycheck-checker 'json-jsonlint)))
-  (json-mode . >>-prettier-mode?))
-
-
-
 ;;; C/C++ Mode -- Linux kernel programming
 
 (use-package cc-mode
