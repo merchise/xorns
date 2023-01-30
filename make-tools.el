@@ -141,6 +141,7 @@
   (>>=package-install)
   (>>=update-file "early-init.el")
   (>>=update-file "init.el")
+  (>>=rsync-dir "compat")
   (>>=rsync-dir "templates")
   (>>=rsync-dir "snippets")
   ;; (>>=copy-templates)

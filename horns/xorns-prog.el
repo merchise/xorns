@@ -13,14 +13,12 @@
 
 ;;; Code:
 
-(require 'xorns-text)
-(require 'xorns-tools)
-(require 'xorns-buffers)
-(require 'xorns-simple)
-
 (eval-and-compile
-  (require 'hideshow)
+  (require 'xorns-text)
+  (require 'xorns-tools)
+  (require 'xorns-buffers)
   (require 'xorns-term)
+  (require 'hideshow)
   (require 'transient)
   (require 'use-package nil 'noerror))
 
@@ -36,7 +34,7 @@
 
   (defun >>=snippets/initialize ()
     "Initialize `xorns' snippets."
-    (let* ((lib-dir (bound-and-true-p >>=!library-directory))
+    (let* ((lib-dir (>>=value-of >>=!xorns/lib-dir))
            (snip-dir (expand-file-name "snippets" lib-dir)))
       (if (file-exists-p snip-dir)
         (progn
@@ -370,6 +368,7 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
        ("bb" "Toggle" dap-breakpoint-toggle)
        ("ba" "Add" dap-breakpoint-add)
        ("bd" "Delete" dap-breakpoint-delete)
+       ("bk" "Delete All" dap-breakpoint-delete-all)
        ("bc" "Set condition" dap-breakpoint-condition)
        ("bh" "Set hit condition" dap-breakpoint-hit-condition)
        ("bl" "Set log message" dap-breakpoint-log-message)]

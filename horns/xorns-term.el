@@ -45,14 +45,13 @@
 (eval-and-compile
   (require 'esh-mode)
   (require 'em-alias)
-  (require 'use-package nil 'noerror))
+  (require 'use-package nil 'noerror)
+  (require 'term))
 
-(require 'term)
 (require 'xorns-tools)
 (require 'xorns-init)
 (require 'xorns-bindings)
 (require 'xorns-core)
-(require 'xorns-simple)
 (require 'xorns-xterm)
 
 

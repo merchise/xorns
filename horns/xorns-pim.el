@@ -7,7 +7,7 @@
 ;;; Commentary:
 
 ;; This module is intended for Personal Information Management (PIM) stuffs
-;; like: Notes taking, Dictionaries, Calendar, Planner, Organizer, etc.
+;; like: Notes taking, Calendar, Planner, Organizer, etc.
 ;;
 ;; For more information see:
 ;; https://en.wikipedia.org/wiki/Personal_information_management
@@ -28,33 +28,13 @@
   "List of extra PIM packages to configure.")
 
 
-(defmacro >>=-pim/configure? (*pkg*)
+(defmacro >>-pim/configure? (*pkg*)
   "True if a PIM *PKG* must be configured."
   `(memq ',*pkg* >>=|pim/packages))
 
 
 (defconst >>=!pim/prefered-directory (>>=dir-join >>=!home-dir ".pim")
   "List of miscellaneous packages to install.")
-
-
-
-;;; Dictionary servers
-
-(use-package dictionary
-  :bind
-  ("C-c w" . dictionary-search)
-  ;; Mickey Petersen prefers to use `dictionary-lookup-definition'
-  ;; https://www.masteringemacs.org/article/wordsmithing-in-emacs
-  ("M-#" . dictionary-search))
-
-
-
-;;; Processes and commands
-
-(use-package proced
-  :unless (eq system-type 'darwin)    ;; unavailable on OS-X
-  :bind
-  ("C-x p" . proced))
 
 
 
@@ -114,7 +94,7 @@ Valid only if `org' is included in `>>=|pim/packages'.")
 ;;; Edit plain text notes
 
 (use-package deft
-  :when (>>=-pim/configure? deft)
+  :when (>>-pim/configure? deft)
   :ensure t
   :defer t
   :custom

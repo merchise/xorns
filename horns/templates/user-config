@@ -8,8 +8,7 @@ This function is called at the very beginning of the startup process.  It
 should only modify setting-variables (those prefixed with '>>=|') when their
 default values are not suitable for your configuration."
   (setq-default
-    ;; >>=|setup/level 'medium
-    ;; >>=|default-font 'large
+    ;; >>=|font-settings 'large
     ;; >>=|gc/strategy 'smart
     ;; >>=|minibuffer/completing-framework 'ido+
     ;; >>=|minibuffer/configure-savehist nil
@@ -17,7 +16,7 @@ default values are not suitable for your configuration."
     ;; >>=|user-mail-address-template "${USER}@gmail.com"
     ;; >>=|show-title-in-header-line t
     ;; >>=|enable-server t
-    ;; >>=|ext/multiple-cursors 'extra
+    ;; >>=|ext/multiple-cursors nil
     ;; >>=|projectile/extra-ignored-directories '()
     ;; >>=|projectile/project-root-files '()
     ;; >>=|dired/omit-mode t
@@ -37,6 +36,8 @@ default values are not suitable for your configuration."
     ;; >>=|lsp/enable-mode 'ask
     ;; >>=|blacken/enable 'ask
     ;; >>=|crypt/gpg-integration nil
+    ;; >>=|which-key/enable nil
+    ;; >>=|treemacs/enable nil
     ))
 
 

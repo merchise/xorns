@@ -23,17 +23,18 @@
 (require 'xorns-tools)
 
 
-(defvar >>=|default-font 'medium
-  "Variable to configure the default font to be used.
-See `>>=set-default-font' function for details about allowed values.")
+(define-obsolete-variable-alias '>>=|default-font '>>=|font-settings "0.9")
+(defvar >>=|font-settings 'medium
+  "Variable to configure the default font to be used at Emacs initialization.
+See `>>=set-font' function for details about allowed values.")
 
 
 (defconst >>-!font/default-name "Source Code Pro"
-  "Default font-name when none is spefied.")
+  "Default font-name when none is specified.")
 
 
 (defconst >>-!font/default-size 'medium
-  "Default font-size when none is spefied.")
+  "Default font-size when none is specified.")
 
 
 (defconst >>-!font/sizes
@@ -41,12 +42,12 @@ See `>>=set-default-font' function for details about allowed values.")
   "Semantic symbol aliases for several standard font-sizes.")
 
 
-(defvar -font/configured nil
-  "If default-font is configured or not on a graphic display.")
+(defvar >>-font/configured nil
+  "If font-settings is configured or not on a graphic display.")
 
 
-(defun >>-display-system-p ()
-  "Return if the display-system is initialized."
+(defun >>-display-graphic-p ()
+  "Return non-nil if the display-system has been initialized."
   (cond
     ((boundp 'ns-initialized)
       ns-initialized)
@@ -61,7 +62,7 @@ See `>>=set-default-font' function for details about allowed values.")
       (display-graphic-p))))
 
 
-(defun -font/raw-option->name (option)
+(defun >>-font/raw-option->name (option)
   "Get a font-name from a raw OPTION."
   (cond
     ((stringp option)
@@ -71,13 +72,13 @@ See `>>=set-default-font' function for details about allowed values.")
         (if (stringp head)
           head
           ;; else
-          (-font/raw-option->name
+          (>>-font/raw-option->name
             (or
               (plist-get option :name)
               (plist-get option :family))))))))
 
 
-(defsubst -font/alias->size (alias)
+(defsubst >>-font/alias->size (alias)
   "Convert a font-size ALIAS to its numeric value."
   (let ((size (assq alias >>-!font/sizes)))
     (if size
@@ -86,15 +87,15 @@ See `>>=set-default-font' function for details about allowed values.")
       (error "Invalid font-size alias: %s" alias))))
 
 
-(defsubst -font/cast-size (option)
+(defsubst >>-font/cast-size (option)
   "Cast OPTION as a valid number intended as a font-size value."
   (if (numberp option)
     option
     ;; else
-    (-font/alias->size option)))
+    (>>-font/alias->size option)))
 
 
-(defun -font/complement-plist (option)
+(defun >>-font/complement-plist (option)
   "Complement a font property-list OPTION with default values."
   (let ((head (car option)))
     (if (stringp head)
@@ -110,7 +111,7 @@ See `>>=set-default-font' function for details about allowed values.")
     (unless (numberp size)
       (unless size
         (setq size >>-!font/default-size))
-      (plist-put option :size (-font/cast-size size))))
+      (plist-put option :size (>>-font/cast-size size))))
   (unless (plist-member option :weight)
     (plist-put option :weight 'normal))
   (unless (plist-member option :width)
@@ -118,16 +119,16 @@ See `>>=set-default-font' function for details about allowed values.")
   option)
 
 
-(defun -font/find-valid-option (choices)
+(defun >>-font/find-valid-option (choices)
   "Find an existing font option from a list of CHOICES.
 First option must be a list, tails options could be either a string or a
 list."
   (seq-find
     (lambda (option)
-      (let ((name (-font/raw-option->name option)))
+      (let ((name (>>-font/raw-option->name option)))
         (if (stringp name)
           (find-font (font-spec :name name))
-          ;;
+          ;; else
           (error "Missing or wrong name for option: %s" option))))
     choices))
 
@@ -140,7 +141,7 @@ list."
     ((stringp option)
       (>>-font/option->plist (list option)))
     ((symbolp option)
-      (>>-font/option->plist (-font/alias->size option)))
+      (>>-font/option->plist (>>-font/alias->size option)))
     ((numberp option)
       (>>-font/option->plist `(:size ,option)))
     ((listp option)
@@ -149,18 +150,18 @@ list."
           ((stringp head)
             (>>-font/option->plist (cons :name option)))
           ((listp head)
-            (let ((valid (-font/find-valid-option option)))
+            (let ((valid (>>-font/find-valid-option option)))
               (if valid
                 (>>-font/option->plist valid)
                 ;;
                 (error "No valid font option found"))))
           (t
             ;; assert head is a :prop
-            (-font/complement-plist option)))))))
+            (>>-font/complement-plist option)))))))
 
 
 (defun >>-font/get-default-fallbacks ()
-  "Build a fallback form to apply as default by `>>=set-default-font'."
+  "Build a fallback form to apply as default by `>>=set-font'."
   (let ((font-names
           (plist-get
             '(gnu/linux ("NanumGothic" . "NanumGothic")
@@ -179,28 +180,8 @@ list."
         ))))
 
 
-(defun >>=configure-font ()
-  "Find and set the default font."
-  (when (and (not -font/configured) >>=|default-font)
-    (if (display-graphic-p)
-      (when (>>-display-system-p)
-        ;; if display is not ready, this takes another try in startup hook
-        (if-let ((res (>>=set-default-font >>=|default-font)))
-          (setq -font/configured res)
-          ;; else
-          (warn ">>= warning: cannot find any of the specified fonts.")))
-      ;; else
-      (setq -font/configured 'text-only-terminal))))
-
-
-(if (boundp 'after-focus-change-function)
-  (add-function :after after-focus-change-function '>>=configure-font)
-  ;; else
-  (with-no-warnings    ; `focus-in-hook' is obsolete since 27.1
-    (add-hook focus-in-hook '>>=configure-font)))
-
-
-(defun >>=set-default-font (&optional option)
+(define-obsolete-function-alias '>>=set-default-font '>>=set-font "0.9")
+(defun >>=set-font (&optional option)
   "Set the font defined by OPTION.
 The given OPTION will be normalized to a property-list as used for the
 `font-spec' function arguments.
@@ -253,6 +234,30 @@ of targets valid for `set-fontset-font', or a sequence of such forms."
                 (set-fontset-font
                   "fontset-default" target spec nil 'prepend)))))
         font))))
+
+
+(defun >>=configure-font ()
+  "Find and set the default font."
+  (when (and (not >>-font/configured) >>=|font-settings)
+    (if (display-graphic-p)
+      (when (>>-display-graphic-p)
+        ;; if display is not ready, this takes another try in startup hook
+        (if-let ((res (>>=set-font >>=|font-settings)))
+          (setq >>-font/configured res)
+          ;; else
+          (warn ">>= warning: cannot find any of the specified fonts.")))
+      ;; else
+      (setq >>-font/configured 'text-only-terminal))))
+
+
+(defun >>=font/configure ()
+  "Called after `xorns' is completely initialized to configure fonts."
+  (if (boundp 'after-focus-change-function)
+    (add-function :after after-focus-change-function '>>=configure-font)
+    ;; else
+    (with-no-warnings    ; `focus-in-hook' is obsolete since 27.1
+      (add-hook focus-in-hook '>>=configure-font)))
+  (>>=configure-font))
 
 
 (provide 'xorns-display)

@@ -29,20 +29,15 @@
 (require 'xorns-buffers)
 (require 'xorns-dired)
 (require 'xorns-term)
-(require 'xorns-vc)
 (require 'xorns-text)
 (require 'xorns-prog)
 (require 'xorns-prog-extra)
+(require 'xorns-system)
 (require 'xorns-devop)
 (require 'xorns-project)
-(require 'xorns-crypt)
+
 (require 'xorns-pim)
 (require 'xorns-bots)
-
-
-(when (bound-and-true-p >>=!init-mode/package)
-  ;; TODO: mail has not yet been migrated to standalone mode
-  (require 'xorns-mail))
 
 
 (provide 'xorns-common-systems)

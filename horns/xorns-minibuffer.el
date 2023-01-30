@@ -31,7 +31,6 @@
 (require 'xorns-bindings)
 
 
-
 (defvar >>=|minibuffer/completing-framework nil
   "Kind of mini-buffer input completing framework.
 Possible values are `ido+', `ivy', `vertico', and `helm'.")
@@ -79,6 +78,37 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   :ensure t
   :config
   (ido-ubiquitous-mode +1))
+
+
+
+
+(use-package marginalia
+  :when >>=|minibuffer/completing-framework
+  :ensure t
+  :preface
+  (eval-when-compile
+    (declare-function marginalia-mode 'marginalia))
+  :config
+  (marginalia-mode))
+
+
+(use-package embark
+  :when >>=|minibuffer/completing-framework
+  :ensure t
+  :preface
+  (eval-when-compile
+    (declare-function embark-prefix-help-command 'embark))
+  :bind
+  ("C-'" . embark-act)
+  ("C-." . embark-dwim)
+  ("C-h B" . embark-bindings)
+  :config
+  (setq prefix-help-command #'embark-prefix-help-command)
+  (add-to-list    ;; TODO: check this
+    'display-buffer-alist
+    '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+       nil
+       (window-parameters (mode-line-format . none)))))
 
 
 
@@ -142,7 +172,6 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   ("C-x 5 b" . consult-buffer-other-frame)
   ;; Other custom bindings
   ([remap yank-pop] . consult-yank-pop)
-  ([remap apropos-command] . consult-apropos)
   ;; M-g bindings (goto-map)
   ([remap goto-line] . consult-goto-line)
   ("M-g i" . consult-imenu)
@@ -162,7 +191,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
     (consult-customize
       consult-theme
       :preview-key '(:debounce 0.2 any)
-      consult-ripgrep    ;;
+      consult-ripgrep
       consult-git-grep
       consult-grep
       consult-bookmark
@@ -170,6 +199,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
       consult-xref
       consult--source-bookmark
       consult--source-recent-file
+      consult--source-file-register
       consult--source-project-recent-file
       :preview-key (kbd "M-.")))
   (setq
@@ -184,8 +214,14 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   :custom
   (vertico-cycle t)
   :init
-  (vertico-mode +1)
-  )
+  (vertico-mode +1))
+
+
+(use-package embark-consult
+  :when (eq >>=|minibuffer/completing-framework 'vertico)
+  :ensure t
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
 
 
 
@@ -193,19 +229,6 @@ Always considered true when `>>=|minibuffer/completing-framework' is
 (use-package helm
   :when (eq >>=|minibuffer/completing-framework 'helm)
   :ensure t
-  :bind
-  (:map helm-map
-    ("<C-M-left>" . helm-previous-source)
-    ("<C-M-right>" . helm-next-source))
-  :config
-  (>>=remap "M-x" helm-M-x "M-X")
-  (helm-mode +1))
-
-
-(use-package helm-config
-  :when (eq >>=|minibuffer/completing-framework 'helm)
-  :ensure helm
-  :demand t
   :preface
   (defun >>=helm/multi (&optional arg)
     "Use `helm-mini' if nil, otherwise call `helm-multi-files'."
@@ -214,20 +237,22 @@ Always considered true when `>>=|minibuffer/completing-framework' is
       (helm-mini)
       ;; else
       (helm-multi-files)))
-  :bind    ; TODO: Check this configuration
-  (("M-Y" . helm-show-kill-ring)
+  :bind
+  ;; we use 'C-c h' because 'C-x c' is similar to `kill-emacs' ('C-x C-c')
+  ;; maybe use -> (global-unset-key (kbd "C-x c")
+  (("C-c h" . helm-command-prefix)
+   ("M-Y" . helm-show-kill-ring)
    ("C-h SPC" . helm-all-mark-rings)
    ("C-x C-f" . helm-find-files)
    ("C-x b" . >>=helm/multi)
    :map minibuffer-local-map
-   ("C-c C-l" . helm-minibuffer-history))
+   ("C-c C-l" . helm-minibuffer-history)
+   :map helm-map
+   ("<C-M-left>" . helm-previous-source)
+   ("<C-M-right>" . helm-next-source))
   :config
-  ;; Note: Do not remove `:demand' option.  "C-x c" is very similar to
-  ;; `kill-emacs' ("C-x C-c"), so we use "C-c h".  Global method is used
-  ;; because `helm-command-prefix-key' do not work if changed after
-  ;; `helm-config' is loaded
-  (global-set-key (kbd "C-c h") 'helm-command-prefix)
-  (global-unset-key (kbd "C-x c")))
+  (>>=remap "M-x" helm-M-x "M-X")
+  (helm-mode +1))
 
 
 (use-package swiper-helm

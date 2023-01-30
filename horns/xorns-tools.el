@@ -76,6 +76,11 @@ Similar to `set' but calling `custom-load-symbol' if needed."
   (set symbol value))
 
 
+(defmacro >>=value-of (symbol)
+  "Return the value of SYMBOL if it is bound, else nil."
+  `(if (boundp ',symbol) ,symbol))
+
+
 (defmacro >>=get-original-value (symbol)
   "Return SYMBOL's original value or nil if that is void."
   `(if (boundp ',symbol)
@@ -147,6 +152,12 @@ For a lambda function, its documentation is returned if it exists."
         (format "%s:%s" (type-of fun) fun)))))
 
 
+(defsubst >>=load (file)
+  "Load a FILE silently except if in debug mode."
+  (let ((silent (not init-file-debug)))
+    (load file silent silent)))
+
+
 
 ;;; string - symbol conversion
 
@@ -184,6 +195,15 @@ nil is returned."
     (when strict
       (error ">>= %s'%s' can not be converted to a string"
         (if (eq strict t) "" (format "%s " strict)) value))))
+
+
+(defsubst >>=str-trim (string &optional trim-left trim-right)
+  "Trim a STRING using `string-trim' but returning nil on an empty result.
+
+Arguments TRIM-LEFT and TRIM-RIGHT are used verbatim."
+  (when string
+    (let ((res (string-trim string trim-left trim-right)))
+      (unless (eq res "") res))))
 
 
 (defun >>=safe-replace (regexp rep source)
@@ -532,6 +552,53 @@ by adding the suffix '-mode' and then using using `intern'."
 
 
 
+;;; basic editing commands
+
+(defun >>=kill-new (string)
+  "Make STRING the latest kill in the kill ring unless it is already there."
+  (unless (equal string (car kill-ring))
+    (kill-new string)))
+
+
+(defun >>=yank-filename (&optional prefix)
+  "Make buffer abbreviate file-name the latest kill in the kill ring.
+Optional argument PREFIX controls whether the line-number must be included,
+`C-u'; or the true name representation of the file-name, `C-0'; any other
+value will combine both logics."
+  (interactive "P")
+  (let (name ln)
+    (cond
+      ((null prefix)
+        (setq name buffer-file-name))
+      ((consp prefix)
+        (setq
+          name buffer-file-name
+          ln t))
+      ((eq prefix 0)
+        (setq name buffer-file-truename))
+      (t
+        (setq
+          name buffer-file-truename
+          ln t)))
+    (>>=kill-new
+      (if name
+        (concat
+          (abbreviate-file-name name)
+          (if ln (format ":%s:" (line-number-at-pos)) ""))
+        ;; else
+        (or
+          (bound-and-true-p exwm-title)
+          (buffer-name))))))
+
+
+(defun >>=yank-default-directory ()
+  "Make default directory the latest kill in the kill ring."
+  (interactive)
+  (>>=kill-new
+    (file-name-as-directory (abbreviate-file-name default-directory))))
+
+
+
 ;;; files and directories
 
 (defconst >>=!path-separator
@@ -686,22 +753,19 @@ discarded."
 
 ;;; buffers
 
+(defun >>=local-buffer (&optional buffer)
+  "Not nil if BUFFER visits a local (not remote) file."
+  (let ((fname (buffer-file-name buffer)))
+    (and fname (not (file-remote-p fname)))))
+
+
 (defun >>=current-buffer-remote? ()
   "Return non-nil if current buffer is remote."
+  ;; TODO: this is redundant with previous function
   (require 'files)
-  (let ((tests
-          (list
-            (buffer-file-name)
-            list-buffers-directory
-            default-directory))
-        res)
-    (while (and tests (not res))
-      (let ((aux (car tests)))
-        (if (and (stringp aux) (file-remote-p aux))
-          (setq res aux)
-          ; else: next item
-          (setq tests (cdr tests)))))
-    res))
+  (seq-find
+    (lambda (test) (and (stringp test) (file-remote-p test)))
+    (list (buffer-file-name) list-buffers-directory default-directory)))
 
 
 (defun >>=kill-buffer-and-window (&optional buffer)
@@ -714,6 +778,28 @@ Argument nil or omitted means kill the current buffer."
       (when win
         (ignore-errors
           (delete-window win))))))
+
+
+(defun >>=buffer-focused-text ()
+  "Return focused-text in current buffer, selected region or current line."
+  (let (begin end
+        (region (use-region-p)))
+    (if region
+      (setq
+        begin (point)
+        end (mark))
+      ;; else
+      (save-restriction
+        (widen)
+        (save-excursion
+          (beginning-of-line)
+          (setq begin (point))
+          (end-of-line)
+          (setq end (point)))))
+    (prog1
+      (buffer-substring-no-properties begin end)
+      (if region
+        (setq deactivate-mark t)))))
 
 
 
@@ -802,6 +888,11 @@ Each item in MODES is validated and associated with the given COMMAND."
 
 
 ;;; system
+
+(defun >>=shell-command-to-string (command)
+  "Execute shell COMMAND and return its output as a trimmed string."
+  (string-trim (shell-command-to-string command)))
+
 
 (defun >>=process/safe-lines (program &rest args)
   "Execute PROGRAM with ARGS, returning its output as a list of lines.

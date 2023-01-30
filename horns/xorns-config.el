@@ -19,6 +19,7 @@
 ;;; Code:
 
 (require 'xorns-tools)
+(require 'warnings)
 
 
 
@@ -29,21 +30,25 @@
     (warn ">>= `custom-file' already assigned: '%s'." custom-file)
     ;; else
     (require 'cus-edit)
-    (setq custom-file (>>=-config-file-name))
+    (setq custom-file (>>-config-file-name))
     (let ((exists (file-exists-p custom-file))
           save)
       (unless exists
-        (setq exists (>>=-copy-from-template))
+        (setq exists (>>-copy-from-template))
         (let ((old (>>=locate-user-emacs-file
                      "custom-${USER}.el" "custom.el")))
           (when (file-exists-p old)
             (message ">>= migrating old `custom-file' '%s'." old)
-            (load old (not init-file-debug))
+            (>>=load old)
             (setq save t))))
+      (when (and (not init-file-debug) (eq warning-minimum-level :warning))
+        (setq
+          warning-minimum-level :error
+          warning-minimum-log-level :error))
       (when exists
-        (load custom-file (not init-file-debug))
+        (>>=load custom-file)
         (->? >>=settings/init))
-      (if save
+      (when save
         (if exists
           (let ((make-backup-files nil))
             (message ">>= saving migrated variables.")
@@ -54,25 +59,28 @@
                   "Fix config file manually.")))))))
 
 
-(defun >>=-config-file-name ()
+(defsubst >>-xdg-config-home ()
+  "Get XDG configuration directory."
+  (>>=find-dir
+    (getenv "XDG_CONFIG_HOME")
+    (>>=dir-join "~" ".config")))
+
+
+(defun >>-config-file-name ()
   "Return target location for `custom-file'."
-  (let ((xdg
-          (>>=find-dir
-            (getenv "XDG_CONFIG_HOME")
-            (>>=dir-join "~" ".config"))))
+  (let ((xdg (>>-xdg-config-home)))
     (expand-file-name
       (if xdg "xorns" ".xorns")
       (or xdg "~"))))
 
 
-(defun >>=-copy-from-template ()
+(defun >>-copy-from-template ()
   "Create new `custom-file' from template."
-  ;; TODO: Just avoid warning for free variable `>>=!library-directory'
   (let ((template
           (expand-file-name
             "user-config"
             (>>=dir-join
-              (bound-and-true-p >>=!library-directory) "templates"))))
+              (>>=value-of >>=!xorns/lib-dir) "templates"))))
     (when (file-exists-p template)
       (copy-file template custom-file t)
       (message ">>= new `custom-file' '%s' has been created." custom-file)
