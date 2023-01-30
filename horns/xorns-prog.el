@@ -28,17 +28,6 @@
 
 ;;; Common Systems
 
-(use-package auto-complete
-  :ensure t
-  :preface
-  (declare-function ac-flyspell-workaround 'auto-complete)
-  :custom
-  (ac-trigger-key "TAB")
-  :config
-  ;; TODO: check `global-auto-complete-mode'
-  (ac-flyspell-workaround))
-
-
 (use-package yasnippet
   :ensure t
   :preface
@@ -71,13 +60,10 @@
 
 
 (use-package prog-mode
-  :preface
-  (declare-function auto-complete-mode 'auto-complete)
   :init
   (defun >>=init-prog-mode ()
     "Init `prog-mode' based modes."
     (when (>>=local-buffer)
-      (auto-complete-mode +1)
       (flyspell-prog-mode))
     (>>=init-text-mode)
     (turn-on-auto-fill)
@@ -419,15 +405,6 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
   :ensure t
   :config
   (add-hook 'js2-mode-hook #'tern-mode))
-
-
-(use-package tern-auto-complete
-  :ensure t
-  :preface
-  (declare-function tern-ac-setup 'tern-auto-complete)
-  :after tern
-  :config
-  (tern-ac-setup))
 
 
 (use-package prettier
