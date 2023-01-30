@@ -396,7 +396,6 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
       (setq dap-python-debugger debugger))))
 
 
-
 ;;; C/C++ Mode -- Linux kernel programming
 
 (use-package cc-mode
