@@ -39,7 +39,7 @@ To use option (2), just:
 
 ## Conventions
 
-We prefixes most symbols, next are some conventions:
+We use prefixes for most symbols, next are some conventions:
 
 - `>>=` for general definitions,
 - `>>=!` for constants,
