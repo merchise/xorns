@@ -26,17 +26,6 @@
 
 ;;; Common Systems
 
-(use-package auto-complete
-  :ensure t
-  :preface
-  (declare-function ac-flyspell-workaround 'auto-complete)
-  :custom
-  (ac-trigger-key "TAB")
-  :config
-  ;; TODO: check `global-auto-complete-mode'
-  (ac-flyspell-workaround))
-
-
 (use-package yasnippet
   :ensure t
   :preface
@@ -69,13 +58,10 @@
 
 
 (use-package prog-mode
-  :preface
-  (declare-function auto-complete-mode 'auto-complete)
   :init
   (defun >>=init-prog-mode ()
     "Init `prog-mode' based modes."
     (when (>>=local-buffer)
-      (auto-complete-mode +1)
       (flyspell-prog-mode))
     (>>=init-text-mode)
     (turn-on-auto-fill)
@@ -410,69 +396,6 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
       (setq dap-python-debugger debugger))))
 
 
-
-;;; Javascript, CoffeeScript and LiveScript
-
-(use-package tern
-  ;; `tern' program must be installed in your system
-  :ensure t
-  :config
-  (add-hook 'js2-mode-hook #'tern-mode))
-
-
-(use-package tern-auto-complete
-  :ensure t
-  :preface
-  (declare-function tern-ac-setup 'tern-auto-complete)
-  :after tern
-  :config
-  (tern-ac-setup))
-
-
-(use-package prettier
-  ;; `prettier' program must be installed in your system
-  :ensure t
-  :init
-  (defvar >>=|prettier/enable-mode t
-    "Configure when to enable `prettier-mode'.")
-
-  (defun >>-prettier-mode? ()
-    "Enable `prettier-mode' depending on `>>=|prettier/enable-mode' variable."
-    (when (fboundp 'prettier-mode)
-      (funcall 'prettier-mode (if >>=|prettier/enable-mode +1 -1)))))
-
-
-(use-package js2-mode
-  :ensure t
-  :after (tern-auto-complete prettier)
-  :mode ("\\.js\\'" "\\.pac\\'" "node")
-  :hook
-  (js-mode . tern-mode)
-  (js-mode . >>-prettier-mode?)
-  :custom
-  (js-indent-level 2)
-  :config
-  (progn
-    ;; TODO: What about to add also all interpreters currently using `js-mode'
-    ;;       ("rhino", "gjs", and "nodejs")
-    (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
-    (tern-ac-setup)))
-
-
-(use-package json-mode
-  ;; TODO: Requires npm package `json-ls' (JSON Language Server)
-  :mode "\\.json\\'"
-  :ensure t
-  :after prettier
-  :requires (flycheck)
-  :hook
-  (json-mode .
-    (lambda ()
-      (setq flycheck-checker 'json-jsonlint)))
-  (json-mode . >>-prettier-mode?))
-
-
-
 ;;; C/C++ Mode -- Linux kernel programming
 
 (use-package cc-mode
