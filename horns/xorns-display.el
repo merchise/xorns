@@ -238,16 +238,23 @@ of targets valid for `set-fontset-font', or a sequence of such forms."
 
 (defun >>=configure-font ()
   "Find and set the default font."
-  (when (and (not >>-font/configured) >>=|font-settings)
-    (if (display-graphic-p)
-      (when (>>-display-graphic-p)
-        ;; if display is not ready, this takes another try in startup hook
-        (if-let ((res (>>=set-font >>=|font-settings)))
-          (setq >>-font/configured res)
-          ;; else
-          (warn ">>= warning: cannot find any of the specified fonts.")))
-      ;; else
-      (setq >>-font/configured 'text-only-terminal))))
+  (condition-case err
+    (when (and (not >>-font/configured) >>=|font-settings)
+      (if (display-graphic-p)
+        (when (>>-display-graphic-p)
+          ;; if display is not ready, this takes another try in startup hook
+          (if-let ((res (>>=set-font >>=|font-settings)))
+            (setq >>-font/configured res)
+            ;; else
+            (warn ">>= warning: cannot find any of the specified fonts.")))
+        ;; else
+        (setq >>-font/configured 'text-only-terminal)))
+    (error
+      (if init-file-debug
+        (signal (car err) (cdr err))
+        ;; else
+        (message ">>= %s"  (error-message-string err)))
+      (setq >>-font/configured err))))
 
 
 (defun >>=font/configure ()
