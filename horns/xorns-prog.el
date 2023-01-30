@@ -399,48 +399,12 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 ;;; Javascript, CoffeeScript and LiveScript
 
-(use-package tern
-  ;; `tern' program must be installed in your system
-  :ensure t
-  :config
-  (add-hook 'js2-mode-hook #'tern-mode))
-
-
-(use-package prettier
-  ;; `prettier' program must be installed in your system
-  :ensure t
-  :init
-  (defvar >>=|prettier/enable-mode t
-    "Configure when to enable `prettier-mode'.")
-
-  (defun >>-prettier-mode? ()
-    "Enable `prettier-mode' depending on `>>=|prettier/enable-mode' variable."
-    (when (fboundp 'prettier-mode)
-      (funcall 'prettier-mode (if >>=|prettier/enable-mode +1 -1)))))
-
-
-(use-package js2-mode
-  :ensure t
-  :after (tern-auto-complete prettier)
-  :mode ("\\.js\\'" "\\.pac\\'" "node")
-  :hook
-  (js-mode . tern-mode)
-  (js-mode . >>-prettier-mode?)
-  :custom
-  (js-indent-level 2)
-  :config
-  (progn
-    ;; TODO: What about to add also all interpreters currently using `js-mode'
-    ;;       ("rhino", "gjs", and "nodejs")
-    (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
-    (tern-ac-setup)))
-
+;; see https://emacs-lsp.github.io/lsp-mode/page/lsp-typescript/
 
 (use-package json-mode
   ;; TODO: Requires npm package `json-ls' (JSON Language Server)
   :mode "\\.json\\'"
   :ensure t
-  :after prettier
   :requires (flycheck)
   :hook
   (json-mode .
