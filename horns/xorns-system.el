@@ -203,8 +203,7 @@ be needed in the future..")
   (when (executable-find "git")
     (treemacs-git-mode
       (if treemacs-python-executable 'deferred 'simple)))
-  (treemacs-hide-gitignored-files-mode)
-  )
+  (treemacs-hide-gitignored-files-mode))
 
 
 (use-package all-the-icons
@@ -213,15 +212,15 @@ be needed in the future..")
   :ensure t)
 
 
-(use-package treemacs-projectile
-  :when >>=|treemacs/enable
-  :after (treemacs projectile)
-  :ensure t)
-
-
 (use-package treemacs-icons-dired
   :when >>=|treemacs/enable
   :hook (dired-mode . treemacs-icons-dired-enable-once)
+  :ensure t)
+
+
+(use-package treemacs-projectile
+  :when >>=|treemacs/enable
+  :after (treemacs projectile)
   :ensure t)
 
 
