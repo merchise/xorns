@@ -108,7 +108,7 @@ Used together with `>>=|exwm/web-alts' to complement `>>=|exwm/name-alist'.")
 Used together with `>>=|exwm/web-alts' to complement `>>=|exwm/name-alist'.")
 
 
-(defvar >>=|exwm/name-alist nil
+(defvar >>=|exwm/name-alist '(("VirtualBox Machine" . "vm"))
   "Association list of buffer names replacements.
 The key of each cons cell (`car') will be the windows class-name, and the
 associated value (`cdr') the proposed alternative names.  Values could be a
