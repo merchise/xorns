@@ -30,6 +30,7 @@ default values are not suitable for your configuration."
     ;;    "nm-applet"                         ; Network Manager
     ;;    ("GDK_BACKEND=x11" "pamac-tray")    ; Update Notifier
     ;;    "volumeicon"                        ; Volume control
+    ;;    "cbatticon"                         ; battery icon
     ;;    )
     ;; >>=|mode-line/battery-icon-command "cbatticon"
     ;; >>=|exwm/start-process-model t         ; use sub-processes
