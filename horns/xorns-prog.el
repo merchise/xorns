@@ -412,6 +412,14 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 
 
+;;; Javascript, CoffeeScript and LiveScript
+
+(use-package js2-mode
+  :ensure t
+  :mode ("\\.js\\'" "\\.pac\\'" "node"))
+
+
+
 ;;; XML, SGML, and Web editing modes
 
 (use-package sgml-mode
@@ -423,7 +431,6 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
   :custom
   (nxml-auto-insert-xml-declaration-flag t)
   (nxml-slash-auto-complete-flag t))
-
 
 
 ;;; Selectively display code/comment blocks

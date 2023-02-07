@@ -61,6 +61,9 @@ example "xorns+python.el", "").  Sub-levels are joined with "/" (for example
   - Integrate `xorns-setup` and `xorns-packages` modules.
   - Deft is too slow after Emacs 28.  Function `deft-parse-summary` was
     replaced.  Check after Emacs or Deft are updated.
+  - After configuring 'js2-mode', check ELPA for more packages that use this
+    one.
+
 
 ### Fix loss of focus for Brave when using EXWM
 
