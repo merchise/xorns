@@ -416,7 +416,10 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 (use-package js2-mode
   :ensure t
-  :mode ("\\.js\\'" "\\.pac\\'" "node"))
+  :mode ("\\.js\\'" "\\.pac\\'" "node")
+  :custom
+  (js2-strict-inconsistent-return-warning nil)
+  (js2-strict-missing-semi-warning nil))
 
 
 
