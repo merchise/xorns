@@ -154,6 +154,7 @@
             (name . "html-ls")
             (name . "css-ls")
             (name . "dockerfile-ls")
+            (name . "^[*]rust")
             (name . "^[*]Flycheck")
             (name . "^[*]Dired log[*]$")))
         ("Backup files"
