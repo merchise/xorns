@@ -38,6 +38,7 @@ default values are not suitable for your configuration."
     ;; >>=|blacken/enable 'ask
     ;; >>=|crypt/gpg-integration nil
     ;; >>=|which-key/enable nil
+    ;; >>=|ext/git-forges nil
     ;; >>=|treemacs/enable nil
     ))
 

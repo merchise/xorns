@@ -143,6 +143,10 @@ be needed in the future..")
 
 ;;; Version Control Integration
 
+(defvar >>=|ext/git-forges t
+  "Whether `forge' extensions must be configured.")
+
+
 (use-package git-modes
   :ensure t
   :defer t)
@@ -161,6 +165,12 @@ be needed in the future..")
   (git-commit-mode . >>=tex-mode-setup)
   :config
   (put 'magit-clean 'disabled nil))
+
+
+(use-package forge
+  :when >>=|ext/git-forges
+  :ensure t
+  :after magit)
 
 
 
