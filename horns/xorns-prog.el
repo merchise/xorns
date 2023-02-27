@@ -260,6 +260,10 @@ Language server activation is based on the logic of the `>>=check-major-mode'
 function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 
+(defvar >>=|lsp/startup-deferred nil
+  "Use the entry point that defers server startup until buffer is visible.")
+
+
 ;; Next configuration allows `company-mode' to be managed internally by
 ;; `lsp-mode'.  Other possible choices are to activate it globally, or by
 ;; using `prog-mode-hook'.
@@ -272,6 +276,13 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
   :demand t
   :preface
   (declare-function lsp 'lsp-mode)
+
+  (defun >>-lsp/entry-point ()
+    "Entry point that determines if defers server startup or not."
+    (if >>=|lsp/startup-deferred
+      (lsp-deferred)
+      ;; else
+      (lsp)))
 
   (defun >>-lsp-buffer? ()
     "Validate current buffer language for `lsp-language-id-configuration'."
@@ -296,7 +307,7 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
       (if (eq >>=|lsp/enable-mode t)
         '>>-lsp-buffer?
         >>=|lsp/enable-mode)
-      lsp +1))
+      >>-lsp/entry-point))
   :custom
   (lsp-auto-guess-root t)
   (lsp-keymap-prefix "C-s-l")    ; "s-l" is the lock key in several laptops

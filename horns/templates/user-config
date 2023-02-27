@@ -35,6 +35,7 @@ default values are not suitable for your configuration."
     ;; >>=|mode-line/battery-icon-command "cbatticon"
     ;; >>=|exwm/start-process-model t         ; use sub-processes
     ;; >>=|lsp/enable-mode 'ask
+    ;; >>=|lsp/startup-deferred t
     ;; >>=|blacken/enable 'ask
     ;; >>=|crypt/gpg-integration nil
     ;; >>=|which-key/enable nil
