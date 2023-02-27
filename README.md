@@ -64,6 +64,17 @@ example "xorns+python.el", "").  Sub-levels are joined with "/" (for example
   - After configuring 'js2-mode', check ELPA for more packages that use this
     one.
 
+### Look for better options to show a System Tray for EXWM
+
+Maybe use the project [py3status](https://github.com/ultrabug/py3status) as a
+base to create a similar one named 'exwm-status'.
+
+Note:
+
+> I installed `cbatticon` to show a battery icon.  This program is activated
+> by using `sudo systemctl enable cbatticon.service`, because of that, this is
+> not needed as part of '>>=|exwm/startup-applications'.  See
+> https://bbs.archlinux.org/viewtopic.php?id=188942
 
 ### Fix loss of focus for Brave when using EXWM
 
