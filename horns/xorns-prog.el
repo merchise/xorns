@@ -276,6 +276,7 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
   :demand t
   :preface
   (declare-function lsp 'lsp-mode)
+  (declare-function lsp-deferred 'lsp-mode)
 
   (defun >>-lsp/entry-point ()
     "Entry point that determines if defers server startup or not."
