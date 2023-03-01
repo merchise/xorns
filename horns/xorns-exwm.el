@@ -98,7 +98,8 @@ Could be an integer or a boolean value, if t is calculated with the length of
 `>>=|exwm/startup-applications'.)")
 
 
-(defvar >>=|exwm/web-names '("browser" "brave-browser" "firefox" "chromium")
+(defvar >>=|exwm/web-names
+  '("browser" "brave-browser" "firefox" "chromium" "microsoft-edge")
   "Class names for web browser applications.
 Used together with `>>=|exwm/web-alts' to complement `>>=|exwm/name-alist'.")
 
