@@ -53,15 +53,14 @@
 
 (add-hook
   'emacs-startup-hook
-  (defun >>=startup-hook ()
+  (defun >>-startup-hook ()
     (->? >>=user-code)
     (setq >>=xorns-initialized
-      (format "%.1f seconds"
-        (float-time (time-subtract after-init-time before-init-time))))
+      (float-time (time-subtract after-init-time before-init-time)))
     (require 'xorns-gc)    ; Configure GC strategy
     ;; (>>=font/configure)
     (run-with-timer 1 nil
-      'message ">>= xorns initialized in %s seconds." >>=xorns-initialized)
+      'message ">>= xorns initialized in %.1f seconds." >>=xorns-initialized)
     ))
 
 

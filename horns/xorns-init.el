@@ -36,7 +36,7 @@
 
 (defvar >>=xorns-initialized nil
   "Whether or not Xorns has finished the startup process.
-This is set to true when executing `emacs-startup-hook'.")
+This is set to a time in seconds after executing `emacs-startup-hook'.")
 
 
 (provide 'xorns-init)
