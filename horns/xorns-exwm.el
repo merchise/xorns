@@ -63,6 +63,7 @@
 (require 'xorns-tools)
 (require 'xorns-bindings)
 
+
 
 ;;; Main definitions
 
@@ -125,7 +126,7 @@ pairs from `>>=|exwm/web-names' and `>>=|exwm/web-alts'.")
 (defun >>=exwm/start-process (command)
   "Call COMMAND synchronously in a separate process returning immediately."
   (unless (stringp command)
-    (setq command (mapconcat 'identity command  " ")))
+    (setq command (mapconcat 'identity command " ")))
   (call-process-shell-command command nil 0))
 
 
@@ -133,7 +134,7 @@ pairs from `>>=|exwm/web-names' and `>>=|exwm/web-alts'.")
   "Call COMMAND synchronously in a sub-process returning immediately.
 A process NAME can bee given as an optional argument."
   (unless (stringp command)
-    (setq command (mapconcat 'identity command  " ")))
+    (setq command (mapconcat 'identity command " ")))
   (unless name
     (setq name (if (string-match "[[:space:]]" command) "EXWM-SP" command)))
   (start-process-shell-command name nil command))
@@ -301,8 +302,6 @@ A process NAME can bee given as an optional argument."
   (->? >>=window-manager/init)
   (>>-exwm/config)    ;; (exwm-config-example)
   )
-
-;; (slot-value (alist-get <ID> exwm-systemtray--list) 'visible)
 
 
 (use-package exwm-input
