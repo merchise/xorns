@@ -62,6 +62,11 @@ to configure for yourself: see `save-buffer' function for more information.")
   "New width for `package' name column (use nil for standard behaviour).")
 
 
+(defcustom >>=|frame-undecorated t
+  "Default (init-time value) of the frame parameter `undecorated'."
+  :type '(boolean))
+
+
 
 ;; Default base packages (always configured)
 
@@ -82,6 +87,13 @@ to configure for yourself: see `save-buffer' function for more information.")
         (substitute-env-vars >>=|user-mail-address-template)))))
 
 
+(defun toggle-frame-decoration (&optional frame)
+  "Toggle FRAME undecorated parameter."
+  (interactive)
+  (let ((decoration (frame-parameter frame 'undecorated)))
+    (set-frame-parameter nil 'undecorated (not decoration))))
+
+
 (use-package frame
   :when (display-graphic-p)
   :custom
@@ -96,9 +108,11 @@ to configure for yourself: see `save-buffer' function for more information.")
     (modify-all-frames-parameters
       '((internal-border-width . 0)
             (fullscreen . maximized)
-            (fullscreen-restore . maximized)
-            (undecorated . t)))
-    ))
+            (fullscreen-restore . maximized)))
+    (set-frame-parameter nil 'undecorated >>=|frame-undecorated)))
+
+
+
 
 
 (use-package window
