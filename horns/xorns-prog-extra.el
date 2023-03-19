@@ -78,6 +78,23 @@ For example (toml classic-snippets).")
 
 
 
+;;; ReScript
+
+(when (memq 'rescript >>=|programming/extra-languages)
+  ;; TODO: Not sure how to configure the lsp-rescript-server-command
+  (use-package lsp-rescript
+    :ensure t)
+
+  (use-package rescript-mode
+    :ensure t
+    :requires (lsp-ui)
+    :mode ("\\.res\\'")
+    :config
+    (add-hook 'rescript-mode-hook 'lsp-deferred)
+    (add-hook 'rescript-mode-hook 'lsp-ui-doc-mode)
+    (add-hook 'before-save-hook 'lsp-format-buffer)))
+
+
 ;;; Extra dependencies
 
 (use-package toml-mode
