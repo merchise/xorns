@@ -36,6 +36,9 @@
 (use-package docker-compose-mode
   :when >>=|devops/enable)
 
+(use-package lsp-docker
+  :when >>=|devops/enable)
+
 
 (provide 'xorns-devop)
 ;;; xorns-devop.el ends here
