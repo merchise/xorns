@@ -50,11 +50,6 @@ For example (toml classic-snippets).")
     :after rust-mode
     :hook
     (flycheck-mode . flycheck-rust-setup))
-  (use-package racer
-    :ensure t
-    :defer t
-    :hook
-    (rust-mode . racer-mode))
   (use-package cargo
     :ensure t
     :bind
