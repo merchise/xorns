@@ -91,5 +91,20 @@ For example (toml classic-snippets).")
   :ensure t)
 
 
+
+;;; Gitlab
+
+(when (memq 'gitlab >>=|programming/extra-features)
+  (use-package gitlab-ci-mode
+    :ensure t
+    :defer t)
+
+  (use-package gitlab-ci-mode-flycheck
+    :ensure t
+    :defer t))
+
+
+
+
 (provide 'xorns-prog-extra)
 ;;; xorns-prog-extra.el ends here

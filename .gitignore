@@ -1,6 +1,7 @@
 # Compiled
 *.elc
 .yas-compiled-snippets.el
+flycheck_*
 
 # Lisp generated
 /horns/xorns-autoloads.el
