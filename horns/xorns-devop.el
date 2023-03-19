@@ -19,19 +19,22 @@
 
 ;;; Docker
 
+(defvar >>=|devops/enable t
+  "Enable devops-related features: docker, compose, etc.")
+
 (use-package docker
-  :ensure t
-  :bind ("C-c d" . docker))
+  :when >>=|devops/enable
+  :bind ("C-c d" . docker)) ;; TODO: customisable map.
 
 
 (use-package dockerfile-mode
-  :ensure t
+  :when >>=|devops/enable
   :init
   (add-to-list 'auto-mode-alist '("\\.docker\\'" . dockerfile-mode)))
 
 
 (use-package docker-compose-mode
-  :ensure t)
+  :when >>=|devops/enable)
 
 
 (provide 'xorns-devop)
