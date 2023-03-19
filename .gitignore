@@ -74,3 +74,4 @@ emojis/
 .lsp-eslint-choices
 
 .dap-breakpoints
+forge-database.sqlite
