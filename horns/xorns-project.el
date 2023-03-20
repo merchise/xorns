@@ -40,8 +40,10 @@
       '("elpa" ".vscode" "node_modules")
       >>=|projectile/extra-ignored-directories)
     (>>=append projectile-project-root-files
-      '(".travis.yml")
-      >>=|projectile/project-root-files)
+      '(".travis.yml") >>=|projectile/project-root-files)
+    (when (memq 'rescript >>=|programming/extra-languages)
+      (>>=append projectile-project-root-files
+        '("bsconfig.json") >>=|projectile/project-root-files))
     (add-to-list
       ;; Ignore Mac Search Index Cache
       'projectile-globally-ignored-files ".DS_Store")
