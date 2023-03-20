@@ -281,6 +281,9 @@ When TERM is given, only check buffers of that kind."
         (>>=scratch/get-buffer-create)))))
 
 
+;; TODO: Should we use `switch-to-buffer'; according to
+;; https://www.masteringemacs.org/article/demystifying-emacs-window-manager
+;; it SHOULD NOT be used programmatically.
 (defun >>-xterm/switch-to-buffer (target &optional mode)
   "Select the smart terminal TARGET buffer.
 The optional argument MODE will take precedence over the variable
