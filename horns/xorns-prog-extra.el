@@ -80,19 +80,68 @@ For example (toml classic-snippets).")
 
 ;;; ReScript
 
-(when (memq 'rescript >>=|programming/extra-languages)
-  ;; TODO: Not sure how to configure the lsp-rescript-server-command
-  (use-package lsp-rescript
-    :ensure t)
+(defvar >>=|rescript-compilation-error-rx
+  (rx-to-string
+    '(seq
+       (or
+         "We've found a bug for you!"
+         "Syntax error!"
+         (seq
+           "Warning number"
+           (* space)
+           (+ digit)
+           (* space)
+           "(configured as error)"))
+       (* (or space control))
+       line-start
+       (* space)
+       (group (group (seq (* any) ".res"))
+         ":"
+         (group (+ digit))
+         ":"
+         (group (+ digit))
+         (? "-" (+ digit) (? ":" (+ digit))))
+       line-end))
+  "The regular expression for detecting compilation errors in rescript.")
 
+
+(defvar >>=|rescript-compilation-warning-rx
+  (rx-to-string
+    '(seq
+       "Warning number"
+       (+ space)
+       (+ digit)
+       (* (or space control))
+       line-start
+       (* space)
+       (group (group (seq (* any) ".res"))
+         ":"
+         (group (+ digit))
+         ":"
+         (group (+ digit))
+         (? "-" (+ digit)))
+       line-end))
+  "The regular expression for detecting compilation warnings in rescript.")
+
+
+(when (memq 'rescript >>=|programming/extra-languages)
   (use-package rescript-mode
-    :ensure t
-    :requires (lsp-ui)
     :mode ("\\.res\\'")
     :config
+    (add-to-list 'compilation-error-regexp-alist '>>-rescript-error)
+    (add-to-list 'compilation-error-regexp-alist '>>-rescript-warning)
+    (add-to-list
+      'compilation-error-regexp-alist-alist
+      (cons '>>-rescript-error (cons >>=|rescript-compilation-error-rx '(1 2 3 2 1))))
+    (add-to-list
+      'compilation-error-regexp-alist-alist
+      (cons '>>-rescript-warning (cons >>=|rescript-compilation-warning-rx '(1 2 3 1 1)))))
+
+  (use-package lsp-rescript
+    :config
     (add-hook 'rescript-mode-hook 'lsp-deferred)
-    (add-hook 'rescript-mode-hook 'lsp-ui-doc-mode)
     (add-hook 'before-save-hook 'lsp-format-buffer)))
+
 
 
 ;;; Extra dependencies
