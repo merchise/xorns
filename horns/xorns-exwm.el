@@ -273,6 +273,7 @@ A process NAME can bee given as an optional argument."
                  (lambda (i)
                    `(,(kbd (format "s-%d" i)) .
                       (lambda ()
+                        "Switch to workspace."
                         (interactive)
                         (exwm-workspace-switch-create ,i))))
                  (number-sequence 0 9)))
