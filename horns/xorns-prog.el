@@ -161,6 +161,35 @@ the function `>>=python/locate-env'.")
     (append >>-!python/env-locators >>=|python/env-locators)))
 
 
+(defconst >>=|pyright-error-rx
+    (rx-to-string
+      '(seq
+         (* space)
+         (group (seq (+ any) ".py"))
+         ":"
+         (group (+ digit))
+         ":"
+         (group (+ digit))
+         (* space)
+         "- error: "
+         (* any)
+         line-end)))
+
+(defconst >>=|pyright-warning-rx
+    (rx-to-string
+      '(seq
+         (* space)
+         (group (seq (+ any) ".py"))
+         ":"
+         (group (+ digit))
+         ":"
+         (group (+ digit))
+         (* space)
+         "- warning: "
+         (* any)
+         line-end)))
+
+
 (use-package python
   :defer t
   :preface
@@ -181,6 +210,20 @@ the function `>>=python/locate-env'.")
           (message
             "Setting Python (virtual) environment '%s' in (%s) modules"
             venv-path (string-join modules ", "))))
+
+      ;; Error detection with mypy, pyright, and ruff
+      (add-to-list 'compilation-error-regexp-alist '>>=|pyright-error)
+      (add-to-list 'compilation-error-regexp-alist '>>=|pyright-warning)
+
+      (add-to-list
+        'compilation-error-regexp-alist-alist
+        (cons '>>=|pyright-error (cons >>=|pyright-error-rx '(1 2 3 2 1))))
+
+      (add-to-list
+        'compilation-error-regexp-alist-alist
+        (cons '>>=|pyright-error (cons >>=|pyright-warning-rx '(1 2 3 1 1))))
+
+
       ;; lsp-pyrigth does its own lookup with the function
       ;; lsp-pyright-locate-venv; so we don't need to do anything here for it.
       ;; TODO: See other options:
