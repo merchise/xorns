@@ -37,6 +37,7 @@
   :when >>=|devops/enable)
 
 (use-package lsp-docker
+  :ensure t
   :when >>=|devops/enable)
 
 
