@@ -275,7 +275,10 @@ A process NAME can bee given as an optional argument."
                       (lambda ()
                         "Switch to workspace."
                         (interactive)
-                        (exwm-workspace-switch-create ,i))))
+                        (exwm-workspace-switch-create ,i)
+                        ;; fix problem with focus in some X apps like `brave'
+                        (exwm-input--set-focus (frame-root-window))
+                        )))
                  (number-sequence 0 9)))
           ))
       (unless (get 'exwm-input-simulation-keys 'saved-value)
