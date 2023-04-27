@@ -41,10 +41,9 @@
 
 (defvar >>=|xterm/switch-to-buffer-mode nil
   "Mode to switch smart between terminal buffers.
-Posible values are: nil is an alias to `other-window', the default value; t is
-an alias to `selected-window'.  Other less common choices are `other-frame',
-`other-tab', `vertically', and `horizontally'.")
-
+Posible values are: nil (the default value) is an alias to `other-window'; t
+is an alias to `seelected-window'.  Other less common choices are
+`other-frame', `other-tab', `vertically', and `horizontally'.")
 
 (defvar >>-xterm/state nil
   "Terminal state (local variable in terminal buffers).")
