@@ -103,7 +103,7 @@ This variable is only used when `dired' functions are adviced, see variable
   (dired-recursive-deletes 'always)
   (dired-recursive-copies 'always)
   (dired-guess-shell-alist-user
-    '(("\\(\\.ods\\|\\.xlsx?\\|\\.docx?\\|\\.csv\\)\\'" "libreoffice")))
+    '(("\\(\\.odt\\|\\.ods\\|\\.xlsx?\\|\\.docx?\\|\\.csv\\)\\'" "libreoffice")))
   (dired-auto-revert-buffer t)
   (dired-recursive-copies 'always)
   (dired-dwim-target t)
