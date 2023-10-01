@@ -58,11 +58,14 @@ example "xorns+python.el", "").  Sub-levels are joined with "/" (for example
 
 ### Misc
 
-  - Integrate `xorns-setup` and `xorns-packages` modules.
-  - Deft is too slow after Emacs 28.  Function `deft-parse-summary` was
-    replaced.  Check after Emacs or Deft are updated.
-  - After configuring 'js2-mode', check ELPA for more packages that use this
-    one.
+- Integrate `xorns-setup` and `xorns-packages` modules.
+- Deft is too slow after Emacs 28.  Function `deft-parse-summary` was
+  replaced.  Check after Emacs or Deft are updated.
+- After configuring 'js2-mode', check ELPA for more packages that use this
+  one.
+- Check how to use [Multi-monitor on EXWM][exwm-mm]
+
+[exwm-mm]: https://wiki.archlinux.org/title/EXWM
 
 ### Look for better options to show a System Tray for EXWM
 
@@ -108,5 +111,5 @@ not used building Emacs.  We created the `>>-startup-file-name-handler-alist`
 function to avoid this in `init.el` file.
 
 See also:
- - https://github.com/syl20bnr/spacemacs/issues/11585
- - https://mail.gnu.org/archive/html/emacs-devel/2022-08/msg00234.html
+- https://github.com/syl20bnr/spacemacs/issues/11585
+- https://mail.gnu.org/archive/html/emacs-devel/2022-08/msg00234.html
