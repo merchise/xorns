@@ -192,7 +192,7 @@ the function `>>=python/locate-env'.")
 
   (defun -inferior-python-setup()
     ;; (setq-default indent-tabs-mode nil)
-    (linum-mode 0))
+    (display-line-numbers-mode 0))
   :bind
   (:map python-mode-map
     ("C-m" . newline-and-indent))
