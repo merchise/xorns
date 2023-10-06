@@ -164,30 +164,30 @@ the function `>>=python/locate-env'.")
 (defconst >>=|pyright-error-rx
     (rx-to-string
       '(seq
-         (* space)
+         (* (| " " space))
          (group (seq (+ any) ".py"))
          ":"
          (group (+ digit))
          ":"
          (group (+ digit))
-         (* space)
-         "- error: "
-         (* any)
-         line-end)))
+         (* (| " " space))
+         "-"
+         (* (| " " space))
+         "error:")))
 
 (defconst >>=|pyright-warning-rx
     (rx-to-string
       '(seq
-         (* space)
+         (* (| " " space))
          (group (seq (+ any) ".py"))
          ":"
          (group (+ digit))
          ":"
          (group (+ digit))
-         (* space)
-         "- warning: "
-         (* any)
-         line-end)))
+         (* (| " " space))
+         "-"
+         (* (| " " space))
+         "warning:")))
 
 
 (use-package python
