@@ -61,7 +61,6 @@
   (require 'use-package nil 'noerror))
 
 (require 'xorns-tools)
-(require 'xorns-bindings)
 
 
 

@@ -28,7 +28,7 @@
   (require 'ido nil 'noerror)
   (require 'ido-completing-read+ nil 'noerror))
 
-(require 'xorns-bindings)
+(require 'xorns-tools)
 
 
 (defvar >>=|minibuffer/completing-framework nil

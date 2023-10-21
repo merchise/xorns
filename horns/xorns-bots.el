@@ -18,7 +18,7 @@
   (require 'transient nil 'noerror)
   (require 'magit-status nil 'noerror))
 
-(require 'xorns-bindings)
+(require 'xorns-tools)
 
 
 (defconst >>=!pkg-dir (bound-and-true-p >>=!xorns/standalone-dir)
