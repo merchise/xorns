@@ -59,13 +59,14 @@ example "xorns+python.el", "").  Sub-levels are joined with "/" (for example
 ### Misc
 
 - Integrate `xorns-setup` and `xorns-packages` modules.
+- Check why `EXWM` has a new "Kill terminal?" prompt.
 - Deft is too slow after Emacs 28.  Function `deft-parse-summary` was
   replaced.  Check after Emacs or Deft are updated.
 - After configuring 'js2-mode', check ELPA for more packages that use this
   one.
-- Check how to use [Multi-monitor on EXWM][exwm-mm]
+- Check [Use of multi-monitor on EXWM](https://wiki.archlinux.org/title/EXWM)
+- Remove `xorns-mail` module (check `xorns-building-blocks`).
 
-[exwm-mm]: https://wiki.archlinux.org/title/EXWM
 
 ### Look for better options to show a System Tray for EXWM
 
