@@ -38,7 +38,7 @@
   "Configure Garbage Collection Strategy.
 
 Could be an integer value, a `cons', one of the two canonical boolean values,
-or any of the symbols 'smart' or 'magic'.
+or any of the symbols `smart' or `magic'.
 
 An integer value will be used as a base to calculate `gc-cons-threshold', see
 `>>=gc/threshold-from-base' for the method to calculate the actual value of
@@ -47,7 +47,7 @@ An integer value will be used as a base to calculate `gc-cons-threshold', see
 When a `cons' is given, its `car' is used as the former integer threshold
 base, and its `cdr' is used to redefine `gc-cons-percentage' variable.
 
-When one the symbols 'smart', or 'magic', is given, `gcmh-mode' will be
+When one the symbols `smart', or `magic', is given, `gcmh-mode' will be
 activated.
 
 The canonical boolean value nil means no configuration at all, and t to use

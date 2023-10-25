@@ -377,7 +377,7 @@ Function FN must take two arguments but return a single value, not a pair."
 
 
 (defun >>=split-list (pred xs)
-  "Split list XS into a `cons' of two lists '(HEAD . TAIL)'.
+  "Split list XS into a `cons' of two lists (HEAD . TAIL).
 
 HEAD is all successive items of XS for which (PRED item) returns nil.  TAIL is
 a list of all items remaining starting from the first for which (PRED item)
@@ -469,15 +469,15 @@ KEYWORDS must be a pseudo property-list, usually provided as final arguments
 to a macro that defines a new concept.
 
 Each normalization process is identified with a CLASS and an instance NAME.
-For example, in '(use-package magit)' the equivalent would be `use-package'
+For example, in (use-package magit) the equivalent would be `use-package'
 being the CLASS and `magit' being the NAME.
 
 KEYWORDS are first fixed by the `>>=plist-fix' function, then DEFAULTS are
 updated.
 
 Finally each VALUE is normalized as follows: function `eval' is applied when
-the VALUE is defined using the form '(:eval <lisp-expression>)'; functions
-'<CLASS>-normalize/<:KEY>' and '<NAME>-normalize/<:KEY>' are applied when
+the VALUE is defined using the form (:eval <lisp-expression>); functions
+`<CLASS>-normalize/<:KEY>' and `<NAME>-normalize/<:KEY>' are applied when
 defined, these functions must be defined to get three arguments (KEY VALUE
 KEYWORDS).  KEYWORDS will be passed as the lexical environment argument."
   (if (null keywords)
@@ -514,7 +514,7 @@ KEYWORDS).  KEYWORDS will be passed as the lexical environment argument."
 (defun >>=plist-rename-aliases (target &rest aliases)
   "Rename a set of ALIASES in a TARGET property-list.
 
-ALIASES is given as an association-list of '(CURRENT . NEW)' pairs.  It could
+ALIASES is given as an association-list of (CURRENT . NEW) pairs.  It could
 result in a pseudo property-list that needs additional normalization with
 `>>=plist-fix'."
   (mapc
@@ -685,7 +685,7 @@ standard Emacs initialization file is returned."
 This is different from `>>=executable-find' in that each option is first
 formatted with the FORMAT string, upcased, and looked up in the environment
 using `getenv'.  Another difference is that the result is a `cons' with the
-form '(OPTION . COMMAND)'."
+form (OPTION . COMMAND)."
   (let ((aux (delq nil (>>=fix-rest-list options)))
         (fmt (or format "%s"))
         res)
@@ -835,12 +835,12 @@ Used for `>>=check-major-mode' when CRITERIA is a semantic identity."
 The value of CRITERIA could be either a list of symbols, or a symbol, or one
 of the two canonical boolean values.
 
-A list contains valid major modes, without the suffix '-mode'; for example
+A list contains valid major modes, without the suffix `-mode'; for example
 `python-mode' will be represented as plain `python'.
 
 A symbol represents the semantic identity of the condition kind, in which case
 a version of the function `y-or-n-p' will be used, caching the result for
-every pair 'mode/criteria'.
+every pair `<MODE>/<CRITERIA>'.
 
 If optional argument MODE is not given, current `major-mode' is used by
 default."

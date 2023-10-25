@@ -64,7 +64,8 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 (defcustom >>=|frame-undecorated t
   "Default (init-time value) of the frame parameter `undecorated'."
-  :type '(boolean))
+  :type '(boolean)
+  :group 'xorns)
 
 
 
@@ -110,9 +111,6 @@ to configure for yourself: see `save-buffer' function for more information.")
             (fullscreen . maximized)
             (fullscreen-restore . maximized)))
     (set-frame-parameter nil 'undecorated >>=|frame-undecorated)))
-
-
-
 
 
 (use-package window

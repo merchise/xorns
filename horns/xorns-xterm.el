@@ -53,7 +53,7 @@ is an alias to `seelected-window'.  Other less common choices are
 
 
 (defvar >>-xterm-modes nil
-  "A mapping of '(major-mode . xterm)' pairs.")
+  "A mapping of (major-mode . xterm) pairs.")
 
 
 
@@ -471,8 +471,8 @@ The following KEYWORDS can be used:
 
 :paster -- Function to paste text into a terminal.  A string is converted to a
         function using `>>=term/define-paste-magic'.  Could be specified as
-        part of a form '(command . paster)' for a :program choice.  Its
-        default value is `>>-xterm/paster'.
+        part of a form (command . paster) for a :program choice.  Its default
+        value is `>>-xterm/paster'.
 
 :mode -- Sequence of one or more identifiers to be added to `>>-xterm-modes'.
 
@@ -489,7 +489,7 @@ The defined command is a wrapper around `>>=xterminal'."
       docstring nil))
   (unless docstring
     (setq docstring
-      (format "Command for '%s' terminals (see `>>=xterminal')." id)))
+      (format "Command for `%s' terminals (see `>>=xterminal')." id)))
   (setq keywords (>>-xterm/fix-keywords keywords))
   (let ((term (>>-xterm/command-name id))
         (modes (>>=cast-list (plist-get keywords :mode))))
@@ -526,7 +526,7 @@ The defined command is a wrapper around `>>=xterminal'."
   "C-M-`" '>>=xterm/select)
 
 
-(when >>=!emacs-as-wm
+(when (bound-and-true-p >>=!emacs-as-wm)
   ;; Like on i3 window manager
   (>>=global-set-keys "<s-return>" '>>=main-term))
 

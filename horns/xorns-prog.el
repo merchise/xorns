@@ -93,7 +93,7 @@
 (defvar >>=|blacken/enable t
   "Determines if `blacken' is enabled when entering `python-mode'.
 Possible values are any of the two canonical boolean values, or the symbol
-'ask', in which case the first time entering the mode the user will be asked.
+`ask', in which case the first time entering the mode the user will be asked.
 You always can manually enable this mode using `>>=blacken/turn-on' or
 `blacken-mode'.")
 
@@ -411,7 +411,6 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 ;;; C/C++ Mode -- Linux kernel programming
 
 (use-package cc-mode
-  :ensure nil
   :bind
   (:map c-mode-base-map
     ("C-c c" . compile))

@@ -87,7 +87,7 @@ function.  ARGS is a sequence of pairs [SYMBOL VALUE]...
 
 
 (defun use-package-handler/:custom? (name _keyword args rest state)
-  "Generate use-package `:custom?' keyword code.
+  "Generate `use-package' `:custom?' keyword code.
 Arguments used: NAME, ARGS, REST, and STATE."
   (use-package-concat
     `(,(macroexpand `(>>:custom ,@args)))

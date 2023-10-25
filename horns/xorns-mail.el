@@ -76,7 +76,7 @@ empty the address defaults to \"smtp.ADDRESS-DOMAIN\".")
   )
 
 (defgroup xorns-email nil
-  "Xorns Email"
+  "Xorns Email."
   :prefix "xorns-email-"
   :group 'xorns)
 
@@ -164,8 +164,8 @@ If BUFFER is not present, use the current buffer."
           (setq
             smtpmail-smtp-service
             (cl-case stream-type
-              ('ssl 465)
-              ('starttls 587)
+              (ssl 465)
+              (starttls 587)
               (otherwise 25)))
           (when xorns-email-debug
             (setq

@@ -35,14 +35,14 @@
 (defvar >>=|mode-line/kind nil
   "Kind of mode-line.
 When nil, the standard Emacs mode-line will be used; otherwise, the value must
-be a symbol: 'smart' for `smart-mode-line'; 'mini' for `mini-modeline';
-'powered-smart' for complementing `smart-mode-line' with `powerline' theme
-to ; 'doom' for `doom-modeline'; and 'power' or 'space', for `spaceline'
+be a symbol: `smart' for `smart-mode-line'; `mini' for `mini-modeline';
+`powered-smart' for complementing `smart-mode-line' with `powerline' theme
+to ; `doom' for `doom-modeline'; and `power' or `space', for `spaceline'
 including `powerline'.")
 
 
 (defvar >>=|mode-line/map-mini-kind-on-wm nil
-  "When non-nil remap 'mini' `>>=|mode-line/kind' into value defined here.")
+  "When non-nil remap `mini' `>>=|mode-line/kind' into value defined here.")
 
 
 (when (and >>=|mode-line/map-mini-kind-on-wm (eq >>=|mode-line/kind 'mini))

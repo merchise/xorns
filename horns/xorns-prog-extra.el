@@ -58,7 +58,8 @@ For example (toml classic-snippets).")
   (use-package cargo
     :ensure t
     :bind
-    (:map rust-mode-map ("<f5>" . cargo-process-build))
+    (:map rust-mode-map
+      ("<f5>" . cargo-process-build))
     :hook
     (rust-mode . cargo-minor-mode)))
 

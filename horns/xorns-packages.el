@@ -45,12 +45,9 @@
 
 
 (defmacro >>=package/config (feature &rest body)
-  "Ensure FEATURE is a properly installed package.
+  "Safe evaluate BODY forms sequentially and return value of last one.
 Similar to a `progn' special form but loading FEATURE before using `require'
 of the eval of BODY forms sequentially and return value of last one."
-  "Safe evaluate BODY forms sequentially and return value of last one.
-Use a HEADER message when `init-file-debug' is t, or in case of error, to
-report the identity of the enclosed body."
   `(condition-case-unless-debug err
      (progn
        (>>=package/ensure ',feature)
