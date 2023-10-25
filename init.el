@@ -13,15 +13,16 @@
 ;; (package-initialize)
 
 
-(defconst >>=!xorns/emacs-min-version "27.1"
+(defconst >>=!xorns/emacs-min-version "28.1"
   "Minimal version of Emacs.")
 
 
 (unless (version<= >>=!xorns/emacs-min-version emacs-version)
   (error
-    "Emacs version '%s' is too old, Xorns requires version '%s' or above"
+    "Xorns requires Emacs >='%s', not '%s'"
+    >>=!xorns/emacs-min-version
     emacs-version
-    >>=!xorns/emacs-min-version))
+    ))
 
 
 (defconst >>=!xorns/standalone-dir

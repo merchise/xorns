@@ -13,11 +13,6 @@
 
 ;;; Code:
 
-(let ((emacs-min-version "26.1"))
-  (unless (version<= emacs-min-version emacs-version)
-    (error "This `xorns' version requires Emacs >='%s'" emacs-min-version)))
-
-
 (defconst >>=!window-manager
   (or
     (getenv "DESKTOP_SESSION")
