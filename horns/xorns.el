@@ -18,6 +18,10 @@
 
 ;;; Code:
 
+(when init-file-debug
+  (setq message-log-max 10000))
+
+
 ;; `xorns-packages' must be the first module loaded here
 (require 'xorns-packages)
 
