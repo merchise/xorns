@@ -74,8 +74,7 @@ If BASE argument is non-nil, open project directory instead."
   (interactive)
   (let ((path (>>-bots-git-remote-url)))
     (if (file-exists-p path)
-      (let* ((recent-files (recentf-elements recentf-max-saved-items))
-             (res (>>=file-in-dir-tree recent-files path)))
+      (let ((res (>>=file-in-dir-tree recentf-list path)))
         (if res
           (find-file res)
           ;; else
