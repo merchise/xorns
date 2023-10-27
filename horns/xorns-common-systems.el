@@ -21,8 +21,6 @@
 
 ;;; Code:
 
-(require 'xorns-setup)
-
 (require 'xorns-minibuffer)
 (require 'xorns-mode-line)
 (require 'xorns-simple)

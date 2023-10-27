@@ -16,8 +16,7 @@
 
 (eval-and-compile
   (require 'files)
-  (require 'xorns-tools)
-  (require 'xorns-setup))
+  (require 'xorns-tools))
 
 
 

@@ -19,6 +19,7 @@
 (require 'subr-x)    ; for `string-trim'
 (eval-when-compile
   (require 'cl-lib))
+(require 'files)
 (require 'project)
 
 
@@ -92,6 +93,14 @@ Similar to `set' but calling `custom-load-symbol' if needed."
   (and object (symbolp object)))
 
 
+(defsubst >>=customized? (symbol)
+  "Return t if SYMBOL’s value is already customized.
+This has the same protocol as the `boundp' function."
+  (or
+    (plist-member (symbol-plist symbol) 'customized-value)
+    (plist-member (symbol-plist symbol) 'saved-value)))
+
+
 (defsubst >>=check-function (value &optional strict)
   "Check if VALUE is an existing function.
 When STRICT is not nil and VALUE is not a function, an error is issued."
@@ -156,6 +165,18 @@ For a lambda function, its documentation is returned if it exists."
   "Load a FILE silently except if in debug mode."
   (let ((silent (not init-file-debug)))
     (load file silent silent)))
+
+
+(defun >>=command/check (command)
+  "Check if a system COMMAND is installed.
+Intended to find out if a feature that depends on the given command can be
+configured."
+  ;; See `use-package-ensure-system-package' fo a more elaborated solution.
+  (or
+    (executable-find command)
+    (progn
+      (message ">>= warning: '%s' command is not installed" command)
+      nil)))
 
 
 

@@ -29,8 +29,7 @@
 ;;; Code:
 
 (eval-and-compile
-  (require 'xorns-tools)
-  (require 'xorns-setup))
+  (require 'xorns-tools))
 
 (require 'ibuf-ext)
 (require 'xorns-core)

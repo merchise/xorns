@@ -16,7 +16,6 @@
 ;;; Code:
 
 (eval-and-compile
-  (require 'xorns-setup)
   (require 'helm-mode nil 'noerror)
   (require 'helm-for-files nil 'noerror)
   (require 'helm-buffers nil 'noerror)

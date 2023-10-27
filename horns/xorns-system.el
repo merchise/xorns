@@ -34,7 +34,7 @@
   "Whether `ripgrep' extensions must be configured.
 Could be a boolean, or a string specifying the `ripgrep' command name, the
 default value is \"rg\".  Usually this variable is used with the function
-`>>=setup/command-check'.")
+`>>=command/check'.")
 
 
 (use-package grep    ;; todo: check `wgrep', `scf-mode', `deadgrep'
@@ -60,7 +60,7 @@ default value is \"rg\".  Usually this variable is used with the function
 
 
 (use-package deadgrep
-  :when (>>=setup/command-check >>=|ext/ripgrep)
+  :when (>>=command/check >>=|ext/ripgrep)
   :ensure t
   :after grep
   :init

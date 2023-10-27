@@ -58,7 +58,6 @@ example "xorns+python.el", "").  Sub-levels are joined with "/" (for example
 
 ### Misc
 
-- Integrate `xorns-setup` and `xorns-packages` modules.
 - Check why `EXWM` has a new "Kill terminal?" prompt.
 - Deft is too slow after Emacs 28.  Function `deft-parse-summary` was
   replaced.  Check after Emacs or Deft are updated.

@@ -28,7 +28,6 @@
 (eval-and-compile
   (require 'dired)
   (require 'xorns-tools)
-  (require 'xorns-setup)
   (require 'xorns-packages))
 
 
