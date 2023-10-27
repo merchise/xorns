@@ -31,7 +31,6 @@
 
 (require 'use-package)
 (require 'xorns-tools)
-(require 'xorns-packages)
 
 
 

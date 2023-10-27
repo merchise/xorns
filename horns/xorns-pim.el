@@ -19,8 +19,7 @@
 
 (eval-and-compile
   (require 'xorns-tools)
-  (require 'xorns-setup)
-  (require 'xorns-packages))
+  (require 'xorns-setup))
 
 
 (defvar >>=|pim/packages

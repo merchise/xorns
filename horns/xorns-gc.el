@@ -23,7 +23,6 @@
 ;;; Code:
 
 (require 'xorns-tools)
-(require 'xorns-packages)
 (require 'xorns-init)
 
 (eval-and-compile
