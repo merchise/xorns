@@ -63,12 +63,8 @@ of the eval of BODY forms sequentially and return value of last one."
      (>>=package/ensure pkg)))
 
 
-;; TODO: Check `system-packages', and `use-package-ensure-system-package'
 (with-eval-after-load 'xorns-packages
-  ;; Bootstrap 'use-package'
-  (>>=package/config use-package
-    ;; (setq use-package-always-ensure t)
-    ))
+  (>>=package/ensure 'use-package))
 
 
 (provide 'xorns-packages)

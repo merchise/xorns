@@ -65,6 +65,8 @@ example "xorns+python.el", "").  Sub-levels are joined with "/" (for example
   one.
 - Check [Use of multi-monitor on EXWM](https://wiki.archlinux.org/title/EXWM)
 - Remove `xorns-mail` module (check `xorns-building-blocks`).
+- Check `system-packages`, and `use-package-ensure-system-package` for
+  `use-package`.
 
 
 ### Look for better options to show a System Tray for EXWM
