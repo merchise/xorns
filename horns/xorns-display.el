@@ -23,7 +23,6 @@
 (require 'xorns-tools)
 
 
-(define-obsolete-variable-alias '>>=|default-font '>>=|font-settings "0.9")
 (defvar >>=|font-settings 'medium
   "Variable to configure the default font to be used at Emacs initialization.
 See `>>=set-font' function for details about allowed values.")

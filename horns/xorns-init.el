@@ -13,6 +13,14 @@
 
 ;;; Code:
 
+(when init-file-debug
+  (setq message-log-max 10000))
+
+
+(require 'xorns-packages)    ; must be the first loaded module
+(require 'xorns-config)
+
+
 (defconst >>=!window-manager
   (or
     (getenv "DESKTOP_SESSION")

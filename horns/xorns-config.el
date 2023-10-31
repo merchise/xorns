@@ -18,8 +18,10 @@
 
 ;;; Code:
 
-(require 'xorns-tools)
 (require 'warnings)
+
+(require 'xorns-tools)
+(require 'xorns-display)
 
 
 
@@ -46,8 +48,9 @@
           warning-minimum-level :error
           warning-minimum-log-level :error))
       (when exists
-        (>>=load custom-file)
-        (->? >>=settings/init))
+        (>>=load custom-file))
+      (->? >>=settings/init)
+      (>>=font/configure)
       (when save
         (if exists
           (let ((make-backup-files nil))
@@ -56,7 +59,8 @@
           ;; else
           (warn (concat ">>= migrated variables not saved because a template "
                   "was not found to create the new style `custom-file'; "
-                  "Fix config file manually.")))))))
+                  "Fix config file manually."))))
+      (->? >>=building-blocks/configuration))))
 
 
 (defsubst >>-xdg-config-home ()

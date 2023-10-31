@@ -18,32 +18,19 @@
 
 ;;; Code:
 
-(when init-file-debug
-  (setq message-log-max 10000))
-
-
-;; `xorns-packages' must be the first module loaded here
-(require 'xorns-packages)
 
 (eval-and-compile
   (require 'server)
   (require 'use-package nil 'noerror))
 
-(require 'xorns-display)
 (require 'xorns-init)
 
 
 
 ;; Configuration Variables
 
-
 (defvar >>=|enable-server nil
   "If non-nil, start an Emacs server if one is not already running.")
-
-
-(require 'xorns-config)
-(>>=font/configure)
-(->? >>=building-blocks/configuration)    ; TODO: Move this to `xorns-config'
 
 
 (>>=progn "base initialization"
