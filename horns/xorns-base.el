@@ -76,15 +76,14 @@ to configure for yourself: see `save-buffer' function for more information.")
   (inhibit-startup-screen t)
   (initial-scratch-message nil)
   :init
-  (progn
-    ;; Replace `yes|not' commands for simpler `[yn]'
-    (defalias 'yes-or-no-p 'y-or-n-p)
-    ; TODO: Move this to another place
-    (when >>=|user-mail-address-template
-      (if (eq >>=|user-mail-address-template t)
-        (setq >>=|user-mail-address-template "${USER}@merchise.org"))
-      (setq user-mail-address
-        (substitute-env-vars >>=|user-mail-address-template)))))
+  ;; Replace `yes|not' commands for simpler `[yn]'
+  (defalias 'yes-or-no-p 'y-or-n-p)
+  ;; TODO: Move this to another place
+  (when >>=|user-mail-address-template
+    (if (eq >>=|user-mail-address-template t)
+      (setq >>=|user-mail-address-template "${USER}@merchise.org"))
+    (setq user-mail-address
+      (substitute-env-vars >>=|user-mail-address-template))))
 
 
 (defun toggle-frame-decoration (&optional frame)
@@ -99,90 +98,85 @@ to configure for yourself: see `save-buffer' function for more information.")
   :custom
   (frame-resize-pixelwise t)
   :config
-  (progn
-    ;; Kill `suspend-frame' and start Emacs maximized
-    (global-unset-key (kbd "C-z"))
-    (global-unset-key (kbd "C-x C-z"))
-    (unless (frame-parameter nil 'fullscreen)
-      (toggle-frame-maximized))
-    (modify-all-frames-parameters
-      '((internal-border-width . 0)
-            (fullscreen . maximized)
-            (fullscreen-restore . maximized)))
-    (set-frame-parameter nil 'undecorated >>=|frame-undecorated)))
+  ;; Kill `suspend-frame' and start Emacs maximized
+  (global-unset-key (kbd "C-z"))
+  (global-unset-key (kbd "C-x C-z"))
+  (unless (frame-parameter nil 'fullscreen)
+    (toggle-frame-maximized))
+  (modify-all-frames-parameters
+    '((internal-border-width . 0)
+       (fullscreen . maximized)
+       (fullscreen-restore . maximized)))
+  (set-frame-parameter nil 'undecorated >>=|frame-undecorated))
 
 
 (use-package window
   :preface
-  (progn
-    (eval-when-compile
-      (declare-function count-windows 'window)
-      (declare-function window-tree 'window)
-      (declare-function window-state-get 'window)
-      (declare-function delete-other-windows 'window)
-      (declare-function window-state-put 'window)
-      (declare-function split-window-horizontally 'window)
-      (declare-function split-window-vertically 'window))
+  (eval-when-compile
+    (declare-function count-windows 'window)
+    (declare-function window-tree 'window)
+    (declare-function window-state-get 'window)
+    (declare-function delete-other-windows 'window)
+    (declare-function window-state-put 'window)
+    (declare-function split-window-horizontally 'window)
+    (declare-function split-window-vertically 'window))
 
-    (defun >>=window/split-toggle (&optional arg)
-      "Toggle horizontal/vertical layout of 2 windows (use ARG to restore)."
-      (interactive "P")
-      (if (= (count-windows) 2)
-        (let* ((tree (car (window-tree)))
-               (one (nth 2 tree))
-               (two (nth 3 tree))
-               (aux (car tree))                ;; t: vertical -> horizontal
-               (v2h (if arg (not aux) aux))    ;; (xor arg v2h)
-               (state (window-state-get two)))
-          (delete-other-windows one)
-          (window-state-put
-            state
-            (funcall
-              (if v2h
-                #'split-window-horizontally
-                ;; else
-                #'split-window-vertically))))
-        ;; else
-        (warn "Only can toggle two windows!")))
+  (defun >>=window/split-toggle (&optional arg)
+    "Toggle horizontal/vertical layout of 2 windows (use ARG to restore)."
+    (interactive "P")
+    (if (= (count-windows) 2)
+      (let* ((tree (car (window-tree)))
+              (one (nth 2 tree))
+              (two (nth 3 tree))
+              (aux (car tree))                ;; t: vertical -> horizontal
+              (v2h (if arg (not aux) aux))    ;; (xor arg v2h)
+              (state (window-state-get two)))
+        (delete-other-windows one)
+        (window-state-put
+          state
+          (funcall
+            (if v2h
+              #'split-window-horizontally
+              ;; else
+              #'split-window-vertically))))
+      ;; else
+      (warn "Only can toggle two windows!")))
 
-    (defun >>-window-coach/done ()
-      (interactive)
-      (setq >>=window-coach nil)
-      (message ">>= window-coach done."))
+  (defun >>-window-coach/done ()
+    (interactive)
+    (setq >>=window-coach nil)
+    (message ">>= window-coach done."))
 
-    (defvar >>=window-coach-map
-      (let ((map (make-keymap))
-            (commands
-              '((shrink-window "<up>" "p")
+  (defvar >>=window-coach-map
+    (let ((map (make-keymap))
+           (commands
+             '((shrink-window "<up>" "p")
                 (enlarge-window "<down>" "n")
                 (enlarge-window-horizontally "<right>" "f")
                 (shrink-window-horizontally "<left>" "b")
                 (other-window "o")
                 (>>=window/split-toggle "t")
                 (>>-window-coach/done "C-g" "q"))))
-        (dolist (cmd commands)
-          (let ((fn (car cmd))
-                (keys (cdr cmd)))
-            (dolist (key keys)
-              (define-key map (kbd key) fn))))
-        map))
+      (dolist (cmd commands)
+        (let ((fn (car cmd))
+               (keys (cdr cmd)))
+          (dolist (key keys)
+            (define-key map (kbd key) fn))))
+      map))
 
-    (define-minor-mode >>=window-coach
-      "A simple window-coach minor mode."
-      :init-value nil
-      :lighter " Window-Coach"
-      :keymap >>=window-coach-map
-      :global t
-      :group 'window
-      (if (<= (count-windows) 1)
-        (progn
-          (setq >>=window-coach nil)
-          (message ">>= only root frame exists, abort."))
-        ;; else
-        (message ">>= use arrow-keys or p/n/f/b/o/t/q to manage windows.")))
-
-    (provide 'window)
-    )
+  (define-minor-mode >>=window-coach
+    "A simple window-coach minor mode."
+    :init-value nil
+    :lighter " Window-Coach"
+    :keymap >>=window-coach-map
+    :global t
+    :group 'window
+    (if (<= (count-windows) 1)
+      (progn
+        (setq >>=window-coach nil)
+        (message ">>= only root frame exists, abort."))
+      ;; else
+      (message ">>= use arrow-keys or p/n/f/b/o/t/q to manage windows.")))
   :custom
   (split-width-threshold 120)
   :bind
@@ -222,21 +216,19 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 (use-package winner
   :config
-  (progn
-    (winner-mode +1)))
+  (winner-mode +1))
 
 
 (use-package xt-mouse
   :unless (display-graphic-p)
   :config
-  (progn
-    ; Enable mouse support when running in a console
-    (require 'mouse)
-    (xterm-mouse-mode +1)
-    (global-set-key [mouse-4]
-      (lambda () (interactive) (scroll-down 1)))
-    (global-set-key [mouse-5]
-      (lambda () (interactive) (scroll-up 1)))))
+  ;; Enable mouse support when running in a console
+  (require 'mouse)
+  (xterm-mouse-mode +1)
+  (global-set-key [mouse-4]
+    (lambda () (interactive) (scroll-down 1)))
+  (global-set-key [mouse-5]
+    (lambda () (interactive) (scroll-up 1))))
 
 
 ;; Fix the clipboard in terminal or daemon Emacs (non-GUI)
@@ -324,19 +316,14 @@ to configure for yourself: see `save-buffer' function for more information.")
   ("C-x M-r" . recentf-open-files)
   ("C-x C-/" . recentf-open-files)
   :config
-  (progn
-    (run-with-idle-timer (* 2 recentf-auto-cleanup) t 'recentf-save-list)
-    (recentf-mode +1)))
+  (run-with-idle-timer (* 2 recentf-auto-cleanup) t 'recentf-save-list)
+  (recentf-mode +1))
 
 
 (use-package saveplace
   :when (memq 'saveplace >>=|base/extra-packages)
   :config
   (save-place-mode +1))
-
-
-(when (memq 'gcmh >>=|base/extra-packages)
-  (warn ">>= `gcmh' is no longer configured, see `xorns-gc'"))
 
 
 (provide 'xorns-base)
