@@ -58,6 +58,7 @@ example "xorns+python.el", "").  Sub-levels are joined with "/" (for example
 
 ### Misc
 
+- Check 'obsolete' definitions to remove some.
 - Check why `EXWM` has a new "Kill terminal?" prompt.
 - Deft is too slow after Emacs 28.  Function `deft-parse-summary` was
   replaced.  Check after Emacs or Deft are updated.
@@ -67,6 +68,10 @@ example "xorns+python.el", "").  Sub-levels are joined with "/" (for example
 - Remove `xorns-mail` module (check `xorns-building-blocks`).
 - Check `system-packages`, and `use-package-ensure-system-package` for
   `use-package`.
+- Change `email` from `med@merchise.org` to `med.merchise@gmail.com`, and
+  `date` to `2023`.
+- Check why `custom-file` is loaded twice in debug mode (module
+  `xorns-config`).
 
 
 ### Look for better options to show a System Tray for EXWM
