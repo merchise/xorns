@@ -16,9 +16,8 @@
 (eval-and-compile
   (require 'recentf)
   (require 'transient nil 'noerror)
-  (require 'magit-status nil 'noerror))
-
-(require 'xorns-tools)
+  (require 'magit-status nil 'noerror)
+  (require 'xorns-tools))
 
 
 (defconst >>=!pkg-dir (bound-and-true-p >>=!xorns/standalone-dir)
@@ -102,7 +101,7 @@ repository."
     (mapc
       (lambda (file)
         (when (string-equal (>>=suffix file 4) ".elc")
-          (delete-file (>>=dir-join >>=!pkg-dir file) 'trash)
+          (delete-file (>>=path/join >>=!pkg-dir file) 'trash)
           ))
       (directory-files >>=!pkg-dir))
     ;; else

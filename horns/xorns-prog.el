@@ -130,7 +130,7 @@ the function `>>=python/locate-env'.")
       (or
         (string-prefix-p >>=!home-dir path)
         (string-prefix-p temporary-file-directory path))
-      (file-executable-p (>>=dir-join path "bin" "python"))
+      (file-executable-p (>>=path/join path "bin" "python"))
       path)))
 
 

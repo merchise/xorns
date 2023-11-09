@@ -33,8 +33,8 @@
 
 (require 'warnings)
 (eval-when-compile
-  (require 'cl-lib))
-(require 'xorns-tools)
+  (require 'cl-lib)
+  (require 'xorns-tools))
 
 
 
@@ -67,9 +67,9 @@ See `>>=set-font' function for details about allowed values.")
 
 (defsubst >>-xdg-config-home ()
   "Get XDG configuration directory."
-  (>>=find-dir
+  (>>=path/find-directory
     (getenv "XDG_CONFIG_HOME")
-    (>>=dir-join "~" ".config")))
+    (>>=path/join "~" ".config")))
 
 
 (defun >>-config-file-name ()
@@ -85,7 +85,7 @@ See `>>=set-font' function for details about allowed values.")
   (let ((template
           (expand-file-name
             "user-config"
-            (>>=dir-join
+            (>>=path/join
               (>>=value-of >>=!xorns/lib-dir) "templates"))))
     (when (file-exists-p template)
       (copy-file template custom-file t)

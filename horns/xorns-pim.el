@@ -31,7 +31,7 @@
   `(memq ',*pkg* >>=|pim/packages))
 
 
-(defconst >>=!pim/prefered-directory (>>=dir-join >>=!home-dir ".pim")
+(defconst >>=!pim/prefered-directory (>>=path/join >>=!home-dir ".pim")
   "List of miscellaneous packages to install.")
 
 
@@ -50,7 +50,7 @@
 ;;; Organizer
 
 (defconst >>=!org/prefered-directory
-  (>>=dir-join >>=!pim/prefered-directory "org")
+  (>>=path/join >>=!pim/prefered-directory "org")
   "Prefered default location to look for Org files.")
 
 
@@ -85,7 +85,7 @@ Valid only if `org' is included in `>>=|pim/packages'.")
   ;; Ensures that the `org-directory' directory exists.
   (when (and (not (>>=customized? 'org-directory)) >>=!org/prefered-directory)
     (setq org-directory >>=!org/prefered-directory))
-  (>>=ensure-dir org-directory)
+  (>>=path/ensure-directory org-directory)
   )
 
 
@@ -102,8 +102,13 @@ Valid only if `org' is included in `>>=|pim/packages'.")
   (deft-auto-save-interval 60.0)
   ;; TODO: Don't remove the TAB in the next definition
   (deft-strip-summary-regexp
-    "\\([=+*~-]\\{2,\\}\\|[}{[]\\|]\\|^#\\+[[:upper:]_]+:.*$\\)")
-  ;; (deft-file-limit 128)
+    (concat
+      "\\("
+      "[\n[:space:]]+"
+      "\\|^#\\+[[:upper:]_]+:[[:space:]]+" ;; org-mode metadata
+      "\\|[:]?[[:upper:]_]+[:=]"
+      "\\|[^[:alpha:]]\\{2,\\}"
+      "\\)+"))
   :preface
   (progn
     (declare-function deft-open-file 'deft)
@@ -121,38 +126,9 @@ Valid only if `org' is included in `>>=|pim/packages'.")
   (("<f12>" . deft)
     (:map deft-mode-map ("M-RET" . >>=deft/open-file)))
   :config
-  (progn
-    (defun deft-parse-summary (contents title)
-      ;; TODO: Check backlog in README file
-      "Parse the file CONTENTS, given the TITLE, and extract a summary."
-      (let* ((summary
-               (let (case-fold-search)
-                 (replace-regexp-in-string
-                   "[[:space:]]+"
-                   " "
-                   (replace-regexp-in-string
-                     deft-strip-summary-regexp
-                     " "
-                     contents))))
-             (summary-processed
-               (deft-chomp
-                 (if (and
-                       title
-                       (not deft-use-filename-as-title)
-                       (string-match
-                         (regexp-quote
-                           (if deft-org-mode-title-prefix
-                             (concat "^#+TITLE: " title)
-                             title))
-                         summary))
-                   (substring summary (match-end 0) nil)
-                   summary))))
-        (substring
-          summary-processed 0 (min 256 (string-width summary-processed)))))
-
-    (>>=dir-set deft-directory
-      (>>=dir-join >>=!pim/prefered-directory "notes"))
-    ))
+  (unless (file-directory-p deft-directory)
+    (setq deft-directory
+      (>>=path/ensure-directory >>=!pim/prefered-directory "notes"))))
 
 
 (provide 'xorns-pim)

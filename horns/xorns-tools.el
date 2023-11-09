@@ -362,16 +362,13 @@ so this macro can be used to iterate over tuples of two values in any list.
     target))
 
 
+(define-obsolete-function-alias '>>=plist-exclude '>>=plist-remove "1.0")
 (defun >>=plist-remove (target &rest keys)
   "Return a copy of a TARGET property-list with all KEYS removed."
   (if (apply '>>=plist-find-any target keys)
     (apply '>>=plist-delete (copy-sequence target) keys)
     ;; else
     target))
-
-
-(define-obsolete-function-alias '>>=plist-exclude '>>=plist-remove
-  "xorns 1.0" "Remove all KEYS from a TARGET property-list.")
 
 
 (defun >>=plist-update (target &rest source)
@@ -622,12 +619,14 @@ value will combine both logics."
 
 ;;; files and directories
 
-(defconst >>=!path-separator
+(define-obsolete-variable-alias '>>=!path/separator '>>=!path-separator "1.0")
+(defconst >>=!path/separator
   "Character used by the operating system to separate pathname components."
   (substring (file-name-as-directory "x") 1))
 
 
-(defun >>=dir-join (&rest parts)
+(define-obsolete-function-alias '>>=dir-join '>>=path/join "1.0")
+(defun >>=path/join (&rest parts)
   "Join PARTS to a single path."
   (setq parts (delq nil parts))
   (when parts
@@ -635,41 +634,52 @@ value will combine both logics."
       (if (file-directory-p res) res (directory-file-name res)))))
 
 
-(defun >>=find-dir (&rest dirs)
-  "Find the first existing directory in DIRS sequence."
+(defun >>=path/find-existing (&rest options)
+  "Find the first existing file or directory in a sequence of OPTIONS."
   (let (res)
-    (while (and (not res) (consp dirs))
-      (let ((dir (pop dirs)))
-        (if (and (stringp dir) (file-directory-p dir))
-          (setq res dir))))
+    (while (and (not res) (consp options))
+      (let ((option (pop options)))
+        (if (and (stringp option) (file-exists-p option))
+          (setq res option))))
     res))
 
 
-(defun >>=ensure-dir (&rest options)
-  "Select first valid directory among several OPTIONS ensuring it exists."
-  (let ((res (apply '>>=find-dir options)))
-    (unless res
-      (while (and options (null (car options)))
-        (setq options (cdr options)))
-      (setq res (car options))
-      (when res
-        (message ">>= creating directory '%s'." res)
-        (make-directory res 'parents)))
+(defun >>=path/find-regular (&rest options)
+  "Find the first existing file or directory in a sequence of OPTIONS."
+  (let (res)
+    (while (and (not res) (consp options))
+      (let ((option (pop options)))
+        (if (and (stringp option) (file-exists-p option))
+          (setq res option))))
     res))
 
 
-(defun >>=canonical-directory-name (name)
+(define-obsolete-function-alias '>>=find-dir '>>=path/find-directory "1.0")
+(defun >>=path/find-directory (&rest options)
+  "Find the first existing directory in a sequence of OPTIONS."
+  (let (res)
+    (while (and (not res) (consp options))
+      (let ((option (pop options)))
+        (if (and (stringp option) (file-directory-p option))
+          (setq res option))))
+    res))
+
+
+(defun >>=path/ensure-directory (&rest parts)
+  "Create the directory which name is specified by joining PARTS.
+See `mkdir' and `>>=path/join'."
+  (let ((name (apply '>>=path/join parts)))
+    (unless (file-directory-p name)
+      (mkdir name 'parents))
+    name))
+
+
+(define-obsolete-function-alias
+  '>>=canonical-directory-name '>>=path/canonical-directory-name "1.0")
+(defun >>=path/canonical-directory-name (name)
   "Convert directory NAME to absolute canonical form."
   (when name
     (expand-file-name (file-name-as-directory name))))
-
-
-(defmacro >>=dir-set (symbol &rest options)
-  "Set variable SYMBOL to the first directory can be ensured.
-The value is selected among several OPTIONS including current variable value."
-  `(let ((res (>>=ensure-dir ,@options ,symbol)))
-     (if (and res (not (string-equal res ,symbol)))
-       (setq-default ,symbol res))))
 
 
 (defun >>=locate-user-emacs-file (&rest names)
@@ -700,7 +710,7 @@ standard Emacs initialization file is returned."
       files)))
 
 
-;; TODO: deprecate this function
+(make-obsolete '>>=find-env-executable "Never used." "0.9.5")
 (defun >>=find-env-executable (format &rest options)
   "Find the first valid command from a set of OPTIONS.
 This is different from `>>=executable-find' in that each option is first
@@ -751,24 +761,25 @@ discarded."
 ;;; workspace management
 
 (defconst >>=!home-dir
-  (purecopy (>>=canonical-directory-name "~"))
+  (purecopy (>>=path/canonical-directory-name "~"))
   "Home directory.")
 
 
 (defvar >>=|preferred-default-directory
-  (>>=find-dir
-    (>>=canonical-directory-name (getenv "WORKSPACE"))
-    (>>=dir-join >>=!home-dir "work" "src")
-    (>>=dir-join >>=!home-dir "work")
-    (>>=dir-join >>=!home-dir "src")
+  (>>=path/find-directory
+    (>>=path/canonical-directory-name (getenv "WORKSPACE"))
+    (>>=path/join >>=!home-dir "work" "src")
+    (>>=path/join >>=!home-dir "work")
+    (>>=path/join >>=!home-dir "src")
     >>=!home-dir)
   "Preferred default directory when start a new session.")
 
 
 (defun >>=set-default-directory ()
   "Set the default directory to its original value."
-  (when (equal (>>=canonical-directory-name default-directory) >>=!home-dir)
-    (setq default-directory >>=|preferred-default-directory)))
+  (let ((aux (>>=path/canonical-directory-name default-directory)))
+    (when (equal aux >>=!home-dir)
+      (setq default-directory >>=|preferred-default-directory))))
 
 
 
@@ -938,7 +949,7 @@ Returns nil, if an error is signaled."
 If DIR is not supplied its set to the current directory by default."
   ;; Function `projectile-project-root' was added to commands section in
   ;; `projectile' configuration (see `xorns-project' module).
-  (>>=canonical-directory-name
+  (>>=path/canonical-directory-name
     (if (fboundp 'projectile-project-root)
       (funcall 'projectile-project-root dir)
       ;; else
