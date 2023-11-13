@@ -62,6 +62,7 @@ places
 .lsp-session-v1
 .mc-lists.el
 ac-comphist.dat
+/projects
 projectile.cache
 projectile-bookmarks.eld
 javadoc-cache
