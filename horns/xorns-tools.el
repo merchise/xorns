@@ -247,6 +247,17 @@ type containing the replacements.  See `replace-regexp-in-string' function."
     (length arg)))
 
 
+(defsubst >>=list/find (predicate options)
+  "Find the first item satisfying PREDICATE in OPTIONS sequence.
+Return the matching (not nil) PREDICATE result, or nil if not found."
+  (let (res)
+    (while (and (not res) options)
+      (let ((item (funcall predicate (pop options))))
+        (when item
+          (setq res item))))
+    res))
+
+
 (defsubst >>=cast-list (value)
   "Force VALUE to be a strict list."
   (if (>>=length value) value (list value)))
@@ -639,7 +650,7 @@ value will combine both logics."
   (let (res)
     (while (and (not res) (consp options))
       (let ((option (pop options)))
-        (if (and (stringp option) (file-exists-p option))
+        (if (and option (file-exists-p option))    ; discard nil options
           (setq res option))))
     res))
 
@@ -649,7 +660,7 @@ value will combine both logics."
   (let (res)
     (while (and (not res) (consp options))
       (let ((option (pop options)))
-        (if (and (stringp option) (file-exists-p option))
+        (if (and option (file-exists-p option))    ; discard nil options
           (setq res option))))
     res))
 
@@ -660,7 +671,7 @@ value will combine both logics."
   (let (res)
     (while (and (not res) (consp options))
       (let ((option (pop options)))
-        (if (and (stringp option) (file-directory-p option))
+        (if (and option (file-directory-p option))    ; discard nil options
           (setq res option))))
     res))
 
@@ -680,23 +691,6 @@ See `mkdir' and `>>=path/join'."
   "Convert directory NAME to absolute canonical form."
   (when name
     (expand-file-name (file-name-as-directory name))))
-
-
-(defun >>=locate-user-emacs-file (&rest names)
-  "Return first found in NAMES absolute per-user Emacs-specific file-name.
-This function uses `locate-user-emacs-file' for each name until a proper value
-is found.  Each given name is processed with `substitute-in-file-name' to
-substitute used environment variables.  If no item is given, the name of
-standard Emacs initialization file is returned."
-  (let (res)
-    (while (and (null res) names)
-      (let ((item (locate-user-emacs-file
-                    (substitute-in-file-name (car names)))))
-        (if (file-exists-p item)
-          (setq res item)
-          ;; else
-          (setq names (cdr names)))))
-    (or res (locate-user-emacs-file "init.el" ".emacs"))))
 
 
 (defun >>=file-in-dir-tree (files base)
@@ -737,7 +731,7 @@ symbol, a string, or a `cons' like `(command . args)', nil items are just
 discarded."
   (setq options (>>=fix-rest-list options))
   (let (res)
-    (while (and options (null res))
+    (while (and options (null res))    ; discard nil options
       (when-let ((item (car options)))
         (if (consp item)
           (when-let (aux (executable-find (>>=str (car item))))

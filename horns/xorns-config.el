@@ -8,30 +8,33 @@
 
 ;;; Commentary:
 
-
 ;; This module manages user options configuration, custom initialization code,
 ;; and font settings.
 ;;
-;; The location for user options and custom initialization code is set to the
-;; first valid option of:
-;; - a file, or a directory, "{XDG_CONFIG_HOME}/xorns", or "~/.xorns";
-;; - a file inside `user-emacs-directory', "custom-{USER}.el", or "custom.el";
-;; - the Emacs initialization file (see `user-init-file').
+;; A folder (usually "{XDG_CONFIG_HOME}/xorns") can be used to separate these
+;; concepts into different files:
+;;   - "user-config.el" for the new `xorns' style user options, and
+;;   - "custom.el" to set `custom-file' variable, the standard customization
+;;     information of Emacs.
 ;;
-;; Recommended method is when the location is a directory, using one of the
-;; first two options, because it can contain multiple files:
-;; - "init.el" for initialization code;
-;; - "custom.el" for user options; and
-;; - several code files conforming to the "{MAJOR-MODE}-init.el" pattern.
+;; If your operating system does not comply with XDG standards, this folder
+;; can be located in the user home ("~/.xorns").
 ;;
-;; If the `>>=|font-settings' variable is not null, this module also
-;; configures the font settings using `xorns' approach for that (see
-;; `>>=set-font').
+;; For backward compatibility, you can still use a single file in one of the
+;; several locations:
+;;   1. {XDG_CONFIG_HOME}/xorns
+;;   2. ~/.xorns
+;;   3. `user-emacs-directory'/custom.el
+;;
+;; When using a folder, in addition to the two basic files, you can add
+;; initialization code for each of the major modes ("`major-mode'-init.el").
+;;
+;; If the `>>=|font-settings' variable is not nil, this module also configures
+;; the font settings using `xorns' approach for that (see `>>=set-font').
 
 
 ;;; Code:
 
-(require 'warnings)
 (require 'cus-edit)
 (eval-and-compile
   (require 'cl-lib)
@@ -40,6 +43,19 @@
 
 
 ;;; constants and variables
+
+(defvar >>=config/user-folder nil
+  "Location for user options and custom initialization code.
+If not nil, a folder is used for several files including the `custom-file'.")
+
+
+(defconst >>-!config/custom-file "custom.el"
+  "Name used for file storing customization information (see `custom-file').")
+
+
+(defconst >>-!config/user-file "user-config.el"
+  "Name used for file storing user options.")
+
 
 (defvar >>=|font-settings 'medium
   "Variable to configure the default font to be used at Emacs initialization.
@@ -66,32 +82,52 @@ See `>>=set-font' function for details about allowed values.")
 
 ;;; custom user options
 
-(defsubst >>-xdg-config-home ()
+(defsubst >>-config/xdg-home ()
   "Get XDG configuration directory."
   (>>=path/find-directory
     (getenv "XDG_CONFIG_HOME")
     (>>=path/join "~" ".config")))
 
 
-(defun >>-config-file-name ()
-  "Return target location for `custom-file'."
-  (let ((xdg (>>-xdg-config-home)))
+(defsubst >>-config/home-location ()
+  "Prospective location for `custom-file' using user home."
+  (let ((xdg (>>-config/xdg-home)))
     (expand-file-name
-      (if xdg "xorns" ".xorns")    ; file-exists-p  file-directory-p
+      (if xdg "xorns" ".xorns")
       (or xdg "~"))))
 
 
-(defun >>-copy-from-template ()
-  "Create new `custom-file' from template."
-  (let ((template
-          (expand-file-name
-            "user-config"
-            (>>=path/join
-              (>>=value-of >>=!xorns/lib-dir) "templates"))))
-    (when (file-exists-p template)
-      (copy-file template custom-file t)
-      (message ">>= new `custom-file' '%s' has been created." custom-file)
-      template)))
+(defun >>-config/settle-location ()
+  "Settle `custom-file' location and user options folder."
+  (let ((home-config (>>-config/home-location))
+        (cfname >>-!config/custom-file))
+    (cond
+      ((file-directory-p home-config)
+        (setq
+          >>=config/user-folder home-config
+          custom-file (expand-file-name cfname home-config)))
+      ((file-readable-p home-config)
+        (setq custom-file home-config))
+      (t
+        (setq
+          custom-file (expand-file-name cfname user-emacs-directory))))))
+
+
+(defsubst >>-config/user-file ()
+  "Get the value for the user options file if it exists and is readable."
+  (when >>=config/user-folder
+    (let ((res (expand-file-name >>-!config/user-file >>=config/user-folder)))
+      (when (file-readable-p res)
+        res))))
+
+
+(defun >>-config/settle-warning-minimum-level ()
+  "Settle `warning-minimum-level' to `:error' if not in debug mode."
+  (require 'warnings)
+  (when (and (not init-file-debug) (eq warning-minimum-level :warning))
+    (setq
+      warning-minimum-level :error
+      warning-minimum-log-level :error)))
 
 
 
@@ -322,33 +358,24 @@ of targets valid for `set-fontset-font', or a sequence of such forms."
 
 (defun >>-main/configuration ()
   "Execute main configuration."
-  (setq custom-file (>>-config-file-name))
-  (let ((exists (file-exists-p custom-file))
-         save)
-    (unless exists
-      (setq exists (>>-copy-from-template))
-      (let ((old (>>=locate-user-emacs-file "custom-${USER}.el" "custom.el")))
-        (when (file-exists-p old)
-          (message ">>= migrating old `custom-file' '%s'." old)
-          (>>=load old)
-          (setq save t))))
-    (when (and (not init-file-debug) (eq warning-minimum-level :warning))
-      (setq
-        warning-minimum-level :error
-        warning-minimum-log-level :error))
-    (when exists
+  (>>-config/settle-warning-minimum-level)
+  (>>-config/settle-location)
+  (let ((user-file (>>-config/user-file)))
+    (when user-file
+      (>>=load user-file)
+      (->? >>=settings/init)
+      (>>=font/configure))
+    (when (file-exists-p custom-file)
       (>>=load custom-file))
-    (->? >>=settings/init)
-    (>>=font/configure)
-    (when save
-      (if exists
-        (let ((make-backup-files nil))
-          (message ">>= saving migrated variables.")
-          (custom-save-all))
-        ;; else
-        (warn (concat ">>= migrated variables not saved because a template "
-                "was not found to create the new style `custom-file'; "
-                "Fix config file manually."))))
+    (unless user-file
+      ;; backward compatibility
+      (->? >>=settings/init)
+      (>>=font/configure)
+      (warn
+        (concat
+          ">>= user options file '%s' does not exists, "
+          "check the `xorns-config' module documentation.")
+        >>-!config/user-file))
     (->? >>=building-blocks/configuration)))
 
 

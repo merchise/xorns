@@ -1,5 +1,16 @@
 ;;; Xorns file for local user configurations -*- mode: emacs-lisp -*-
 
+;; Copyright (c) Merchise Autrement [~º/~]
+
+;; Author: Medardo Antonio Rodriguez <med@merchise.org>
+
+;; This file is not part of GNU Emacs.
+
+;;; Commentary:
+
+;; This file can be used as base to create "user-config.el" inside the `xorns'
+;; configuration folder.  See also the `xorns-config' module documentation.
+
 ;;; Code:
 
 (defun >>=settings/init ()
@@ -63,8 +74,3 @@ suitable for your configuration."
 (defun >>=user-code ()
   "User-code executed after initialization process."
   )
-
-
-
-;; Do not write anything past this comment.  This is where Emacs will
-;; auto-generate custom variable definitions.
