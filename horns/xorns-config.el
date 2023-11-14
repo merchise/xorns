@@ -26,8 +26,8 @@
 ;;   2. ~/.xorns
 ;;   3. `user-emacs-directory'/custom.el
 ;;
-;; When using a folder, in addition to the two basic files, you can add
-;; initialization code for each of the major modes ("`major-mode'-init.el").
+;; When using a folder, in addition to the two basic files, you can add code
+;; to be executed each time a major mode is entered ("`major-mode'-enter.el").
 ;;
 ;; If the `>>=|font-settings' variable is not nil, this module also configures
 ;; the font settings using `xorns' approach for that (see `>>=set-font').
@@ -136,14 +136,14 @@ Only return the name if the file is readable."
   (>>-config/expand-user-file >>-!config/user-file))
 
 
-(defsubst >>-config/mode-init-file ()
+(defsubst >>-config/mode-enter-file ()
   "Get the file name for a `major-mode' user initialization file."
-  (>>-config/expand-user-file (format "%s-init.el" major-mode)))
+  (>>-config/expand-user-file (format "%s-enter.el" major-mode)))
 
 
-(defun >>-config/run-mode-init-hooks ()
+(defun >>-config/run-mode-enter-hooks ()
   "This function is executed when entering a `text-mode' or a `prog-mode'."
-  (when-let ((name (>>-config/mode-init-file)))
+  (when-let ((name (>>-config/mode-enter-file)))
     (>>=load name)))
 
 
@@ -394,8 +394,8 @@ of targets valid for `set-fontset-font', or a sequence of such forms."
           "check the `xorns-config' module documentation.")
         >>-!config/user-file))
     (when >>=config/user-folder
-      (add-hook 'text-mode-hook '>>-config/run-mode-init-hooks)
-      (add-hook 'prog-mode-hook '>>-config/run-mode-init-hooks))
+      (add-hook 'text-mode-hook '>>-config/run-mode-enter-hooks)
+      (add-hook 'prog-mode-hook '>>-config/run-mode-enter-hooks))
     (->? >>=building-blocks/configuration)))
 
 
