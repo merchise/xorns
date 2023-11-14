@@ -82,6 +82,15 @@ See `>>=set-font' function for details about allowed values.")
 
 ;;; custom user options
 
+(defun >>-config/settle-warning-minimum-level ()
+  "Settle `warning-minimum-level' to `:error' if not in debug mode."
+  (require 'warnings)
+  (when (and (not init-file-debug) (eq warning-minimum-level :warning))
+    (setq
+      warning-minimum-level :error
+      warning-minimum-log-level :error)))
+
+
 (defsubst >>-config/xdg-home ()
   "Get XDG configuration directory."
   (>>=path/find-directory
@@ -113,21 +122,29 @@ See `>>=set-font' function for details about allowed values.")
           custom-file (expand-file-name cfname user-emacs-directory))))))
 
 
-(defsubst >>-config/user-file ()
-  "Get the value for the user options file if it exists and is readable."
+(defsubst >>-config/expand-user-file (name)
+  "Convert file NAME to absolute using `>>=config/user-folder' to expand it.
+Only return the name if the file is readable."
   (when >>=config/user-folder
-    (let ((res (expand-file-name >>-!config/user-file >>=config/user-folder)))
+    (let ((res (expand-file-name name >>=config/user-folder)))
       (when (file-readable-p res)
         res))))
 
 
-(defun >>-config/settle-warning-minimum-level ()
-  "Settle `warning-minimum-level' to `:error' if not in debug mode."
-  (require 'warnings)
-  (when (and (not init-file-debug) (eq warning-minimum-level :warning))
-    (setq
-      warning-minimum-level :error
-      warning-minimum-log-level :error)))
+(defsubst >>-config/user-file ()
+  "Get the value for the user options file if it exists and is readable."
+  (>>-config/expand-user-file >>-!config/user-file))
+
+
+(defsubst >>-config/mode-init-file ()
+  "Get the file name for a `major-mode' user initialization file."
+  (>>-config/expand-user-file (format "%s-init.el" major-mode)))
+
+
+(defun >>-config/run-mode-init-hooks ()
+  "This function is executed when entering a `text-mode' or a `prog-mode'."
+  (when-let ((name (>>-config/mode-init-file)))
+    (>>=load name)))
 
 
 
@@ -376,6 +393,9 @@ of targets valid for `set-fontset-font', or a sequence of such forms."
           ">>= user options file '%s' does not exists, "
           "check the `xorns-config' module documentation.")
         >>-!config/user-file))
+    (when >>=config/user-folder
+      (add-hook 'text-mode-hook '>>-config/run-mode-init-hooks)
+      (add-hook 'prog-mode-hook '>>-config/run-mode-init-hooks))
     (->? >>=building-blocks/configuration)))
 
 
