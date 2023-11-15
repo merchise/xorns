@@ -72,7 +72,7 @@ Similar to `set' but calling `custom-load-symbol' if needed."
   (unless
     (or
       (get symbol 'standard-value)
-      (memq (get symbol 'custom-autoload) '(nil noset)))
+      (car (memq (get symbol 'custom-autoload) '(nil noset))))
     (custom-load-symbol symbol))
   (set symbol value))
 
@@ -104,6 +104,8 @@ This has the same protocol as the `boundp' function."
 (defsubst >>=check-function (value &optional strict)
   "Check if VALUE is an existing function.
 When STRICT is not nil and VALUE is not a function, an error is issued."
+  (when (stringp value)
+    (setq value (intern-soft value)))
   (if (functionp value)
     value
     ;; else
@@ -167,16 +169,19 @@ For a lambda function, its documentation is returned if it exists."
     (load file silent silent)))
 
 
+(define-obsolete-function-alias
+  '>>=setup/command-check '>>=command/check "1.0")
 (defun >>=command/check (command)
   "Check if a system COMMAND is installed.
 Intended to find out if a feature that depends on the given command can be
 configured."
   ;; See `use-package-ensure-system-package' fo a more elaborated solution.
-  (or
-    (executable-find command)
-    (progn
-      (message ">>= warning: '%s' command is not installed" command)
-      nil)))
+  (when command
+    (or
+      (executable-find command)
+      (when init-file-debug
+        (warn ">>= warning: '%s' command is not installed" command)
+        nil))))
 
 
 
@@ -530,11 +535,11 @@ KEYWORDS).  KEYWORDS will be passed as the lexical environment argument."
           (error ">>= eval form '%s' must have two elements, not %s"
             value (length value))))
       (dolist (prefix `(,class ,name))
-        (let ((check (intern-soft (format "%s-normalize/%s" prefix key))))
-          (when (functionp check)
-            (setq
-              value (funcall check value keywords)
-              changed t))))
+        (when-let* ((name (format "%s-normalize/%s" prefix key))
+                    (check (>>=check-function name)))
+          (setq
+            value (funcall check value keywords)
+            changed t)))
       (if changed
         (plist-put keywords key value))))
   keywords)
