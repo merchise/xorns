@@ -86,12 +86,12 @@ default value is \"rg\".  Usually this variable is used with the function
   "Whether `fzf' extensions must be configured.
 Could be a boolean, or a string specifying the `fzf' command name, the
 default value is \"fzf\".  Usually this variable is used with the function
-`>>=setup/command-check'.")
+`>>=command/check'.")
+
 
 (use-package fzf
-  :when (>>=setup/command-check >>=|ext/fzf)
+  :when (>>=command/check >>=|ext/fzf)
   :ensure t)
-
 
 
 
