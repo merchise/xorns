@@ -1,0 +1,33 @@
+;;; python-mode-config.el --- Initialize python  -*- mode: emacs-lisp -*- -*- lexical-binding: t -*-
+
+;; Copyright (c) Merchise Autrement [~º/~]
+
+;; Author: Medardo Antonio Rodriguez <med@merchise.org>
+
+;;; Commentary:
+
+;; This is a template example for file "~/.config/xorns/python-mode-config.el"
+
+;;; Code:
+
+(message
+  ">>= entering python mode '%s'"
+  (expand-file-name (buffer-name)))
+
+
+(defun >>=config/on-load-python-mode ()
+  "This function will be executed when `python-mode' is first loaded."
+  (message
+    ">>= loading python mode '%s'"
+    (expand-file-name (buffer-name))))
+
+
+(defun >>=config/on-visit-python-mode-file ()
+  "This function will be executed any time a `python-mode' file is visited."
+  (message
+    ">>= visiting python mode file '%s'"
+    (expand-file-name (buffer-name))))
+
+
+(provide 'python-mode-config)
+;;; python-mode-config.el ends here

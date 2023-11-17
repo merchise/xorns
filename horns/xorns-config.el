@@ -27,7 +27,19 @@
 ;;   3. `user-emacs-directory'/custom.el
 ;;
 ;; When using a folder, in addition to the two basic files, you can add code
-;; to be executed each time a major mode is entered ("`major-mode'-enter.el").
+;; that will be executed every time a major mode is entered.  These files must
+;; have a name fulfilling "`major-mode'-config.el".  Normally, a `major-mode'
+;; configuration module is loaded only the first time a file is opened in this
+;; mode.  This behavior can be changed by assigning nil to the variable named
+;; ">>=config/`major-mode'-loaded", which is automatically created when the
+;; mode is initialized.  You can see a example for `python-mode' in the
+;; "xorns/horns/templates" directory.
+;;
+;; Optionally, a `major-mode' configuration module can define two functions:
+;;   - ">>=config/on-load-`major-mode'": Executed after every time a mode
+;;     configuration module is loaded.
+;;   - ">>=config/on-visit-`major-mode'-file": executed every time a file is
+;;     visited in the configured mode.
 ;;
 ;; If the `>>=|font-settings' variable is not nil, this module also configures
 ;; the font settings using `xorns' approach for that (see `>>=set-font').
@@ -136,19 +148,38 @@ Only return the name if the file is readable."
   (>>-config/expand-user-file >>-!config/user-file))
 
 
-(defsubst >>-config/mode-enter-file ()
-  "Get the file name for a `major-mode' user initialization file."
-  (>>-config/expand-user-file (format "%s-enter.el" major-mode)))
+(defsubst >>-config/check-major-mode-load ()
+  "Check if there is a `major-mode' user code file should be loaded."
+  (let ((symbol (intern (format ">>=config/%s-loaded" major-mode))))
+    (if (boundp symbol)
+      (not (symbol-value symbol))
+      ;; else
+      (set symbol t))))    ; always load first time
+
+
+(defsubst >>-config/major-mode-load-function ()
+  "Function to be executed any time a `major-mode' is loaded."
+  (>>=check-function (format ">>=config/on-load-%s" major-mode)))
+
+
+(defsubst >>-config/major-mode-visit-file-function ()
+  "Function to be executed any time a `major-mode' file is visited."
+  (>>=check-function (format ">>=config/on-visit-%s-file" major-mode)))
+
+
+(defsubst >>-config/mode-file ()
+  "Get the file name for a `major-mode' code hook."
+  (>>-config/expand-user-file (format "%s-config.el" major-mode)))
 
 
 (defun >>-config/run-mode-enter-hooks ()
   "This function is executed when entering a `text-mode' or a `prog-mode'."
-  (when-let ((name (>>-config/mode-enter-file)))
-    (>>=load name)))
+  (when-let ((name (>>-config/mode-file)))
+    (when (>>-config/check-major-mode-load)
+      (>>=load name)
+      (>>=call? (>>-config/major-mode-load-function)))
+    (>>=call? (>>-config/major-mode-visit-file-function))))
 
-
-
-;;; font configuration
 
 (defun >>-display-graphic-p ()
   "Return non-nil if the display-system has been initialized."
