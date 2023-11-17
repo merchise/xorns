@@ -32,12 +32,12 @@
 ;; configuration module is loaded only the first time a file is opened in this
 ;; mode.  This behavior can be changed by assigning nil to the variable named
 ;; ">>=config/`major-mode'-loaded", which is automatically created when the
-;; mode is initialized.  You can see a example for `python-mode' in the
-;; "xorns/horns/templates" directory.
+;; mode is initialized.  You can see an example for `python-mode' user
+;; configuration in the directory "xorns/horns/templates".
 ;;
 ;; Optionally, a `major-mode' configuration module can define two functions:
-;;   - ">>=config/on-load-`major-mode'": Executed after every time a mode
-;;     configuration module is loaded.
+;;   - ">>=config/on-load-`major-mode'": Executed after a mode configuration
+;;     module is loaded.
 ;;   - ">>=config/on-visit-`major-mode'-file": executed every time a file is
 ;;     visited in the configured mode.
 ;;
