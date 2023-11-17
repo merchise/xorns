@@ -25,17 +25,19 @@
 
 ;;; general
 
-(defmacro ->? (func &rest args)
-  "Call FUNC with our remaining ARGS, only if it is bound."
-  `(when (fboundp ',func)
+(defmacro ->? (function &rest arguments)
+  "Call FUNCTION when it is bound, passing remaining ARGUMENTS.
+This is a safe macro that prints a debug message if `init-file-debug' is not
+nil."
+  `(when (fboundp ',function)
      (if init-file-debug
        (message ">>= calling: %s"
-         (or (documentation ',func) ,(symbol-name func))))
+         (or (documentation ',function) ,(symbol-name function))))
      (condition-case-unless-debug err
-       (,func ,@args)
-       (error
+       (,function ,@arguments)
+       (erarguments
          (message ">>= error in '%s': %s\n"
-           ',(symbol-name func) (error-message-string err))))))
+           ',(symbol-name function) (error-message-string err))))))
 
 
 (defmacro >>=on-debug-message (format-string &rest args)
@@ -55,6 +57,13 @@ report the identity of the enclosed body."
        (>>=on-debug-message ,header)
        ,@body)
      (error (message (concat ">>= error on (" ,header "): %s") err))))
+
+
+(defsubst >>=call? (function &rest arguments)
+  "Call FUNCTION if it is not void, passing remaining ARGUMENTS to it.
+Return nil when FUNCTION is not defined."
+  (when (fboundp function)
+    (apply function arguments)))
 
 
 (defun >>=var-value (variable &optional default)
