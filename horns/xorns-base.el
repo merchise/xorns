@@ -29,8 +29,9 @@
 
 ;;; Code:
 
-(require 'use-package)
-(require 'xorns-tools)
+(eval-and-compile
+  (require 'use-package)
+  (require 'xorns-tools))
 
 
 
@@ -61,36 +62,21 @@ to configure for yourself: see `save-buffer' function for more information.")
   "New width for `package' name column (use nil for standard behaviour).")
 
 
-(defcustom >>=|frame-undecorated t
-  "Default (init-time value) of the frame parameter `undecorated'."
-  :type '(boolean)
-  :group 'xorns)
-
-
 
 ;; Default base packages (always configured)
 
+(use-package subr
+  :no-require t
+  :init
+  ;; Replace "yes|not" prompt for simpler "y|n"
+  (fset 'yes-or-no-p 'y-or-n-p))
+
+
 (use-package startup
-  :defer
+  :no-require t
   :custom
   (inhibit-startup-screen t)
-  (initial-scratch-message nil)
-  :init
-  ;; Replace `yes|not' commands for simpler `[yn]'
-  (defalias 'yes-or-no-p 'y-or-n-p)
-  ;; TODO: Move this to another place
-  (when >>=|user-mail-address-template
-    (if (eq >>=|user-mail-address-template t)
-      (setq >>=|user-mail-address-template "${USER}@merchise.org"))
-    (setq user-mail-address
-      (substitute-env-vars >>=|user-mail-address-template))))
-
-
-(defun toggle-frame-decoration (&optional frame)
-  "Toggle FRAME undecorated parameter."
-  (interactive)
-  (let ((decoration (frame-parameter frame 'undecorated)))
-    (set-frame-parameter nil 'undecorated (not decoration))))
+  (initial-scratch-message nil))
 
 
 (use-package frame
@@ -107,19 +93,34 @@ to configure for yourself: see `save-buffer' function for more information.")
     '((internal-border-width . 0)
        (fullscreen . maximized)
        (fullscreen-restore . maximized)))
-  (set-frame-parameter nil 'undecorated >>=|frame-undecorated))
+  (set-frame-parameter nil 'undecorated t))
 
 
 (use-package window
-  :preface
-  (eval-when-compile
-    (declare-function count-windows 'window)
-    (declare-function window-tree 'window)
-    (declare-function window-state-get 'window)
-    (declare-function delete-other-windows 'window)
-    (declare-function window-state-put 'window)
-    (declare-function split-window-horizontally 'window)
-    (declare-function split-window-vertically 'window))
+  :init
+  (defconst >>-window-coach-mode-keys
+    '((shrink-window "<up>" "p")
+      (enlarge-window "<down>" "n")
+      (enlarge-window-horizontally "<right>" "f")
+      (shrink-window-horizontally "<left>" "b")
+      (other-window "o")
+      (>>=window/split-toggle "t")
+      (>>=window-coach-mode "C-g" "<RET>")))
+
+  (define-minor-mode >>=window-coach-mode
+    "A simple window-coach minor mode."
+    :init-value nil
+    :lighter " Window-Coach"
+    :global t
+    :keymap
+      (let ((map (make-sparse-keymap)))
+        (dolist (item >>-window-coach-mode-keys)
+          (let ((fn (car item))
+                (keys (cdr item)))
+            (dolist (key keys)
+              (define-key map (kbd key) fn))))
+        map)
+    :group 'window)
 
   (defun >>=window/split-toggle (&optional arg)
     "Toggle horizontal/vertical layout of 2 windows (use ARG to restore)."
@@ -142,52 +143,30 @@ to configure for yourself: see `save-buffer' function for more information.")
       ;; else
       (warn "Only can toggle two windows!")))
 
-  (defun >>-window-coach/done ()
-    (interactive)
-    (setq >>=window-coach nil)
-    (message ">>= window-coach done."))
-
-  (defvar >>=window-coach-map
-    (let ((map (make-keymap))
-           (commands
-             '((shrink-window "<up>" "p")
-                (enlarge-window "<down>" "n")
-                (enlarge-window-horizontally "<right>" "f")
-                (shrink-window-horizontally "<left>" "b")
-                (other-window "o")
-                (>>=window/split-toggle "t")
-                (>>-window-coach/done "C-g" "q"))))
-      (dolist (cmd commands)
-        (let ((fn (car cmd))
-               (keys (cdr cmd)))
-          (dolist (key keys)
-            (define-key map (kbd key) fn))))
-      map))
-
-  (define-minor-mode >>=window-coach
-    "A simple window-coach minor mode."
-    :init-value nil
-    :lighter " Window-Coach"
-    :keymap >>=window-coach-map
-    :global t
-    :group 'window
-    (if (<= (count-windows) 1)
-      (progn
-        (setq >>=window-coach nil)
-        (message ">>= only root frame exists, abort."))
-      ;; else
-      (message ">>= use arrow-keys or p/n/f/b/o/t/q to manage windows.")))
   :custom
   (split-width-threshold 120)
   :bind
-  ("C-c C-`" . >>=window-coach)
+  ("C-c C-`" . >>=window-coach-mode)
   (:map ctl-x-4-map
     ("t" . >>=window/split-toggle)))
 
 
+(use-package windmove
+  :custom
+  (windmove-wrap-around t)
+  :config
+  (windmove-default-keybindings 'ctrl))
+
+
+(use-package winner
+  :config
+  (winner-mode +1))
+
+
 (use-package files
-  :bind (("C-c f /" . revert-buffer)
-         ("C-c f n" . normal-mode))
+  :bind
+  ("C-c f /" . revert-buffer)
+  ("C-c f n" . normal-mode)
   :hook
   (before-save . delete-trailing-whitespace)
   :custom
@@ -205,18 +184,6 @@ to configure for yourself: see `save-buffer' function for more information.")
       version-control t)
     ; else
     (setq make-backup-files nil)))
-
-
-(use-package windmove
-  :custom
-  (windmove-wrap-around t)
-  :config
-  (windmove-default-keybindings 'ctrl))
-
-
-(use-package winner
-  :config
-  (winner-mode +1))
 
 
 (use-package xt-mouse
@@ -248,7 +215,7 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 (use-package mwheel
   :custom
-  ;; Use the trackpade to scroll the buffer horizontally
+  ;; Use the track-pad to scroll the buffer horizontally
   (mouse-wheel-flip-direction t)
   (mouse-wheel-tilt-scroll t))
 

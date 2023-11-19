@@ -49,7 +49,6 @@
   (require 'term))
 
 (require 'xorns-tools)
-(require 'xorns-init)
 (require 'xorns-core)
 (require 'xorns-xterm)
 

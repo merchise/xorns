@@ -193,6 +193,11 @@ configured."
         nil))))
 
 
+(defsubst >>=init-time ()
+  "Initialization time in seconds for this session."
+  (float-time (time-subtract after-init-time before-init-time)))
+
+
 
 ;;; string - symbol conversion
 
@@ -853,7 +858,7 @@ Argument nil or omitted means kill the current buffer."
 (defun >>-criteria-mode-y-or-n-p (criteria mode)
   "Version of `y-or-n-p' caching first time for CRITERIA/MODE pair.
 Used for `>>=check-major-mode' when CRITERIA is a semantic identity."
-  (when (bound-and-true-p >>=xorns-initialized)
+  (when after-init-time
     ;; always nil if Emacs is not yet initialized
     (let* ((pair (format "%s/%s" mode criteria))
            (cached (assoc-string pair >>-criteria-mode-cache)))

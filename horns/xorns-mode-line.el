@@ -29,7 +29,6 @@
   (require 'smart-mode-line nil 'noerror))
 
 (require 'xorns-packages)
-(require 'xorns-init)
 
 
 (defvar >>=|mode-line/kind nil

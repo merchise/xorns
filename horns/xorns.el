@@ -18,19 +18,40 @@
 
 ;;; Code:
 
-
 (eval-and-compile
-  (require 'server)
-  (require 'use-package nil 'noerror))
+  (require 'xorns-tools))
 
-(require 'xorns-init)
+(require 'xorns-packages)    ; must be loaded first any module using ELPA
 
 
-
-;; Configuration Variables
+(when init-file-debug
+  (setq message-log-max 10000))
+
+
+(defconst >>=!window-manager
+  (or
+    (getenv "DESKTOP_SESSION")
+    (getenv "XDG_SESSION_DESKTOP")
+    (getenv "GDMSESSION")
+    (getenv "XDG_CURRENT_DESKTOP"))
+  "Name of started Desktop Window Manager.")
+
+
+(defconst >>=!emacs-as-wm
+  (when
+    (and
+      >>=!window-manager
+      (string-match-p "\\(emacs\\|exwm\\)" >>=!window-manager))
+    >>=!window-manager)
+  "Name of started Desktop Window Manager when EXWM is started.")
+
 
 (defvar >>=|enable-server nil
   "If non-nil, start an Emacs server if one is not already running.")
+
+
+(>>=progn "user configuration setting"
+  (require 'xorns-config))
 
 
 (>>=progn "base initialization"
@@ -46,16 +67,14 @@
   'emacs-startup-hook
   (defun >>-startup-hook ()
     (->? >>=user-code)
-    (setq >>=xorns-initialized
-      (float-time (time-subtract after-init-time before-init-time)))
     (require 'xorns-gc)    ; Configure GC strategy
-    ;; (>>=font/configure)
     (run-with-timer 1 nil
-      'message ">>= xorns initialized in %.1f seconds." >>=xorns-initialized)
-    ))
+      'message ">>= xorns initialized in %.1f seconds." (>>=init-time))))
 
 
 (when (and >>=|enable-server (not noninteractive))
+  (eval-and-compile
+    (require 'server))
   (unless (or (daemonp) (server-running-p))
     (message ">>= starting server...")
     (server-start)))

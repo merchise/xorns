@@ -23,7 +23,6 @@
 ;;; Code:
 
 (require 'xorns-tools)
-(require 'xorns-init)
 
 (eval-and-compile
   (require 'use-package nil 'noerror))
@@ -95,7 +94,7 @@ configure defined strategy in `>>=|gc/strategy' variable."
 
 
 (with-eval-after-load 'xorns-gc
-  (if >>=xorns-initialized
+  (if after-init-time
     (>>-gc/strategy-configure)
     ;; else
     (warn ">>= `xorns-gc' must be configured after initialization process")))
