@@ -258,9 +258,8 @@ A process NAME can bee given as an optional argument."
       "Xorns configuration for EXWM (replaces `exwm-config-example')."
       ;; We don't call `exwm-config-misc' to disable dialog boxes and
       ;; hourglass pointer here using because in `xorns' this is done in
-      ;; `early-init.el' or `/xorns-core.el' if Emacs version < 27.  Also,
-      ;; `exwm-config-ido' is not used because we configure IDO, if demanded,
-      ;; in `xorns-minibuffer.el'.
+      ;; `early-init.el'.  Also, `exwm-config-ido' is not used because we
+      ;; configure IDO, if demanded, in `xorns-minibuffer.el'.
       (>>=exwm/configure-system-tray)
       (unless (get 'exwm-workspace-number 'saved-value)
         (setq exwm-workspace-number 4))

@@ -846,6 +846,39 @@ Argument nil or omitted means kill the current buffer."
       (if region
         (setq deactivate-mark t)))))
 
+(defun >>=filter-buffer-list-by-mode (mode &optional frame)
+  "Return a list of all live buffers filtered by MODE.
+If the optional arg FRAME is a frame, return the buffer list in the
+proper order for that frame: the buffers shown in FRAME come first,
+followed by the rest of the buffers."
+  (delq nil
+    (mapcar
+      (lambda (buffer)
+        (when (eq (buffer-local-value 'major-mode buffer) mode)
+          buffer))
+      (buffer-list frame))))
+
+
+(defun >>=scratch/get-buffer-create ()
+  "Copied from `startup--get-buffer-create-scratch'."
+  (or
+    (get-buffer "*scratch*")
+    (with-current-buffer (get-buffer-create "*scratch*")
+      (set-buffer-major-mode (current-buffer))
+      (current-buffer))))
+
+
+(defun >>=scratch/force (&optional arg)
+  "Switch to `*scratch*` buffer, creating a new one if needed.
+An optional argument ARG could be given to delete other windows; if
+`0' also reset `default-directory' to `xorns' default."
+  (interactive "P")
+  (switch-to-buffer-other-window (>>=scratch/get-buffer-create))
+  (when (= (prefix-numeric-value arg) 0)
+    (>>=set-default-directory))
+  (when arg
+    (delete-other-windows)))
+
 
 
 ;;; modes
@@ -948,6 +981,31 @@ Returns nil, if an error is signaled."
     (condition-case nil
       (apply 'process-lines executable args)
       (error nil))))
+
+
+
+;;; Xorns Lisp configuration files
+
+(defun >>=config/read-lisp (file)
+  "Read a configuration FILE into a Lisp form.
+Each line must be an independent form."
+  (if (file-readable-p file)
+    (with-temp-buffer
+      (insert-file-contents file)
+      (goto-char (point-min))
+      (let (res)
+        (ignore-errors
+          (while (not (eobp))
+            (setq res (cons (read (current-buffer)) res))))
+        (nreverse res)))))
+
+
+(defun >>=config/write-lisp (file form)
+  "Write a Lisp FORM into a configuration FILE.
+Each line will be an independent form."
+  (with-temp-buffer
+    (mapc (lambda (line) (insert (format "%S\n" line))) form)
+    (write-file file)))
 
 
 
