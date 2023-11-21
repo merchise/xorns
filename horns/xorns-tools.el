@@ -204,7 +204,8 @@ configured."
 (defun >>=prefix (string size)
   "Return the STRING prefix of SIZE characters."
   (if (> size 0)
-    (if (> size (length string)) string
+    (if (> size (length string))
+      string
       ;; else
       (substring string 0 size))
     ;; else
@@ -239,7 +240,6 @@ nil is returned."
 
 (defsubst >>=str-trim (string &optional trim-left trim-right)
   "Trim a STRING using `string-trim' but returning nil on an empty result.
-
 Arguments TRIM-LEFT and TRIM-RIGHT are used verbatim."
   (when string
     (let ((res (string-trim string trim-left trim-right)))
@@ -248,9 +248,9 @@ Arguments TRIM-LEFT and TRIM-RIGHT are used verbatim."
 
 (defun >>=safe-replace (regexp rep source)
   "Replace all occurrences for REGEXP with REP in SOURCE.
-
-SOURCE could be either a string or a symbol, return a new value of the same
-type containing the replacements.  See `replace-regexp-in-string' function."
+Argument SOURCE could be either a string or a symbol, return a new value of
+the same type containing the replacements.  See `replace-regexp-in-string'
+function."
   (let* ((is-symbol (symbolp source))
          (value (if is-symbol (symbol-name source) source))
          (res (replace-regexp-in-string regexp rep value)))
@@ -426,7 +426,6 @@ Function FN must take two arguments but return a single value, not a pair."
 
 (defun >>=split-list (pred xs)
   "Split list XS into a `cons' of two lists (HEAD . TAIL).
-
 HEAD is all successive items of XS for which (PRED item) returns nil.  TAIL is
 a list of all items remaining starting from the first for which (PRED item)
 returns a non-nil value."
@@ -561,7 +560,6 @@ KEYWORDS).  KEYWORDS will be passed as the lexical environment argument."
 
 (defun >>=plist-rename-aliases (target &rest aliases)
   "Rename a set of ALIASES in a TARGET property-list.
-
 ALIASES is given as an association-list of (CURRENT . NEW) pairs.  It could
 result in a pseudo property-list that needs additional normalization with
 `>>=plist-fix'."
@@ -580,7 +578,7 @@ result in a pseudo property-list that needs additional normalization with
 
 
 
-;;; value verifiers
+;;; value validators
 
 (defun >>=validate-major-mode (mode)
   "Verify a `major-mode' symbol.
@@ -845,6 +843,7 @@ Argument nil or omitted means kill the current buffer."
       (buffer-substring-no-properties begin end)
       (if region
         (setq deactivate-mark t)))))
+
 
 (defun >>=filter-buffer-list-by-mode (mode &optional frame)
   "Return a list of all live buffers filtered by MODE.

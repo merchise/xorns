@@ -19,9 +19,6 @@
 ;; - Set `ibuffer' groups.
 ;;
 ;; - Functionality to force `*scratch*' buffer.
-;;
-;; Some common-systems level buffer manipulation utilities could be found on
-;; `xorns-core' module.
 
 ;; Enjoy!
 
@@ -32,7 +29,6 @@
   (require 'xorns-tools))
 
 (require 'ibuf-ext)
-(require 'xorns-core)
 
 
 (use-package ibuffer-vc

@@ -31,8 +31,7 @@
 
 (eval-and-compile
   (require 'term)
-  (require 'xorns-tools)
-  (require 'xorns-core))
+  (require 'xorns-tools))
 
 
 
@@ -259,6 +258,16 @@ When TERM is given, only check buffers of that kind."
       (>>-xterm/create-buffer term buffer-name))))
 
 
+(defun >>-xterm/find-buffer-by-mode (mode)
+  "Find best buffer matching MODE."
+  (when mode
+    (let* ((buffers (>>=filter-buffer-list-by-mode mode))
+           (one (car buffers))
+           (two (nth 1 buffers)))
+      ;; if two or more buffers are found, do not select current.
+      (if (and two (eq one (current-buffer))) two one))))
+
+
 (defun >>-xterm/get-alt-buffer (term)
   "Get alternative buffer for a TERM."
   (let ((file-name (plist-get >>-xterm/state :file-name)))
@@ -266,10 +275,8 @@ When TERM is given, only check buffers of that kind."
       (find-file-noselect file-name)
       ;; else
       (or
-        (>>=find-buffer
-          :mode (car (rassq term >>-xterm-modes)))
-        (>>=find-buffer
-          :mode (plist-get >>-xterm/state :mode))
+        (>>-xterm/find-buffer-by-mode (car (rassq term >>-xterm-modes)))
+        (>>-xterm/find-buffer-by-mode (plist-get >>-xterm/state :mode))
         (>>=scratch/get-buffer-create)))))
 
 
