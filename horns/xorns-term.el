@@ -39,17 +39,13 @@
 
 ;;; Code:
 
-;; 95  variable ‘eshell-mode-map’ -
-;; 109 function ‘eshell/alias’ -
-
 (eval-and-compile
-  (require 'esh-mode)
-  (require 'em-alias)
-  (require 'use-package nil 'noerror)
-  (require 'term))
+  (require 'esh-io)
+  (require 'em-alias)    ; eshell/alias
+  (require 'term)
+  (require 'use-package)
+  (require 'xorns-tools))
 
-(require 'xorns-tools)
-(require 'xorns-xterm)
 
 
 ;;; Common setup
@@ -82,6 +78,7 @@ buffer is killed automatically unless this variable is not nil.")
   (progn
     (eval-when-compile
       (require 'em-term)
+      (require 'esh-mode)
       (declare-function eshell-cmpl-initialize 'em-cmpl))
 
     (defun >>-eshell/first-time ()
@@ -106,12 +103,9 @@ buffer is killed automatically unless this variable is not nil.")
   (eshell-first-time-mode . >>-eshell/first-time)
   (eshell-mode . >>-eshell/init)
   :config
-  (progn
-    (require 'esh-io)
-    (require 'em-alias)
-    (eshell/alias "l" "ls -lh $1")
-    (eshell/alias "ll" "ls -alhF $1")
-    (eshell/alias "la" "ls -A $1")))
+  (eshell/alias "l" "ls -lh $1")
+  (eshell/alias "ll" "ls -alhF $1")
+  (eshell/alias "la" "ls -A $1"))
 
 
 (use-package comint
@@ -137,15 +131,15 @@ buffer is killed automatically unless this variable is not nil.")
     (term-send-raw-string "\C-k")
     (kill-line))
   :bind
-  (:map term-mode-map
-    ("C-c C-t" . term-char-mode))
   (:map term-raw-map
-    ("C-c C-t" . term-line-mode)
     ("C-y" . term-paste)
     ("C-k" . >>-term/raw-kill-line))
   :custom
   (term-input-autoexpand t)
   :config
+  (let ((key (vconcat term-escape-char (kbd "C-t"))))
+    (define-key term-mode-map key 'term-char-mode)
+    (define-key term-raw-map key 'term-line-mode))
   (unless >>=|term/preserve-finished-buffer
     (add-hook 'term-exec-hook '>>-term/kill-finished-buffer)))
 

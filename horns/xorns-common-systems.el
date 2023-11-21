@@ -26,7 +26,7 @@
 (require 'xorns-simple)
 (require 'xorns-buffers)
 (require 'xorns-dired)
-(require 'xorns-term)
+(require 'xorns-xterm)
 (require 'xorns-text)
 (require 'xorns-prog)
 (require 'xorns-prog-extra)
