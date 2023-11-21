@@ -239,16 +239,16 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   :bind
   ;; we use 'C-c h' because 'C-x c' is similar to `kill-emacs' ('C-x C-c')
   ;; maybe use -> (global-unset-key (kbd "C-x c")
-  (("C-c h" . helm-command-prefix)
-   ("M-Y" . helm-show-kill-ring)
-   ("C-h SPC" . helm-all-mark-rings)
-   ("C-x C-f" . helm-find-files)
-   ("C-x b" . >>=helm/multi)
-   :map minibuffer-local-map
-   ("C-c C-l" . helm-minibuffer-history)
-   :map helm-map
-   ("<C-M-left>" . helm-previous-source)
-   ("<C-M-right>" . helm-next-source))
+  ("C-c h" . helm-command-prefix)
+  ("M-Y" . helm-show-kill-ring)
+  ("C-h SPC" . helm-all-mark-rings)
+  ("C-x C-f" . helm-find-files)
+  ("C-x b" . >>=helm/multi)
+  (:map minibuffer-local-map
+    ("C-c C-l" . helm-minibuffer-history))
+  (:map helm-map
+    ("<C-M-left>" . helm-previous-source)
+    ("<C-M-right>" . helm-next-source))
   :config
   (>>=remap "M-x" helm-M-x "M-X")
   (helm-mode +1))

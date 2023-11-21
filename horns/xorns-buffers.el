@@ -26,6 +26,7 @@
 ;;; Code:
 
 (eval-and-compile
+  (require 'use-package)
   (require 'xorns-tools))
 
 (require 'ibuf-ext)
@@ -49,9 +50,9 @@
     (ibuffer-visit-buffer single)
     (kill-buffer "*Ibuffer*"))
   :bind
-  (("C-x C-b" . ibuffer)
-   :map ibuffer-mode-map
-   ("M-RET" . >>=ibuffer-visit-buffer))
+  ([remap list-buffers] . ibuffer)
+  (:map ibuffer-mode-map
+    ("M-RET" . >>=ibuffer-visit-buffer))
   :custom
   (ibuffer-saved-filter-groups    ; check `ibuffer-saved-filters'
     '(("Normal"

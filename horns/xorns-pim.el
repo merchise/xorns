@@ -123,8 +123,9 @@ Valid only if `org' is included in `>>=|pim/packages'.")
           (deft-open-file file nil switch)
           (kill-buffer "*Deft*")))))
   :bind
-  (("<f12>" . deft)
-    (:map deft-mode-map ("M-RET" . >>=deft/open-file)))
+  ("<f12>" . deft)
+  (:map deft-mode-map
+    ("M-RET" . >>=deft/open-file))
   :config
   (unless (file-directory-p deft-directory)
     (setq deft-directory

@@ -21,7 +21,10 @@
 
 (require 'outline)
 
-(require 'xorns-tools)
+(eval-and-compile
+  (require 'use-package)
+  (require 'xorns-tools))
+
 (require 'xorns-buffers)
 
 ;; TODO: Migrate this

@@ -93,8 +93,8 @@ This variable is only used when `dired' functions are adviced, see variable
   (put 'dired-find-alternate-file 'disabled nil)    ; re-enable it for "M-RET"
   :bind
   (:map ctl-x-map
-    ("C-d" . dired)
-   :map dired-mode-map
+    ("C-d" . dired))
+  (:map dired-mode-map
     ("M-RET" . dired-find-alternate-file))
   :custom
   (dired-listing-switches "-alhF")

@@ -137,12 +137,12 @@ buffer is killed automatically unless this variable is not nil.")
     (term-send-raw-string "\C-k")
     (kill-line))
   :bind
-  ((:map term-mode-map
-     ("C-c C-t" . term-char-mode))
-   (:map term-raw-map
-     ("C-c C-t" . term-line-mode)
-     ("C-y" . term-paste)
-     ("C-k" . >>-term/raw-kill-line)))
+  (:map term-mode-map
+    ("C-c C-t" . term-char-mode))
+  (:map term-raw-map
+    ("C-c C-t" . term-line-mode)
+    ("C-y" . term-paste)
+    ("C-k" . >>-term/raw-kill-line))
   :custom
   (term-input-autoexpand t)
   :config
