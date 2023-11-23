@@ -88,14 +88,13 @@ buffer is killed automatically unless this variable is not nil.")
     (defun >>-eshell/init ()
       "Initialize eshell."
       (eshell-cmpl-initialize)
-      (define-key eshell-mode-map
-        (kbd "C-c C-d") 'quit-window)
+      (keymap-set eshell-mode-map "C-c C-d" 'quit-window)
       (when (bound-and-true-p helm-mode)
         (require 'helm-eshell)
-        (define-key eshell-mode-map
-          [remap eshell-pcomplete] 'helm-esh-pcomplete)
-        (define-key eshell-mode-map
-          [remap eshell-list-history] 'helm-eshell-history))))
+        (keymap-set eshell-mode-map
+          "<remap> <eshell-pcomplete>" 'helm-esh-pcomplete)
+        (keymap-set eshell-mode-map
+          "<remap> <eshell-list-history>" 'helm-eshell-history))))
   :custom
   (eshell-history-size 1024)
   (eshell-hist-ignoredups t)
@@ -115,10 +114,8 @@ buffer is killed automatically unless this variable is not nil.")
     "Initialize comint."
     (when (bound-and-true-p helm-mode)
       (require 'helm-eshell)
-      (define-key comint-mode-map
-        (kbd "C-c C-l") 'helm-comint-input-ring)
-      (define-key comint-mode-map
-        (kbd "M-s f") 'helm-comint-prompts-all)))
+      (keymap-set comint-mode-map "C-c C-l" 'helm-comint-input-ring)
+      (keymap-set comint-mode-map "M-s f" 'helm-comint-prompts-all)))
   :hook
   (comint-mode . >>-comint/init))
 
@@ -137,9 +134,9 @@ buffer is killed automatically unless this variable is not nil.")
   :custom
   (term-input-autoexpand t)
   :config
-  (let ((key (vconcat term-escape-char (kbd "C-t"))))
-    (define-key term-mode-map key 'term-char-mode)
-    (define-key term-raw-map key 'term-line-mode))
+  (let ((key (concat (key-description term-escape-char) " C-t")))
+    (keymap-set term-mode-map key 'term-char-mode)
+    (keymap-set term-raw-map key 'term-line-mode))
   (unless >>=|term/preserve-finished-buffer
     (add-hook 'term-exec-hook '>>-term/kill-finished-buffer)))
 

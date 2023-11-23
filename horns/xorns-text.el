@@ -171,9 +171,9 @@
 
 ;; For outline minor modes
 ;; TODO: This is defined by standard mode inner "C-c@'
-(define-key outline-minor-mode-map (kbd "C-=") 'outline-show-subtree)
-(define-key outline-minor-mode-map (kbd "M-=") 'outline-hide-subtree)
-(define-key outline-minor-mode-map (kbd "C-+") '>>=toggle-subtree)
+(keymap-set outline-minor-mode-map "C-=" 'outline-show-subtree)
+(keymap-set outline-minor-mode-map "M-=" 'outline-hide-subtree)
+(keymap-set outline-minor-mode-map "C-+" '>>=toggle-subtree)
 
 
 (provide 'xorns-text)

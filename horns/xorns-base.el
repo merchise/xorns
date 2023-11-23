@@ -118,7 +118,7 @@ to configure for yourself: see `save-buffer' function for more information.")
           (let ((fn (car item))
                 (keys (cdr item)))
             (dolist (key keys)
-              (define-key map (kbd key) fn))))
+              (keymap-set map key fn))))
         map)
     :group 'window)
 
@@ -224,8 +224,9 @@ to configure for yourself: see `save-buffer' function for more information.")
 ;; https://wiki.archlinux.org/index.php/Emacs#Dead-accent_keys_problem:_.27.3Cdead-acute.3E_is_undefined.27
 (use-package iso-transl
   :demand t
-  :config
-  (define-key key-translation-map (kbd "M-[") 'iso-transl-ctl-x-8-map))
+  :bind
+  (:map key-translation-map
+    ("M-[" . iso-transl-ctl-x-8-map)))
 
 
 ;; browse UNIX manual pages

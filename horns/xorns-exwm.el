@@ -58,9 +58,8 @@
 ;;; Code:
 
 (eval-and-compile
-  (require 'use-package nil 'noerror))
-
-(require 'xorns-tools)
+  (require 'use-package)
+  (require 'xorns-tools))
 
 
 
@@ -334,12 +333,12 @@ A process NAME can bee given as an optional argument."
     (mapcan
       (lambda (pair) (list (car pair) (>>-url-browser (cdr pair))))
       >>=|exwm/url-keys))
-  (let ((suspend-key ?\C-z))
-    ;; Prefix key to send next literally to the application.  Default value
-    ;; is `C-z' because is used for `suspend-frame' in terminals.
+  (let* ((suspend-key ?\C-z))
+    ;; Prefix key to send next key-press literally to the application.
+    ;; Default value is `C-z' because is used for `suspend-frame' in terminals.
     (add-to-list 'exwm-input-prefix-keys suspend-key)
-    (define-key exwm-mode-map (vector suspend-key)
-      #'exwm-input-send-next-key))
+    (keymap-set exwm-mode-map
+      (key-description (vector suspend-key)) 'exwm-input-send-next-key))
   (setq exwm-input-simulation-keys
     `(
        ;; general, movement
@@ -432,7 +431,7 @@ A process NAME can bee given as an optional argument."
     "<C-s-left>" '>>-exwm/ws-switch-left
     "<C-s-right>" '>>-exwm/ws-switch-right)
   (let ((map (make-sparse-keymap)))
-    (define-key map [mode-line mouse-1] 'exwm-workspace-switch)
+    (keymap-set map "<mode-line> <mouse-1>" 'exwm-workspace-switch)
     (setq global-mode-string
       (nconc global-mode-string
         `(""
@@ -441,8 +440,7 @@ A process NAME can bee given as an optional argument."
              local-map ,map
              face bold
              mouse-face mode-line-highlight
-             help-echo "EXWM workspace.\nclick: switch/add/delete.")))))
-  )
+             help-echo "EXWM workspace.\nclick: switch/add/delete."))))))
 
 
 (provide 'xorns-exwm)

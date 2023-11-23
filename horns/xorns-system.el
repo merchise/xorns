@@ -184,9 +184,6 @@ be needed in the future..")
   :when >>=|treemacs/enable
   :ensure t
   :defer t
-  ;; :init
-  ;; (with-eval-after-load 'winum
-  ;;   (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
   :bind
   ("C-<tab>"    . treemacs-select-window)
   ("C-x t 1"    . treemacs-delete-other-windows)
