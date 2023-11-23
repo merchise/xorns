@@ -326,9 +326,7 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
     ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
     ([remap xref-find-references] . lsp-ui-peek-find-references))
   :config
-  (defadvice lsp-ui-imenu (after hide-lsp-ui-imenu-mode-line activate)
-    (setq mode-line-format nil))
-  )
+  (advice-add 'lsp-ui-imenu :after (lambda () (setq mode-line-format nil))))
 
 
 

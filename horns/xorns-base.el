@@ -237,18 +237,18 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 
 (when >>=|package/column-width
-  (defadvice package-refresh-contents
-    (around >>-package-refresh-contents activate)
+  (defun >>-package-refresh-contents (&optional _async)
     "Wide the 'Package' column."
     (interactive)
-    (if (eq major-mode 'package-menu-mode)
+    (when (eq major-mode 'package-menu-mode)
       (let ((pkg-col (elt tabulated-list-format 0)))
         (when (equal (car pkg-col) "Package")
           (let ((tail (cdr pkg-col)))
             (setcar tail >>=|package/column-width)
             (setcdr pkg-col tail)))))
-    ;; super
-    ad-do-it))
+    ;; (apply org-func args)
+    )
+  (advice-add 'package-refresh-contents :before '>>-package-refresh-contents))
 
 
 (use-package transient

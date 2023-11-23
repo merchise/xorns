@@ -114,20 +114,10 @@ This variable is only used when `dired' functions are adviced, see variable
     ;; else
     (when >>=|dired/force-group-directories-first
       ;; See https://www.emacswiki.org/emacs/DiredSortDirectoriesFirst
-      (defadvice dired-readin
-        (after >>-dired-after-updating-hook first () activate)
-        "Sort dired listings with directories first before adding marks."
-        (>>-dired-readin-sort))
-      (defadvice dired-insert-subdir
-        (after >>-dired-after-updating-hook first () activate)
-        "Sort dired listings with directories first before adding marks."
-        (>>-dired-readin-sort))
-      (defadvice dired-revert
-        (before >>-dired-revert first () activate)
-        "When reread the Dired buffer, clear `>>-dired/sorted-directories'."
-        (setq >>-dired/sorted-directories nil))
-      ))
-  )
+      (advice-add 'dired-readin :after '>>-dired-readin-sort)
+      (advice-add 'dired-insert-subdir :after '>>-dired-readin-sort)
+      (advice-add 'dired-revert :before
+        (lambda () (setq >>-dired/sorted-directories nil))))))
 
 
 
@@ -263,22 +253,24 @@ are concatenated.  See `dired-maybe-insert-subdir'."
   (>>=dired-omit-mode))
 
 
-(defadvice dired-single-buffer (around >>-dired-single-buffer activate)
-  "Select source directory item position when navigating up."
+(defun >>-dired-single-buffer (org-dired-single-buffer &rest args)
+  "Advice function ORG-DIRED-SINGLE-BUFFER (using same ARGS).
+Select source directory item position when navigating up."
   (interactive)
   (let ((org (dired-current-directory)))
     (setq >>-dired/sorted-directories nil)
     ;; super
-    ad-do-it
+    (apply org-dired-single-buffer args)
     ;;
     (let ((dst (dired-current-directory)))
       (if (string-prefix-p dst org)
         (let* ((targets (split-string (substring org (length dst)) "/"))
-                (aux (car targets))
-                (target (if (string= aux "") (cadr targets) aux)))
+               (aux (car targets))
+               (target (if (string= aux "") (cadr targets) aux)))
           (goto-char (point-min))
           (if (null (>>=dired-search-forward target))
             (dired-next-line 4)))))))
+(advice-add 'dired-single-buffer :around '>>-dired-single-buffer)
 
 
 (bind-keys :map dired-mode-map
