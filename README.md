@@ -92,6 +92,7 @@ to define functions that are triggered by events related to a mode (see the
   `date` to `2023`.
 - Check why `custom-file` is loaded twice in debug mode (module
   `xorns-config`).
+- Upgrade `xorns` to start using `package-vc` after Emacs v29.
 
 
 ### Look for better options to show a System Tray for EXWM

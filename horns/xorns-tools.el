@@ -78,6 +78,7 @@ Return nil when FUNCTION is not defined."
 (defun >>=set (symbol value)
   "Set SYMBOL to the given VALUE.
 Similar to `set' but calling `custom-load-symbol' if needed."
+  ;; TODO: Check `setopt' macro in module "cus-edit.el"
   (unless
     (or
       (get symbol 'standard-value)
