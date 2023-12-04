@@ -11,6 +11,10 @@
 ;; This library defines several basic and general utilities that can be used
 ;; in any context.
 
+;; The last section allows redefining the mechanism for setting global
+;; keybindings.  This is useful for libraries that need to do that
+;; (e.g. `exwm-input-set-key' if you use `exwm').
+
 ;; Enjoy!
 
 
@@ -155,6 +159,9 @@ function."
 
 
 ;;; functions
+
+(define-error '>>=quit ">>= xorns quit" 'quit)
+
 
 (defmacro ->? (function &rest arguments)
   "Call FUNCTION when it is bound, passing remaining ARGUMENTS.
@@ -1170,45 +1177,114 @@ packages like `exwm'."
   (define-key (current-global-map) key command))
 
 
-(defsubst >>-kbd (key)
-  "Convert KEY to its internal representation but first trying a string."
-  (if (vectorp key) key (kbd key)))
+(define-obsolete-function-alias '>>-kbd '>>=key-parse "0.9.7")
+(defsubst >>=key-parse (key)
+  "Convert KEY to the internal Emacs key representation (a vector).
+Similar to `kbd' function with a main extension: if KEY is already a `vector',
+return the value unchanged.  The result of this function can be used in any of
+the functions in the `define-key' family.  For an inverse of this, see
+`>>=key-desc'."
+  (if (vectorp key)
+    key
+    ;; else
+    (let ((res (kbd key)))
+      (if (stringp res)
+        (vconcat res)
+        ;; else
+        res))))
 
 
-(defsubst >>-command (command)
-  "Check a COMMAND always recognizing the symbols as valid."
-  (if (symbolp command) command (>>=cast-function command 'validate)))
+(defsubst >>=key-desc (key)
+  "Convert an internal KEY representation to a valid description (a string).
+Similar to `key-description' function with a main extension: if KEY is already
+valid (see `key-valid-p'), return the value unchanged.  The result of this
+function can be used in any of the functions in the `keymap-set' family.  For
+an inverse of this, see `>>=key-parse'."
+  (cond
+    ((vectorp key)
+      (key-description key))
+    ((key-valid-p key)
+      key)
+    (t
+      (key-description key))))
 
 
-(defsubst >>-key-pair (key command)
-  "Validate a KEY/COMMAND and convert it to a `cons' tuple."
-  (cons (>>-kbd key) (>>-command command)))
+(defsubst >>=key-binding (key)
+  "Return the binding for command KEY in current keymaps.
+Similar to `key-binding', but parsing the KEY using `>>=key-parse'."
+  (key-binding (>>=key-parse key)))
 
 
-(defun >>=global-set-keys (&rest pairs)
-  "Bind on the current global keymap [KEY COMMAND] PAIRS."
-  (>>=plist-do (key command pairs)
-    (funcall >>-global-set-key (>>-kbd key) (>>-command command))))
+(defsubst >>=key-normalize (key)
+  "Safe convert KEY to the internal Emacs key representation."
+  (condition-case nil
+    (>>=key-parse key)
+    (error key)))
+
+
+(defun >>=bind-global-key (key command)
+  "Give KEY a global binding as COMMAND.
+
+This function is just a wrapper to `global-set-key' to allow libraries to use
+their own mechanism (see `advice-add') to set global keys, for example
+`exwm-input-set-key' when configuring `exwm'.
+
+KEY is an internal Emacs key representation (a vector), but because extended
+`>>=key-parse' function is used, KEY could also be a string that satisfies
+`key-valid-p' predicate.
+
+Unless you store a key sequence as a variable value, avoid using this function
+directly, instead use the `>>=bind-global-keys' macro."
+  (global-set-key (>>=key-parse key) command))
+
+
+(defmacro >>=bind-global-keys (&rest pairs)
+  "Bind on the current global keymap [KEY COMMAND] PAIRS.
+
+PAIRS can be in plain list format or association list members (see
+`>>=alist-parse').
+
+KEY can be a string satisfying `key-valid-p' or a vector for an internal Emacs
+key-sequence representation.  Keys are converted to vectors at compile time.
+
+COMMAND can be a quoted or unquoted symbol, a lambda definition, or any valid
+Lisp expression returning a command.  To use the value of a variable as a
+COMMAND, use the function `identity'.  The compiler normalizes or solves
+COMMAND values at compile time unless an error occurs.
+
+Example:
+  (let ((add-function '>>=xterm/add))
+    (>>=bind-global-keys
+      [3 116] >>=main-term
+      [142606452] '>>=main-term
+      \"C-`\" (let ((aux \">>=\")) (intern (format \"%sxterminal\" aux)))
+      \"C-~\" (lambda () (interactive) (>>=xterm/add))
+      (\"s-?\" . (identity add-function))))"
+  (macroexp-progn
+    (mapcar
+      (lambda (pair)
+        `(>>=bind-global-key
+           ,(>>=key-normalize (car pair))
+           ,(>>=normalize-function (cdr pair))))
+      (>>=alist-parse pairs))))
 
 
 (defmacro >>=remap (key command alt-key)
   "Give KEY a global binding as COMMAND.
 In this case, KEY is a standard `key-binding', whose original command will
-receive the alternative ALT-KEY binding.  See also `>>=remap*'"
-  `(let ((kbind (>>-kbd ,key)))
-     (>>=global-set-keys
-       kbind ',command
-       ,alt-key (key-binding kbind))))
+receive the alternative ALT-KEY binding."
+  `(>>=bind-global-keys
+     ,key ,command
+     ,alt-key (>>=key-binding ,key)))
 
 
 (defmacro >>=remap* (key command alt-key)
   "Give KEY a global binding as COMMAND.
 In this case KEY is NOT a `key-binding' but a base command, which will receive
-the alternative ALT-KEY binding.  See also `>>=remap'"
-  `(progn
-     (>>=global-set-keys
-       [remap ,key] ',command
-       ,alt-key ',key)))
+the alternative ALT-KEY binding."
+  `(>>=bind-global-keys
+     `[remap ,key] ,command
+     ,alt-key ,key))
 
 
 (provide 'xorns-tools)
