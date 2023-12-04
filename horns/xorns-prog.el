@@ -166,12 +166,12 @@ the function `>>=python/locate-env'.")
       '(seq
          (* (| " " space))
          (group (seq (+ any) ".py"))
-         ":"
+         any
          (group (+ digit))
-         ":"
+         any
          (group (+ digit))
          (* (| " " space))
-         "-"
+         any
          (* (| " " space))
          "error:")))
 
@@ -180,12 +180,12 @@ the function `>>=python/locate-env'.")
       '(seq
          (* (| " " space))
          (group (seq (+ any) ".py"))
-         ":"
+         any
          (group (+ digit))
-         ":"
+         any
          (group (+ digit))
          (* (| " " space))
-         "-"
+         any
          (* (| " " space))
          "warning:")))
 
