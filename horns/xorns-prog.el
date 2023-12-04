@@ -193,8 +193,23 @@ the function `>>=python/locate-env'.")
 (use-package python
   :defer t
   :preface
+
+  (progn
+    ;; Error detection with mypy, pyright, and ruff
+    (add-to-list 'compilation-error-regexp-alist '>>=|pyright-error)
+    (add-to-list 'compilation-error-regexp-alist '>>=|pyright-warning)
+
+    (add-to-list
+      'compilation-error-regexp-alist-alist
+      (cons '>>=|pyright-error (cons >>=|pyright-error-rx '(1 2 3 2 1))))
+
+    (add-to-list
+      'compilation-error-regexp-alist-alist
+      (cons '>>=|pyright-warning (cons >>=|pyright-warning-rx '(1 2 3 1 1)))))
+
   (defun -python-mode-setup()
     (outline-minor-mode)
+
     (when-let ((venv-path (>>=python/locate-env (>>=project-root))))
       ;; TODO: Check `lsp-pylsp-get-pyenv-environment' function, and
       ;; `lsp-after-initialize-hook' in Python: `lsp-pylsp-after-open-hook'.
@@ -210,19 +225,6 @@ the function `>>=python/locate-env'.")
           (message
             "Setting Python (virtual) environment '%s' in (%s) modules"
             venv-path (string-join modules ", "))))
-
-      ;; Error detection with mypy, pyright, and ruff
-      (add-to-list 'compilation-error-regexp-alist '>>=|pyright-error)
-      (add-to-list 'compilation-error-regexp-alist '>>=|pyright-warning)
-
-      (add-to-list
-        'compilation-error-regexp-alist-alist
-        (cons '>>=|pyright-error (cons >>=|pyright-error-rx '(1 2 3 2 1))))
-
-      (add-to-list
-        'compilation-error-regexp-alist-alist
-        (cons '>>=|pyright-error (cons >>=|pyright-warning-rx '(1 2 3 1 1))))
-
 
       ;; lsp-pyrigth does its own lookup with the function
       ;; lsp-pyright-locate-venv; so we don't need to do anything here for it.
