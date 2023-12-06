@@ -85,8 +85,8 @@ to configure for yourself: see `save-buffer' function for more information.")
   (frame-resize-pixelwise t)
   :config
   ;; Kill `suspend-frame' and start Emacs maximized
-  (global-unset-key (kbd "C-z"))
-  (global-unset-key (kbd "C-x C-z"))
+  (keymap-global-unset "C-z")
+  (keymap-global-unset "C-x C-z")
   (unless (frame-parameter nil 'fullscreen)
     (toggle-frame-maximized))
   (modify-all-frames-parameters
@@ -192,10 +192,9 @@ to configure for yourself: see `save-buffer' function for more information.")
   ;; Enable mouse support when running in a console
   (require 'mouse)
   (xterm-mouse-mode +1)
-  (global-set-key [mouse-4]
-    (lambda () (interactive) (scroll-down 1)))
-  (global-set-key [mouse-5]
-    (lambda () (interactive) (scroll-up 1))))
+  (>>=bind-global-keys
+    [mouse-4] (lambda () (interactive) (scroll-down 1))
+    [mouse-5] (lambda () (interactive) (scroll-up 1))))
 
 
 ;; Fix the clipboard in terminal or daemon Emacs (non-GUI)

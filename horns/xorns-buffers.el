@@ -35,12 +35,13 @@
 (use-package buffer-move
   :ensure t
   :demand t
+  :commands buf-move-up buf-move-down buf-move-left buf-move-right
   :config
-  (>>=global-set-keys
-    "<C-S-up>" 'buf-move-up
-    "<C-S-down>" 'buf-move-down
-    "<C-S-left>" 'buf-move-left
-    "<C-S-right>" 'buf-move-right))
+  (>>=bind-global-keys
+    "<C-S-up>" buf-move-up
+    "<C-S-down>" buf-move-down
+    "<C-S-left>" buf-move-left
+    "<C-S-right>" buf-move-right))
 
 
 (use-package ibuffer-vc
@@ -203,9 +204,11 @@
 
 ;;; Misc
 
-(global-set-key (kbd "C-x <f2>") 'rename-buffer)
-(global-set-key (kbd "C-c M-s") '>>=scratch/force)
-;; (global-set-key (kbd "C-c h") '>>=toggle-header-mode-line)
+(>>=bind-global-keys
+  "C-x <f2>" rename-buffer
+  "C-c M-s" >>=scratch/force
+  ;; "C-c h" >>=toggle-header-mode-line
+  )
 
 (add-hook 'after-init-hook '>>=set-default-directory)
 

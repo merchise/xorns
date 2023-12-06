@@ -141,7 +141,7 @@ has an ‘.elc’ file; otherwise only those that needs recompilation."
 
 
 (if >>=|bots/activation-key
-  (>>=global-set-keys (kbd >>=|bots/activation-key) '>>=bots/menu))
+  (>>=bind-global-key >>=|bots/activation-key '>>=bots/menu))
 
 
 (provide 'xorns-bots)

@@ -274,7 +274,7 @@ Select source directory item position when navigating up."
 
 
 (bind-keys :map dired-mode-map
-  ([return] . dired-single-buffer)
+  ("<return>" . dired-single-buffer)
   ([M-S-down] . dired-single-buffer)
   ([M-down] . dired-single-buffer)
   ("^" . dired-single-up-directory)

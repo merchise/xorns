@@ -255,7 +255,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
 (use-package helm
   :when (eq >>=|minibuffer/completing-framework 'helm)
   :ensure t
-  :functions helm-mini helm-multi-files helm-mode
+  :functions helm-mini helm-multi-files helm-mode helm-M-x
   :preface
   (defun >>=helm/multi (&optional arg)
     "Use `helm-mini' if nil, otherwise call `helm-multi-files'."
@@ -266,7 +266,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
       (helm-multi-files)))
   :bind
   ;; we use 'C-c h' because 'C-x c' is similar to `kill-emacs' ('C-x C-c')
-  ;; maybe use -> (global-unset-key (kbd "C-x c")
+  ;; maybe use -> (keymap-global-unset "C-x c")
   ("C-c h" . helm-command-prefix)
   ("M-Y" . helm-show-kill-ring)
   ("C-h SPC" . helm-all-mark-rings)
@@ -285,6 +285,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
 (use-package swiper-helm
   :when (eq >>=|minibuffer/completing-framework 'helm)
   :ensure t
+  :commands swiper-helm
   :config
   (>>=remap "C-s" swiper-helm "C-S-s"))
 

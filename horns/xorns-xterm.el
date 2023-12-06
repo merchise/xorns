@@ -527,19 +527,19 @@ The defined command is a wrapper around `>>=xterminal'."
   :mode python)
 
 
-(>>=global-set-keys
-  "C-c t" '>>=main-term
-  "s-M-t" '>>=main-term
-  [?\C-`] '>>=xterminal
-  [?\C-~] '>>=xterm/add
-  "s-/" '>>=xterminal
-  "s-?" '>>=xterm/add
-  "C-M-`" '>>=xterm/select)
+(>>=bind-global-keys
+  "C-c t" >>=main-term
+  "s-M-t" >>=main-term
+  "C-`" >>=xterminal
+  "C-~" >>=xterm/add
+  "s-/" >>=xterminal
+  "s-?" >>=xterm/add
+  "C-M-`" >>=xterm/select)
 
 
 (when (bound-and-true-p >>=!emacs-as-wm)
   ;; Like on i3 window manager
-  (>>=global-set-keys "<s-return>" '>>=main-term))
+  (>>=bind-global-keys "<s-return>" >>=main-term))
 
 
 (provide 'xorns-xterm)
