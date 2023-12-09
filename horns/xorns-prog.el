@@ -14,12 +14,28 @@
 ;;; Code:
 
 (eval-and-compile
+  (require 'compile)
   (require 'xorns-text)
   (require 'xorns-tools)
   (require 'xorns-buffers)
   (require 'hideshow)
   (require 'transient)
   (require 'use-package nil 'noerror))
+
+
+
+;;; Tools
+
+(defun >>=compiler/add-match-errors (key regexp &rest args)
+  "Add an element to the compilation error match association list.
+KEY must be a symbol, REGEXP could be a string or a sexp syntax to be
+converted by `rx-to-string', ARGS are valid definitions for (FILE [LINE COLUMN
+TYPE HYPERLINK HIGHLIGHT...]) as defined in `compilation-error-regexp-alist'
+variable documentation."
+  (unless (stringp regexp)
+    (setq regexp (rx-to-string regexp)))
+  (add-to-list 'compilation-error-regexp-alist key)
+  (add-to-list 'compilation-error-regexp-alist-alist `(,key ,regexp ,@args)))
 
 
 
@@ -162,51 +178,42 @@ the function `>>=python/locate-env'.")
 
 
 (defconst >>=|pyright-error-rx
-    (rx-to-string
-      '(seq
-         (* (| " " space))
-         (group (seq (+ any) ".py"))
-         any
-         (group (+ digit))
-         any
-         (group (+ digit))
-         (* (| " " space))
-         any
-         (* (| " " space))
-         "error:")))
+  '(seq
+     (* (| " " space))
+     (group (seq (+ any) ".py"))
+     any
+     (group (+ digit))
+     any
+     (group (+ digit))
+     (* (| " " space))
+     any
+     (* (| " " space))
+     "error:"))
+
 
 (defconst >>=|pyright-warning-rx
-    (rx-to-string
-      '(seq
-         (* (| " " space))
-         (group (seq (+ any) ".py"))
-         any
-         (group (+ digit))
-         any
-         (group (+ digit))
-         (* (| " " space))
-         any
-         (* (| " " space))
-         "warning:")))
+  '(seq
+     (* (| " " space))
+     (group (seq (+ any) ".py"))
+     any
+     (group (+ digit))
+     any
+     (group (+ digit))
+     (* (| " " space))
+     any
+     (* (| " " space))
+     "warning:"))
+
+
+(>>=compiler/add-match-errors
+  '>>=|pyright-error >>=|pyright-error-rx 1 2 3 2 1)
+(>>=compiler/add-match-errors
+  '>>=|pyright-warning >>=|pyright-warning-rx 1 2 3 1 1)
 
 
 (use-package python
   :defer t
   :preface
-
-  (progn
-    ;; Error detection with mypy, pyright, and ruff
-    (add-to-list 'compilation-error-regexp-alist '>>=|pyright-error)
-    (add-to-list 'compilation-error-regexp-alist '>>=|pyright-warning)
-
-    (add-to-list
-      'compilation-error-regexp-alist-alist
-      (cons '>>=|pyright-error (cons >>=|pyright-error-rx '(1 2 3 2 1))))
-
-    (add-to-list
-      'compilation-error-regexp-alist-alist
-      (cons '>>=|pyright-warning (cons >>=|pyright-warning-rx '(1 2 3 1 1)))))
-
   (defun -python-mode-setup()
     (outline-minor-mode)
 
