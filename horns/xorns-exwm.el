@@ -253,6 +253,21 @@ A process NAME can bee given as an optional argument."
       "Run when window class is updated."
       (>>-exwm/rename-new-buffer))
 
+    (defun >>-exwm/switch-to-workspace-functions ()
+      "Generate (KEY . switch-function) pairs."
+      (mapcar
+        (lambda (idx)
+          (let ((key (kbd (format "s-%d" idx)))
+                (name (intern (format ">>=exwm/switch-workspace-%s" idx)))
+                (doc (format "Switch to workspace '%s'." idx)))
+            (cons key
+              (defalias name
+                (lambda ()
+                  (interactive)
+                  (exwm-workspace-switch-create (car `(,idx))))
+                 doc))))
+        (number-sequence 0 9)))
+
     (defun >>-exwm/config ()
       "Xorns configuration for EXWM (replaces `exwm-config-example')."
       ;; We don't call `exwm-config-misc' to disable dialog boxes and
@@ -264,20 +279,8 @@ A process NAME can bee given as an optional argument."
         (setq exwm-workspace-number 4))
       (unless (get 'exwm-input-global-keys 'saved-value)
         (setq exwm-input-global-keys
-          `(
-             ([?\s-&] . >>=exwm/start-command)
-             ,@(mapcar    ; 's-N' . switch to workspace
-                 (lambda (i)
-                   `(,(kbd (format "s-%d" i)) .
-                      (lambda ()
-                        "Switch to workspace."
-                        (interactive)
-                        (exwm-workspace-switch-create ,i)
-                        ;; fix problem with focus in some X apps like `brave'
-                        (exwm-input--set-focus (frame-root-window))
-                        )))
-                 (number-sequence 0 9)))
-          ))
+          `(([?\s-&] . >>=exwm/start-command)
+            ,@(>>-exwm/switch-to-workspace-functions))))
       (unless (get 'exwm-input-simulation-keys 'saved-value)
         (setq exwm-input-simulation-keys
           '(([?\C-b] . [left])
@@ -400,11 +403,6 @@ A process NAME can bee given as an optional argument."
   :preface
   (declare-function exwm-workspace-switch 'exwm-workspace)
 
-  (defun >>-exwm/switch-workspace-0 ()
-    "Move to first workspace."
-    (interactive)
-    (exwm-workspace-switch 0))
-
   (defun >>-exwm/ws-switch-left ()
     "Move to left workspace. "
     (interactive)
@@ -425,8 +423,8 @@ A process NAME can bee given as an optional argument."
   (exwm-layout-show-all-buffers t)
   :config
   (>>=global-set-keys
-    "s-." '>>-exwm/switch-workspace-0    ; TODO: change this
-    "s-`" '>>-exwm/switch-workspace-0
+    "s-." '>>=exwm/switch-workspace-0    ; TODO: change this
+    "s-`" '>>=exwm/switch-workspace-0
     "s-w" 'exwm-workspace-switch
     "<C-s-left>" '>>-exwm/ws-switch-left
     "<C-s-right>" '>>-exwm/ws-switch-right)
