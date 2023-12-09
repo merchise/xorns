@@ -15,18 +15,6 @@
 
 ;;; Code:
 
-(eval-and-compile
-  (require 'helm-mode nil 'noerror)
-  (require 'helm-for-files nil 'noerror)
-  (require 'helm-buffers nil 'noerror)
-  (require 'vertico nil 'noerror)
-  (require 'counsel nil 'noerror)
-  (require 'consult-xref nil 'noerror)
-  (require 'consult-register nil 'noerror)
-  (require 'ivy nil 'noerror)
-  (require 'ido nil 'noerror)
-  (require 'ido-completing-read+ nil 'noerror))
-
 (require 'xorns-tools)
 
 
@@ -63,6 +51,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   :when
   (let ((cf >>=|minibuffer/completing-framework))
     (or (null cf) (eq cf 'ido+)))
+  :commands ido-everywhere
   :custom
   (ido-auto-merge-work-directories-length -1)
   (ido-auto-merge-delay-time 1.5)
@@ -74,6 +63,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
 
 (use-package ido-completing-read+
   :when (eq >>=|minibuffer/completing-framework 'ido+)
+  :commands ido-ubiquitous-mode
   :ensure t
   :config
   (ido-ubiquitous-mode +1))
@@ -122,6 +112,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   :when (eq >>=|minibuffer/completing-framework 'ivy)
   :ensure t
   :demand t
+  :commands counsel-mode counsel-yank-pop
   :preface
   (defun >>-counsel-yank-pop (&optional arg)
     "xorns replacement for `counsel-yank-pop' (ARG is used as in original)."
@@ -144,6 +135,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
 
 (use-package ivy
   :when (eq >>=|minibuffer/completing-framework 'ivy)
+  :functions ivy-mode
   :ensure t
   :custom
   (ivy-count-format "(%d/%d) ")
@@ -157,62 +149,97 @@ Always considered true when `>>=|minibuffer/completing-framework' is
 
 
 (use-package consult
-  :ensure t
+  ;; based on example configuration - https://github.com/minad/consult
   :when (eq >>=|minibuffer/completing-framework 'vertico)
+  :functions consult-xref consult-register-window consult-register-format
+  :ensure t
   :bind
-  ;; C-c bindings (mode-specific-map)
-  ("C-c h" . consult-history)
-  ("C-c m" . consult-mode-command)
-  ("C-c b" . consult-bookmark)
-  ;; C-x bindings (ctl-x-map)
-  ([remap repeat-complex-command] . consult-complex-command)
-  ("C-x b" . consult-buffer)
-  ("C-x 4 b" . consult-buffer-other-window)
-  ("C-x 5 b" . consult-buffer-other-frame)
-  ;; Other custom bindings
-  ([remap yank-pop] . consult-yank-pop)
-  ;; M-g bindings (goto-map)
-  ([remap goto-line] . consult-goto-line)
-  ("M-g i" . consult-imenu)
-  ("M-g I" . consult-imenu-multi)
+  (
+    ("C-S-c M-x" . consult-mode-command)
+    ("C-S-c h" . consult-history)
+    ("C-S-c k" . consult-kmacro)
+    ("C-S-c m" . consult-man)
+    ("C-S-c i" . consult-info)
+    ([remap Info-search] . consult-info)
+    ("C-x M-:" . consult-complex-command)     ; repeat-complex-command
+    ("C-x b" . consult-buffer)                ; switch-to-buffer
+    ("C-x 4 b" . consult-buffer-other-window) ; switch-to-buffer-other-window
+    ("C-x 5 b" . consult-buffer-other-frame)  ; switch-to-buffer-other-frame
+    ("C-x t b" . consult-buffer-other-tab)    ; switch-to-buffer-other-tab
+    ("C-x r b" . consult-bookmark)            ; bookmark-jump
+    ("C-x p b" . consult-project-buffer)      ; project-switch-to-buffer
+    ("M-#" . consult-register-load)
+    ("M-'" . consult-register-store)          ; abbrev-prefix-mark (unrelated)
+    ("C-M-#" . consult-register)
+    ("M-y" . consult-yank-pop)                ; yank-pop
+    ("M-g e" . consult-compile-error)
+    ("M-g f" . consult-flymake)               ; Alternative: consult-flycheck
+    ("M-g g" . consult-goto-line)             ; goto-line
+    ("M-g M-g" . consult-goto-line)           ; goto-line
+    ("M-g o" . consult-outline)
+    ("M-g m" . consult-mark)
+    ("M-g k" . consult-global-mark)
+    ("M-g i" . consult-imenu)
+    ("M-g I" . consult-imenu-multi)
+    ("M-s d" . consult-find)                  ; alt: consult-fd
+    ("M-s c" . consult-locate)
+    ("M-s g" . consult-grep)
+    ("M-s G" . consult-git-grep)
+    ("M-s r" . consult-ripgrep)
+    ("M-s l" . consult-line)
+    ("M-s L" . consult-line-multi)
+    ("M-s k" . consult-keep-lines)
+    ("M-s u" . consult-focus-lines)
+    ("M-s e" . consult-isearch-history)
+    :map isearch-mode-map
+    ("M-e" . consult-isearch-history)     ; isearch-edit-string
+    ("M-s e" . consult-isearch-history)   ; isearch-edit-string
+    ("M-s l" . consult-line)              ; needed to detect isearch
+    ("M-s L" . consult-line-multi)        ; needed to detect isearch
+    :map minibuffer-local-map
+    ("M-s" . consult-history)             ; next-matching-history-element
+    ("M-r" . consult-history)             ; previous-matching-history-element
+  )
   :hook
   (completion-list-mode . consult-preview-at-point-mode)
   :init
   (setq
-    register-preview-delay 0
+    register-preview-delay 0.5
     register-preview-function #'consult-register-format)
   (advice-add #'register-preview :override #'consult-register-window)
   (setq
+    ;; use consult to select xref locations with preview
     xref-show-xrefs-function #'consult-xref
     xref-show-definitions-function #'consult-xref)
   :config
-  (with-no-warnings
-    (consult-customize
-      consult-theme
-      :preview-key '(:debounce 0.2 any)
-      consult-ripgrep
-      consult-git-grep
-      consult-grep
-      consult-bookmark
-      consult-recent-file
-      consult-xref
-      consult--source-bookmark
-      consult--source-recent-file
-      consult--source-file-register
-      consult--source-project-recent-file
-      :preview-key (kbd "M-.")))
-  (setq
-    consult-narrow-key "<"
-    consult-project-function #'>>=project-root)
-  )
+  (declare-function consult--customize-put 'consult)    ; avoid warning
+  (consult-customize
+    consult-theme
+    :preview-key '(:debounce 0.2 any)
+    consult-ripgrep
+    consult-git-grep
+    consult-grep
+    consult-bookmark
+    consult-recent-file
+    consult-xref
+    consult--source-bookmark
+    consult--source-file-register
+    consult--source-recent-file
+    consult--source-project-recent-file
+    ;; :preview-key "M-."
+    :preview-key '(:debounce 0.4 any))
+  (setq consult-narrow-key "<")    ; "C-+"
+  (setq consult-project-function #'>>=project-root)
+ )
 
 
 (use-package vertico
   :when (eq >>=|minibuffer/completing-framework 'vertico)
   :ensure t
+  :commands vertico-mode
   :custom
   (vertico-cycle t)
-  :init
+  :config
   (vertico-mode +1))
 
 
@@ -228,6 +255,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
 (use-package helm
   :when (eq >>=|minibuffer/completing-framework 'helm)
   :ensure t
+  :functions helm-mini helm-multi-files helm-mode
   :preface
   (defun >>=helm/multi (&optional arg)
     "Use `helm-mini' if nil, otherwise call `helm-multi-files'."

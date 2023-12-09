@@ -99,7 +99,7 @@ default value is \"fzf\".  Usually this variable is used with the function
 
 (use-package dictionary
   :bind
-  ("M-#" . dictionary-lookup-definition)
+  ("C-c M-#" . dictionary-lookup-definition)
   ("C-c w" . dictionary-search))
 
 
@@ -107,9 +107,9 @@ default value is \"fzf\".  Usually this variable is used with the function
 ;;; Processes and commands
 
 (use-package proced
-  :unless (eq system-type 'darwin)    ;; unavailable on OS-X
+  :unless (eq system-type 'darwin)    ; unavailable on OS-X
   :bind
-  ("C-x p" . proced))
+  ("C-c M-p" . proced))
 
 
 
