@@ -86,6 +86,7 @@
   :init
   (use-package phi-search :ensure t)
   :bind
+  ;; TODO: Check documentation for `mc/add-cursor-on-click'
   ("C-S-c C-S-c" . mc/mark-all-dwim)
   ("C->" . mc/mark-next-like-this)
   ("C-<" . mc/mark-previous-like-this)
