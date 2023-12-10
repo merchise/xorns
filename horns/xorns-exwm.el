@@ -385,18 +385,6 @@ A process NAME can bee given as an optional argument."
   (require 'xorns-linux))
 
 
-(use-package buffer-move
-  :ensure t
-  :after exwm-input
-  :demand t
-  :config
-  (>>=global-set-keys
-    "<C-S-up>" 'buf-move-up
-    "<C-S-down>" 'buf-move-down
-    "<C-S-left>" 'buf-move-left
-    "<C-S-right>" 'buf-move-right))
-
-
 (use-package exwm-workspace
   :after exwm
   :demand t
