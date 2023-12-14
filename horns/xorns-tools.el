@@ -25,21 +25,6 @@
 
 ;;; general
 
-(defmacro ->? (function &rest arguments)
-  "Call FUNCTION when it is bound, passing remaining ARGUMENTS.
-This is a safe macro that prints a debug message if `init-file-debug' is not
-nil."
-  `(when (fboundp ',function)
-     (if init-file-debug
-       (message ">>= calling: %s"
-         (or (documentation ',function) ,(symbol-name function))))
-     (condition-case-unless-debug err
-       (,function ,@arguments)
-       (erarguments
-         (message ">>= error in '%s': %s\n"
-           ',(symbol-name function) (error-message-string err))))))
-
-
 (defmacro >>=on-debug-message (format-string &rest args)
   "Display a message only when `init-file-debug' is active.
 Use the same parameters as `message' standard function: FORMAT-STRING and
@@ -57,13 +42,6 @@ report the identity of the enclosed body."
        (>>=on-debug-message ,header)
        ,@body)
      (error (message (concat ">>= error on (" ,header "): %s") err))))
-
-
-(defsubst >>=call? (function &rest arguments)
-  "Call FUNCTION if it is not void, passing remaining ARGUMENTS to it.
-Return nil when FUNCTION is not defined."
-  (when (fboundp function)
-    (apply function arguments)))
 
 
 (defun >>=var-value (variable &optional default)
@@ -98,9 +76,9 @@ Similar to `set' but calling `custom-load-symbol' if needed."
      (eval (car (get ',symbol 'standard-value)))))
 
 
-(defsubst >>=non-nil-symbol (object)
-  "Return if OBJECT is a true symbol."
-  (and object (symbolp object)))
+(defsubst >>=real-symbol (object)
+  "Return if OBJECT is a real symbol (not including a boolean)."
+  (and (symbolp object) (not (eq object t)) object))
 
 
 (defsubst >>=customized? (symbol)
@@ -109,94 +87,6 @@ This has the same protocol as the `boundp' function."
   (or
     (plist-member (symbol-plist symbol) 'customized-value)
     (plist-member (symbol-plist symbol) 'saved-value)))
-
-
-(defsubst >>=check-function (value &optional strict)
-  "Check if VALUE is an existing function.
-When STRICT is not nil and VALUE is not a function, an error is issued."
-  (when (stringp value)
-    (setq value (intern-soft value)))
-  (if (functionp value)
-    value
-    ;; else
-    (when strict
-      (error ">>= wrong%s function '%s'"
-        (if (eq strict t) "" (format " %s" strict)) value))))
-
-
-(defun >>=cast-function (value &optional validate)
-  "Recognize a function in VALUE and check it is valid.
-If VALIDATE is given and VALUE is not a function, an error is issued."
-  (>>=check-function
-    (cond
-      ((symbolp value)
-        value)
-      ((and (listp value)
-         (memq (car value) '(quote function))
-         (>>=non-nil-symbol (cadr value)))
-        (cadr value))
-      ((and (consp value) (memq (car value) '(lambda closure)))
-        value)
-      ((and (listp value)
-         (memq (car value) '(quote function))
-         (memq (car (cadr value)) '(lambda closure)))
-        (cadr value))
-      ((and (consp value) (>>=non-nil-symbol (car value)))
-        ;; macro building a function?
-        (condition-case nil
-          (eval value)
-          (error value)))
-      (t
-        value))
-    validate))
-
-
-(defun >>=function-repr (fun)
-  "Return function FUN string representation.
-For a lambda function, its documentation is returned if it exists."
-  (when (functionp fun)
-    (if (symbolp fun)
-      (symbol-name fun)
-      ;; else
-      (if (consp fun)
-        (let* ((kind (car fun))
-               (is-closure (eq kind 'closure))
-               (doc (nth (if is-closure 3 2) fun)))
-          (if (stringp doc)
-            doc
-            ;; else
-            (if (symbolp kind)
-              (format "(%s %s ...)" kind (nth (if is-closure 2 1) fun))
-              ;; else
-              (format "%s" fun))))
-        ;; else
-        (format "%s:%s" (type-of fun) fun)))))
-
-
-(defsubst >>=load (file)
-  "Load a FILE silently except if in debug mode."
-  (let ((silent (not init-file-debug)))
-    (load file silent silent)))
-
-
-(define-obsolete-function-alias
-  '>>=setup/command-check '>>=command/check "1.0")
-(defun >>=command/check (command)
-  "Check if a system COMMAND is installed.
-Intended to find out if a feature that depends on the given command can be
-configured."
-  ;; See `use-package-ensure-system-package' fo a more elaborated solution.
-  (when command
-    (or
-      (executable-find command)
-      (when init-file-debug
-        (warn ">>= warning: '%s' command is not installed" command)
-        nil))))
-
-
-(defsubst >>=init-time ()
-  "Initialization time in seconds for this session."
-  (float-time (time-subtract after-init-time before-init-time)))
 
 
 
@@ -228,14 +118,13 @@ configured."
   "Return a string only if VALUE is a symbol or a string.
 When STRICT is given, and this function fails, an error is issued, otherwise
 nil is returned."
-  (or
-    (if (stringp value)
-      value
-      ;; else
-      (when (and (symbolp value) (not (booleanp value)))
-        (symbol-name value)))
-    (when strict
-      (error ">>= %s'%s' can not be converted to a string"
+  (cond
+    ((stringp value)
+      value)
+    ((>>=real-symbol value)
+      (symbol-name value))
+    (strict
+      (error ">>= %s'%s' is not a string nor a symbol"
         (if (eq strict t) "" (format "%s " strict)) value))))
 
 
@@ -245,6 +134,12 @@ Arguments TRIM-LEFT and TRIM-RIGHT are used verbatim."
   (when string
     (let ((res (string-trim string trim-left trim-right)))
       (unless (eq res "") res))))
+
+
+(defsubst >>=str-first-line (string)
+  "Return the first line of a STRING."
+  (when string
+    (car (split-string string "[\n\r]"))))
 
 
 (defun >>=safe-replace (regexp rep source)
@@ -259,12 +154,175 @@ function."
 
 
 
+;;; functions
+
+(defmacro ->? (function &rest arguments)
+  "Call FUNCTION when it is bound, passing remaining ARGUMENTS.
+This is a safe macro that prints a debug message if `init-file-debug' is not
+nil."
+  `(when (fboundp ',function)
+     (if init-file-debug
+       (message ">>= calling: %s"
+         (or (documentation ',function) ,(symbol-name function))))
+     (condition-case err
+       (,function ,@arguments)
+       (error
+         (message ">>= error in '%s': %s\n"
+           ',(symbol-name function) (error-message-string err))
+         (signal (car err) (cdr err))))))
+
+
+(defsubst >>=call? (function &rest arguments)
+  "Call FUNCTION if it is not void, passing remaining ARGUMENTS to it.
+Return nil when FUNCTION is not defined."
+  (when (fboundp function)
+    (apply function arguments)))
+
+
+(defsubst >>=safe-eval (form &optional lexical)
+  "Evaluate FORM using LEXICAL scoping and return its value.
+Similar to `eval' but returns nil on errors."
+  (condition-case nil
+    (eval form lexical)
+    (error nil)))
+
+
+(defun >>=cast-function (value)
+  "Recognize a function in VALUE.
+This function does not check if the result is valid, use `>>=check-function'
+for that purpose."
+  (cond
+    ((>>=real-symbol value))
+    ((memq (car-safe value) '(quote function))
+      (>>=cast-function (cadr value)))
+    ((memq (car-safe value) '(lambda closure))
+      value)
+    (t
+      (condition-case nil
+        (>>=cast-function (eval (macroexpand value) t))
+        (error value)))))
+
+
+(defsubst >>=funcall (function &rest arguments)
+  "Return the value calling FUNCTION passing remaining ARGUMENTS to it."
+  (let ((fn (>>=cast-function function)))
+    (if (>>=real-symbol fn)
+      (eval `(,fn ,@arguments))
+      ;; else
+      (apply fn arguments))))
+
+
+(defsubst >>=check-function (value &optional strict)
+  "Check if VALUE is an existing function.
+When STRICT is not nil and VALUE is not a function, an error is issued."
+  (when (stringp value)
+    (setq value (intern-soft value)))
+  (if (functionp value)
+    value
+    ;; else
+    (when strict
+      (error ">>= wrong%s function '%s'"
+        (if (eq strict t) "" (format " %s" strict)) value))))
+
+
+(defsubst >>=normalize-function (value)
+  "Normalize VALUE as a function for macro expansion."
+  (let ((res (>>=cast-function value)))
+    (if (>>=real-symbol res) (list 'quote res) res)))
+
+
+(defsubst >>=function-arglist (function)
+  "Return the argument list for the FUNCTION formatted as a string."
+  (let ((res (help-function-arglist function t)))
+    (if res (format "%s" res) "()")))
+
+
+(defun >>=function-repr (function)
+  "Return FUNCTION string representation.
+For a lambda function, its documentation is returned if it exists."
+  (when (functionp function)
+    (cond
+      ((symbolp function)
+        (symbol-name function))
+      ((when-let ((doc (>>=str-first-line (documentation function 'raw))))
+         (format "<%s>" (string-trim-right doc "[.]"))))
+      ((when-let ((kind (>>=real-symbol (car-safe function))))
+         (when (eq kind 'closure)
+           (setq kind 'lambda))
+         (format "(%s %s ...)" kind (>>=function-arglist function))))
+      ((format "%s:%s" (type-of function) function)))))
+
+
+(defsubst >>=load (file)
+  "Load a FILE silently except if in debug mode."
+  (let ((silent (not init-file-debug)))
+    (load file silent silent)))
+
+
+(define-obsolete-function-alias
+  '>>=setup/command-check '>>=command/check "1.0")
+(defun >>=command/check (command)
+  "Check if a system COMMAND is installed.
+Intended to find out if a feature that depends on the given command can be
+configured."
+  ;; See `use-package-ensure-system-package' fo a more elaborated solution.
+  (when command
+    (or
+      (executable-find command)
+      (when init-file-debug
+        (warn ">>= warning: '%s' command is not installed" command)
+        nil))))
+
+
+(defsubst >>=init-time ()
+  "Initialization time in seconds for this session."
+  (float-time (time-subtract after-init-time before-init-time)))
+
+
+(defmacro >>=breaker (function)
+  "FUNCTION wrapper to signal a quit condition on any standard error.
+Wrapper to signal a quit condition on any standard error on a FUNCTION.  Can
+be used to mark a function as a breaker in a `>>=function-chain' argument."
+  `(lambda (value)
+     (condition-case err
+       (,function value)
+       (error
+         (signal '>>=quit err)))))
+
+
+(defalias '>>=chain '>>=function-chain)
+(defmacro >>=function-chain (&rest functions)
+  "Compose a chain of FUNCTIONS.
+
+Similar to function composition but FUNCTIONS are applied from left to right,
+It can be thought of as a chaining process in which the output of one function
+becomes the input of the next.
+
+If a result is nil, that step is ignored.  Also when an error occurs, the
+signaling step is ignored too unless you use `>>=breaker' to wrap a function
+that breaks the chain.
+
+This feature is especially useful for checking macro arguments at compile
+time.
+
+Example:
+  (funcall (>>=function-chain car eval 1+) (quote ((+ 5 3) is not 9)))"
+  `(lambda (value)
+     (dolist (fn '(,@(mapcar '>>=cast-function functions)) value)
+       (condition-case nil
+         (when-let ((aux (>>=funcall fn value)))
+           (setq value aux))
+         (error)))))
+
+
+
 ;;; lists, property lists extensions
 
-(defsubst >>=length (arg)
-  "Return the length of a strict list ARG."
-  (if (and (listp arg) (listp (cdr arg)))
-    (length arg)))
+(define-obsolete-function-alias '>>=length '>>=>>=slist-length "0.9.7")
+(defsubst >>=slist-length (value)
+  "Return the `length' of a VALUE that is a strict list, nil otherwise."
+  (if (and (listp value) (listp (cdr value)))
+    (length value)))
 
 
 (defsubst >>=list/find (predicate options)
@@ -280,21 +338,21 @@ Return the matching (not nil) PREDICATE result, or nil if not found."
 
 (defsubst >>=cast-list (value)
   "Force VALUE to be a strict list."
-  (if (>>=length value) value (list value)))
+  (if (>>=slist-length value) value (list value)))
 
 
 (defsubst >>=list-value (value)
   "Extract a singleton VALUE from a list if it has only one value."
-  (if (eq (>>=length value) 1) (car value) value))
+  (if (eq (>>=slist-length value) 1) (car value) value))
 
 
 (defun >>=fix-rest-list (value)
   "Normalize VALUE used as rest-list argument."
-  (let ((len (>>=length value)))
+  (let ((len (>>=slist-length value)))
     (if len
       (if (eq len 1)
         (let ((res (car value)))
-          (if (>>=length res) res value))
+          (if (>>=slist-length res) res value))
         ;; else
         value)
       ;; else
@@ -318,6 +376,8 @@ so this macro can be used to iterate over tuples of two values in any list.
 \(fn (KEY-VAR VALUE-VAR PLIST [RESULT]) BODY...)"
   (declare (indent 1) (debug ((symbolp form &optional form) body)))
   (unless (consp spec)
+    ;; TODO: must be in a "(declare (compiler-macro ", see `keymap-set'
+    ;; (cl-define-compiler-macro FUNC ARGS &rest BODY)
     (signal 'wrong-type-argument (list 'consp spec)))
   (unless (<= 3 (length spec) 4)
     (signal 'wrong-number-of-arguments (list '(3 . 4) (length spec))))
@@ -501,7 +561,7 @@ Return the value for KEY if it is in TARGET, else DEFAULT."
                     (list current))
                   value))
               ;; else
-              (if (eq (>>=length value) 1)
+              (if (eq (>>=slist-length value) 1)
                 (car value)
                 ;; else
                 (setq multi (cons key multi))
@@ -528,6 +588,7 @@ the VALUE is defined using the form (:eval <lisp-expression>); functions
 `<CLASS>-normalize/<:KEY>' and `<NAME>-normalize/<:KEY>' are applied when
 defined, these functions must be defined to get three arguments (KEY VALUE
 KEYWORDS).  KEYWORDS will be passed as the lexical environment argument."
+  (declare (obsolete nil "0.9.7"))    ;; never used
   (if (null keywords)
     (setq keywords defaults)
     ;; else
@@ -540,7 +601,7 @@ KEYWORDS).  KEYWORDS will be passed as the lexical environment argument."
         (error ">>= '%s' must be a keyword, not %s" key (type-of key)))))
   (>>=plist-do (key value keywords)
     (let (changed)
-      (when (and (listp value) (eq :eval (car value)))
+      (when (eq (car-safe value) :eval)
         (if (eq (length value) 2)
           (setq
             value (eval (cadr value) `((keywords . ,keywords)))
@@ -576,6 +637,33 @@ result in a pseudo property-list that needs additional normalization with
           (error ">>= must be keywords, not '%s'" pair))))
     (>>=fix-rest-list aliases))
   target)
+
+
+(defun >>=alist-parse (&rest pairs)
+  "Normalize a list PAIRS into an assotiation-list.
+Similar to `>>=plist2alist' but members on key positions that already are a
+`consp' are directly used."
+  (setq pairs (>>=fix-rest-list pairs))
+  (let (key pair res)
+    (while pairs
+      (let ((value (car pairs)))
+        (if key
+          (setq
+            pair (cons key value)
+            key nil)
+          ;; else
+          (if (consp value)
+            (setq pair value)
+            ;; else
+            (setq key value)))
+        (when pair
+          (setq
+            res (nconc res (list pair))
+            pair nil)))
+      (setq pairs (cdr pairs)))
+    (when key
+      (setq res (nconc res `((,key)))))
+    res))
 
 
 
@@ -722,13 +810,13 @@ See `mkdir' and `>>=path/join'."
       files)))
 
 
-(make-obsolete '>>=find-env-executable "Never used." "0.9.5")
 (defun >>=find-env-executable (format &rest options)
   "Find the first valid command from a set of OPTIONS.
 This is different from `>>=executable-find' in that each option is first
 formatted with the FORMAT string, upcased, and looked up in the environment
 using `getenv'.  Another difference is that the result is a `cons' with the
 form (OPTION . COMMAND)."
+  (declare (obsolete nil "0.9.5"))    ;; never used
   (let ((aux (delq nil (>>=fix-rest-list options)))
         (fmt (or format "%s"))
         res)
