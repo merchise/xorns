@@ -311,7 +311,7 @@ A process NAME can bee given as an optional argument."
 (use-package exwm-input
   :after exwm
   :demand t
-  :commands exwm-reset
+  :commands exwm-reset exwm-input-set-key
   :preface
   (declare-function exwm-input-send-next-key 'exwm-input)
 
@@ -320,6 +320,12 @@ A process NAME can bee given as an optional argument."
     (interactive)
     (switch-to-buffer (other-buffer (current-buffer))))
   :config
+  (defun >>-exwm/input-set-key (key command)
+    "Wrapper to `exwm-input-set-key' to give KEY a global binding as COMMAND."
+    (exwm-input-set-key (>>=key-parse key) command))
+
+  (advice-add '>>=bind-global-key :override '>>-exwm/input-set-key)
+
   (setq >>-global-set-key 'exwm-input-set-key)
   (>>=global-set-keys
     ;; Like on `i3' window manager.  We use a new command because at this
