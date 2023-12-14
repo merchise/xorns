@@ -171,6 +171,13 @@ A process NAME can bee given as an optional argument."
     (browse-url url)))
 
 
+(defsubst >>-exwm/url-keys ()
+  "Return pairs of (KEY . URL) used by `browse-url'."
+  (mapcan
+    (lambda (pair) (list (car pair) (>>-url-browser (cdr pair))))
+    >>=|exwm/url-keys))
+
+
 (defun >>--startup-applications ()
   "Private function to run all startup applications."
   (dolist (cmd >>=|exwm/startup-applications)
@@ -257,7 +264,7 @@ A process NAME can bee given as an optional argument."
       "Generate (KEY . switch-function) pairs."
       (mapcar
         (lambda (idx)
-          (let ((key (kbd (format "s-%d" idx)))
+          (let ((key (>>=key-parse (format "s-%d" idx)))
                 (name (intern (format ">>=exwm/switch-workspace-%s" idx)))
                 (doc (format "Switch to workspace '%s'." idx)))
             (cons key
@@ -326,22 +333,20 @@ A process NAME can bee given as an optional argument."
 
   (advice-add '>>=bind-global-key :override '>>-exwm/input-set-key)
 
-  (setq >>-global-set-key 'exwm-input-set-key)
-  (>>=global-set-keys
+  (>>=bind-global-keys
     ;; Like on `i3' window manager.  We use a new command because at this
     ;; level `(key-binding (kbd "s-&"))' returns nil
-    "s-d" '>>=exwm/start-command
-    "s-r" 'exwm-reset
-    "<s-tab>" 'other-frame
-    "s-o" 'other-window
-    "s-;" '>>-exwm/swap-last-buffers
-    "s-{" '>>=exwm/reduce-window-horizontally
-    "s-}" '>>=exwm/enlarge-window-horizontally
-    "C-s-/" 'browse-url-at-point)
-  (apply '>>=global-set-keys
-    (mapcan
-      (lambda (pair) (list (car pair) (>>-url-browser (cdr pair))))
-      >>=|exwm/url-keys))
+    "s-d" >>=exwm/start-command
+    "s-r" exwm-reset
+    "<s-tab>" other-frame
+    "s-o" other-window
+    "s-;" >>-exwm/swap-last-buffers
+    "s-{" >>=exwm/reduce-window-horizontally
+    "s-}" >>=exwm/enlarge-window-horizontally
+    "C-s-/" browse-url-at-point)
+
+  (eval `(>>=bind-global-keys ,@(>>-exwm/url-keys)))
+
   (let* ((suspend-key ?\C-z))
     ;; Prefix key to send next key-press literally to the application.
     ;; Default value is `C-z' because is used for `suspend-frame' in terminals.
@@ -416,12 +421,13 @@ A process NAME can bee given as an optional argument."
   (exwm-workspace-show-all-buffers t)
   (exwm-layout-show-all-buffers t)
   :config
-  (>>=global-set-keys
-    "s-." '>>=exwm/switch-workspace-0    ; TODO: change this
-    "s-`" '>>=exwm/switch-workspace-0
-    "s-w" 'exwm-workspace-switch
-    "<C-s-left>" '>>-exwm/ws-switch-left
-    "<C-s-right>" '>>-exwm/ws-switch-right)
+  (declare-function >>=exwm/switch-workspace-0 'xorns-exwm)   ; avoid warning
+  (>>=bind-global-keys
+    "s-." >>=exwm/switch-workspace-0    ; TODO: change this
+    "s-`" >>=exwm/switch-workspace-0
+    "s-w" exwm-workspace-switch
+    "<C-s-left>" >>-exwm/ws-switch-left
+    "<C-s-right>" >>-exwm/ws-switch-right)
   (let ((map (make-sparse-keymap)))
     (keymap-set map "<mode-line> <mouse-1>" 'exwm-workspace-switch)
     (setq global-mode-string
