@@ -1163,20 +1163,6 @@ found in DIR."
 
 ;;; key bindings
 
-(defvar >>-global-set-key '>>-global-set-key
-  "Function to give a KEY a global binding as COMMAND.
-This variable is intended to redefine how to set a global key sequence in some
-specialized packages, like `exwm'.  The default value is the internal function
-`>>-global-set-key'.")
-
-
-(defun >>-global-set-key (key command)
-  "Give KEY a global binding as COMMAND.
-This is an internal function, it is intended to be replaced in specialized
-packages like `exwm'."
-  (define-key (current-global-map) key command))
-
-
 (define-obsolete-function-alias '>>-kbd '>>=key-parse "0.9.7")
 (defsubst >>=key-parse (key)
   "Convert KEY to the internal Emacs key representation (a vector).
@@ -1238,6 +1224,8 @@ directly, instead use the `>>=bind-global-keys' macro."
   (global-set-key (>>=key-parse key) command))
 
 
+(define-obsolete-function-alias
+  '>>=global-set-keys '>>=bind-global-keys "0.9.7")
 (defmacro >>=bind-global-keys (&rest pairs)
   "Bind on the current global keymap [KEY COMMAND] PAIRS.
 
