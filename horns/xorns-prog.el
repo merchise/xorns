@@ -91,15 +91,29 @@ variable documentation."
   (conf-mode . >>=init-prog-mode))
 
 
-
-;;; Emacs Lisp
+;; `company-mode' can be managed internally by `lsp-mode'.  Other possible
+;; choices are to activate it globally, or by using `prog-mode-hook'.
+(use-package company
+  :ensure t)
 
-(use-package lisp-mode
+
+;; TODO (use-package eldoc
+
+
+
+;;; Lisp
+
+(use-package lisp-mode    ;; Common lisp
   :custom
   (emacs-lisp-docstring-fill-column 78)
   (lisp-indent-offset 2)
-  ;; TODO: Conflict with 'pyls'
-  (create-lockfiles nil))
+  (create-lockfiles nil))    ;; TODO: Conflict with 'pyls'?
+
+
+(use-package elisp-mode
+  ;; TODO: see https://codeberg.org/mychris/dotemacs
+  :hook
+  (emacs-lisp-mode . company-mode))
 
 
 
@@ -313,13 +327,6 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 (defvar >>=|lsp/startup-deferred nil
   "Use the entry point that defers server startup until buffer is visible.")
-
-
-;; Next configuration allows `company-mode' to be managed internally by
-;; `lsp-mode'.  Other possible choices are to activate it globally, or by
-;; using `prog-mode-hook'.
-(use-package company
-  :ensure t)
 
 
 (use-package lsp-mode

@@ -109,6 +109,7 @@
   :init
   (defun >>=init-text-mode ()
     "Init `text-mode' based modes."
+    ;; TODO: `show-trailing-whitespace'?
     (display-line-numbers-mode +1)
     (display-fill-column-indicator-mode +1))
   :mode

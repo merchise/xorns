@@ -82,6 +82,7 @@ For example (toml classic-snippets).")
 
 (when (memq 'rescript >>=|programming/extra-languages)
   (use-package rescript-mode
+    :ensure t
     :mode ("\\.res\\'"))
 
   (use-package lsp-rescript
