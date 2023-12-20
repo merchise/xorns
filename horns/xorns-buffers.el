@@ -59,8 +59,7 @@
         ("System"
           (or
             (name . "[*]scratch[*]")
-            (name . "[*]Messages[*]")
-            (name . "[*]Backtrace[*]")))
+            (name . "[*]Messages[*]")))
         ("Terms"
           (or
             (mode . term-mode)
