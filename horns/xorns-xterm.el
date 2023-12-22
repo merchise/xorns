@@ -31,20 +31,14 @@
 
 (eval-and-compile
   (require 'xorns-tools))
-
+(require 'xorns-window)
 (require 'xorns-term)
 
 
 
 ;;; Variables
 
-(defvar >>=|xterm/switch-to-buffer-mode nil
-  "Mode to switch smart between terminal buffers.
-Posible values are: nil (the default value) is an alias to `other-window'; t
-is an alias to `selected-window'.  Other less common choices are
-`other-frame', `other-tab', `vertically', and `horizontally'.")
-
-(defvar >>-xterm/state nil
+(defvaralias '>>-xterm/state '>>-toolbox/properties
   "Terminal state (local variable in terminal buffers).")
 
 
@@ -191,10 +185,7 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
 
 (defsubst >>-xterm/get-implicit-tab-index ()
   "Get the implicit tab-index for the current buffer."
-  (if >>-xterm/state
-    (plist-get >>-xterm/state :tab-index)
-    ;; else
-    (or >>-xterm/linked 0)))
+  (or (plist-get >>-xterm/state :tab-index) >>-xterm/linked 0))
 
 
 (defsubst >>-xterm/buffer-name (term &optional tab-index)
@@ -224,6 +215,7 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
         (unless buffer-read-only 'insert)))))
 
 
+;; TODO: this function is not used, check `>>-term/kill-finished-buffer'
 (defsubst >>-xterm/check-buffer (buffer &optional term)
   "Check that BUFFER is a valid smart terminal.
 When TERM is given, only check buffers of that kind."
@@ -245,10 +237,9 @@ When TERM is given, only check buffers of that kind."
 (defsubst >>-xterm/create-buffer (term buffer-name)
   "Internal function to create a TERM buffer with the given BUFFER-NAME."
   (save-window-excursion
-    (let ((target (ansi-term (>>-xterm/key term :program) buffer-name)))
-      (with-current-buffer target
-        (set (make-local-variable '>>-xterm/state) `(:term ,term))
-        target))))
+    (>>=toolbox/setup-new-buffer
+      (ansi-term (>>-xterm/key term :program) buffer-name)
+      :term term)))
 
 
 (defun >>-xterm/get-or-create-buffer (term tab-index)
@@ -279,36 +270,6 @@ When TERM is given, only check buffers of that kind."
         (>>-xterm/find-buffer-by-mode (car (rassq term >>-xterm-modes)))
         (>>-xterm/find-buffer-by-mode (plist-get >>-xterm/state :mode))
         (>>=scratch/get-buffer-create)))))
-
-
-;; TODO: Should we use `switch-to-buffer'; according to
-;; https://www.masteringemacs.org/article/demystifying-emacs-window-manager
-;; it SHOULD NOT be used programmatically.
-(defun >>-xterm/switch-to-buffer (target &optional mode)
-  "Select the smart terminal TARGET buffer.
-The optional argument MODE will take precedence over the variable
-`>>=|xterm/switch-to-buffer-mode'."
-  (setq mode (or mode >>=|xterm/switch-to-buffer-mode))
-  (cond
-    ((or (null mode) (eq mode 'other-window))
-      (switch-to-buffer-other-window target))
-    ((or (eq mode t) (eq mode 'selected-window))
-      (if (get-buffer-window target)
-        (switch-to-buffer-other-frame target)
-        ;; else
-        (switch-to-buffer target)))
-    ((eq mode 'other-frame)
-      (switch-to-buffer-other-frame target))
-    ((eq mode 'other-tab)
-      (switch-to-buffer-other-tab target))
-    ((eq mode 'vertically)
-      (let ((split-width-threshold nil))
-        (switch-to-buffer-other-window target)))
-    ((eq mode 'horizontally)
-      (let ((split-height-threshold nil))
-        (switch-to-buffer-other-window target)))
-    (t
-      (switch-to-buffer-other-window target))))
 
 
 (defun >>-xterm/buffer-list (&optional term)
@@ -404,7 +365,7 @@ condition."
         (setq target (>>-xterm/get-alt-buffer term))))
     (unless implicit
       (set (make-local-variable '>>-xterm/linked) tab-index))
-    (>>-xterm/switch-to-buffer target)
+    (>>=toolbox/switch-to-buffer target)
     (when >>-xterm/state
       (>>=plist-update >>-xterm/state
         :source source
