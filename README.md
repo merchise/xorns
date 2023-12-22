@@ -73,6 +73,17 @@ The protocol to manage the configuration of a major-mode is extended, allowing
 to define functions that are triggered by events related to a mode (see the
 "xorns-config" module documentation).
 
+### Version 0.9.5
+
+Refactor and integrate several modules.
+
+### Version 0.9.6
+
+New mechanism for configuring global keybinds that allows you to redefine the
+main entry point.  This is useful for libraries that need to do that, for
+example `exwm-input-set-key` if you use the `exwm` library (see `xorns-tools`
+module).
+
 
 ## Backlog
 
