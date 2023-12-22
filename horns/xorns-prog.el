@@ -194,7 +194,7 @@ the function `>>=python/locate-env'.")
 (defconst >>=|pyright-error-rx
   '(seq
      (* (| " " space))
-     (group (seq (+ any) ".py"))
+     (group (seq (+ any) (| ".py" ".pyi")))
      any
      (group (+ digit))
      any
@@ -208,7 +208,7 @@ the function `>>=python/locate-env'.")
 (defconst >>=|pyright-warning-rx
   '(seq
      (* (| " " space))
-     (group (seq (+ any) ".py"))
+     (group (seq (+ any) (| ".py" ".pyi")))
      any
      (group (+ digit))
      any
