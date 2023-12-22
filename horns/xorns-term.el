@@ -8,28 +8,6 @@
 
 ;; In this module are configured all the features related to terminals.
 
-;; A new terminal can be defined with the macro `>>=define-terminal' using
-;; several optional keyword arguments to configure some parameters: the
-;; command to execute as a shell, a list of `major-mode' symbols to associate
-;; a terminal kind with buffers under these modes.  Example of terminals that
-;; have already been defined: `>>=main-term' (the default terminal), and
-;; `>>=python-term' (for Python modes) defined in the module `xorns-prog'.
-
-;; The function `>>=terminal' orchestrates all terminal kinds based on their
-;; associations with major modes.
-
-;; Each terminal kind can trigger several tabs, each one is identified with a
-;; zero or positive integer, also nil is used for the default tab.  To select
-;; a terminal tab a prefix argument is used.  A negative value is used to
-;; execute a paste operation from the current buffer to a target terminal
-;; (using the absolute value).  The `universal-argument' (`C-u') is used to
-;; paste to the default tab, and `negative-argument' (`C--') for the tab with
-;; tab zero.
-
-;; Every time a terminal is triggered, a reference to the current buffer is
-;; linked to that tab, executing a command to select an active tab will
-;; switch, or paste, to the linked buffer.
-
 ;; Customizable 256 colors are configured by default for `term' and
 ;; `ansi-term', to disable it set `>>=|term/install-customizable-colors'
 ;; variable to nil.
