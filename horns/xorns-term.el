@@ -43,6 +43,7 @@ buffer is killed automatically unless this variable is not nil.")
   ;; Based on https://oremacs.com/2015/01/01/three-ansi-term-tips/
   (let* ((buff (current-buffer))
          (proc (get-buffer-process buff)))
+    ;; TODO: assert not nil `proc'
     (set-process-sentinel
       proc
       `(lambda (process event)
@@ -50,29 +51,37 @@ buffer is killed automatically unless this variable is not nil.")
            (>>=kill-buffer-and-window ,buff))))))
 
 
+
+;; TODO: https://github.com/howardabrams/dot-files/blob/master/emacs-eshell.org
 (use-package eshell
-  :commands (eshell eshell-command)
-  :preface
-  (progn
-    (eval-when-compile
-      (require 'em-term)
-      (require 'esh-mode)
-      (declare-function eshell-cmpl-initialize 'em-cmpl))
+  :defines eshell-visual-commands eshell-prompt-regexp
+  :functions eshell-cmpl-initialize
+  :commands eshell eshell-command
+  :init
+  (defun >>-eshell/delete-char-or-quit (arg)
+    (interactive "p")
+    ;; TODO: check using not nil value for `limit' in `looking-back'
+    (if (and (eolp) (looking-back eshell-prompt-regexp nil))
+      (progn
+        (eshell-life-is-too-much)
+        (ignore-errors    ; TODO: use `>>=kill-buffer-and-window'
+          (delete-window)))
+      ;;; else
+      (delete-char arg)))
 
-    (defun >>-eshell/first-time ()
-      "Run the first time `eshell-mode' is entered.a"
-      (add-to-list 'eshell-visual-commands "htop"))
+  (defun >>-eshell/first-time ()
+    "Run the first time `eshell-mode' is entered.a"
+    (add-to-list 'eshell-visual-commands "htop"))
 
-    (defun >>-eshell/init ()
-      "Initialize eshell."
-      (eshell-cmpl-initialize)
-      (keymap-set eshell-mode-map "C-c C-d" 'quit-window)
-      (when (bound-and-true-p helm-mode)
-        (require 'helm-eshell)
-        (keymap-set eshell-mode-map
-          "<remap> <eshell-pcomplete>" 'helm-esh-pcomplete)
-        (keymap-set eshell-mode-map
-          "<remap> <eshell-list-history>" 'helm-eshell-history))))
+  (defun >>-eshell/init ()
+    "Initialize eshell."
+    (eshell-cmpl-initialize)
+    (keymap-set eshell-mode-map "C-d" '>>-eshell/delete-char-or-quit)
+    (when (bound-and-true-p helm-mode)
+      (keymap-set eshell-mode-map
+        "<remap> <eshell-pcomplete>" 'helm-esh-pcomplete)
+      (keymap-set eshell-mode-map
+        "<remap> <eshell-list-history>" 'helm-eshell-history)))
   :custom
   (eshell-history-size 1024)
   (eshell-hist-ignoredups t)
@@ -83,6 +92,14 @@ buffer is killed automatically unless this variable is not nil.")
   (eshell/alias "l" "ls -lh $1")
   (eshell/alias "ll" "ls -alhF $1")
   (eshell/alias "la" "ls -A $1"))
+
+
+(use-package eshell-syntax-highlighting
+  ;; TODO: Check `eshell-syntax-highlighting-highlight-in-remote-dirs'
+  :after eshell
+  :ensure t
+  :hook
+  (eshell-mode . eshell-syntax-highlighting-mode))
 
 
 (use-package comint
