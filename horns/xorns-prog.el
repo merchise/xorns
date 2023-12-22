@@ -191,10 +191,14 @@ the function `>>=python/locate-env'.")
     (append >>-!python/env-locators >>=|python/env-locators)))
 
 
+(defconst >>=|pyright/extensions '(".py" ".pyi")
+  "Extensions used by Pyright, a static type checker for Python.")
+
+
 (defconst >>=|pyright-error-rx
-  '(seq
+  `(seq
      (* (| " " space))
-     (group (seq (+ any) (| ".py" ".pyi")))
+     (group (seq (+ any) (| ,@>>=|pyright/extensions)))
      any
      (group (+ digit))
      any
@@ -206,9 +210,9 @@ the function `>>=python/locate-env'.")
 
 
 (defconst >>=|pyright-warning-rx
-  '(seq
+  `(seq
      (* (| " " space))
-     (group (seq (+ any) (| ".py" ".pyi")))
+     (group (seq (+ any) (| ,@>>=|pyright/extensions)))
      any
      (group (+ digit))
      any
