@@ -22,7 +22,8 @@
 
 (require 'subr-x)    ; for `string-trim'
 (eval-when-compile
-  (require 'cl-lib))
+  (require 'cl-lib)
+  (require 'map))
 (require 'files)
 (require 'project)
 
@@ -48,6 +49,7 @@ report the identity of the enclosed body."
      (error (message (concat ">>= error on (" ,header "): %s") err))))
 
 
+;; TODO: never used, maybe make obsolete
 (defun >>=var-value (variable &optional default)
   "Return the value of a VARIABLE, or DEFAULT if it is void."
   (let ((symbol (intern-soft variable)))
@@ -57,6 +59,7 @@ report the identity of the enclosed body."
       default)))
 
 
+;; TODO: set-default-toplevel-value
 (defun >>=set (symbol value)
   "Set SYMBOL to the given VALUE.
 Similar to `set' but calling `custom-load-symbol' if needed."
@@ -69,15 +72,15 @@ Similar to `set' but calling `custom-load-symbol' if needed."
   (set symbol value))
 
 
-(defmacro >>=value-of (symbol)
-  "Return the value of SYMBOL if it is bound, else nil."
-  `(if (boundp ',symbol) ,symbol))
+(defalias '>>=value-of 'bound-and-true-p)
 
 
-(defmacro >>=get-original-value (symbol)
+(defmacro >>=get-original-value (symbol)    ; TODO: check this
   "Return SYMBOL's original value or nil if that is void."
   `(if (boundp ',symbol)
-     (eval (car (get ',symbol 'standard-value)))))
+     (or
+       (eval (car (get ',symbol 'standard-value)))
+       (default-value ',symbol))))
 
 
 (defsubst >>=real-symbol (object)
@@ -87,10 +90,11 @@ Similar to `set' but calling `custom-load-symbol' if needed."
 
 (defsubst >>=customized? (symbol)
   "Return t if SYMBOL’s value is already customized.
-This has the same protocol as the `boundp' function."
+Same protocol as `boundp', but not the same as the `custom-variable-p'
+function."
   (or
-    (plist-member (symbol-plist symbol) 'customized-value)
-    (plist-member (symbol-plist symbol) 'saved-value)))
+    (get symbol 'customized-value)
+    (get symbol 'saved-value)))
 
 
 
@@ -170,7 +174,9 @@ nil."
   `(when (fboundp ',function)
      (if init-file-debug
        (message ">>= calling: %s"
-         (or (documentation ',function) ,(symbol-name function))))
+         (or
+           (>>=str-first-line (documentation ',function))
+           ,(symbol-name function))))
      (condition-case err
        (,function ,@arguments)
        (error
@@ -325,7 +331,7 @@ Example:
 
 ;;; lists, property lists extensions
 
-(define-obsolete-function-alias '>>=length '>>=>>=slist-length "0.9.7")
+(define-obsolete-function-alias '>>=length '>>=slist-length "0.9.7")
 (defsubst >>=slist-length (value)
   "Return the `length' of a VALUE that is a strict list, nil otherwise."
   (if (and (listp value) (listp (cdr value)))
@@ -440,40 +446,23 @@ so this macro can be used to iterate over tuples of two values in any list.
 
 (defun >>=plist-delete (target &rest keys)
   "Delete all KEYS in-place from a TARGET property-list."
-  ;; Adapted from `map--plist-delete'
-  (let ((tail target) last)
-    (when keys
-      (while (consp tail)
-        (cond
-          ((not (memq (car tail) keys))
-            (setq
-              last tail
-              tail (cddr last)))
-          (last
-            (setq tail (cddr tail))
-            (setf (cddr last) tail))
-          (t
-            (cl-assert (eq tail target))
-            (setq
-              target (cddr target)
-              tail target)))))
-    target))
+  (dolist (key (>>=fix-rest-list keys) target)
+    (map-delete target key)))
 
 
 (define-obsolete-function-alias '>>=plist-exclude '>>=plist-remove "1.0")
-(defun >>=plist-remove (target &rest keys)
-  "Return a copy of a TARGET property-list with all KEYS removed."
-  (if (apply '>>=plist-find-any target keys)
-    (apply '>>=plist-delete (copy-sequence target) keys)
-    ;; else
-    target))
+(defsubst >>=plist-remove (target &rest keys)
+  "Return a copy of a TARGET property-list with all KEYS excluded."
+  (>>=plist-delete (copy-sequence target) keys))
 
 
 (defun >>=plist-update (target &rest source)
   "Update TARGET from a SOURCE property-list."
-  (setq source (>>=fix-rest-list source))
-  (>>=plist-do (key value source target)
-    (plist-put target key value)))
+  (>>=plist-do (key value (>>=fix-rest-list source) target)
+    (if value
+      (plist-put target key value)
+      ;; else
+      (map-delete target key))))
 
 
 (defun >>=map-pair (fn sequence)
@@ -536,20 +525,19 @@ returns a non-nil value."
     res))
 
 
-(defun >>=plist-setdefault (target key &optional default)
-  "Insert KEY with a value of DEFAULT if KEY is not member of TARGET.
-Return the value for KEY if it is in TARGET, else DEFAULT."
-  (let ((res (plist-member target key)))
-    (if res
-      (nth 1 res)
-      ;; else
-      (plist-put target key default)
-      default)))
+(define-obsolete-function-alias
+  '>>=plist-setdefault '>>=plist-set-defaults "0.9.8")
+(defun >>=plist-set-defaults (target &rest defaults)
+  "Insert into TARGET all DEFAULTS properties that are not already members.
+Return updated TARGET."
+  (>>=plist-do (key value (>>=fix-rest-list defaults) target)
+    (when (and value (plist-get target key))
+      (plist-put target key value))))
 
 
-(defun >>=plist-fix (source)
+(defun >>=plist-fix (&rest source)
   "Fix a pseudo SOURCE property-list into a regular one."
-  (setq source (delq 'elisp--witness--lisp source))
+  (setq source (delq 'elisp--witness--lisp (>>=fix-rest-list source)))
   (let (target multi)
     (while source
       (let* ((xs (>>=split-list #'keywordp (cdr source)))
@@ -955,13 +943,7 @@ followed by the rest of the buffers."
       (buffer-list frame))))
 
 
-(defun >>=scratch/get-buffer-create ()
-  "Copied from `startup--get-buffer-create-scratch'."
-  (or
-    (get-buffer "*scratch*")
-    (with-current-buffer (get-buffer-create "*scratch*")
-      (set-buffer-major-mode (current-buffer))
-      (current-buffer))))
+(defalias '>>=scratch/get-buffer-create 'get-scratch-buffer-create)
 
 
 (defun >>=scratch/force (&optional arg)

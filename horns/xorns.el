@@ -54,6 +54,13 @@
   "If non-nil, start an Emacs server if one is not already running.")
 
 
+(defgroup xorns nil
+  "Declare a customization group for `xorns'.
+Intended for future use of configuration variables."
+  :group 'starter-kit
+  :prefix '>>=|)
+
+
 (>>=progn "user configuration setting"
   (require 'xorns-config))
 
