@@ -24,7 +24,7 @@
 (package-initialize)
 
 
-(defconst pkg
+(defconst >>-pkg
   (intern (or (getenv "PKG") "xorns"))
   "Symbol with package identifier.")
 
@@ -48,7 +48,7 @@
 
 (defun >>=pkg-desc ()
   "Return package description."
-  (cadr (assq pkg package-alist)))
+  (cadr (assq >>-pkg package-alist)))
 
 
 (defun >>=package-ensure (pkg)
@@ -69,17 +69,17 @@
   (let ((pkg-desc (>>=pkg-desc)))
     (if pkg-desc
       (progn
-        (message ">>= deleting old package: %s." pkg)
+        (message ">>= deleting old package: %s." >>-pkg)
         (package-delete pkg-desc 'force 'nosave))
       ;; else
-      (message ">>= old package '%s' not installed." pkg))))
+      (message ">>= old package '%s' not installed." >>-pkg))))
 
 
 (defun >>=package-install ()
   "Install new version of ELPA package."
   (let ((pkg-desc (>>=pkg-desc))
         (src (expand-file-name "horns" pkg-dir))
-        (tmp (expand-file-name (symbol-name pkg) temporary-file-directory)))
+        (tmp (expand-file-name (symbol-name >>-pkg) temporary-file-directory)))
     (message ">>= creating symbolic link: %s -> %s" src tmp)
     (make-symbolic-link src tmp 'ok-if-exists)
     (message ">>= installing new version of package.")
@@ -100,7 +100,7 @@
         (message ">>= rsync '%s' dir to installed package folder." dir)
         (shell-command (concat "rsync -auv " source " " dest)))
       ;; else
-      (message ">>= '%s' dir not copied, '%s' is not installed." dir pkg))))
+      (message ">>= '%s' dir not copied, '%s' is not installed." dir >>-pkg))))
 
 
 (defun >>=copy-templates ()
@@ -115,7 +115,7 @@
         (message ">>= copying templates to installed package folder.")
         (shell-command (concat "rsync -auv " source " " dest)))
       ;; else
-      (message ">>= templates not copied, '%s' is not installed." pkg))))
+      (message ">>= templates not copied, '%s' is not installed." >>-pkg))))
 
 
 (defun >>=update-file (file)
