@@ -98,6 +98,8 @@ default value is \"fzf\".  Usually this variable is used with the function
 ;;; Dictionary servers
 
 (use-package dictionary
+  :custom
+  (dictionary-server "dict.org")
   :bind
   ("C-c M-#" . dictionary-lookup-definition)
   ("C-c w" . dictionary-search))

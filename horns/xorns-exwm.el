@@ -165,7 +165,7 @@ A process NAME can bee given as an optional argument."
 
 
 (defun >>-url-browser (url)
-  "Create a web browser for a given URL."
+  "Create a `browse-url' lambda for a given URL."
   (lambda ()
     (interactive)
     (browse-url url)))

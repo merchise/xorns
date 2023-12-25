@@ -23,7 +23,16 @@
 ;;; configuration
 
 (use-package simple
-  :defer t
+  :preface
+  (defun >>=delete-trailing-whitespace ()
+    "Delete trailing white-spaces for the full buffer in a safe way."
+    ;; TODO: check `delete-trailing-lines' variable
+    (interactive)
+    (save-restriction
+      (widen)
+      (save-mark-and-excursion
+        (deactivate-mark 'force)
+        (funcall-interactively 'delete-trailing-whitespace))))
   :hook
   (tabulated-list-mode . hl-line-mode)    ; TODO: why is this here?
   :bind

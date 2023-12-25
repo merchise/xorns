@@ -19,7 +19,7 @@
 ;; It's installed just by calling `(require 'xorns-packages)' in the
 ;; initialization process, which is done automatically.
 ;;
-;; Pending tasks:
+;; TODO:
 ;; - See alternatives for `make-backup-files' in:
 ;;   - https://www.emacswiki.org/emacs/Auto Save
 ;;   - https://www.emacswiki.org/emacs/BackupFiles
@@ -65,16 +65,10 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 ;; Default base packages (always configured)
 
-(use-package subr
-  :no-require t
-  :init
-  ;; Replace "yes|not" prompt for simpler "y|n"
-  (fset 'yes-or-no-p 'y-or-n-p))
-
-
 (use-package startup
   :no-require t
   :custom
+  (use-short-answers t)
   (inhibit-startup-screen t)
   (initial-scratch-message nil))
 
@@ -283,7 +277,7 @@ to configure for yourself: see `save-buffer' function for more information.")
   ("C-x M-r" . recentf-open-files)
   ("C-x C-/" . recentf-open-files)
   :config
-  (run-with-idle-timer (* 2 recentf-auto-cleanup) t 'recentf-save-list)
+  ;; TODO: (run-with-idle-timer 600 t 'recentf-save-list)
   (recentf-mode +1))
 
 

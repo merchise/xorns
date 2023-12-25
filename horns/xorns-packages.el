@@ -11,7 +11,7 @@
 ;; Must be required in the start of the initialization process just by calling
 ;; '(require 'xorns-packages)' in `xorns' main module.
 ;;
-;; Pending tasks:
+;; TODO:
 ;; - Use `quelpa' and `quelpa-use-package'.
 ;; - See: (setq system-packages-noconfirm t)
 

@@ -59,11 +59,11 @@
 
 
 (>>=progn "setting default value of various coding systems"
-   (when >>=|coding-system
-     (setq locale-coding-system >>=|coding-system)
-     (set-default-coding-systems >>=|coding-system)
-     (prefer-coding-system >>=|coding-system)
-     (set-selection-coding-system >>=|coding-system)))
+  (when >>=|coding-system
+    (setq locale-coding-system >>=|coding-system)
+    (set-default-coding-systems >>=|coding-system)
+    (prefer-coding-system >>=|coding-system)
+    (set-selection-coding-system >>=|coding-system)))
 
 
 (>>=progn "base initialization"
