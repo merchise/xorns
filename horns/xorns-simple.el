@@ -50,11 +50,8 @@
   (kill-ring-max 128)
   (save-interprogram-paste-before-kill t)
   :config
-  (progn
-    ;; Do not use TABS
-    (setq-default indent-tabs-mode nil)   ; TODO: why is this here?
-    (put 'set-goal-column 'disabled nil)
-  ))
+  (setq-default indent-tabs-mode nil)   ; TODO: why is this here?
+  (put 'set-goal-column 'disabled nil))
 
 
 

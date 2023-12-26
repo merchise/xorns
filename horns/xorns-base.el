@@ -31,7 +31,8 @@
 
 (eval-and-compile
   (require 'use-package)
-  (require 'xorns-tools))
+  (require 'xorns-tools)
+  (require 'xorns-simple))
 
 
 
@@ -158,11 +159,12 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 
 (use-package files
+  :after simple
   :bind
   ("C-c f /" . revert-buffer)
   ("C-c f n" . normal-mode)
   :hook
-  (before-save . delete-trailing-whitespace)
+  (before-save . >>=delete-trailing-whitespace)
   :custom
   (require-final-newline t)
   :config
