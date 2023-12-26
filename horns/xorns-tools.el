@@ -878,7 +878,7 @@ discarded."
 
 
 
-;;; buffers
+;;; buffers and windows
 
 (defun >>=local-buffer (&optional buffer)
   "Not nil if BUFFER visits a local (not remote) file."
