@@ -8,17 +8,22 @@
 
 ;;; Commentary:
 
-;; Packages ('startup', 'window', 'files', 'windmove', 'elec-pair', 'mwheel',
-;; 'iso-transl', and 'man') are always configured; 'frame' is configured if a
-;; graphic display is present, while 'xt-mouse' and 'xclip' when running in a
-;; console.
+;; Configuration for basic libraries.
+
+;; Configuration of `startup' also includes variables defined in C source
+;; code.
+
+;; Libraries ('', 'window', 'files',
+;; 'windmove', 'elec-pair', 'mwheel', 'iso-transl', and 'man') are always
+;; configured; 'frame' is configured if a graphic display is present, while
+;; 'xt-mouse' and 'xclip' when running in a console.
 ;;
 ;; Extra packages can be configured through `>>=|base/extra-packages'
 ;; variable.  Options are ('autorevert', 'recentf', and 'saveplace').
 
 ;; It's installed just by calling `(require 'xorns-packages)' in the
 ;; initialization process, which is done automatically.
-;;
+
 ;; TODO:
 ;; - See alternatives for `make-backup-files' in:
 ;;   - https://www.emacswiki.org/emacs/Auto Save
@@ -31,12 +36,19 @@
 
 (eval-and-compile
   (require 'use-package)
-  (require 'xorns-tools)
-  (require 'xorns-simple))
+  (require 'xorns-tools))
 
 
 
 ;; Configuration variables
+
+(defvar >>=|coding-system
+  (if (memq system-type '(gnu gnu/linux gnu/kfreebsd darwin))
+    'utf-8-unix
+    ;; else
+    'utf-8)
+  "Default value of various coding systems for multilingual environments.")
+
 
 (defvar >>=|user-mail-address-template nil
   "Template to set `user-mail-address'.
@@ -67,11 +79,36 @@ to configure for yourself: see `save-buffer' function for more information.")
 ;; Default base packages (always configured)
 
 (use-package startup
+  ;; mainly configure 'C source code' variables
   :no-require t
   :custom
   (use-short-answers t)
   (inhibit-startup-screen t)
-  (initial-scratch-message nil))
+  (initial-scratch-message nil)
+  (delete-by-moving-to-trash t)    ; trash is at '~/.local/share/Trash'
+  (ring-bell-function 'ignore)
+  (mark-even-if-inactive nil)      ; fix undo in commands affecting the mark
+  (load-prefer-newer t)
+  (scroll-preserve-screen-position t))
+
+
+(use-package mule
+  :no-require t
+  :defines truncate-string-ellipsis    ; `mule-util' module
+  :config
+  (setq truncate-string-ellipsis "…")
+  (set-charset-priority 'unicode)
+  (when >>=|coding-system
+    (setq locale-coding-system >>=|coding-system)
+    (set-default-coding-systems >>=|coding-system)
+    (prefer-coding-system >>=|coding-system)
+    (set-selection-coding-system >>=|coding-system)))
+
+
+(use-package help
+  :no-require t
+  :custom
+  (help-window-select t))
 
 
 (use-package frame
@@ -137,7 +174,6 @@ to configure for yourself: see `save-buffer' function for more information.")
               #'split-window-vertically))))
       ;; else
       (warn "Only can toggle two windows!")))
-
   :custom
   (split-width-threshold 120)
   :bind
@@ -156,6 +192,42 @@ to configure for yourself: see `save-buffer' function for more information.")
 (use-package winner
   :config
   (winner-mode +1))
+
+
+(use-package simple
+  :preface
+  (defun >>=delete-trailing-whitespace ()
+    "Delete trailing white-spaces for the full buffer in a safe way."
+    ;; TODO: check `delete-trailing-lines' variable, and `whitespace-cleanup'
+    ;; function
+    (interactive)
+    (save-restriction
+      (widen)
+      (save-mark-and-excursion
+        (deactivate-mark 'force)
+        (funcall-interactively 'delete-trailing-whitespace))))
+  :hook
+  (tabulated-list-mode . hl-line-mode)    ; TODO: why is this here?
+  :bind
+  ("C-c k f" . >>=yank-filename)
+  ("C-c k d" . >>=yank-default-directory)
+  ("M-SPC" . cycle-spacing)    ;; It was `just-one-space'
+  ("M-s-;" . list-processes)
+  (:map process-menu-mode-map
+    ("k" . process-menu-delete-process))
+  :custom
+  (async-shell-command-buffer 'new-buffer)
+  (column-number-mode +1)
+  (mark-ring-max 32)
+  (next-error-message-highlight t)
+  (global-mark-ring-max 32)
+  (kill-ring-max 128)
+  (kill-do-not-save-duplicates t)
+  (kill-whole-line t)
+  (save-interprogram-paste-before-kill t)
+  :config
+  (setq-default indent-tabs-mode nil)   ; TODO: why is this here?
+  (put 'set-goal-column 'disabled nil))
 
 
 (use-package files
@@ -180,6 +252,35 @@ to configure for yourself: see `save-buffer' function for more information.")
       version-control t)
     ; else
     (setq make-backup-files nil)))
+
+
+(use-package delsel
+  ;; typed text replaces the selection
+  :config
+  (delete-selection-mode +1))
+
+
+(use-package paren
+  ;; parenthesis matching
+  :custom
+  (show-paren-style 'mixed)
+  :config
+  (show-paren-mode))
+
+
+(use-package ispell
+  :bind
+  ("C-c i d" . ispell-change-dictionary)
+  ("C-c i l" . ispell-change-dictionary)
+  ("C-c i r" . ispell-region)
+  ("C-c i b" . ispell-buffer)
+  ("C-c i c" . ispell-comments-and-strings)
+  ("C-c i k" . ispell-kill-ispell)
+  ("C-c i m" . ispell-message)
+  :custom
+  (ispell-highlight-p t)
+  (ispell-silently-savep t)
+  (ispell-dictionary "english"))
 
 
 (use-package xt-mouse
@@ -287,6 +388,18 @@ to configure for yourself: see `save-buffer' function for more information.")
   :when (memq 'saveplace >>=|base/extra-packages)
   :config
   (save-place-mode +1))
+
+
+
+;;; Enable some disabled commands
+
+;; Give us narrowing back!
+(put 'narrow-to-region 'disabled nil)
+(put 'narrow-to-page 'disabled nil)
+(put 'narrow-to-defun 'disabled nil)
+;; Same for region casing
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
 
 
 (provide 'xorns-base)

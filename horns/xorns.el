@@ -46,10 +46,6 @@
   "Name of started Desktop Window Manager when EXWM is started.")
 
 
-(defvar >>=|coding-system 'utf-8
-  "Default value of various coding systems for multilingual environments.")
-
-
 (defvar >>=|enable-server nil
   "If non-nil, start an Emacs server if one is not already running.")
 
@@ -63,14 +59,6 @@ Intended for future use of configuration variables."
 
 (>>=progn "user configuration setting"
   (require 'xorns-config))
-
-
-(>>=progn "setting default value of various coding systems"
-  (when >>=|coding-system
-    (setq locale-coding-system >>=|coding-system)
-    (set-default-coding-systems >>=|coding-system)
-    (prefer-coding-system >>=|coding-system)
-    (set-selection-coding-system >>=|coding-system)))
 
 
 (>>=progn "base initialization"

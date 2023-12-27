@@ -6,16 +6,15 @@
 
 ;;; Commentary:
 
-;; System level configuration
-;;
+;; System packages configuration
+
 ;; Include: grep tools, dictionary servers, processes and commands,
 ;; cryptography or techniques for secure communications, version control
 ;; system tools (mainly `magit').
-;;
+
 ;; Also `treemacs', a file and project explorer similar to NeoTree or vim’s
 ;; NerdTree, but largely inspired by the Project Explorer in Eclipse.  See
 ;; https://github.com/Alexander-Miller/treemacs
-
 
 ;; Enjoy!
 
@@ -23,8 +22,8 @@
 ;;; Code:
 
 (eval-and-compile
-  (require 'xorns-tools)
-  (require 'use-package))
+  (require 'use-package)
+  (require 'xorns-tools))
 
 
 

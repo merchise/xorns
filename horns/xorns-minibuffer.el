@@ -31,7 +31,9 @@ Always considered true when `>>=|minibuffer/completing-framework' is
 
 (use-package minibuffer
   :bind
-  ("C-M-," . completion-at-point))
+  ("C-M-," . completion-at-point)
+  :custom
+  (completions-detailed t))
 
 
 (use-package savehist

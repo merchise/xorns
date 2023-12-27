@@ -18,18 +18,17 @@
 
 (require 'xorns-minibuffer)
 (require 'xorns-mode-line)
-(require 'xorns-simple)
 (require 'xorns-buffers)
 (require 'xorns-dired)
 (require 'xorns-xterm)
 (require 'xorns-text)
 (require 'xorns-prog)
 (require 'xorns-prog-extra)
-(require 'xorns-system)
 (require 'xorns-devop)
+(require 'xorns-system)
 (require 'xorns-project)
-
 (require 'xorns-pim)
+
 (require 'xorns-bots)
 
 
