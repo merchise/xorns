@@ -21,8 +21,7 @@
   (error
     "Xorns requires Emacs >='%s', not '%s'"
     >>=!xorns/emacs-min-version
-    emacs-version
-    ))
+    emacs-version))
 
 
 (defconst >>=!xorns/standalone-dir

@@ -6,12 +6,10 @@
 
 ;;; Commentary:
 
-;; To use `xorns', just require its main module in the user’s initialization
-;; file:
+;; To use `xorns', just require its main module in the user's initialization
+;; file (`user-init-file'):
 ;;
 ;;   (require 'xorns)
-;;
-;; We advise to use our version of `user-init-file'.
 
 ;; Enjoy!
 
