@@ -1,4 +1,4 @@
-;;; xorns-bots.el --- Latest `xorns' development versions tools  -*- lexical-binding: t -*-
+;;; xorns-bots.el --- Development tools -*- lexical-binding: t -*-
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
@@ -22,6 +22,12 @@
 
 (defconst >>=!pkg-dir (bound-and-true-p >>=!xorns/standalone-dir)
   "Package directory if `xorns' is initialized in standalone mode.")
+
+
+(defvar >>=!sketch-file-name
+  (>>=path/join
+    >>=|preferred-default-directory "sketch" "emacs" "xorns-sketch")
+  "Name for sketch file.")
 
 
 (defvar >>=|bots/activation-key "<C-s-backspace>"
@@ -82,6 +88,19 @@ If BASE argument is non-nil, open project directory instead."
       (warn ">>= xorns working-folder not found."))))
 
 
+(defun >>=bots/open-sketch ()
+  "Switch to my sketch buffer."
+  (interactive)
+  (let ((buf (find-file-noselect >>=!sketch-file-name)))
+    (unless (eq (buffer-local-value 'major-mode buf) 'lisp-interaction-mode)
+      (warn
+        ">>= '%s' is not in `lisp-interaction-mode', copied from '%s'"
+        >>=!sketch-file-name
+        "xorns/horns/templates/xorns-sketch"))
+    ;; TODO: (>>=toolbox/setup-new-buffer buf)
+    (pop-to-buffer-same-window buf)))
+
+
 (defun >>=bots/git-pull ()
   "Pull `xorns' standalone repository from GIT origin remote.
 This assumes that `user-emacs-directory' is a valid cloned `xorns' GIT
@@ -135,7 +154,8 @@ has an ‘.elc’ file; otherwise only those that needs recompilation."
      ("c" "Byte recompile"      >>=bots/byte-recompile)]
    ["Development"
      ("w" "Open dired"          >>=bots/dired-working-folder)
-     ("r" "Open recent-file"    >>=bots/recent-working-file)]]
+     ("r" "Open recent-file"    >>=bots/recent-working-file)
+     ("s" "Open sketch"         >>=bots/open-sketch)]]
   (interactive)
   (transient-setup '>>=bots/menu))
 
