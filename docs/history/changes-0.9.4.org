@@ -1,0 +1,7 @@
+#+TITLE: Changes in release 0.9.4
+
+* Extends user configuration to allow settings linked to a =major-mode=
+
+The protocol to manage the configuration of a major-mode is extended, allowing
+to define functions that are triggered by events related to a mode (see the
+=xorns-config= module documentation).

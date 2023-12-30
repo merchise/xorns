@@ -1,0 +1,7 @@
+#+TITLE: Changes in release 0.9.6
+
+* New mechanism for configuring global keybinds
+
+Allows you to redefine the entry point to configure global keys.  This is
+useful for libraries that need to do that, for example =exwm-input-set-key= if
+you use the =exwm= library (see =xorns-tools= module).

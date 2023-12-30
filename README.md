@@ -54,37 +54,6 @@ example "xorns+python.el", "").  Sub-levels are joined with "/" (for example
 ">>=+base/extra-packages-to-configure").
 
 
-## What's new?
-
-### Version 0.9.3
-
-Previously, Xorns used a single file to configure user options and the
-standard Emacs customization information.  Starting with this version, a
-folder can be used to separate these concepts into two different files.  In
-addition to these two basic files, you can add code to be executed each time a
-major-mode is entered ("{major-mode}-config.el").
-
-To migrate from a single file to using a folder, split it into two different
-files as indicated in the "xorns-config" module documentation.
-
-### Version 0.9.4
-
-The protocol to manage the configuration of a major-mode is extended, allowing
-to define functions that are triggered by events related to a mode (see the
-"xorns-config" module documentation).
-
-### Version 0.9.5
-
-Refactor and integrate several modules.
-
-### Version 0.9.6
-
-New mechanism for configuring global keybinds that allows you to redefine the
-main entry point.  This is useful for libraries that need to do that, for
-example `exwm-input-set-key` if you use the `exwm` library (see `xorns-tools`
-module).
-
-
 ## Backlog
 
 ### Misc
