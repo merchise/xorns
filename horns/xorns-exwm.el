@@ -75,7 +75,7 @@
   `(("<s-f2>" . "http://")    ;; Empty browser
     ("C-s-t" . "https://translate.google.com")
     ("C-s-c" . "https://web.telegram.org"))
-  "Pairs of (KEY . URL) to be used with `>>=exwm/browse-url'.")
+  "Pairs of (KEY . URL) to be used with `browse-url'.")
 
 
 (defvar >>=|exwm/startup-applications nil
@@ -144,23 +144,12 @@ A process NAME can bee given as an optional argument."
   (start-process-shell-command name nil command))
 
 
-(defun >>=exwm/browse-url (url &rest args)
-  "Open URL using a configurable method inner EXWM.
-Similar to standard `>>=exwm/browse-url' function, but this one switches to
-changes to a workspace if `>>=|exwm/browse-url-workspace' is not nil.  This
-function can also uses additional ARGS."
-  (interactive (browse-url-interactive-arg ">>= URL: "))
-  (when >>=|exwm/browse-url-workspace
-    (exwm-workspace-switch-create >>=|exwm/browse-url-workspace))
-  (apply 'browse-url url args))
-
-
 (defun >>=exwm/start-command (command)
   "Start a COMMAND synchronously in separate process."
   (interactive (list (read-shell-command ">>= ")))
   (cond
     ((and (stringp command) (string-match "\\`https?[:]" command))
-      (>>=exwm/browse-url command))
+      (browse-url command))
     ((functionp >>=|exwm/start-process-model)
       (funcall >>=|exwm/start-process-model command))
     ((null >>=|exwm/start-process-model)
@@ -184,14 +173,14 @@ function can also uses additional ARGS."
 
 
 (defun >>-url-browser (url)
-  "Create a `>>=exwm/browse-url' lambda for a given URL."
+  "Create a `browse-url' lambda for a given URL."
   (lambda ()
     (interactive)
-    (>>=exwm/browse-url url)))
+    (browse-url url)))
 
 
 (defsubst >>-exwm/url-keys ()
-  "Return pairs of (KEY . URL) used by `>>=exwm/browse-url'."
+  "Return pairs of (KEY . URL) used by `browse-url'."
   (mapcan
     (lambda (pair) (list (car pair) (>>-url-browser (cdr pair))))
     >>=|exwm/url-keys))
@@ -346,11 +335,20 @@ function can also uses additional ARGS."
     (interactive)
     (switch-to-buffer (other-buffer (current-buffer))))
   :config
+
   (defun >>-exwm/input-set-key (key command)
     "Wrapper to `exwm-input-set-key' to give KEY a global binding as COMMAND."
     (exwm-input-set-key (>>=key-parse key) command))
 
+  (defun >>-exwm/browse-url (url &rest args)
+    "Before to `browse-url' using (URL ARGS) to change workspace."
+    ;; TODO: (interactive (browse-url-interactive-arg ">>= URL: "))
+    (ignore url args)
+    (when >>=|exwm/browse-url-workspace
+      (exwm-workspace-switch-create >>=|exwm/browse-url-workspace)))
+
   (advice-add '>>=bind-global-key :override '>>-exwm/input-set-key)
+  (advice-add 'browse-url :before '>>-exwm/browse-url)
 
   (>>=bind-global-keys
     ;; Like on `i3' window manager.  We use a new command because at this
@@ -362,7 +360,7 @@ function can also uses additional ARGS."
     "s-;" >>-exwm/swap-last-buffers
     "s-{" >>=exwm/reduce-window-horizontally
     "s-}" >>=exwm/enlarge-window-horizontally
-    "C-s-/" >>=exwm/browse-url-at-point)
+    "C-s-/" browse-url-at-point)
 
   (eval `(>>=bind-global-keys ,@(>>-exwm/url-keys)))
 
