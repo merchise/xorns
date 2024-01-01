@@ -52,6 +52,8 @@
 ;; The selected mode is used for both, the startup applications and any
 ;; launched with `>>=exwm/start-command'.
 
+;; TODO: configure `exwm-randr' to use multiple monitors
+
 ;; Enjoy!
 
 
@@ -81,25 +83,10 @@
   "List of applications to be executed when EXWM starts.")
 
 
-(defvar >>=|mode-line/battery-icon-command nil
-  "Command to show battery as a try icon.
-This command will be used instead of the function `display-battery-mode'.")
-
-
 (defvar >>=|exwm/start-process-model nil
   "Model to execute EXWM processes.
 Value could be a function receiving an unique argument string; or nil to use
 `>>=exwm/start-process', or t to use `>>=exwm/start-subprocess'.")
-
-
-(defvar >>=|exwm/systemtray-height 25
-  "Value to configure `System tray height' variable' inner EXWM.")
-
-
-(defvar >>=|exwm/systemtray-icons t
-  "Count of system-tray icons (useful to set `mini-modeline-right-padding').
-Could be an integer or a boolean value, if t is calculated with the length of
-`>>=|exwm/startup-applications'.)")
 
 
 (defvar >>=|exwm/web-names
@@ -124,6 +111,16 @@ string or a list of strings.")
   "Private variable with the complete list of buffer name replacements.
 This value is obtained by appending `>>=|exwm/name-alist' with calculated
 pairs from `>>=|exwm/web-names' and `>>=|exwm/web-alts'.")
+
+
+(defvar >>-exwm/system-tray-chars-width nil
+  "Internal variable storing system-tray width in chars units.
+Can be estimated before loading startup applications.  Its value is a `cons'
+\(WIDTH . ESTIMATED).")
+
+
+(defvar exwm-systemtray-update-hook nil
+  "Run when system-tray parameters needs update.")
 
 
 (defun >>=exwm/start-process (command)
@@ -171,50 +168,15 @@ A process NAME can bee given as an optional argument."
   (exwm-layout-enlarge-window-horizontally (* -50 delta)))
 
 
-(defun >>-url-browser (url)
-  "Create a `browse-url' lambda for a given URL."
-  (lambda ()
-    (interactive)
-    (browse-url url)))
-
-
-(defsubst >>-exwm/url-keys ()
+(defun >>-exwm/create-url-keys ()
   "Return pairs of (KEY . URL) used by `browse-url'."
   (mapcan
-    (lambda (pair) (list (car pair) (>>-url-browser (cdr pair))))
+    (lambda (pair)
+      (list
+        (cons
+          (car pair)
+          `(lambda () (interactive) (browse-url ,(cdr pair))))))
     >>=|exwm/url-keys))
-
-
-(defun >>--startup-applications ()
-  "Private function to run all startup applications."
-  (dolist (cmd >>=|exwm/startup-applications)
-    (condition-case-unless-debug err
-      (>>=exwm/start-command cmd)
-      (error
-        (message ">>= error executing '%s' startup application:\n    %s"
-          cmd (error-message-string err))))))
-
-
-(defun >>-exwm/startup-applications ()
-  "Run all startup applications defined in `>>=|exwm/startup-applications'."
-  (run-with-timer 1 nil '>>--startup-applications))
-
-
-(defun >>=exwm/configure-system-tray ()
-  "Configure EXWM system-tray."
-  (eval-and-compile
-    (require 'exwm-systemtray))
-  (if >>=|mode-line/battery-icon-command
-    (>>=exwm/start-command >>=|mode-line/battery-icon-command)
-    ;; else
-    (display-battery-mode +1))
-  (setq-default display-time-24hr-format t)
-  (display-time-mode +1)
-  (exwm-systemtray-enable)
-  ;; (eval-when-compile
-  ;;   (defvar exwm-systemtray-height))
-  (when >>=|exwm/systemtray-height
-    (setq exwm-systemtray-height >>=|exwm/systemtray-height)))
 
 
 
@@ -223,120 +185,116 @@ A process NAME can bee given as an optional argument."
 (use-package exwm
   :ensure t
   :demand t
+  :commands exwm-enable
   :preface
-  (declare-function exwm-enable 'exwm)
-  (declare-function exwm-workspace-rename-buffer 'exwm-workspace)
-  :init
-  (eval-and-compile
-    (defun >>-exwm/class-name ()
-      "Get the class name (WM_CLASS) for a newly created EXWM buffer."
-      (or
-        (>>=str-trim exwm-class-name)
-        (>>=str-trim exwm-instance-name)
-        "unnamed"))
+  (defun >>-exwm/class-name ()
+    "Get the class name (WM_CLASS) for a newly created EXWM buffer."
+    (or
+      (>>=str-trim exwm-class-name)
+      (>>=str-trim exwm-instance-name)
+      "unnamed"))
 
-    (defun >>-exwm/name-alist ()
-      "Get the class name (WM_CLASS) for a newly created EXWM buffer."
-      (or
-        >>-exwm/name-alist
-        (setq >>-exwm/name-alist
-          (append
-            >>=|exwm/name-alist
-            (when (and >>=|exwm/web-names >>=|exwm/web-alts)
-              (mapcar
-                (lambda (name) (cons name >>=|exwm/web-alts))
-                >>=|exwm/web-names))))))
+  (defun >>-exwm/name-alist ()
+    "Get the class name (WM_CLASS) for a newly created EXWM buffer."
+    (or
+      >>-exwm/name-alist
+      (setq >>-exwm/name-alist
+        (append
+          >>=|exwm/name-alist
+          (when (and >>=|exwm/web-names >>=|exwm/web-alts)
+            (mapcar
+              (lambda (name) (cons name >>=|exwm/web-alts))
+              >>=|exwm/web-names))))))
 
 
-    (defun >>-exwm/rename-new-buffer ()
-      "Rename a newly created EXWM buffer."
-      (let* ((name (>>-exwm/class-name))
-             (replacements (>>-exwm/name-alist))
-             (rep (cdr (assoc-string name replacements 'case-fold))))
-        (when rep
-          (if (stringp rep)
-            (setq name rep)
-            ;; else
-            (while rep
-              (setq
-                name (car rep)
-                rep (if (get-buffer name) (cdr rep) nil)))))
-        (rename-buffer name 'unique)))
+  (defun >>-exwm/rename-new-buffer ()
+    "Rename a newly created EXWM buffer."
+    (let* ((name (>>-exwm/class-name))
+           (replacements (>>-exwm/name-alist))
+           (rep (cdr (assoc-string name replacements 'case-fold))))
+      (when rep
+        (if (stringp rep)
+          (setq name rep)
+          ;; else
+          (while rep
+            (setq
+              name (car rep)
+              rep (if (get-buffer name) (cdr rep) nil)))))
+      (rename-buffer name 'unique)))
 
-    (defun >>-exwm/update-class ()
-      "Run when window class is updated."
-      (>>-exwm/rename-new-buffer))
+  (defun >>-exwm/update-class ()
+    "Run when window class is updated."
+    (>>-exwm/rename-new-buffer))
 
-    (defun >>-exwm/switch-to-workspace-functions ()
-      "Generate (KEY . switch-function) pairs."
-      (mapcar
-        (lambda (idx)
-          (let ((key (>>=key-parse (format "s-%d" idx)))
-                (name (intern (format ">>=exwm/switch-workspace-%s" idx)))
-                (doc (format "Switch to workspace '%s'." idx)))
-            (cons key
-              (defalias name
-                (lambda ()
-                  (interactive)
-                  (exwm-workspace-switch-create (car `(,idx))))
-                 doc))))
-        (number-sequence 0 9)))
+  (defun >>-exwm/switch-to-workspace-functions ()
+    "Generate (KEY . switch-function) pairs."
+    (mapcar
+      (lambda (idx)
+        (let ((key (>>=key-parse (format "s-%d" idx)))
+              (name (intern (format ">>=exwm/switch-workspace-%s" idx)))
+              (doc (format "Switch to workspace '%s'." idx)))
+          (cons key
+            (defalias name
+              (lambda ()
+                (interactive)
+                (exwm-workspace-switch-create (car `(,idx))))
+              doc))))
+      (number-sequence 0 9)))
 
-    (defun >>-exwm/config ()
-      "Xorns configuration for EXWM (replaces `exwm-config-example')."
-      ;; We don't call `exwm-config-misc' to disable dialog boxes and
-      ;; hourglass pointer here using because in `xorns' this is done in
-      ;; `early-init.el'.  Also, `exwm-config-ido' is not used because we
-      ;; configure IDO, if demanded, in `xorns-minibuffer.el'.
-      (>>=exwm/configure-system-tray)
-      (unless (get 'exwm-workspace-number 'saved-value)
-        (setq exwm-workspace-number 4))
-      (unless (get 'exwm-input-global-keys 'saved-value)
-        (setq exwm-input-global-keys
-          `(([?\s-&] . >>=exwm/start-command)
-            ,@(>>-exwm/switch-to-workspace-functions))))
-      (unless (get 'exwm-input-simulation-keys 'saved-value)
-        (setq exwm-input-simulation-keys
-          '(([?\C-b] . [left])
-             ([?\C-f] . [right])
-             ([?\C-p] . [up])
-             ([?\C-n] . [down])
-             ([?\C-a] . [home])
-             ([?\C-e] . [end])
-             ([?\M-v] . [prior])
-             ([?\C-v] . [next])
-             ([?\C-d] . [delete])
-             ([?\C-k] . [S-end delete]))))
-      (exwm-enable))
-    )
+  (defun >>-exwm/config ()
+    "Xorns configuration for EXWM (replaces `exwm-config-example')."
+    ;; We don't call `exwm-config-misc' to disable dialog boxes and
+    ;; hourglass pointer here using because in `xorns' this is done in
+    ;; `early-init.el'.  Also, `exwm-config-ido' is not used because we
+    ;; configure IDO, if demanded, in `xorns-minibuffer.el'.
+    (unless (>>=customized? 'exwm-workspace-number)
+      (setq exwm-workspace-number 4))
+    (unless (>>=customized? 'exwm-input-global-keys)
+      (setq exwm-input-global-keys
+        `(([?\s-&] . >>=exwm/start-command)
+           ,@(>>-exwm/switch-to-workspace-functions))))
+    (unless (get 'exwm-input-simulation-keys 'saved-value)
+      (setq exwm-input-simulation-keys
+        '(([?\C-b] . [left])
+           ([?\C-f] . [right])
+           ([?\C-p] . [up])
+           ([?\C-n] . [down])
+           ([?\C-a] . [home])
+           ([?\C-e] . [end])
+           ([?\M-v] . [prior])
+           ([?\C-v] . [next])
+           ([?\C-d] . [delete])
+           ([?\C-k] . [S-end delete]))))
+    (exwm-enable))
   :hook
-  (exwm-init . >>-exwm/startup-applications)
   (exwm-update-class . >>-exwm/update-class)
+  :custom
+  (exwm-workspace-warp-cursor t)
+  (exwm-workspace-display-echo-area-timeout 5)
+  (exwm-floating-border-width 3)
   :config
-  (eval-when-compile    ; this is only needed in local compile
-    (declare-function >>-exwm/config 'xorns-exwm)    ; WTF
-    (declare-function exwm-systemtray-enable 'exwm-systemtray))
   (message ">>= using Emacs as the Desktop Window Manager.")
   (->? >>=window-manager/init)
-  (>>-exwm/config)    ;; (exwm-config-example)
-  )
+  (>>-exwm/config))
 
 
 (use-package exwm-input
   :after exwm
   :demand t
-  :commands exwm-reset exwm-input-set-key
+  :commands
+  exwm-reset
+  exwm-input-set-key
+  exwm-input-send-next-key
+  exwm-workspace-switch-create
   :preface
-  (declare-function exwm-input-send-next-key 'exwm-input)
-
   (defun >>-exwm/swap-last-buffers ()
     "Switch currently visible buffer by last one."
+    ;; TODO: move this to `xorns-window'
     (interactive)
     (switch-to-buffer (other-buffer (current-buffer))))
   :config
-
   (defun >>-exwm/input-set-key (key command)
-    "Wrapper to `exwm-input-set-key' to give KEY a global binding as COMMAND."
+    "Advice for `exwm-input-set-key' to give KEY a global binding as COMMAND."
     (exwm-input-set-key (>>=key-parse key) command))
 
   (defun >>-exwm/browse-url (url &rest args)
@@ -361,12 +319,14 @@ A process NAME can bee given as an optional argument."
     "s-}" >>=exwm/enlarge-window-horizontally
     "C-s-/" browse-url-at-point)
 
-  (eval `(>>=bind-global-keys ,@(>>-exwm/url-keys)))
+  (eval `(>>=bind-global-keys ,@(>>-exwm/create-url-keys)))
 
   (let* ((suspend-key ?\C-z))
     ;; Prefix key to send next key-press literally to the application.
     ;; Default value is `C-z' because is used for `suspend-frame' in terminals.
     (add-to-list 'exwm-input-prefix-keys suspend-key)
+    (add-to-list 'exwm-input-prefix-keys
+      (car (mapcar 'identity (>>=key-parse "M-X"))))
     (keymap-set exwm-mode-map
       (key-description (vector suspend-key)) 'exwm-input-send-next-key))
   (setq exwm-input-simulation-keys
@@ -412,12 +372,77 @@ A process NAME can bee given as an optional argument."
   (require 'xorns-linux))
 
 
+(use-package exwm-systemtray
+  :after exwm
+  :demand t
+  :commands exwm-systemtray-enable exwm-systemtray--set-background-color
+  :preface
+  (defsubst >>-exwm/mini-modeline-background-color ()
+    "Get background mode-line color if `mini-modeline' is active."
+    (plist-get (bound-and-true-p mini-modeline-face-attr) :background))
+
+  (defun >>-exwm/system-tray-width ()
+    "System-tray pixels width."
+    (let ((gap exwm-systemtray-icon-gap)
+          (res 0.0))
+      (dolist (pair exwm-systemtray--list)
+        (setq res (+ res (slot-value (cdr pair) 'width) gap)))
+      (if (zerop res) nil (+ res gap))))
+
+  (defun >>-exwm/estimated-system-tray-width ()
+    "Estimate system-tray pixels width before startup applications."
+    ;; TODO: There may be startup apps that are not iconic.
+    (let* ((gap exwm-systemtray-icon-gap)
+           (size (+ (float (frame-char-height)) gap)))
+      (+ (* size (length >>=|exwm/startup-applications)) gap)))
+
+  (defun >>-exwm/startup-applications ()
+    "Run all startup applications defined in `>>=|exwm/startup-applications'."
+    (dolist (cmd >>=|exwm/startup-applications)
+      (condition-case-unless-debug err
+        (>>=exwm/start-command cmd)
+        (error
+          (message ">>= error executing '%s' startup application:\n    %s"
+            cmd (error-message-string err))))))
+
+  (defun >>-exwm/update-system-tray-chars-width (width &optional estimated)
+    "Run hook to update system-tray WIDTH (can be ESTIMATED)."
+    (setq >>-exwm/system-tray-chars-width
+      (cons (round (/ width (frame-char-width))) estimated))
+    (run-hooks 'exwm-systemtray-update-hook))
+
+  (defun >>-exwm/systemtray--init ()
+    "Advice for `exwm-systemtray--init' to initialize system tray module."
+    (>>-exwm/startup-applications)
+    (when-let ((color (>>-exwm/mini-modeline-background-color)))
+      ;; this should only happen if `mini-modeline' is configured.
+      (setq exwm-systemtray-background-color color)
+      (exwm-systemtray--set-background-color))
+    (let ((width (>>-exwm/system-tray-width)))
+      (if width
+        (>>-exwm/update-system-tray-chars-width width)
+        ;; else
+        (>>-exwm/update-system-tray-chars-width
+          (>>-exwm/estimated-system-tray-width))
+        (let ((count (length >>=|exwm/startup-applications)))
+          (unless (zerop count)
+            (run-with-timer (1+ count) nil
+              (lambda ()
+                (when-let ((width (>>-exwm/system-tray-width)))
+                  (>>-exwm/update-system-tray-chars-width width)))))))))
+  :config
+  (setq-default display-time-24hr-format t)
+  (display-battery-mode +1)
+  (display-time-mode +1)
+  (advice-add 'exwm-systemtray--init :after '>>-exwm/systemtray--init)
+  (exwm-systemtray-enable))
+
+
 (use-package exwm-workspace
   :after exwm
   :demand t
+  :functions exwm-workspace-switch >>=exwm/switch-workspace-0
   :preface
-  (declare-function exwm-workspace-switch 'exwm-workspace)
-
   (defun >>-exwm/ws-switch-left ()
     "Move to left workspace. "
     (interactive)
@@ -437,7 +462,6 @@ A process NAME can bee given as an optional argument."
   (exwm-workspace-show-all-buffers t)
   (exwm-layout-show-all-buffers t)
   :config
-  (declare-function >>=exwm/switch-workspace-0 'xorns-exwm)   ; avoid warning
   (>>=bind-global-keys
     "s-." >>=exwm/switch-workspace-0    ; TODO: change this
     "s-`" >>=exwm/switch-workspace-0
@@ -447,7 +471,9 @@ A process NAME can bee given as an optional argument."
   (let ((map (make-sparse-keymap)))
     (keymap-set map "<mode-line> <mouse-1>" 'exwm-workspace-switch)
     (setq global-mode-string
-      (nconc global-mode-string
+      (nconc
+        '(" ")
+        global-mode-string
         `(""
            (:propertize
              (:eval (format " <%d>" exwm-workspace-current-index))

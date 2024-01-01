@@ -9,3 +9,15 @@
 - Generalize URL browsing on =exwm= library.
 - Create a =xorns-window= module including generic window, buffers tools; also
   new concepts like =toolbox= and logic linked buffers.
+
+* Improve =mode-line= module
+
+- Fixed and improved configuration for all options.
+- Checked use of themes.
+- Better integration with =exwm=.
+- =minions= and =smart-mode-line= are always configured now for all extended
+  kinds (whenever =>>=|mode-line/kind= is not nil).
+- Checked use of fonts and icons.
+
+See the header documentation for the modules =xorns-mode-line= and
+=xorns-exwm= for more information.

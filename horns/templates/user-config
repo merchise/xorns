@@ -42,7 +42,6 @@ default values are not suitable for your configuration."
     ;;    "volumeicon"                        ; Volume control
     ;;    "cbatticon"                         ; battery icon
     ;;    )
-    ;; >>=|mode-line/battery-icon-command "cbatticon"
     ;; >>=|exwm/start-process-model t         ; use sub-processes
     ;; >>=|lsp/enable-mode 'ask
     ;; >>=|lsp/startup-deferred t

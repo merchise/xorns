@@ -27,6 +27,7 @@
 
 (use-package projectile
   :ensure t
+  :demand t
   :commands projectile-project-root
   :bind-keymap
   ("C-c p" . projectile-command-map)
@@ -35,23 +36,22 @@
   (projectile-switch-project-action 'projectile-dired)
   (projectile-ignored-project-function 'file-remote-p)
   :config
-  (progn
-    (>>=append projectile-globally-ignored-directories
-      '("elpa" ".vscode" "node_modules")
-      >>=|projectile/extra-ignored-directories)
+  (>>=append projectile-globally-ignored-directories
+    '("elpa" ".vscode" "node_modules")
+    >>=|projectile/extra-ignored-directories)
+  (>>=append projectile-project-root-files
+    '(".travis.yml") >>=|projectile/project-root-files)
+  (when (memq 'rescript >>=|programming/extra-languages)
     (>>=append projectile-project-root-files
-      '(".travis.yml") >>=|projectile/project-root-files)
-    (when (memq 'rescript >>=|programming/extra-languages)
-      (>>=append projectile-project-root-files
-        '("bsconfig.json") >>=|projectile/project-root-files))
-    (add-to-list
-      ;; Ignore Mac Search Index Cache
-      'projectile-globally-ignored-files ".DS_Store")
-    (projectile-mode +1)
-    (if (bound-and-true-p ivy-mode)
-      (setq projectile-completion-system 'ivy))
-    (if (bound-and-true-p helm-mode)
-      (setq projectile-completion-system 'helm))))
+      '("bsconfig.json") >>=|projectile/project-root-files))
+  (add-to-list
+    ;; Ignore Mac Search Index Cache
+    'projectile-globally-ignored-files ".DS_Store")
+  (projectile-mode +1)
+  (if (bound-and-true-p ivy-mode)
+    (setq projectile-completion-system 'ivy))
+  (if (bound-and-true-p helm-mode)
+    (setq projectile-completion-system 'helm)))
 
 
 (provide 'xorns-project)
