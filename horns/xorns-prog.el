@@ -20,7 +20,7 @@
   (require 'xorns-buffers)
   (require 'hideshow)
   (require 'transient)
-  (require 'use-package nil 'noerror))
+  (require 'use-package))
 
 
 

@@ -19,8 +19,8 @@
 
 (eval-and-compile
   (require 'recentf)
-  (require 'transient nil 'noerror)
-  (require 'magit-status nil 'noerror)
+  (require 'transient)
+  (require 'magit-status)
   (require 'xorns-tools))
 
 

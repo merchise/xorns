@@ -25,7 +25,7 @@
 (require 'xorns-tools)
 
 (eval-and-compile
-  (require 'use-package nil 'noerror))
+  (require 'use-package))
 
 
 (defconst >>=!gc/default-threshold-base #x4000000    ; 64M

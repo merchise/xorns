@@ -27,10 +27,6 @@
 
 (require 'xorns-buffers)
 
-;; TODO: Migrate this
-(require 'google-translate nil 'noerror)
-(require 'google-translate-smooth-ui nil 'noerror)
-
 
 
 ;;; Sub-tree utility
@@ -167,11 +163,7 @@
 
 
 
-;;; Key-bindings
-(global-set-key (kbd "C-|") 'google-translate-smooth-translate)
-
-
-;; For outline minor modes
+;;; Key-bindings for outline minor modes
 ;; TODO: This is defined by standard mode inner "C-c@'
 (keymap-set outline-minor-mode-map "C-=" 'outline-show-subtree)
 (keymap-set outline-minor-mode-map "M-=" 'outline-hide-subtree)

@@ -33,9 +33,7 @@
 ;;; Code:
 
 (eval-and-compile
-  (require 'use-package nil 'noerror)
-  (require 'desktop-environment nil 'noerror))
-
+  (require 'use-package))
 
 (require 'xorns-tools)
 
@@ -105,12 +103,12 @@ See `>>=!linux/exit-commands' constant."
   ;; TODO: This should probably be configured in the `xorns-exwm' module
   :ensure t
   :demand t
+  :commands desktop-environment-mode
   :bind
   (:map desktop-environment-mode-map
     ("s-l" . >>=linux/exit))
   :config
-  (progn
-    (desktop-environment-mode)))
+  (desktop-environment-mode))
 
 
 (provide 'xorns-linux)

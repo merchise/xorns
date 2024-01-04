@@ -5,3 +5,7 @@
 - Improve and refactor some base modules.
 - Configure some base variables, for example, =delete-by-moving-to-trash= to
   use "the system's trash can".
+- Improve search for recent file in =bots= module.
+- Generalize URL browsing on =exwm= library.
+- Create a =xorns-window= module including generic window, buffers tools; also
+  new concepts like =toolbox= and logic linked buffers.

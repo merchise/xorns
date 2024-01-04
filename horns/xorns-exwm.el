@@ -61,7 +61,6 @@
   (require 'use-package)
   (require 'xorns-tools)
   (require 'browse-url))
-(require 'exwm-workspace nil 'noerror)    ; avoid warning when compile
 
 
 
