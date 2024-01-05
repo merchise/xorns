@@ -794,14 +794,22 @@ See `mkdir' and `>>=path/join'."
     (expand-file-name (file-name-as-directory name))))
 
 
-(defun >>=file-in-dir-tree (files base)
-  "Return the first item in FILES that is part of the BASE directory tree."
+(defun >>=file-in-dir-tree (files base &optional exclude)
+  "Return the first item member of FILES and is inside the BASE directory.
+The optional argument EXCLUDE could be a string or a list of strings."
   ;; Based on `dired-in-this-tree'
   (let ((base (concat "^" (regexp-quote (expand-file-name base))))
         (files (if (stringp files) (list files) files))
         case-fold-search)
+    (when (stringp exclude)
+      (setq exclude (list exclude)))
+    (setq exclude (mapcar 'expand-file-name exclude))
     (seq-find
-      (lambda (item) (string-match-p base (expand-file-name item)))
+      (lambda (item)
+        (let ((fn (expand-file-name item)))
+          (and
+            (not (member fn exclude))
+            (string-match-p base fn))))
       files)))
 
 

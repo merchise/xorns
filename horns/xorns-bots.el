@@ -11,6 +11,10 @@
 ;; This module contains tools to be used when using `xorns' in standalone mode
 ;; to facilitate staying up-to-date on the latest development versions.
 
+;; TODO: migrate `transient' prefix to use a keymap (see
+;;       `projectile-command-map').  That will be more flexible using
+;;       `which-key'.
+
 ;;; Code:
 
 (eval-and-compile
@@ -46,8 +50,9 @@
   "Internal function to get GIT remote URL of `xorns' standalone repository."
   (if >>=!pkg-dir
     (let ((default-directory user-emacs-directory))
-      (replace-regexp-in-string "^file://" ""
-        (>>=shell-command-to-string "git remote get-url origin")))))
+      (file-name-as-directory
+        (replace-regexp-in-string "^file://" ""
+          (>>=shell-command-to-string "git remote get-url origin"))))))
 
 
 (defun >>=bots/dired+git-status ()
@@ -79,9 +84,14 @@ If BASE argument is non-nil, open project directory instead."
   (interactive)
   (let ((path (>>-bots-git-remote-url)))
     (if (file-exists-p path)
-      (let ((res (>>=file-in-dir-tree recentf-list path)))
+      (let ((res (>>=file-in-dir-tree recentf-list path (buffer-file-name))))
         (if res
-          (find-file res)
+          (let* ((buf (find-file-noselect res))
+                 (win (get-buffer-window buf)))
+            (if win
+              (select-window win)
+              ;; else
+              (switch-to-buffer buf)))
           ;; else
           (>>=bots/dired-working-folder)))
       ;; else
