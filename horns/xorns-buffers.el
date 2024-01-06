@@ -8,17 +8,16 @@
 
 ;; This module has advanced features to manipulate buffers: view, edit,
 ;; delete, or change attributes of buffers.
-;;
+
 ;; Main features are:
-;;
 ;; - Configure `C-x C-b' to list buffers using `ibuffer' instead
 ;;   standard `list-buffers', or `xorns-select-buffer' if
 ;;   `xorns-use-select-buffer' is non nil and `xorns-select-buffer-enabled'
 ;;   evaluates to t.
-;;
 ;; - Set `ibuffer' groups.
-;;
 ;; - Functionality to force `*scratch*' buffer.
+
+;; TODO: change `ibuffer-visit-buffer' to preserve frame if `exwm' is active.
 
 ;; Enjoy!
 

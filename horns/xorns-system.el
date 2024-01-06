@@ -16,6 +16,17 @@
 ;; NerdTree, but largely inspired by the Project Explorer in Eclipse.  See
 ;; https://github.com/Alexander-Miller/treemacs
 
+;; To solve issues of some modules using some Unicode characters and icons
+;; make sure you have proper resources installed on your system to avoid that.
+;; For more information see packages `all-the-icons' and `nerd-icons',
+;; specially `all-the-icons-install-fonts' and `nerd-icons-install-fonts'
+;; helper functions.
+
+;; TODO: check the order of this module, maybe it should be higher up in
+;;       `xorns-common-systems':
+;;          (select-window
+;;            (display-buffer "*scratch*" nil t))
+
 ;; Enjoy!
 
 
