@@ -165,7 +165,9 @@ has an ‘.elc’ file; otherwise only those that needs recompilation."
    ["Development"
      ("w" "Open dired"          >>=bots/dired-working-folder)
      ("r" "Open recent-file"    >>=bots/recent-working-file)
-     ("s" "Open sketch"         >>=bots/open-sketch)]]
+     ("k" "Open sketch"         >>=bots/open-sketch)
+     ("s" "Switch to scratch"   >>=scratch/force)
+     ]]
   (interactive)
   (transient-setup '>>=bots/menu))
 
