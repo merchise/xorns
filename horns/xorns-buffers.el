@@ -205,7 +205,6 @@
 
 (>>=bind-global-keys
   "C-x <f2>" rename-buffer
-  "C-c M-s" >>=scratch/force
   ;; "C-c h" >>=toggle-header-mode-line
   )
 

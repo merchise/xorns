@@ -31,6 +31,7 @@
 
 (eval-and-compile
   (require 'xorns-tools))
+(require 'xorns-base)
 (require 'xorns-window)
 (require 'xorns-term)
 
@@ -269,7 +270,7 @@ When TERM is given, only check buffers of that kind."
       (or
         (>>-xterm/find-buffer-by-mode (car (rassq term >>-xterm-modes)))
         (>>-xterm/find-buffer-by-mode (plist-get >>-xterm/state :mode))
-        (>>=scratch/get-buffer-create)))))
+        (get-scratch-buffer-create)))))
 
 
 (defun >>-xterm/buffer-list (&optional term)

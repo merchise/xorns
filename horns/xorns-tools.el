@@ -951,21 +951,6 @@ followed by the rest of the buffers."
       (buffer-list frame))))
 
 
-(defalias '>>=scratch/get-buffer-create 'get-scratch-buffer-create)
-
-
-(defun >>=scratch/force (&optional arg)
-  "Switch to `*scratch*` buffer, creating a new one if needed.
-An optional argument ARG could be given to delete other windows; if
-`0' also reset `default-directory' to `xorns' default."
-  (interactive "P")
-  (switch-to-buffer-other-window (>>=scratch/get-buffer-create))
-  (when (= (prefix-numeric-value arg) 0)
-    (>>=set-default-directory))
-  (when arg
-    (delete-other-windows)))
-
-
 
 ;;; modes
 ;; TODO: refactor all this section
