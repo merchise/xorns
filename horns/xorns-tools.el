@@ -903,19 +903,6 @@ discarded."
     (list (buffer-file-name) list-buffers-directory default-directory)))
 
 
-(defun >>=kill-buffer-and-window (&optional buffer)
-  "Kill the specified BUFFER, and delete the window currently displaying it.
-Argument nil or omitted means kill the current buffer."
-  (unless buffer
-    (setq buffer (current-buffer)))
-  (let ((win (get-buffer-window buffer)))
-    (prog1
-      (kill-buffer buffer)
-      (when win
-        (ignore-errors
-          (delete-window win))))))
-
-
 (defun >>=buffer-focused-text ()
   "Return focused-text in current buffer, selected region or current line."
   (let (begin end
@@ -936,19 +923,6 @@ Argument nil or omitted means kill the current buffer."
       (buffer-substring-no-properties begin end)
       (if region
         (setq deactivate-mark t)))))
-
-
-(defun >>=filter-buffer-list-by-mode (mode &optional frame)
-  "Return a list of all live buffers filtered by MODE.
-If the optional arg FRAME is a frame, return the buffer list in the
-proper order for that frame: the buffers shown in FRAME come first,
-followed by the rest of the buffers."
-  (delq nil
-    (mapcar
-      (lambda (buffer)
-        (when (eq (buffer-local-value 'major-mode buffer) mode)
-          buffer))
-      (buffer-list frame))))
 
 
 

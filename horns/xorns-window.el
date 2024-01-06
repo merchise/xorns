@@ -19,8 +19,109 @@
 (eval-and-compile
   (require 'xorns-tools))
 
+
 
-;;; Variables
+;;; Base configuration
+
+(use-package window
+  :init
+  (defconst >>-window-coach-mode-keys
+    '((shrink-window "<up>" "p")
+      (enlarge-window "<down>" "n")
+      (enlarge-window-horizontally "<right>" "f")
+      (shrink-window-horizontally "<left>" "b")
+      (other-window "o")
+      (>>=window/split-toggle "t")
+      (>>=window-coach-mode "C-g" "<RET>")))
+
+  (define-minor-mode >>=window-coach-mode
+    "A simple window-coach minor mode."
+    :init-value nil
+    :lighter " Window-Coach"
+    :global t
+    :keymap
+      (let ((map (make-sparse-keymap)))
+        (dolist (item >>-window-coach-mode-keys)
+          (let ((fn (car item))
+                (keys (cdr item)))
+            (dolist (key keys)
+              (keymap-set map key fn))))
+        map)
+    :group 'window)
+
+  (defun >>=window/split-toggle (&optional arg)
+    "Toggle horizontal/vertical layout of 2 windows (use ARG to restore)."
+    (interactive "P")
+    (if (= (count-windows) 2)
+      (let* ((tree (car (window-tree)))
+              (one (nth 2 tree))
+              (two (nth 3 tree))
+              (aux (car tree))                ;; t: vertical -> horizontal
+              (v2h (if arg (not aux) aux))    ;; (xor arg v2h)
+              (state (window-state-get two)))
+        (delete-other-windows one)
+        (window-state-put
+          state
+          (funcall
+            (if v2h
+              #'split-window-horizontally
+              ;; else
+              #'split-window-vertically))))
+      ;; else
+      (warn "Only can toggle two windows!")))
+  :custom
+  (split-width-threshold 120)
+  :bind
+  ("C-c C-`" . >>=window-coach-mode)
+  (:map ctl-x-4-map
+    ("t" . >>=window/split-toggle)))
+
+
+(use-package windmove
+  :custom
+  (windmove-wrap-around t)
+  :config
+  (windmove-default-keybindings 'ctrl))
+
+
+(use-package winner
+  :config
+  (winner-mode +1))
+
+
+
+;;; Basic tools
+
+(defun >>=kill-buffer-and-window (&optional buffer)
+  "Kill the specified BUFFER, and delete the window currently displaying it.
+Argument nil or omitted means kill the current buffer.  Similar to standard
+`kill-buffer-and-window' function but it is just a function to specify a
+buffer."
+  (unless buffer
+    (setq buffer (current-buffer)))
+  (let ((win (get-buffer-window buffer)))
+    (prog1
+      (kill-buffer buffer)
+      (when win
+        (ignore-errors
+          (delete-window win))))))
+
+
+(defun >>=filter-buffer-list-by-mode (mode &optional frame)
+  "Return a list of all live buffers filtered by MODE.
+If the optional arg FRAME is a frame, return the buffer list in the
+proper order for that frame: the buffers shown in FRAME come first,
+followed by the rest of the buffers."
+  (delq nil
+    (mapcar
+      (lambda (buffer)
+        (when (eq (buffer-local-value 'major-mode buffer) mode)
+          buffer))
+      (buffer-list frame))))
+
+
+
+;;; Toolbox variables
 
 (defvar >>=|toolbox/display-buffer-action nil
   "Determine how to switch to toolbox buffers.
@@ -64,7 +165,7 @@ to initialize this variable.")
 
 
 
-;;; Utility functions
+;;; Toolbox utility functions
 
 (defun >>=toolbox-p (buffer-or-name)
   "Return non-nil when BUFFER-OR-NAME is a toolbox buffer."

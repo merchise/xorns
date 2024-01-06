@@ -13,13 +13,12 @@
 ;; Configuration of `startup' also includes variables defined in C source
 ;; code.
 
-;; Libraries ('', 'window', 'files',
-;; 'windmove', 'elec-pair', 'mwheel', 'iso-transl', and 'man') are always
-;; configured; 'frame' is configured if a graphic display is present, while
-;; 'xt-mouse' and 'xclip' when running in a console.
+;; Libraries (`files', `elec-pair', `mwheel', `iso-transl', and `man') are
+;; always configured; `frame' is configured if a graphic display is present,
+;; while `xt-mouse' and `xclip' when running in a console.
 ;;
 ;; Extra packages can be configured through `>>=|base/extra-packages'
-;; variable.  Options are ('autorevert', 'recentf', and 'saveplace').
+;; variable.  Options are (`autorevert', `recentf', and `saveplace').
 
 ;; It's installed just by calling `(require 'xorns-packages)' in the
 ;; initialization process, which is done automatically.
@@ -126,72 +125,6 @@ to configure for yourself: see `save-buffer' function for more information.")
        (fullscreen . maximized)
        (fullscreen-restore . maximized)))
   (set-frame-parameter nil 'undecorated t))
-
-
-(use-package window
-  :init
-  (defconst >>-window-coach-mode-keys
-    '((shrink-window "<up>" "p")
-      (enlarge-window "<down>" "n")
-      (enlarge-window-horizontally "<right>" "f")
-      (shrink-window-horizontally "<left>" "b")
-      (other-window "o")
-      (>>=window/split-toggle "t")
-      (>>=window-coach-mode "C-g" "<RET>")))
-
-  (define-minor-mode >>=window-coach-mode
-    "A simple window-coach minor mode."
-    :init-value nil
-    :lighter " Window-Coach"
-    :global t
-    :keymap
-      (let ((map (make-sparse-keymap)))
-        (dolist (item >>-window-coach-mode-keys)
-          (let ((fn (car item))
-                (keys (cdr item)))
-            (dolist (key keys)
-              (keymap-set map key fn))))
-        map)
-    :group 'window)
-
-  (defun >>=window/split-toggle (&optional arg)
-    "Toggle horizontal/vertical layout of 2 windows (use ARG to restore)."
-    (interactive "P")
-    (if (= (count-windows) 2)
-      (let* ((tree (car (window-tree)))
-              (one (nth 2 tree))
-              (two (nth 3 tree))
-              (aux (car tree))                ;; t: vertical -> horizontal
-              (v2h (if arg (not aux) aux))    ;; (xor arg v2h)
-              (state (window-state-get two)))
-        (delete-other-windows one)
-        (window-state-put
-          state
-          (funcall
-            (if v2h
-              #'split-window-horizontally
-              ;; else
-              #'split-window-vertically))))
-      ;; else
-      (warn "Only can toggle two windows!")))
-  :custom
-  (split-width-threshold 120)
-  :bind
-  ("C-c C-`" . >>=window-coach-mode)
-  (:map ctl-x-4-map
-    ("t" . >>=window/split-toggle)))
-
-
-(use-package windmove
-  :custom
-  (windmove-wrap-around t)
-  :config
-  (windmove-default-keybindings 'ctrl))
-
-
-(use-package winner
-  :config
-  (winner-mode +1))
 
 
 (use-package simple
