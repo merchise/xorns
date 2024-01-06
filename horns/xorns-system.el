@@ -138,7 +138,11 @@ top, bottom, left or right symbols.")
   :ensure t
   :hook
   (after-init . which-key-mode)
+  :custom
+  (which-key-max-description-length 38)
   :config
+  (when (and (featurep 'exwm) (eq which-key-popup-type 'frame))
+    (setq which-key-popup-type 'side-window))
   (unless (eq >>=|which-key/enable t)
     (setq
       which-key-popup-type 'side-window
