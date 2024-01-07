@@ -216,20 +216,6 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
         (unless buffer-read-only 'insert)))))
 
 
-;; TODO: this function is not used, check `>>-term/kill-finished-buffer'
-(defsubst >>-xterm/check-buffer (buffer &optional term)
-  "Check that BUFFER is a valid smart terminal.
-When TERM is given, only check buffers of that kind."
-  (when buffer
-    (when-let ((state (buffer-local-value '>>-xterm/state buffer)))
-      (if (get-buffer-process buffer)
-        (when (or (null term) (eq term (plist-get state :term)))
-          buffer)
-        ;; else
-        (>>=kill-buffer-and-window buffer)
-        nil))))
-
-
 (defsubst >>-xterm/get-buffer (buffer-name)
   "Get the terminal buffer for a given BUFFER-NAME."
   (get-buffer (format "*%s*" buffer-name)))

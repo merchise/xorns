@@ -51,7 +51,6 @@ buffer is killed automatically unless this variable is not nil.")
            (>>=kill-buffer-and-window ,buff))))))
 
 
-
 ;; TODO: https://github.com/howardabrams/dot-files/blob/master/emacs-eshell.org
 (use-package eshell
   :defines eshell-visual-commands eshell-prompt-regexp
