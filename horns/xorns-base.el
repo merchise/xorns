@@ -142,11 +142,6 @@ to configure for yourself: see `save-buffer' function for more information.")
 
   (define-obsolete-function-alias '>>=scratch/get-buffer-create
     'get-scratch-buffer-create "0.9.8")
-
-  (defun >>=scratch/force ()
-    "Switch to the *scratch* buffer (create it first if it doesn't exist)."
-    (interactive)
-    (switch-to-buffer-other-window (get-scratch-buffer-create)))
   :hook
   (tabulated-list-mode . hl-line-mode)    ; TODO: why is this here?
   :bind

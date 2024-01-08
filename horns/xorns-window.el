@@ -313,5 +313,19 @@ The optional argument MODE will take precedence over the variable
         (display-buffer buffer (or >>=toolbox/fallback-action org-fb))))))
 
 
+
+;;; Some basic toolbox buffers
+
+(define-obsolete-function-alias '>>=scratch/force
+  '>>=toolbox/scratch-buffer "0.9.8")
+(defun >>=toolbox/scratch-buffer ()
+  "Switch to the *scratch* toolbox buffer, creating a new one if needed."
+  (interactive)
+  (let ((buffer (get-scratch-buffer-create)))
+    (unless (>>=toolbox-p buffer)
+      (>>=toolbox/setup-new-buffer buffer))
+    (>>=toolbox/switch-to-buffer buffer)))
+
+
 (provide 'xorns-window)
 ;;; xorns-window.el ends here
