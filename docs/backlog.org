@@ -62,3 +62,20 @@ function to avoid this in =init.el= file.
 See also:
 - https://github.com/syl20bnr/spacemacs/issues/11585
 - https://mail.gnu.org/archive/html/emacs-devel/2022-08/msg00234.html
+
+* Integrate Emacs Copilot
+
+- https://github.com/jart/emacs-copilot
+
+* Separate LSP sessions by "some" configuration
+
+Every time a =Python= file is opened it is added to the same =LSP= session.
+There would be some problems when simultaneously opening files from different
+projects using different versions of Python.
+
+You may need to activate a new =LSP= session.  Temporarily you can call
+=lsp-workspace-remove-all-folders= every time you need to switch to a new
+workspace.
+
+See command =lsp-describe-session=, and the article "[[https://github.com/emacs-lsp/lsp-mode/discussions/3095][Workspaces in emacs-lsp]]"
+for more information.
