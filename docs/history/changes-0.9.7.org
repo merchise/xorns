@@ -2,13 +2,12 @@
 
 * Misc
 
+- Refactor the 'README' to split backlog and history.
 - Improve and refactor some base modules.
 - Configure some base variables, for example, =delete-by-moving-to-trash= to
   use "the system's trash can".
 - Improve search for recent file in =bots= module.
 - Generalize URL browsing on =exwm= library.
-- Create a =xorns-window= module including generic window, buffers tools; also
-  new concepts like =toolbox= and logic linked buffers.
 
 * Improve =mode-line= module
 
@@ -21,3 +20,10 @@
 
 See the header documentation for the modules =xorns-mode-line= and
 =xorns-exwm= for more information.
+
+* New 'window' module
+
+Create a =xorns-window= module including:
+- Generic window, and buffers tools.
+- A new concept of "toolbox" buffer to generalize the ideas implemented before
+  in the extended terminal module (=xterm=).
