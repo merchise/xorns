@@ -133,29 +133,41 @@ The following values are possible:
 - Any valid value for the ACTION argument of the `display-buffer' function.
 - Symbol `other-window', or boolean t: To display the buffer in a window other
   than the selected one.
-- A number, nil, or symbol `bottom': To pop up a window at the bottom of the
-  selected frame (see `>>=!toolbox/bottom-action' on how this option is
+- A number, nil, or symbol `bottom': To display window at the bottom of the
+  selected frame (see `>>-toolbox/cast-height' on how this option is
   evaluated).  A number means the window height; nil and `bottom' use
-  `>>=|toolbox/default-bottom-height' as the default value for height.  A
-  `floatp' is a fraction of the frame's height; and an `integerp' (not
-  recommended) is in units of the frame's canonical character height (see
-  `frame-height' function).
+  `>>=|toolbox/default-bottom-height' as the default value.  A `floatp' is a
+  fraction of the frame's height; and an `integerp' (not recommended) is in
+  units of the frame's canonical character height (see `frame-height'
+  function).
 - Any other symbol (or string) will be used to try an ACTION-FUNCTION by
   formatting `display-buffer-%s'; for example `same-window', to use
   `display-buffer-same-window'.")
 
 
-(defconst >>=!toolbox/bottom-action
-  '(cons
-     'display-buffer-in-direction
-     ((direction . bottom) `(window-height ,height)))
-  "Form to `eval' window height to display toolbox panel at `bottom'.
-See `>>=|toolbox/display-buffer-action' configuration variable.")
-
-
 (defvar >>=|toolbox/default-bottom-height 0.4
   "Default value for height when toolbox panel is displayed at `bottom'.
 See `>>=|toolbox/display-buffer-action' configuration variable.")
+
+
+(defvar >>=toolbox/base-action
+  '((display-buffer-if-in-visible-window display-buffer-reuse-toolbox-window))
+  "Default action for ‘display-buffer’ executed before any logic.")
+
+
+(defvar >>=toolbox/fallback-action nil
+  "Override `display-buffer-fallback-action' if not nil.")
+
+
+(defvar >>=|toolbox/same-in-both-directions
+  '(display-buffer-same-window)
+  "Actions that are the same in both directions.")
+
+
+(defvar >>=toolbox/reverse-bottom-action
+  '((display-buffer-reuse-mode-window display-buffer-reuse-window))
+  "Action to reverse from a bottom toolbox buffer.
+When nil, a `top' window with reversed height is used.")
 
 
 (defvar >>-toolbox/properties nil
@@ -172,7 +184,20 @@ to initialize this variable.")
   (buffer-local-value '>>-toolbox/properties (get-buffer buffer-or-name)))
 
 
-(defun display-buffer-in-visible-window (buffer alist)
+(defun >>=toolbox/setup-new-buffer (buffer &rest properties)
+  "Setup a newly created BUFFER which should be part of the toolbox panel.
+Optional PROPERTIES could be given to set some extra initial options.  The
+`:toolbox-kind' property is set to the value of `major-mode' unless given in
+PROPERTIES."
+  (let ((props (>>=plist-fix properties)))
+    (unless (plist-get props :toolbox-kind)
+      (setq props `(:toolbox-kind ,major-mode ,@(>>=plist-fix properties))))
+    (with-current-buffer buffer
+      (set (make-local-variable '>>-toolbox/properties) props)))
+  buffer)
+
+
+(defun display-buffer-if-in-visible-window (buffer alist)
   "Return a window currently visible and displaying BUFFER.
 
 ALIST is an association list of action symbols and values.  When it has a
@@ -205,122 +230,87 @@ This is an ACTION function, so we don't use the `xorns' naming convention."
     (let* ((frames (cdr (assq 'reusable-frames alist)))
            (not-same (cdr (assq 'inhibit-same-window alist)))
            (windows (window-list-1 nil 'nomini frames))
-           result)
-      (while (and (not result) windows)
-        (let ((window (car windows)))
-          (when (>>=toolbox-p (window-buffer window))
-            (unless (and not-same (eq window (selected-window)))
-              (setq result window))))
+           window)
+      (while (and (not window) windows)
+        (let ((win (car windows)))
+          (when (>>=toolbox-p (window-buffer win))
+            (unless (and not-same (eq win (selected-window)))
+              (setq window win))))
         (setq windows (cdr windows)))
-      result)))
+      (when (window-live-p window)
+        (prog1 (window--display-buffer buffer window 'reuse alist)
+          (unless (cdr (assq 'inhibit-switch-frame alist))
+            (window--maybe-raise-frame (window-frame window))))))))
 
 
-(defun >>-toolbox/normalized-switch-mode ()
-  "Normalize value of `>>=|toolbox/display-buffer-action'."
-  (let ((mode >>=|toolbox/display-buffer-action))
+(defun >>-toolbox/cast-action (action)
+  "Process a preliminary form for the ACTION value."
+  (cond
+    ((or (null action) (eq action 'bottom))
+      >>=|toolbox/default-bottom-height)
+    ((eq action 'other-window)
+      t)
+    ((or (>>=real-symbol action) (stringp action))
+      (>>=check-function (format "display-buffer-%s" action) 'strict))
+    (t
+      action)))
+
+
+(defun >>-toolbox/reverse-height (height)
+  "Reverse toolbox HEIGHT relative to `window-text-height'."
+  (if (floatp height)
+    (- 1.0 height (/ (float (line-pixel-height)) (window-pixel-height)))
+    ;; else
+    (- (window-text-height) height)))
+
+
+(defun >>-toolbox/cast-height (direction height)
+  "Convert HEIGHT to an action for a given DIRECTION."
+  (cons
+    'display-buffer-in-direction
+    `((direction . ,direction) (window-height . ,height))))
+
+
+(defun >>-toolbox/get-action (buffer)
+  "Get action to use `display-buffer' action functions to switch to BUFFER."
+  (let ((action (>>-toolbox/cast-action >>=|toolbox/display-buffer-action))
+        (is-toolbox (>>=toolbox-p buffer)))
     (cond
-      ((or (null mode) (eq mode 'bottom))
-        >>=|toolbox/default-bottom-height)
-      ((or (numberp mode) (memq mode '(other-window same-window)))
-        mode)
+      ((eq action t)
+        t)
+      ((numberp action)
+        (if is-toolbox
+          (>>-toolbox/cast-height 'bottom action)
+          ;; else
+          (let ((count (count-windows 'nomini)))
+            (if (and >>=toolbox/reverse-bottom-action (> count 1))
+              >>=toolbox/reverse-bottom-action
+              ;; else
+              (>>-toolbox/cast-height 'top
+                (>>-toolbox/reverse-height action))))))
+      ((memq action >>=|toolbox/same-in-both-directions)
+        `(,action))
+      ((functionp action)
+        (if is-toolbox
+          `(,action)
+          ;; else
+          display-buffer-fallback-action))
       (t
-        (error ">>= switch to buffer mode invalid value: %s" mode)))))
-
-
-(defun >>-toolbox/reverse-height ()
-  "Reverse toolbox height relative to `window-text-height'."
-  (let ((height (>>-toolbox/normalized-switch-mode)))
-    (if (floatp height)
-      (- 1.0 height (/ (float (line-pixel-height)) (window-pixel-height)))
-      ;; else
-      (- (window-text-height) height))))
-
-
-(defsubst >>=toolbox/get-alist (direction &optional height)
-  "Return an `alist' to use as parameter to display a buffer at DIRECTION.
-An optional HEIGHT can be used."
-  (cons `(direction . ,direction) (if height `((window-height . ,height)))))
-
-
-(defun >>=toolbox/setup-new-buffer (buffer &rest properties)
-  "Setup a newly created BUFFER which should be part of the toolbox panel.
-Optional PROPERTIES could be given to set some extra initial options.  The
-`:toolbox-kind' property is set to the value of `major-mode' unless given in
-PROPERTIES."
-  (let ((props (>>=plist-fix properties)))
-    (unless (plist-get props :toolbox-kind)
-      (setq props `(:toolbox-kind ,major-mode ,@(>>=plist-fix properties))))
-    (with-current-buffer buffer
-      (set (make-local-variable '>>-toolbox/properties) props)))
-  buffer)
-
-
-(defun >>=toolbox/hide-windows (windows &optional exception)
-  "Hide all members of WINDOWS with the EXCEPTION of the optional argument.
-Returns the list of all windows that were not deleted."
-  (delete nil
-    (mapcar
-      (lambda (win)
-        (condition-case nil
-          (if (equal win exception)
-            win
-            ;; else
-            (delete-window win)
-            nil)
-          (error win)))    ; for example, attempting to delete the main window
-      windows)))
-
-
-(defun >>=toolbox/switch-to-linked (buffer-or-name)
-  "Select BUFFER-OR-NAME at the alternate side of the selected window."
-  (when-let ((buf (get-buffer buffer-or-name)))
-    (select-window
-      (or
-        (when (eq (length (window-list)) 1)
-          (display-buffer-in-direction buf
-            (>>=toolbox/get-alist 'top (>>-toolbox/reverse-height))))
-        (display-buffer-in-previous-window buf nil)
-        (display-buffer buf)))))
-
-
-(defun >>=toolbox/switch-to-bottom (buffer-or-name &optional height)
-  "Select BUFFER-OR-NAME in a window at the bottom of the selected frame.
-Argument window HEIGHT is optional."
-  (when-let ((buf (get-buffer buffer-or-name)))
-    (select-window
-      (display-buffer-in-direction buf
-        (>>=toolbox/get-alist 'bottom height)))))
-
-
-(defun >>=toolbox/switch-to-same-window (buffer-or-name)
-  "Select BUFFER-OR-NAME in the selected window."
-  (when-let ((buf (get-buffer buffer-or-name)))
-    (select-window
-      (display-buffer-same-window buf nil))))
+        action))))
 
 
 (defun >>=toolbox/switch-to-buffer (buffer-or-name)
   "Select BUFFER-OR-NAME in the toolbox panel.
 The optional argument MODE will take precedence over the variable
 `>>=|toolbox/display-buffer-action'."
-  (let* ((buf (get-buffer buffer-or-name))
-         (wins (get-buffer-window-list buf)))
-    (when (and (> (length wins) 1) (>>=toolbox-p buf))
-      (setq wins (>>=toolbox/hide-windows wins (car wins))))
-    (if wins
-      (select-window (car wins))
-      ;; else
-      (let ((mode (>>-toolbox/normalized-switch-mode)))
-        (cond
-          ((eq mode 'other-window)
-            (switch-to-buffer-other-window buf))
-          ((eq mode 'same-window)
-            (>>=toolbox/switch-to-same-window buf))
-          (t
-            (if (>>=toolbox-p buf)
-              (>>=toolbox/switch-to-bottom buf mode)
-              ;; else
-              (>>=toolbox/switch-to-linked buf))))))))
+  (let ((org-fb display-buffer-fallback-action)
+        (display-buffer-fallback-action nil)
+        (buffer (get-buffer buffer-or-name)))
+    (select-window
+      (or
+        (display-buffer buffer >>=toolbox/base-action)
+        (display-buffer buffer (>>-toolbox/get-action buffer))
+        (display-buffer buffer (or >>=toolbox/fallback-action org-fb))))))
 
 
 (provide 'xorns-window)
