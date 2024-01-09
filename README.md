@@ -1,54 +1,116 @@
-# Merchise Xorns
-
-## An improved way to use Emacs
-
-The initial goal of Xorns is to automate the Emacs configuration for Merchise
-members.  It has now become a set of packages that could be used generally by
-any Emacs user.
-
-To develop Xorns, tutorials and other similar packages are studied: [David
-Wilson's video series](https://www.youtube.com/@SystemCrafters) and the
-[Spacemacs package](https://github.com/syl20bnr/spacemacs) deserve special
-mention.
+# Xorns - an improved way to use Emacs
 
 
-## Xorns stages
+## Introduction
 
-You have two options to use Xorns:
+Xorns is a configuration framework for GNU [Emacs].  It was initially intended
+to be used by [Merchise] members who wanted to take it to the next level by
+using Emacs.
 
-  1. installing it as a standard package or
-  2. cloning the repository to the User Emacs Directory `"~/.emacs.d"`.
-
-**Note**: Option (1) is deprecated now, option (2) is preferred.
-
-To install Xorns using option (1) you must have the User Emacs Directory
-prepared with all dependencies already installed.  Use:
-
-```shell
-  git clone https://github.com/merchise/xorns.git
-  cd xorns
-  make local-install
-```
-
-To use option (2), just:
-
-```shell
-  git clone https://github.com/merchise/xorns.git ~/.emacs.d
-```
+[Emacs]: https://www.gnu.org/software/emacs/
+[Merchise]: https://github.com/merchise#what-is-merchise
 
 
-## Conventions
+## Install
 
-We use prefixes for most symbols, next are some conventions:
+1. Select a target folder (you can use `~/.emacs.d` or `~/.config/emacs`):
 
-- `>>=` for general definitions,
-- `>>=!` for constants,
-- `>>=|` for configuration variables,
-- `>>=+` for building blocks configuration variables,
-- `>>-` for module internals, and
-- `>>:` for declarative functions in package configuration options.
+   ```shell
+   TARGET_FOLDER=~/.emacs.d
+   ```
 
-Standard modules will use "-" separator in its names (for example
-"xorns-startup.el").  Building-block modules (units) will use "+" instead (for
-example "xorns+python.el", "").  Sub-levels are joined with "/" (for example
-">>=+base/extra-packages-to-configure").
+2. Backup any files you have in your `$TARGET_FOLDER`.
+
+   ```shell
+   [ -d $TARGET_FOLDER ] && mv $TARGET_FOLDER ${TARGET_FOLDER}.bak
+   ```
+
+3. Clone the repository:
+
+   ```shell
+   git clone --depth 1 https://github.com/merchise/xorns.git $TARGET_FOLDER
+   ```
+
+4. Xorns is now ready to run, but it is advisable to first create a user
+   configuration folder:
+
+   ```shell
+   CONFIG_HOME=${XDG_CONFIG_HOME:~/.config}
+   mkdir $CONFIG_HOME/xorns
+   ```
+
+   Inside this folder there must be at least two files:
+
+   - `user-config.el`: Xorns local user configuration file.  There is a
+      template to create this file (`templates/user-config`).  Copy it, and
+      rename it to `user-config.el`, and customize the user experience
+      according to your preferences.
+   - `custom.el`: File used for storing standard Emacs customization
+     information.  See the Emacs variable `custom-file` for more information.
+
+
+## Documentation
+
+Check the [Xorns User Manual][docs/xorns.org].
+
+
+## Prerequisites
+
+- Emacs 28.1+ (recommended: 29.1+ with native compilation enabled)
+
+- Git: If you need to be told this, this package is not for you. ;)
+
+- The fonts you will customize.
+
+  Recommendations:
+  - [Source Code Pro][]
+  - [RobotoMono Nerd Font][], part of Nerd Fonts, project that patches
+    developer targeted fonts with a high number of icons.
+
+  You can also use fallback fonts to ensure that certain Unicode symbols
+  appear correctly (If you don't do this you may have problems with certain
+  types of `mode-line`):
+  - For example: [Nanum Gothic][]
+
+  You can search fonts on:
+  - https://www.wfonts.com/
+  - https://sharefonts.net
+
+  Maybe you can install some fonts using your OS package manager.
+
+  There could be packages using [all-the-icons][] and [nerd-icons][].  If any
+  of those are installed, please execute `all-the-icons-install-fonts` and
+  `nerd-icons-install-fonts` helper functions.
+
+- Several commands use operating system programs.  In the XS module you can
+  see how to configure these options.  For example:
+  - `grep`: very slow but widely available on most systems.
+  - [rg][] (ripgrep): line-oriented search tool that recursively searches the
+    current directory for a regular expression pattern (strongly recommend).
+  - [fzf][]: general-purpose command-line fuzzy finder.
+
+[Source Code Pro]: https://adobe-fonts.github.io/source-code-pro/
+[RobotoMono Nerd Font]: https://github.com/ryanoasis/nerd-fonts
+[Nanum Gothic]: https://fonts.google.com/specimen/Nanum+Gothic
+[rg]: https://github.com/BurntSushi/ripgrep
+[fzf]: https://github.com/junegunn/fzf
+[all-the-icons]: https://github.com/domtronn/all-the-icons.el
+[nerd-icons]: https://github.com/rainstormstudio/nerd-icons.el
+
+
+## Contributions
+
+This package is currently experimental, but the plan is that in the future it
+can be used by anyone.  From now on, any [contribution][] and suggestion will
+be welcome.
+
+[contribution]: https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project
+
+
+## References
+
+To make `xorns`, the most important references that we have used are:
+- [David Wilson's videos](https://www.youtube.com/@SystemCrafters)
+- [Mastering Emacs](https://www.masteringemacs.org)
+- [The Spacemacs package](https://github.com/syl20bnr/spacemacs)
+- [Doom Emacs](https://github.com/doomemacs/doomemacs)
