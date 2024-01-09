@@ -1,12 +1,4 @@
-;;; Xorns file for local user configurations -*- mode: emacs-lisp -*-
-
-;; Copyright (c) Merchise Autrement [~º/~]
-
-;; Author: Medardo Antonio Rodriguez <med@merchise.org>
-
-;; This file is not part of GNU Emacs.
-
-;;; Commentary:
+;;; Local user configuration -*- mode: emacs-lisp -*-
 
 ;; This file can be used as base to create "user-config.el" inside the `xorns'
 ;; configuration folder.  See also the `xorns-config' module documentation.
