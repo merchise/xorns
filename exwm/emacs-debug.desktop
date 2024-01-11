@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=Emacs (with debugger)
+Name=Emacs (with debug)
 Comment=Emacs Window Manager with init-debug activated
 Exec=emacs -mm --debug-init
 # Exec=dbus-launch --exit-with-session emacs -mm --debug-init
