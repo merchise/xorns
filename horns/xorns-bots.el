@@ -146,7 +146,7 @@ has an ‘.elc’ file; otherwise only those that needs recompilation."
     (let ((path (file-name-as-directory >>=!pkg-dir)))
       (save-some-buffers nil
         (lambda ()
-          (string-match (regexp-quote path) buffer-file-name)))
+          (string-match-p (regexp-quote path) buffer-file-name)))
       (byte-recompile-directory path 0 force))
     ;; else
     (warn ">>= only allowed in standalone-mode.")))
