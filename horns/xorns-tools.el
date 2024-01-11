@@ -102,24 +102,27 @@ function."
 
 (defun >>=prefix (string size)
   "Return the STRING prefix of SIZE characters."
-  (if (> size 0)
-    (if (> size (length string))
-      string
-      ;; else
-      (substring string 0 size))
+  (if (> size (length string))
+    string
     ;; else
-    ""))
+    (substring string 0 size)))
 
 
 (defun >>=suffix (string size)
   "Return the STRING prefix of SIZE characters."
-  (if (> size 0)
-    (if (> size (length string))
-      string
-      ;; else
-      (substring string (- size)))
+  (if (> size (length string))
+    string
     ;; else
-    ""))
+    (substring string (- size))))
+
+
+(defun >>=prefix-beffore (regexp string)
+  "Return the STRING prefix before REGEXP is matched."
+  (let ((space (string-match-p regexp string)))
+    (if space
+      (substring string 0 space)
+      ;; else
+      string)))
 
 
 (defsubst >>=str (value &optional strict)
@@ -272,21 +275,6 @@ For a lambda function, its documentation is returned if it exists."
     (load file silent silent)))
 
 
-(define-obsolete-function-alias
-  '>>=setup/command-check '>>=command/check "1.0")
-(defun >>=command/check (command)
-  "Check if a system COMMAND is installed.
-Intended to find out if a feature that depends on the given command can be
-configured."
-  ;; See `use-package-ensure-system-package' fo a more elaborated solution.
-  (when command
-    (or
-      (executable-find command)
-      (when init-file-debug
-        (warn ">>= warning: '%s' command is not installed" command)
-        nil))))
-
-
 (defsubst >>=init-time ()
   "Initialization time in seconds for this session."
   (float-time (time-subtract after-init-time before-init-time)))
@@ -343,9 +331,8 @@ Example:
 Return the matching (not nil) PREDICATE result, or nil if not found."
   (let (res)
     (while (and (not res) options)
-      (let ((item (funcall predicate (pop options))))
-        (when item
-          (setq res item))))
+      (when-let ((item (funcall predicate (pop options))))
+        (setq res item)))
     res))
 
 
@@ -925,6 +912,27 @@ discarded."
         (setq deactivate-mark t)))))
 
 
+(defun >>=buffer-name-match (name regexp)
+  "Test function using a REGEXP pattern to be used in `>>=rename-buffer'.
+It uses `string-match-p' internally to find the NAME."
+  (string-match-p regexp name))
+
+
+(defun >>=rename-buffer (name &optional replacements)
+  "Give the current buffer a new unique NAME.
+If optional argument REPLACEMENTS is not nil, an alternative NAME is matched
+in this association list ((REGEX . ALTERNATIVES) ...)."
+  (when-let ((rep (cdr (assoc name replacements 'string-match-p))))
+    (if (stringp rep)
+      (setq name rep)
+      ;; else
+      (while rep
+        (setq
+          name (car rep)
+          rep (if (get-buffer name) (cdr rep) nil)))))
+  (rename-buffer name 'unique))
+
+
 
 ;;; modes
 ;; TODO: refactor all this section
@@ -1011,6 +1019,28 @@ Each item in MODES is validated and associated with the given COMMAND."
 
 
 ;;; system
+
+(defun >>=command/get-name (command &optional full)
+  "Extract the executable name from a COMMAND string.
+If FULL is nil, return only the file name part sans its directory."
+  (let ((res (>>=prefix-beffore "[[:space:]]" command)))
+    (if full res (file-name-nondirectory res))))
+
+
+(define-obsolete-function-alias
+  '>>=setup/command-check '>>=command/check "1.0")
+(defun >>=command/check (command)
+  "Check if a system COMMAND is installed.
+Intended to find out if a feature that depends on the given command can be
+configured."
+  ;; See `use-package-ensure-system-package' fo a more elaborated solution.
+  (when command
+    (or
+      (executable-find command)
+      (when init-file-debug
+        (warn ">>= warning: '%s' command is not installed" command)
+        nil))))
+
 
 (defun >>=shell-command-to-string (command)
   "Execute shell COMMAND and return its output as a trimmed string."
