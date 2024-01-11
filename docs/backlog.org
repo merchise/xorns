@@ -81,3 +81,7 @@ See command =lsp-describe-session=, and the article "[[https://github.com/emacs-
 for more information.
 
 See [[https://github.com/nex3/perspective-el][Perspective for Emacs]].
+
+* Use browser automation library to create some advanced utilities
+
+The best candidate could be [[https://github.com/microsoft/playwright-python][Playwright]].  See how to [[https://blog.apify.com/unlocking-the-potential-of-brave-and-playwright-for-browser-automation/][use it for brave-browser]].
