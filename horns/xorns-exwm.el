@@ -68,17 +68,6 @@
 
 ;;; Main definitions
 
-(defvar >>=|exwm/browse-url-workspace 2
-  "If not nil, workspace number to browse URLs inner EXWM.")
-
-
-(defvar >>=|exwm/url-keys
-  `(("<s-f2>" . "http://")    ;; Empty browser
-    ("C-s-t" . "https://translate.google.com")
-    ("C-s-c" . "https://web.telegram.org"))
-  "Pairs of (KEY . URL) to be used with `browse-url'.")
-
-
 (defvar >>=|exwm/startup-applications nil
   "List of applications to be executed when EXWM starts.")
 
@@ -89,28 +78,57 @@ Value could be a function receiving an unique argument string; or nil to use
 `>>=exwm/start-process', or t to use `>>=exwm/start-subprocess'.")
 
 
-(defvar >>=|exwm/web-names
-  '("browser" "brave-browser" "firefox" "chromium" "microsoft-edge")
-  "Class names for web browser applications.
-Used together with `>>=|exwm/web-alts' to complement `>>=|exwm/name-alist'.")
+(defvar >>=|exwm/url-keys
+  `(("<s-f2>" . "http://")    ;; Empty browser
+    ("C-s-t" . "https://translate.google.com")
+    ("C-s-c" . "https://web.telegram.org"))
+  "Pairs of (KEY . URL) to be used with `browse-url'.")
 
 
-(defvar >>=|exwm/web-alts '("web-main" "web-misc" "web")
-  "Alternative names for web browser applications.
-Used together with `>>=|exwm/web-alts' to complement `>>=|exwm/name-alist'.")
+(defvar >>=|exwm/class-name-mapping '()    ; TODO: ("virtualbox" . "vm")
+  "Patterns to rename an `exwm' buffer using the class-name of the X Server.
+Each `car' will be a regex to match the windows class-name, and the `cdr' the
+proposed alternative names (a string or a list of strings).")
 
 
-(defvar >>=|exwm/name-alist '(("VirtualBox Machine" . "vm"))
-  "Association list of buffer names replacements.
-The key of each cons cell (`car') will be the windows class-name, and the
-associated value (`cdr') the proposed alternative names.  Values could be a
-string or a list of strings.")
+(defvar >>=|exwm/command-to-workspace-mapping
+  '(("pcmanfm" . 3)
+    ("libreoffice" . 3)
+    ("discord" . 4)
+    ("zoom" . 4))
+  "Association list of (COMMAND . WORKSPACE) associations.
+When executing any command in the `car', the workspace will be switched to the
+`cdr'.  See the `>>=exwm/workspace-switch-on-command'")
 
 
-(defvar >>-exwm/name-alist nil
-  "Private variable with the complete list of buffer name replacements.
-This value is obtained by appending `>>=|exwm/name-alist' with calculated
-pairs from `>>=|exwm/web-names' and `>>=|exwm/web-alts'.")
+(defvar >>=|exwm/web-patterns
+  '("browser" "brave" "chrome" "chromium" "firefox" "mozilla" "edge"
+    "conkeror" "epiphany")
+  "Regex list to match class names and commands for web browser applications.
+This list will be combined with `>>=|exwm/web-name-alts' to complement
+`>>=|exwm/class-name-mapping', and with `>>=|exwm/browse-url-workspace' to
+complement `>>=|exwm/command-to-workspace-mapping'.  These combinations are
+only evaluated once per session.")
+
+
+(defvar >>=|exwm/web-name-alts '("web-main" "web-misc" "web")
+  "Alternative names for web browser applications.")
+
+
+(defvar >>=|exwm/browse-url-workspace 2
+  "If not nil, workspace number to browse URLs inner EXWM.")
+
+
+(defvar exwm-systemtray-update-hook nil
+  "Run when system-tray parameters needs update.")
+
+
+(defvar >>-exwm/class-name-mapping nil
+  "Private cache for `>>=|exwm/class-name-mapping'.")
+
+
+(defvar >>-exwm/command-to-workspace-mapping nil
+  "Private cache for `>>=|exwm/command-to-workspace-mapping'.")
 
 
 (defvar >>-exwm/system-tray-chars-width nil
@@ -119,33 +137,73 @@ Can be estimated before loading startup applications.  Its value is a `cons'
 \(WIDTH . ESTIMATED).")
 
 
-(defvar exwm-systemtray-update-hook nil
-  "Run when system-tray parameters needs update.")
+(defun >>-exwm/class-name-mapping ()
+  "Get the association list ((PATTERN . ALTERNATIVES) ...)."
+  (append
+    >>=|exwm/class-name-mapping
+    (or
+      >>-exwm/class-name-mapping
+      (when >>=|exwm/web-name-alts
+        (setq >>-exwm/class-name-mapping
+          (mapcar
+            (lambda (pattern) (cons pattern >>=|exwm/web-name-alts))
+            >>=|exwm/web-patterns))))))
+
+
+(defun >>-exwm/command-to-workspace-mapping ()
+  "Get the association list ((PATTERN . WORKSPACE) ...)."
+  (append
+    >>=|exwm/command-to-workspace-mapping
+    (or
+      >>-exwm/command-to-workspace-mapping
+      (when >>=|exwm/browse-url-workspace
+        (setq >>-exwm/command-to-workspace-mapping
+          (mapcar
+            (lambda (pattern) (cons pattern >>=|exwm/browse-url-workspace))
+            >>=|exwm/web-patterns))))))
+
+
+(defun >>-exwm/match-workspace-for-command (command)
+  "Match if COMMAND has a associated workspace."
+  (cdr
+    (assoc
+      (>>=command/get-name command)
+      (>>-exwm/command-to-workspace-mapping)
+      'string-match-p)))
+
+
+(defun >>=exwm/workspace-switch-on-command (command)
+  "Switch to workspace matching COMMAND on a workspace mapping."
+  (when-let ((ws (>>-exwm/match-workspace-for-command command)))
+    (exwm-workspace-switch-create ws)))
 
 
 (defun >>=exwm/start-process (command)
-  "Call COMMAND synchronously in a separate process returning immediately."
-  (unless (stringp command)
-    (setq command (mapconcat 'identity command " ")))
+  "Call COMMAND synchronously in a separate process returning immediately.
+Argument COMMAND must be a string."
   (call-process-shell-command command nil 0))
 
 
 (defun >>=exwm/start-subprocess (command &optional name)
   "Call COMMAND synchronously in a sub-process returning immediately.
-A process NAME can bee given as an optional argument."
-  (unless (stringp command)
-    (setq command (mapconcat 'identity command " ")))
+Argument COMMAND must be a string.  A process NAME can bee given as an
+optional argument."
   (unless name
-    (setq name (if (string-match "[[:space:]]" command) "EXWM-SP" command)))
+    (let ((aux (>>=command/get-name command)))
+      (setq name (if (length> aux 4) aux (concat "exwm/" aux)))))
   (start-process-shell-command name nil command))
 
 
 (defun >>=exwm/start-command (command)
   "Start a COMMAND synchronously in separate process."
   (interactive (list (read-shell-command ">>= ")))
+  (unless (stringp command)
+    (setq command (mapconcat 'identity command " ")))
+  (if (string-match-p "\\`https?[:]" command)
+    (browse-url command)
+    ;; else
+    (>>=exwm/workspace-switch-on-command command))
   (cond
-    ((and (stringp command) (string-match "\\`https?[:]" command))
-      (browse-url command))
     ((functionp >>=|exwm/start-process-model)
       (funcall >>=|exwm/start-process-model command))
     ((null >>=|exwm/start-process-model)
@@ -194,37 +252,9 @@ A process NAME can bee given as an optional argument."
       (>>=str-trim exwm-instance-name)
       "unnamed"))
 
-  (defun >>-exwm/name-alist ()
-    "Get the class name (WM_CLASS) for a newly created EXWM buffer."
-    (or
-      >>-exwm/name-alist
-      (setq >>-exwm/name-alist
-        (append
-          >>=|exwm/name-alist
-          (when (and >>=|exwm/web-names >>=|exwm/web-alts)
-            (mapcar
-              (lambda (name) (cons name >>=|exwm/web-alts))
-              >>=|exwm/web-names))))))
-
-
-  (defun >>-exwm/rename-new-buffer ()
-    "Rename a newly created EXWM buffer."
-    (let* ((name (>>-exwm/class-name))
-           (replacements (>>-exwm/name-alist))
-           (rep (cdr (assoc-string name replacements 'case-fold))))
-      (when rep
-        (if (stringp rep)
-          (setq name rep)
-          ;; else
-          (while rep
-            (setq
-              name (car rep)
-              rep (if (get-buffer name) (cdr rep) nil)))))
-      (rename-buffer name 'unique)))
-
   (defun >>-exwm/update-class ()
     "Run when window class is updated."
-    (>>-exwm/rename-new-buffer))
+    (>>=rename-buffer (>>-exwm/class-name) (>>-exwm/class-name-mapping)))
 
   (defun >>-exwm/switch-to-workspace-functions ()
     "Generate (KEY . switch-function) pairs."
