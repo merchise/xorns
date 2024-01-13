@@ -1,0 +1,12 @@
+#+TITLE: Changes in release 0.9.8
+
+* Misc
+
+- Upgrade the documentation.
+- Change the names of the [[file:~/work/emacs/xorns/exwm][exwm]] '*.desktop' files so that they appear in
+  alphabetical order in the LOGIN session.
+- Improve 'tools' module.
+- Create rules to switch to a [[file:~/work/emacs/xorns/exwm][exwm]] workspace when run a command.
+- Changes the [[help:switch-to-buffer][switch-to-buffer]] mechanism in [[file:~/work/emacs/xorns/exwm][exwm]] to be "smarter".
+- Change logic for [[file:~/work/emacs/xorns/exwm][exwm]] system-tray refresh to detect changes when running
+  applications.
