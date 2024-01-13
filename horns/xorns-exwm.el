@@ -85,6 +85,10 @@ Value could be a function receiving an unique argument string; or nil to use
   "Pairs of (KEY . URL) to be used with `browse-url'.")
 
 
+(defvar >>=|exwm/switch-to-buffer-preserve-frame t
+  "Preserve frame when switching to `exwm' buffers.")
+
+
 (defvar >>=|exwm/class-name-mapping '()    ; TODO: ("virtualbox" . "vm")
   "Patterns to rename an `exwm' buffer using the class-name of the X Server.
 Each `car' will be a regex to match the windows class-name, and the `cdr' the
@@ -235,6 +239,13 @@ optional argument."
     >>=|exwm/url-keys))
 
 
+(defun >>-exwm/get-x-window (buffer)
+  "Internal function to get a visible window displaying an `exwm' BUFFER."
+  (when-let ((buf (get-buffer buffer)))
+    (when (eq (buffer-local-value 'major-mode buf) 'exwm-mode)
+      (get-buffer-window buf t))))
+
+
 
 ;;; Configuration
 
@@ -334,10 +345,8 @@ optional argument."
 
   (defun >>-exwm/switch-to-buffer (buffer &optional norecord _)
     "Before advice to switch workspace if BUFFER is `exwm-mode'."
-    (setq buffer (get-buffer buffer))
-    (when (and buffer (not norecord)
-            (eq (buffer-local-value 'major-mode buffer) 'exwm-mode))
-      (when-let ((window (get-buffer-window buffer t)))
+    (when (and >>=|exwm/switch-to-buffer-preserve-frame (not norecord))
+      (when-let ((window (>>-exwm/get-x-window buffer)))
         (exwm-workspace-switch (window-frame window)))))
 
   (advice-add '>>=bind-global-key :override '>>-exwm/input-set-key)
