@@ -92,11 +92,11 @@ use `mini-modeline'; `powered-smart' for complementing `smart-mode-line' with
   (when (featurep 'exwm)
     (add-hook 'exwm-systemtray-update-hook
       (lambda ()
-        (when-let ((width (bound-and-true-p >>-exwm/system-tray-chars-width)))
+        (when-let ((pixels (bound-and-true-p >>-exwm/systemtray-width)))
           (setq mini-modeline-right-padding
             (+
               (>>=get-original-value mini-modeline-right-padding)
-              (car width)))))))
+              (round (/ (float pixels) (frame-char-width)))))))))
   (mini-modeline-mode +1))
 
 

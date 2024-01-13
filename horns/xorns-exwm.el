@@ -131,10 +131,8 @@ only evaluated once per session.")
   "Private cache for `>>=|exwm/command-to-workspace-mapping'.")
 
 
-(defvar >>-exwm/system-tray-chars-width nil
-  "Internal variable storing system-tray width in chars units.
-Can be estimated before loading startup applications.  Its value is a `cons'
-\(WIDTH . ESTIMATED).")
+(defvar >>-exwm/systemtray-width 0
+  "Internal variable storing system-tray width in pixels.")
 
 
 (defun >>-exwm/class-name-mapping ()
@@ -426,14 +424,14 @@ optional argument."
           (res 0.0))
       (dolist (pair exwm-systemtray--list)
         (setq res (+ res (slot-value (cdr pair) 'width) gap)))
-      (if (zerop res) nil (+ res gap))))
+      (round (if (zerop res) res (+ res gap)))))
 
   (defun >>-exwm/estimated-system-tray-width ()
     "Estimate system-tray pixels width before startup applications."
     ;; TODO: There may be startup apps that are not iconic.
     (let* ((gap exwm-systemtray-icon-gap)
            (size (+ (float (frame-char-height)) gap)))
-      (+ (* size (length >>=|exwm/startup-applications)) gap)))
+      (round (+ (* size (length >>=|exwm/startup-applications)) gap))))
 
   (defun >>-exwm/startup-applications ()
     "Run all startup applications defined in `>>=|exwm/startup-applications'."
@@ -444,11 +442,12 @@ optional argument."
           (message ">>= error executing '%s' startup application:\n    %s"
             cmd (error-message-string err))))))
 
-  (defun >>-exwm/update-system-tray-chars-width (width &optional estimated)
-    "Run hook to update system-tray WIDTH (can be ESTIMATED)."
-    (setq >>-exwm/system-tray-chars-width
-      (cons (round (/ width (frame-char-width))) estimated))
-    (run-hooks 'exwm-systemtray-update-hook))
+  (defun >>-exwm/systemtray-refresh ()
+    "Advice after `exwm-systemtray--refresh'."
+    (let ((width (>>-exwm/system-tray-width)))
+      (unless (= width >>-exwm/systemtray-width)
+        (setq >>-exwm/systemtray-width width)
+        (run-hooks 'exwm-systemtray-update-hook))))
 
   (defun >>-exwm/systemtray--init ()
     "Advice for `exwm-systemtray--init' to initialize system tray module."
@@ -457,18 +456,7 @@ optional argument."
       ;; this should only happen if `mini-modeline' is configured.
       (setq exwm-systemtray-background-color color)
       (exwm-systemtray--set-background-color))
-    (let ((width (>>-exwm/system-tray-width)))
-      (if width
-        (>>-exwm/update-system-tray-chars-width width)
-        ;; else
-        (>>-exwm/update-system-tray-chars-width
-          (>>-exwm/estimated-system-tray-width))
-        (let ((count (length >>=|exwm/startup-applications)))
-          (unless (zerop count)
-            (run-with-timer (1+ count) nil
-              (lambda ()
-                (when-let ((width (>>-exwm/system-tray-width)))
-                  (>>-exwm/update-system-tray-chars-width width)))))))))
+    (advice-add 'exwm-systemtray--refresh :after '>>-exwm/systemtray-refresh))
   :config
   (setq-default display-time-24hr-format t)
   (display-battery-mode +1)
