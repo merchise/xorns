@@ -432,7 +432,9 @@ optional argument."
     (let ((gap exwm-systemtray-icon-gap)
           (res 0.0))
       (dolist (pair exwm-systemtray--list)
-        (setq res (+ res (slot-value (cdr pair) 'width) gap)))
+        (let ((slot (cdr pair)))
+          (when (slot-value slot 'visible)
+            (setq res (+ res (slot-value slot 'width) gap)))))
       (round (if (zerop res) res (+ res gap)))))
 
   (defun >>-exwm/estimated-system-tray-width ()
