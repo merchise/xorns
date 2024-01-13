@@ -334,8 +334,17 @@ optional argument."
     (when >>=|exwm/browse-url-workspace
       (exwm-workspace-switch-create >>=|exwm/browse-url-workspace)))
 
+  (defun >>-exwm/switch-to-buffer (buffer &optional norecord _)
+    "Before advice to switch workspace if BUFFER is `exwm-mode'."
+    (setq buffer (get-buffer buffer))
+    (when (and buffer (not norecord)
+            (eq (buffer-local-value 'major-mode buffer) 'exwm-mode))
+      (when-let ((window (get-buffer-window buffer t)))
+        (exwm-workspace-switch (window-frame window)))))
+
   (advice-add '>>=bind-global-key :override '>>-exwm/input-set-key)
   (advice-add 'browse-url :before '>>-exwm/browse-url)
+  (advice-add 'switch-to-buffer :before '>>-exwm/switch-to-buffer)
 
   (>>=bind-global-keys
     ;; Like on `i3' window manager.  We use a new command because at this
