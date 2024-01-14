@@ -199,7 +199,7 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
       ((or (null tab-index) (zerop tab-index))
         "")
       ((> tab-index 0)
-        (format " - %s" tab-index))
+        (format "-%s" tab-index))
       (t
         (error ">>= invalid tab-index: %s" tab-index)))))
 
