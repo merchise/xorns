@@ -24,6 +24,9 @@
 - Create tools to work with recently opened projects, see [[file:~/.emacs.d/elpa/projectile-20231130.1934/projectile.el::defun projectile-recentf (][projectile]].
 - Replace [[help:custom-file][custom-file]] variable to the corresponding function.
 - Configure [[file:~/work/emacs/xorns/horns/xorns-exwm.el::defun >>=exwm/enlarge-window-horizontally (&optional delta][exwm-layout]] using a minor mode to resize windows.
+- Check [[https://www.emacswiki.org/emacs/awesome-tab.el][awesome-tab]] to configure the [[file:/usr/share/emacs/29.1/lisp/tab-line.el.gz][tab-line]].
+- Rename [[file:~/work/emacs/xorns/horns/xorns-window.el::(define-minor-mode >>=window-coach-mode][>>=window-coach-mode]].
+- Move [[file:~/work/emacs/xorns/horns/xorns-exwm.el::defun >>-exwm/swap-last-buffers (][>>-exwm/swap-last-buffers]] to module [[file:~/work/emacs/xorns/horns/xorns-window.el][window]].
 
 * Look for better options to show a System Tray for EXWM
 
@@ -84,3 +87,21 @@ See [[https://github.com/nex3/perspective-el][Perspective for Emacs]].
 * Use browser automation library to create some advanced utilities
 
 The best candidate could be [[https://github.com/microsoft/playwright-python][Playwright]].  See how to [[https://blog.apify.com/unlocking-the-potential-of-brave-and-playwright-for-browser-automation/][use it for brave-browser]].
+
+* Start using [[https://github.com/magnars/expand-region.el][expand-region]]
+
+#+BEGIN_SRC emacs-lisp
+  (use-package expand-region
+    :ensure t
+    :bind
+    ("C-=" . er/expand-region)
+    ("C--" . er/contract-region))
+#+END_SRC
+
+
+* Fix the issue that some UNICODE characters are not displayed
+
+- Install ttf-dejavu and ttf-dejavu-nerd, [[https://superuser.com/questions/13562/how-to-make-unicode-characters-visible-in-emacs][try and set]] "DejaVu Sans Mono" as
+  the font.
+- Use [[https://github.com/syohex/emacs-fontawesome][fontawesome]] utilities from ELPA.
+- Complement [[file:xorns.org::*Prerequisites][related documentation]].
