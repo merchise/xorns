@@ -8,8 +8,8 @@
 
 ;;; Commentary:
 
-;; Window tree functions, configurations related to windows and buffers,
-;; definitions to manage a toolbox panel,
+;; Window tree functions, configurations related to windows, buffers,
+;; manage a toolbox panel, and the use of tabs.
 
 ;; Enjoy!
 
@@ -18,6 +18,7 @@
 
 (eval-and-compile
   (require 'xorns-tools))
+(require 'tab-line)
 
 
 
@@ -37,7 +38,7 @@
   (define-minor-mode >>=window-coach-mode
     "A simple window-coach minor mode."
     :init-value nil
-    :lighter " Window-Coach"
+    :lighter " xwc"
     :global t
     :keymap
       (let ((map (make-sparse-keymap)))
@@ -87,6 +88,63 @@
 (use-package winner
   :config
   (winner-mode +1))
+
+
+
+;;; Configure `tab-line' use
+
+(defvar >>=|tab-line/initial-mode 'toolbox
+  "Initial mode for `tab-line' configuration.
+
+The following options are possible:
+- If nil no configure the `tab-line'.
+- Symbol `toolbox', or boolean t, to enable `toolbox-locked-tab-line-mode'.
+- Symbol `global' to enable `global-tab-line-mode'.")
+
+
+(use-package tab-line
+  :custom
+  (tab-line-new-button-show nil)
+  (tab-line-close-button-show nil)
+  (tab-line-switch-cycling t)
+  :config
+  (setq tab-line-separator " | ")
+  (let ((fg (face-attribute 'default :foreground))
+        (bg (face-attribute 'default :background))
+        (dark-fg (face-attribute 'shadow :foreground)))
+    ;; background behind tabs
+    (set-face-attribute 'tab-line nil
+      :inherit nil
+      :foreground dark-fg
+      :background bg
+      :height 0.95
+      :box nil)
+    ;; active tab in current window
+    (set-face-attribute 'tab-line-tab-current nil
+      :inherit nil
+      :foreground fg
+      :background bg
+      :weight 'extra-bold
+      :underline t
+      :box nil)
+    ;; inactive tab
+    (set-face-attribute 'tab-line-tab-inactive nil
+      :inherit nil
+      :foreground dark-fg
+      :background bg
+      :weight 'light
+      :box nil)
+    ;; active tab in another window
+    (set-face-attribute 'tab-line-tab nil
+      :inherit nil
+      :foreground dark-fg
+      :background bg
+      :weight 'extra-bold
+      :box nil)
+    ;; mouse over
+    (set-face-attribute 'tab-line-highlight nil
+      :foreground 'unspecified)
+      :background bg))
 
 
 
@@ -179,6 +237,54 @@ to initialize this variable.")
 
 ;;; Toolbox utility functions
 
+(define-minor-mode toolbox-locked-tab-line-mode
+  "Toggle whether `tab-line' is used only for toolbox buffers."
+  :init-value nil
+  :lighter " tbox-tabs"
+  :global t
+  :group 'toolbox
+  (let ((orgfun (>>=get-original-value tab-line-tabs-function)))
+    (if toolbox-locked-tab-line-mode
+      (progn
+        ;; change `tabs-function'
+        (unless (eq tab-line-tabs-function orgfun)
+          (put 'toolbox-locked-tab-line-mode :function-backup
+            tab-line-tabs-function))
+        (setq tab-line-tabs-function '>>=toolbox/tab-line-buffer-list)
+        ;; check `global-mode'
+        (when global-tab-line-mode
+          (warn ">>= `%s' must be disabled to enable `%s' mode"
+            'global-tab-line-mode 'toolbox-locked-tab-line-mode)
+          (put 'toolbox-locked-tab-line-mode :global-mode t)
+          (global-tab-line-mode -1))
+        ;; check all live buffers
+        (dolist (buffer (buffer-list))
+          (with-current-buffer buffer
+            (tab-line-mode (if (>>=toolbox-p buffer) +1 -1))))
+        ;; advice both standard mode functions
+        (advice-add 'tab-line-mode
+          :before '>>-toolbar/tab-line-mode)
+        (advice-add 'global-tab-line-mode
+          :before '>>-toolbar/global-tab-line-mode))
+      ;; else
+      (progn
+        ;; remove advice functions
+        (advice-remove 'global-tab-line-mode '>>-toolbar/global-tab-line-mode)
+        (advice-remove 'tab-line-mode '>>-toolbar/tab-line-mode)
+        ;; restore `tabs-function'
+        (setq tab-line-tabs-function
+          (or (get 'toolbox-locked-tab-line-mode :function-backup) orgfun))
+        (put 'toolbox-locked-tab-line-mode :function-backup nil)
+        ;; disable `tab-line' in all live buffers
+        (dolist (buffer (buffer-list))
+          (with-current-buffer buffer
+            (tab-line-mode -1)))
+        ;; restore `global-mode' if it was originally set
+        (when (get 'toolbox-locked-tab-line-mode :global-mode)
+          (put 'toolbox-locked-tab-line-mode :global-mode nil)
+          (global-tab-line-mode +1))))))
+
+
 (defun >>=toolbox-p (buffer-or-name)
   "Return non-nil when BUFFER-OR-NAME is a toolbox buffer."
   (buffer-local-value '>>-toolbox/properties (get-buffer buffer-or-name)))
@@ -193,7 +299,9 @@ PROPERTIES."
     (unless (plist-get props :toolbox-kind)
       (setq props `(:toolbox-kind ,major-mode ,@(>>=plist-fix properties))))
     (with-current-buffer buffer
-      (set (make-local-variable '>>-toolbox/properties) props)))
+      (set (make-local-variable '>>-toolbox/properties) props)
+      (when toolbox-locked-tab-line-mode
+        (tab-line-mode +1))))
   buffer)
 
 
@@ -299,6 +407,15 @@ This is an ACTION function, so we don't use the `xorns' naming convention."
         action))))
 
 
+(defun >>=toolbox/buffer-list ()
+  "Return a list of all live toolbox buffers."
+  (delq nil
+    (mapcar
+      (lambda (buffer)
+        (if (>>=toolbox-p buffer) buffer))
+      (buffer-list))))
+
+
 (defun >>=toolbox/switch-to-buffer (buffer-or-name)
   "Select BUFFER-OR-NAME in the toolbox panel.
 The optional argument MODE will take precedence over the variable
@@ -325,6 +442,45 @@ The optional argument MODE will take precedence over the variable
     (unless (>>=toolbox-p buffer)
       (>>=toolbox/setup-new-buffer buffer))
     (>>=toolbox/switch-to-buffer buffer)))
+
+
+
+;;; Configure `tab-line' integration with toolbox buffers
+
+(defun >>=toolbox/tab-line-buffer-list ()
+  "Sort list of all live toolbox buffers ready to be used in the `tab-line'."
+  (if toolbox-locked-tab-line-mode
+    (sort
+      (>>=toolbox/buffer-list)
+      (lambda (one two)
+        (string< (buffer-name one) (buffer-name two))))
+    ;; else
+    (user-error ">>= `%s' should not be the `%s' function"
+      'tab-line-tabs-function '>>=toolbox/tab-line-buffer-list)))
+
+
+(defun >>-toolbar/tab-line-mode (&optional _)
+  "Advice for `tab-line-mode'."
+  (when toolbox-locked-tab-line-mode
+    (unless (>>=toolbox-p (current-buffer))
+      (user-error
+        ">>= `%s' only allowed for toolbox buffers if `%s' is enabled"
+        'tab-line-mode 'toolbox-locked-tab-line-mode))))
+
+
+(defun >>-toolbar/global-tab-line-mode (&optional _)
+  "Advice for `global-tab-line-mode'."
+  (when toolbox-locked-tab-line-mode
+    (user-error ">>= `%s' can not be used if `%s' is enabled"
+      'global-tab-line-mode 'toolbox-locked-tab-line-mode)))
+
+
+
+;;; Configure initial `tab-line' mode
+
+(pcase >>=|tab-line/initial-mode
+  ((or 'toolbox 't) (toolbox-locked-tab-line-mode +1))
+  ('global (global-tab-line-mode +1)))
 
 
 (provide 'xorns-window)
