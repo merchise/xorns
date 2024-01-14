@@ -150,12 +150,12 @@ The following values are possible:
 See `>>=|toolbox/display-buffer-action' configuration variable.")
 
 
-(defvar >>=toolbox/base-action
+(defvar >>=|toolbox/base-action
   '((display-buffer-if-in-visible-window display-buffer-reuse-toolbox-window))
   "Default action for ‘display-buffer’ executed before any logic.")
 
 
-(defvar >>=toolbox/fallback-action nil
+(defvar >>=|toolbox/fallback-action nil
   "Override `display-buffer-fallback-action' if not nil.")
 
 
@@ -164,7 +164,7 @@ See `>>=|toolbox/display-buffer-action' configuration variable.")
   "Actions that are the same in both directions.")
 
 
-(defvar >>=toolbox/reverse-bottom-action
+(defvar >>=|toolbox/reverse-bottom-action
   '((display-buffer-reuse-mode-window display-buffer-reuse-window))
   "Action to reverse from a bottom toolbox buffer.
 When nil, a `top' window with reversed height is used.")
@@ -283,8 +283,8 @@ This is an ACTION function, so we don't use the `xorns' naming convention."
           (>>-toolbox/cast-height 'bottom action)
           ;; else
           (let ((count (count-windows 'nomini)))
-            (if (and >>=toolbox/reverse-bottom-action (> count 1))
-              >>=toolbox/reverse-bottom-action
+            (if (and >>=|toolbox/reverse-bottom-action (> count 1))
+              >>=|toolbox/reverse-bottom-action
               ;; else
               (>>-toolbox/cast-height 'top
                 (>>-toolbox/reverse-height action))))))
@@ -303,14 +303,14 @@ This is an ACTION function, so we don't use the `xorns' naming convention."
   "Select BUFFER-OR-NAME in the toolbox panel.
 The optional argument MODE will take precedence over the variable
 `>>=|toolbox/display-buffer-action'."
-  (let ((org-fb display-buffer-fallback-action)
+  (let ((org-fba display-buffer-fallback-action)
         (display-buffer-fallback-action nil)
         (buffer (get-buffer buffer-or-name)))
     (select-window
       (or
-        (display-buffer buffer >>=toolbox/base-action)
+        (display-buffer buffer >>=|toolbox/base-action)
         (display-buffer buffer (>>-toolbox/get-action buffer))
-        (display-buffer buffer (or >>=toolbox/fallback-action org-fb))))))
+        (display-buffer buffer (or >>=|toolbox/fallback-action org-fba))))))
 
 
 
