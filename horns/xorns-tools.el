@@ -649,7 +649,21 @@ Similar to `>>=plist2alist' but members on key positions that already are a
 
 
 
-;;; value validators
+;;; misc utils
+
+(defun >>=mode-find (mode &rest check-modes)
+  "Not-nil if the MODE is one of the CHECK-MODES.
+If MODE is an alias, then look up the real mode function first."
+  (when-let ((alias (symbol-function mode)))
+    (when (symbolp alias)
+      (setq mode alias)))
+  (car (memq mode (>>=fix-rest-list check-modes))))
+
+
+(defun >>=derived-mode-p (child &rest parent-modes)
+  "Non-nil if CHILD is a derived mode from one of the PARENT-MODES."
+  (apply 'provided-mode-derived-p child (>>=fix-rest-list parent-modes)))
+
 
 (defun >>=validate-major-mode (mode)
   "Verify a `major-mode' symbol.
@@ -912,6 +926,7 @@ discarded."
         (setq deactivate-mark t)))))
 
 
+;; TODO: not used
 (defun >>=buffer-name-match (name regexp)
   "Test function using a REGEXP pattern to be used in `>>=rename-buffer'.
 It uses `string-match-p' internally to find the NAME."
@@ -1061,6 +1076,7 @@ Returns nil, if an error is signaled."
 
 ;;; Xorns Lisp configuration files
 
+;; TODO: not used
 (defun >>=config/read-lisp (file)
   "Read a configuration FILE into a Lisp form.
 Each line must be an independent form."
@@ -1075,6 +1091,7 @@ Each line must be an independent form."
         (nreverse res)))))
 
 
+;; TODO: not used
 (defun >>=config/write-lisp (file form)
   "Write a Lisp FORM into a configuration FILE.
 Each line will be an independent form."
@@ -1103,6 +1120,7 @@ If DIR is not supplied its set to the current directory by default."
         (project-root project)))))
 
 
+;; TODO: not used
 (defun >>=project/get-value (symbol &optional dir)
   "Return SYMBOL's value in the context of a project.
 Argument DIR is used to determine the project root; when not given, the
@@ -1117,6 +1135,7 @@ project's local variable mapping, the standard value is returned if bound."
       (cons nil (and (boundp symbol) (symbol-value symbol))))))
 
 
+;; TODO: not used
 (defun >>=project/set-value (symbol value &optional dir)
   "Set SYMBOL's VALUE in the context of a project.
 Argument DIR is used to determine the project root; when not given, the
