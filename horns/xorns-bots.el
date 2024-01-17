@@ -21,7 +21,8 @@
   (require 'recentf)
   (require 'transient)
   (require 'magit-status)
-  (require 'xorns-tools))
+  (require 'xorns-tools)
+  (require 'xorns-window))
 
 
 (defconst >>=!pkg-dir (bound-and-true-p >>=!xorns/standalone-dir)
@@ -102,7 +103,7 @@ If BASE argument is non-nil, open project directory instead."
   "Switch to my sketch buffer."
   (interactive)
   (let ((buf (find-file-noselect >>=!sketch-file-name)))
-    (unless (eq (buffer-local-value 'major-mode buf) 'lisp-interaction-mode)
+    (unless (eq (>>=buffer-major-mode buf) 'lisp-interaction-mode)
       (warn
         ">>= '%s' is not in `lisp-interaction-mode', copied from '%s'"
         >>=!sketch-file-name

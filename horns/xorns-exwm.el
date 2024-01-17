@@ -62,6 +62,7 @@
 (eval-and-compile
   (require 'use-package)
   (require 'xorns-tools)
+  (require 'xorns-window)
   (require 'browse-url))
 
 
@@ -242,7 +243,7 @@ optional argument."
 (defun >>-exwm/get-x-window (buffer)
   "Internal function to get a visible window displaying an `exwm' BUFFER."
   (when-let ((buf (get-buffer buffer)))
-    (when (eq (buffer-local-value 'major-mode buf) 'exwm-mode)
+    (when (eq (>>=buffer-major-mode buf) 'exwm-mode)
       (get-buffer-window buf t))))
 
 

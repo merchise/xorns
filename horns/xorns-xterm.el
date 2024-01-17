@@ -240,7 +240,7 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
 (defun >>-xterm/find-buffer-by-mode (mode)
   "Find best buffer matching MODE."
   (when mode
-    (let* ((buffers (>>=filter-buffer-list-by-mode mode))
+    (let* ((buffers (>>=same-mode-buffers mode))
            (one (car buffers))
            (two (nth 1 buffers)))
       ;; if two or more buffers are found, do not select current.
@@ -359,7 +359,7 @@ condition."
         :file-name (buffer-file-name source)
         :term term
         :tab-index tab-index
-        :mode (buffer-local-value 'major-mode source)))
+        :mode (>>=buffer-major-mode source)))
     (when paste
       (let ((paster (>>-xterm/get-paster)))
         (if paster
