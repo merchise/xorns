@@ -92,7 +92,56 @@
 
 
 
-;;; Configure tab line use
+;;; Basic tools
+
+(defun >>=kill-buffer-and-window (&optional buffer)
+  "Kill the specified BUFFER, and delete the window currently displaying it.
+Argument nil or omitted means kill the current buffer.  Similar to standard
+`kill-buffer-and-window' function but it is just a function to specify a
+buffer."
+  (unless buffer
+    (setq buffer (current-buffer)))
+  (let ((win (get-buffer-window buffer)))
+    (prog1
+      (kill-buffer buffer)
+      (when win
+        (ignore-errors
+          (delete-window win))))))
+
+
+(defsubst >>=buffer-major-mode (buffer)
+  "Return the `major-mode' of BUFFER."
+  (buffer-local-value 'major-mode buffer))
+
+
+(defun >>=same-mode-buffers (modes &optional frame)
+  "Return a list of all live buffers filtered by MODES.
+If the optional argument FRAME is a frame, return the buffer list in the
+proper order for that frame: the buffers shown in FRAME come first, followed
+by the rest of the buffers."
+  (delq nil
+    (mapcar
+      (lambda (buf)
+        (when (>>=mode-find (>>=buffer-major-mode buf) modes)
+          buf))
+      (buffer-list frame))))
+
+
+(defun >>=derived-mode-buffers (modes &optional frame)
+  "Return a list of all live buffers filtered by derived MODES.
+If the optional argument FRAME is a frame, return the buffer list in the
+proper order for that frame: the buffers shown in FRAME come first,
+followed by the rest of the buffers."
+  (delq nil
+    (mapcar
+      (lambda (buf)
+        (when (>>=derived-mode-p (>>=buffer-major-mode buf) modes)
+          buf))
+      (buffer-list frame))))
+
+
+
+;;; Smart tabs
 
 (defvar >>=|smart-tab-line-initial-mode 'toolbox
   "Initial mode for smart tab line configuration.
@@ -165,31 +214,105 @@ share the first ancestor of the `major-mode'.")
       :background bg))
 
 
-
-;;; Basic tools
-
-(defun >>=kill-buffer-and-window (&optional buffer)
-  "Kill the specified BUFFER, and delete the window currently displaying it.
-Argument nil or omitted means kill the current buffer.  Similar to standard
-`kill-buffer-and-window' function but it is just a function to specify a
-buffer."
+(defun >>-tab-line/check-buffer (&optional buffer)
+  "Return whether BUFFER can be included in the tab line.
+See `tab-line-mode--turn-on' for more information on which buffers cannot be
+included in the tab line."
   (unless buffer
     (setq buffer (current-buffer)))
-  (let ((win (get-buffer-window buffer)))
-    (prog1
-      (kill-buffer buffer)
-      (when win
-        (ignore-errors
-          (delete-window win))))))
+  (let ((mode (>>=buffer-major-mode buffer)))
+    (not
+      (or
+        (minibufferp buffer)
+        (string-match-p "\\` " (buffer-name buffer))
+        (memq mode tab-line-exclude-modes)
+        (get mode 'tab-line-exclude)
+        (buffer-local-value 'tab-line-exclude buffer)))))
 
 
-(defun >>=buffer-major-mode (buffer)
-  "Return the `major-mode' of BUFFER."
-  (buffer-local-value 'major-mode buffer))
+(defsubst >>-tab-line/check-toolbox-buffer ()
+  "Check if `current-buffer' is a toolbox buffer and can be in the tab line."
+  (and (>>=toolbox-p) (>>-tab-line/check-buffer)))
+
+
+(defun >>-tab-line/turn-toolbox-on ()
+  "Turn on `tab-line-mode' in a toolbox buffer."
+  (when (>>-tab-line/check-toolbox-buffer)
+    (tab-line-mode +1)))
+
+
+(define-minor-mode toolbox-tab-line-mode
+  "Toggle whether tab line is used for toolbox buffers."
+  :init-value nil
+  :lighter " tbox-tabs"
+  :global t
+  :group 'toolbox
+  (unless global-tab-line-mode     ; global is higher-level than toolbox mode
+    (let ((arg (if toolbox-tab-line-mode +1 -1)))
+      (dolist (buffer (buffer-list))
+        (when (>>=toolbox-p buffer)
+          (with-current-buffer buffer
+            (tab-line-mode arg)))))))
+
+
+(define-globalized-minor-mode global-tab-line-mode
+  tab-line-mode tab-line-mode--turn-on
+  :group 'tab-line
+  :version "27.1")
+
+
+(defun >>-sort-buffers-default (one two)
+  "Default value for predicate when sorting buffer ONE and TWO."
+  (cl-every 'string<
+    (list (>>=buffer-major-mode one) (buffer-name one))
+    (list (>>=buffer-major-mode two) (buffer-name two))))
+
+
+(defun >>-buffer-priority-mode (buffer)
+  "Return whether the BUFFER has a priority mode."
+  (>>=derived-mode-p
+    (>>=buffer-major-mode buffer)
+    >>=|smart-tab-line-priority-modes))
+
+
+(defun >>=smart-tab-line-buffers ()
+  "Sort list of all live toolbox buffers ready to be used in the `tab-line'."
+  (sort
+    (let ((buffer (current-buffer)))
+      (if (>>=toolbox-p buffer)
+        (>>=toolbox-buffers)
+        ;; else
+        (>>=filter-toolbox-buffers
+          (let ((mode (>>-buffer-priority-mode buffer)))
+            (if mode
+              (>>=derived-mode-buffers mode)
+              ;; else
+              (funcall (>>=get-original-value tab-line-tabs-function)))))))
+    >>=|smart-tab-line-sort-predicate))
+
+
+(defun >>=configure-smart-tab-line ()
+  "Configure smart tab line using MODE."
+  (let ((mode >>=|smart-tab-line-initial-mode))
+    (if mode
+      (progn
+        (setq tab-line-tabs-function '>>=smart-tab-line-buffers)
+        (pcase mode
+          ('toolbox
+            (toolbox-tab-line-mode +1))
+          ('global
+            (global-tab-line-mode +1))))
+      ;; else
+      (when (eq tab-line-tabs-function '>>=smart-tab-line-buffers)
+        (setq tab-line-tabs-function
+          (>>=get-original-value tab-line-tabs-function))))))
+
+
+(add-hook 'after-init-hook '>>=configure-smart-tab-line)
 
 
 
-;;; Toolbox variables
+;;; Toolbox
 
 (defvar >>=|toolbox/display-buffer-action nil
   "Determine how to switch to toolbox buffers.
@@ -244,26 +367,12 @@ A newly created toolbox panel buffer should call `>>=toolbox/setup-new-buffer'
 to initialize this variable.")
 
 
-
-;;; Toolbox utility functions
-
-(define-minor-mode toolbox-tab-line-mode
-  "Toggle whether tab line is used for toolbox buffers."
-  :init-value nil
-  :lighter " tbox-tabs"
-  :global t
-  :group 'toolbox
-  (unless global-tab-line-mode     ; global is higher-level than toolbox mode
-    (let ((arg (if toolbox-tab-line-mode +1 -1)))
-      (dolist (buffer (buffer-list))
-        (when (>>=toolbox-p buffer)
-          (with-current-buffer buffer
-            (tab-line-mode arg)))))))
-
-
-(defun >>=toolbox-p (buffer-or-name)
+(defalias 'toolbox-p '>>=toolbox-p)
+(defun >>=toolbox-p (&optional buffer-or-name)
   "Return non-nil when BUFFER-OR-NAME is a toolbox buffer."
-  (buffer-local-value '>>-toolbox/properties (get-buffer buffer-or-name)))
+  (buffer-local-value
+    '>>-toolbox/properties
+    (get-buffer (or buffer-or-name (current-buffer)))))
 
 
 (defun >>=toolbox/setup-new-buffer (buffer &rest properties)
@@ -397,9 +506,6 @@ The optional argument MODE will take precedence over the variable
         (display-buffer buffer (or >>=|toolbox/fallback-action org-fba))))))
 
 
-
-;;; Some basic toolbox buffers
-
 (define-obsolete-function-alias '>>=scratch/force
   '>>=toolbox/scratch-buffer "0.9.8")
 (defun >>=toolbox/scratch-buffer ()
@@ -410,9 +516,6 @@ The optional argument MODE will take precedence over the variable
       (>>=toolbox/setup-new-buffer buffer))
     (>>=toolbox/switch-to-buffer buffer)))
 
-
-
-;;; Buffer filtering
 
 (defun >>=toolbox-buffers ()
   "Return a list of all live toolbox buffers."
@@ -430,88 +533,6 @@ The optional argument MODE will take precedence over the variable
       (lambda (buffer)
         (unless (>>=toolbox-p buffer) buffer))
       (or buffers (buffer-list)))))
-
-
-(defun >>=same-mode-buffers (modes &optional frame)
-  "Return a list of all live buffers filtered by MODES.
-If the optional argument FRAME is a frame, return the buffer list in the
-proper order for that frame: the buffers shown in FRAME come first, followed
-by the rest of the buffers."
-  (delq nil
-    (mapcar
-      (lambda (buf)
-        (when (>>=mode-find (>>=buffer-major-mode buf) modes)
-          buf))
-      (buffer-list frame))))
-
-
-(defun >>=derived-mode-buffers (modes &optional frame)
-  "Return a list of all live buffers filtered by derived MODES.
-If the optional argument FRAME is a frame, return the buffer list in the
-proper order for that frame: the buffers shown in FRAME come first,
-followed by the rest of the buffers."
-  (delq nil
-    (mapcar
-      (lambda (buf)
-        (when (>>=derived-mode-p (>>=buffer-major-mode buf) modes)
-          buf))
-      (buffer-list frame))))
-
-
-
-;;; Configure smart tab line
-
-(defun >>-sort-buffers-default (one two)
-  "Default value for predicate when sorting buffer ONE and TWO."
-  (cl-every 'string<
-    (list (>>=buffer-major-mode one) (buffer-name one))
-    (list (>>=buffer-major-mode two) (buffer-name two))))
-
-
-(defun >>-buffer-priority-mode (buffer)
-  "Return whether the BUFFER has a priority mode."
-  (>>=derived-mode-p
-    (>>=buffer-major-mode buffer)
-    >>=|smart-tab-line-priority-modes))
-
-
-(defun >>=smart-tab-line-buffers ()
-  "Sort list of all live toolbox buffers ready to be used in the `tab-line'."
-  (sort
-    (let ((buffer (current-buffer)))
-      (if (>>=toolbox-p buffer)
-        (>>=toolbox-buffers)
-        ;; else
-        (>>=filter-toolbox-buffers
-          (let ((mode (>>-buffer-priority-mode buffer)))
-            (if mode
-              (>>=derived-mode-buffers mode)
-              ;; else
-              (funcall (>>=get-original-value tab-line-tabs-function)))))))
-    >>=|smart-tab-line-sort-predicate))
-
-
-
-;;; Configure smart tab line
-
-(defun >>=configure-smart-tab-line ()
-  "Configure smart tab line using MODE."
-  (let ((mode >>=|smart-tab-line-initial-mode))
-    (if mode
-      (progn
-        (setq tab-line-tabs-function '>>=smart-tab-line-buffers)
-        (pcase mode
-          ('toolbox
-            (toolbox-tab-line-mode +1))
-          ('global
-            (global-tab-line-mode +1))))
-      ;; else
-      (when (eq tab-line-tabs-function '>>=smart-tab-line-buffers)
-        (setq tab-line-tabs-function
-          (>>=get-original-value tab-line-tabs-function))))))
-
-
-(add-hook 'after-init-hook '>>=configure-smart-tab-line)
 
 
 (provide 'xorns-window)

@@ -117,11 +117,11 @@ See also:
 
 * Redefine configuration of tabs
 
-- [ ] There must be three modes in the >[[file:~/work/emacs/xorns/horns/xorns-window.el::(defvar >>=|tab-line/initial-mode 'toolbox][>=|tab-line/initial-mode]] variable:
+- [X] There must be three modes in the >[[file:~/work/emacs/xorns/horns/xorns-window.el::(defvar >>=|tab-line/initial-mode 'toolbox][>=|tab-line/initial-mode]] variable:
   (toolbox, global, and local).  Standard modes should not be mutually
   exclusive with the new toolbox mode.
 
-- [ ] There must be a [[help:tab-line-tabs-function][tab-line-tabs-function]] that is valid for all three
+- [X] There must be a [[help:tab-line-tabs-function][tab-line-tabs-function]] that is valid for all three
   modes, always isolating toolbox buffers from the others.
 
 - [ ] Use icons in labels like =dired=.
