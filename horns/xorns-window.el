@@ -196,6 +196,8 @@ share the first ancestor of the `major-mode'.")
   (tab-line-new-button-show nil)
   (tab-line-close-button-show nil)
   (tab-line-switch-cycling t)
+  (tab-bar-tab-hints t)
+  (tab-bar-select-tab-modifiers '(alt))
   :config
   (setq tab-line-separator " | ")
   (let ((fg (face-attribute 'default :foreground))
@@ -222,6 +224,7 @@ share the first ancestor of the `major-mode'.")
       :foreground dark-fg
       :background bg
       :weight 'light
+      :height 0.9
       :box nil)
     ;; active tab in another window
     (set-face-attribute 'tab-line-tab nil
