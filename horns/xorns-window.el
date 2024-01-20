@@ -144,7 +144,8 @@ followed by the rest of the buffers."
       (buffer-list frame))))
 
 
-(defsubst >>-setup-buffer-p (buffer)
+(defalias 'standard-buffer-p '>>=standard-buffer-p)
+(defun >>=standard-buffer-p (buffer)
   "Define whether the BUFFER can be set up.
 Are not considered valid temporary buffers, or those whose name begins with a
 space, or whose `major-mode' is `fundamental-mode'."
@@ -157,7 +158,7 @@ space, or whose `major-mode' is `fundamental-mode'."
 
 (defun >>-setup-current-buffer ()
   "Configure `current-buffer' by running `buffer-setup-hook'."
-  (when (>>-setup-buffer-p (current-buffer))
+  (when (>>=standard-buffer-p (current-buffer))
     (run-hooks 'buffer-setup-hook)))
 
 
@@ -243,7 +244,7 @@ included in the tab line."
     (setq buffer (current-buffer)))
   (let ((mode (>>=buffer-major-mode buffer)))
     (and
-      (>>-setup-buffer-p buffer)
+      (>>=standard-buffer-p buffer)
       (not
         (or
           (memq mode tab-line-exclude-modes)
@@ -572,20 +573,12 @@ The optional argument MODE will take precedence over the variable
 
 (defun >>=toolbox-buffers ()
   "Return a list of all live toolbox buffers."
-  (delq nil
-    (mapcar
-      (lambda (buffer)
-        (if (>>=toolbox-p buffer) buffer))
-      (buffer-list))))
+  (match-buffers 'toolbox-p))
 
 
 (defun >>=filter-toolbox-buffers (&optional buffers)
   "Return a list of all live BUFFERS that are not a toolbox buffer."
-  (delq nil
-    (mapcar
-      (lambda (buffer)
-        (unless (>>=toolbox-p buffer) buffer))
-      (or buffers (buffer-list)))))
+  (match-buffers '(and (not toolbox-p) standard-buffer-p) buffers))
 
 
 
@@ -593,11 +586,7 @@ The optional argument MODE will take precedence over the variable
 
 (defun >>=configure-window-module ()
   "Initial window module configuration."
-  (>>=configure-smart-tab-line)
-  ;; (dolist (buffer (buffer-list))
-  ;;   (with-current-buffer buffer
-  ;;     (>>-setup-current-buffer)))
-  )
+  (>>=configure-smart-tab-line))
 
 
 (add-hook 'after-change-major-mode-hook '>>-setup-current-buffer)
