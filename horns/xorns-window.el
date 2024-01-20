@@ -25,6 +25,10 @@
 
 ;;; Base configuration
 
+(defvar buffer-setup-hook nil
+  "Normal hook run after creating a buffer to configure it.")
+
+
 (use-package window
   :init
   (defconst >>-window-coach-mode-keys
@@ -140,6 +144,23 @@ followed by the rest of the buffers."
       (buffer-list frame))))
 
 
+(defsubst >>-setup-buffer-p (buffer)
+  "Define whether the BUFFER can be set up.
+Are not considered valid temporary buffers, or those whose name begins with a
+space, or whose `major-mode' is `fundamental-mode'."
+  (not
+    (or
+      (minibufferp buffer)
+      (string-match-p "\\` " (buffer-name buffer))
+      (eq (>>=buffer-major-mode buffer) 'fundamental-mode))))
+
+
+(defun >>-setup-current-buffer ()
+  "Configure `current-buffer' by running `buffer-setup-hook'."
+  (when (>>-setup-buffer-p (current-buffer))
+    (run-hooks 'buffer-setup-hook)))
+
+
 
 ;;; Smart tabs
 
@@ -221,13 +242,13 @@ included in the tab line."
   (unless buffer
     (setq buffer (current-buffer)))
   (let ((mode (>>=buffer-major-mode buffer)))
-    (not
-      (or
-        (minibufferp buffer)
-        (string-match-p "\\` " (buffer-name buffer))
-        (memq mode tab-line-exclude-modes)
-        (get mode 'tab-line-exclude)
-        (buffer-local-value 'tab-line-exclude buffer)))))
+    (and
+      (>>-setup-buffer-p buffer)
+      (not
+        (or
+          (memq mode tab-line-exclude-modes)
+          (get mode 'tab-line-exclude)
+          (buffer-local-value 'tab-line-exclude buffer))))))
 
 
 (defsubst >>-tab-line/check-toolbox-buffer ()
@@ -308,11 +329,16 @@ included in the tab line."
           (>>=get-original-value tab-line-tabs-function))))))
 
 
-(add-hook 'after-init-hook '>>=configure-smart-tab-line)
-
-
 
 ;;; Toolbox
+
+(defvar >>=|toolbox/match-buffer-condition
+  '(or
+     "[*]scratch[*]"
+     (derived-mode . term-mode)
+     (derived-mode . eshell-mode))
+  "Determine how to switch to toolbox buffers.")
+
 
 (defvar >>=|toolbox/display-buffer-action nil
   "Determine how to switch to toolbox buffers.
@@ -363,8 +389,7 @@ When nil, a `top' window with reversed height is used.")
 
 (defvar >>-toolbox/properties nil
   "Local property list to store options of toolbox panel buffers.
-A newly created toolbox panel buffer should call `>>=toolbox/setup-new-buffer'
-to initialize this variable.")
+This is set by `>>=toolbox/setup-buffer'.")
 
 
 (defalias 'toolbox-p '>>=toolbox-p)
@@ -373,6 +398,35 @@ to initialize this variable.")
   (buffer-local-value
     '>>-toolbox/properties
     (get-buffer (or buffer-or-name (current-buffer)))))
+
+
+(defun >>=toolbox/setup-buffer (buffer)
+  "Configure BUFFER to be part of the toolbox panel."
+  (unless (>>=toolbox-p buffer)
+    (with-current-buffer buffer
+      (set
+        (make-local-variable '>>-toolbox/properties)
+        `(:toolbox-kind ,major-mode))
+      (when toolbox-tab-line-mode
+        (tab-line-mode +1)))
+    buffer))
+
+
+(defun >>=toolbox/check-buffer (&optional buffer)
+  "Configure BUFFER to be part of the toolbox panel."
+  (unless buffer
+    (setq buffer (current-buffer)))
+  (when (buffer-match-p >>=|toolbox/match-buffer-condition buffer)
+    (>>=toolbox/setup-buffer buffer)))
+
+
+(defun >>=toolbox/set-properties (buffer &rest properties)
+  "Update PROPERTIES in a toolbox BUFFER."
+  (let ((target (>>=toolbox-p buffer)))
+    (if target
+      (>>=plist-update target properties)
+      ;; else
+      (user-error ">>= '%s' is not a toolbox buffer" (buffer-name buffer)))))
 
 
 (defun >>=toolbox/setup-new-buffer (buffer &rest properties)
@@ -512,8 +566,7 @@ The optional argument MODE will take precedence over the variable
   "Switch to the *scratch* toolbox buffer, creating a new one if needed."
   (interactive)
   (let ((buffer (get-scratch-buffer-create)))
-    (unless (>>=toolbox-p buffer)
-      (>>=toolbox/setup-new-buffer buffer))
+    (cl-assert (>>=toolbox-p buffer))
     (>>=toolbox/switch-to-buffer buffer)))
 
 
@@ -533,6 +586,23 @@ The optional argument MODE will take precedence over the variable
       (lambda (buffer)
         (unless (>>=toolbox-p buffer) buffer))
       (or buffers (buffer-list)))))
+
+
+
+;;; Hooks
+
+(defun >>=configure-window-module ()
+  "Initial window module configuration."
+  (>>=configure-smart-tab-line)
+  ;; (dolist (buffer (buffer-list))
+  ;;   (with-current-buffer buffer
+  ;;     (>>-setup-current-buffer)))
+  )
+
+
+(add-hook 'after-change-major-mode-hook '>>-setup-current-buffer)
+(add-hook 'buffer-setup-hook '>>=toolbox/check-buffer)
+(add-hook 'after-init-hook '>>=configure-window-module)
 
 
 (provide 'xorns-window)

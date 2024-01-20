@@ -108,7 +108,6 @@ If BASE argument is non-nil, open project directory instead."
         ">>= '%s' is not in `lisp-interaction-mode', copied from '%s'"
         >>=!sketch-file-name
         "xorns/horns/templates/xorns-sketch"))
-    ;; TODO: (>>=toolbox/setup-new-buffer buf)
     (pop-to-buffer-same-window buf)))
 
 

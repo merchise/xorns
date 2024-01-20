@@ -224,9 +224,9 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
 (defsubst >>-xterm/create-buffer (term buffer-name)
   "Internal function to create a TERM buffer with the given BUFFER-NAME."
   (save-window-excursion
-    (>>=toolbox/setup-new-buffer
-      (ansi-term (>>-xterm/key term :program) buffer-name)
-      :term term)))
+    (let ((buffer (ansi-term (>>-xterm/key term :program) buffer-name)))
+      (>>=toolbox/set-properties buffer :term term)
+      buffer)))
 
 
 (defun >>-xterm/get-or-create-buffer (term tab-index)
