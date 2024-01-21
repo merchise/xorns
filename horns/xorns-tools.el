@@ -326,16 +326,6 @@ Example:
     (length value)))
 
 
-(defsubst >>=list/find (predicate options)
-  "Find the first item satisfying PREDICATE in OPTIONS sequence.
-Return the matching (not nil) PREDICATE result, or nil if not found."
-  (let (res)
-    (while (and (not res) options)
-      (when-let ((item (funcall predicate (pop options))))
-        (setq res item)))
-    res))
-
-
 (defsubst >>=cast-list (value)
   "Force VALUE to be a strict list."
   (if (>>=slist-length value) value (list value)))
@@ -362,6 +352,30 @@ Return the matching (not nil) PREDICATE result, or nil if not found."
 (defmacro >>=append (target &rest sequences)
   "Set TARGET to the result value from appending it with all the SEQUENCES."
   `(setq ,target (append ,target ,@sequences)))
+
+
+(defsubst >>=list/find (predicate options)
+  "Find the first item satisfying PREDICATE in OPTIONS sequence.
+Return the matching (not nil) PREDICATE result, or nil if not found."
+  (let (res)
+    (while (and (not res) options)
+      (when-let ((item (funcall predicate (pop options))))
+        (setq res item)))
+    res))
+
+
+(defun >>=list/deep-find (key sequence &optional test)
+  "Return all KEY occurrences in SEQUENCE at any depth level.
+Equality is defined by the function TEST, defaulting to `equal'."
+  (when (consp sequence)
+    (let ((head (car sequence))
+          (tail (cdr sequence)))
+      (if (funcall (or test 'equal) head key)
+        (>>=cast-list tail)
+        ;; else
+        (append
+          (>>=list/deep-find key head test)
+          (>>=list/deep-find key tail test))))))
 
 
 (defmacro >>=plist-do (spec &rest body)
