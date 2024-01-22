@@ -83,6 +83,11 @@ Similar to `set' but calling `custom-load-symbol' if needed."
        (default-value ',symbol))))
 
 
+(defmacro >>=restore-original-value (symbol)
+  "Restore SYMBOL's original value."
+  `(setq ,symbol (>>=get-original-value ,symbol)))
+
+
 (defsubst >>=real-symbol (object)
   "Return if OBJECT is a real symbol (not including a boolean)."
   (and (symbolp object) (not (eq object t)) object))
