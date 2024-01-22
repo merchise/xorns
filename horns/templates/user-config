@@ -19,7 +19,7 @@ default values are not suitable for your configuration."
     ;; >>=|show-title-in-header-line t
     ;; >>=|enable-server t
     ;; >>=|ext/multiple-cursors nil
-    ;; >>=|smart-tab-line-initial-mode nil
+    ;; >>=|tab-line/kind nil
     ;; >>=|projectile/extra-ignored-directories '()
     ;; >>=|projectile/project-root-files '()
     ;; >>=|dired/omit-mode t

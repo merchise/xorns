@@ -21,13 +21,93 @@
   (require 'xorns-tools))
 (require 'tab-line)
 
-
 
-;;; Base configuration
+;;; Configuration variables
+
+;; base
 
 (defvar buffer-setup-hook nil
   "Normal hook run after creating a buffer to configure it.")
 
+
+;; toolbox
+
+(defvar >>=|toolbox/match-buffer-condition
+  '(or
+     "[*]scratch[*]"
+     (derived-mode . term-mode)
+     (derived-mode . eshell-mode))
+  "Determine how to switch to toolbox buffers.")
+
+
+(defvar >>=|toolbox/display-buffer-action nil
+  "Determine how to switch to toolbox buffers.
+
+The value of this variable is used by `>>=toolbox/switch-to-buffer' (the main
+toolbox function) to call the `display-buffer' function.
+
+The following values are possible:
+- Any valid value for the ACTION argument of the `display-buffer' function.
+- Symbol `other-window', or boolean t: To display the buffer in a window other
+  than the selected one.
+- A number, nil, or symbol `bottom': To display window at the bottom of the
+  selected frame (see `>>-toolbox/cast-height' on how this option is
+  evaluated).  A number means the window height; nil and `bottom' use
+  `>>=|toolbox/default-bottom-height' as the default value.  A `floatp' is a
+  fraction of the frame's height; and an `integerp' (not recommended) is in
+  units of the frame's canonical character height (see `frame-height'
+  function).
+- Any other symbol (or string) will be used to try an ACTION-FUNCTION by
+  formatting `display-buffer-%s'; for example `same-window', to use
+  `display-buffer-same-window'.")
+
+
+(defvar >>=|toolbox/default-bottom-height 0.4
+  "Default value for height when toolbox panel is displayed at `bottom'.
+See `>>=|toolbox/display-buffer-action' configuration variable.")
+
+
+(defvar >>=|toolbox/base-action
+  '((display-buffer-if-in-visible-window display-buffer-reuse-toolbox-window))
+  "Default action for ‘display-buffer’ executed before any logic.")
+
+
+(defvar >>=|toolbox/fallback-action nil
+  "Override `display-buffer-fallback-action' if not nil.")
+
+
+(defvar >>=|toolbox/same-in-both-directions
+  '(display-buffer-same-window)
+  "Actions that are the same in both directions.")
+
+
+(defvar >>=|toolbox/reverse-bottom-action
+  '((display-buffer-reuse-mode-window display-buffer-reuse-window))
+  "Action to reverse from a bottom toolbox buffer.
+When nil, a `top' window with reversed height is used.")
+
+
+;; tabs
+
+(defvar >>=|tab-line/kind 'toolbox
+  "Mode to configure tabs.
+This value will only take effect when using the `>>=tab-line/configure'
+function.  The following are the possible options:
+- If nil, tabs will be disabled.
+- Symbol `toolbox', to enable tabs only for toolbox buffers.
+- Symbol `extended', to enable tabs for toolbox, for editing, and programming
+  related buffers.  See `>>=|tab-line/extended-modes' for more information.
+- Symbol `global', to globally enable the tabs for all valid buffers.
+- Boolean value t, to use tabs only for buffers with `tab-line-mode' manually
+  enabled.")
+
+
+(defvar >>=|tab-line/extended-modes '(text-mode prog-mode)
+  "Modes for which tabs are enabled when `>>=|tab-line/kind' is `extended'.")
+
+
+
+;;; Base configuration
 
 (use-package window
   :init
@@ -118,17 +198,40 @@ buffer."
   (buffer-local-value 'major-mode buffer))
 
 
+(defalias 'standard-buffer-p '>>=standard-buffer-p)
+(defun >>=standard-buffer-p (buffer)
+  "Define whether the BUFFER is standard.
+A buffer is not considered standard if it is temporary, or if its name begins
+with a space, or if its `major-mode' is `fundamental-mode'."
+  (not
+    (or
+      (minibufferp buffer)
+      (string-match-p "\\` " (buffer-name buffer))
+      (eq (>>=buffer-major-mode buffer) 'fundamental-mode))))
+
+
+(defalias 'buffer-in-mode-p '>>=buffer-in-mode-p)
+(defun >>=buffer-in-mode-p (buffer &rest check-modes)
+  "Non-nil if `major-mode' of BUFFER is one of the CHECK-MODES."
+  (>>=mode-find
+    (>>=buffer-major-mode buffer)
+    (>>=fix-rest-list check-modes)))
+
+
+(defalias 'buffer-in-parent-mode-p '>>=buffer-in-parent-mode-p)
+(defun >>=buffer-in-parent-mode-p (buffer &rest check-modes)
+  "Non-nil if `major-mode' of BUFFER is derived from one of the CHECK-MODES."
+  (>>=derived-mode-p
+    (>>=buffer-major-mode buffer)
+    (>>=fix-rest-list check-modes)))
+
+
 (defun >>=same-mode-buffers (modes &optional frame)
   "Return a list of all live buffers filtered by MODES.
 If the optional argument FRAME is a frame, return the buffer list in the
 proper order for that frame: the buffers shown in FRAME come first, followed
 by the rest of the buffers."
-  (delq nil
-    (mapcar
-      (lambda (buf)
-        (when (>>=mode-find (>>=buffer-major-mode buf) modes)
-          buf))
-      (buffer-list frame))))
+  (match-buffers 'buffer-in-mode-p (buffer-list frame) modes))
 
 
 (defun >>=derived-mode-buffers (modes &optional frame)
@@ -136,24 +239,17 @@ by the rest of the buffers."
 If the optional argument FRAME is a frame, return the buffer list in the
 proper order for that frame: the buffers shown in FRAME come first,
 followed by the rest of the buffers."
-  (delq nil
-    (mapcar
-      (lambda (buf)
-        (when (>>=derived-mode-p (>>=buffer-major-mode buf) modes)
-          buf))
-      (buffer-list frame))))
+  (match-buffers 'buffer-in-parent-mode-p (buffer-list frame) modes))
 
 
-(defalias 'standard-buffer-p '>>=standard-buffer-p)
-(defun >>=standard-buffer-p (buffer)
-  "Define whether the BUFFER can be set up.
-Are not considered valid temporary buffers, or those whose name begins with a
-space, or whose `major-mode' is `fundamental-mode'."
-  (not
-    (or
-      (minibufferp buffer)
-      (string-match-p "\\` " (buffer-name buffer))
-      (eq (>>=buffer-major-mode buffer) 'fundamental-mode))))
+(defsubst >>-buffer-key (buffer)
+  "Join `major-mode' and name of the BUFFER to form a key for sorting."
+  (format "%s/%s" (>>=buffer-major-mode buffer) (buffer-name buffer)))
+
+
+(defun >>-sort-buffers (one two)
+  "Predicate to `sort' buffers ONE and TWO."
+  (string< (>>-buffer-key one) (>>-buffer-key two)))
 
 
 (defun >>-setup-current-buffer ()
@@ -163,233 +259,7 @@ space, or whose `major-mode' is `fundamental-mode'."
 
 
 
-;;; Smart tabs
-
-(defvar >>=|smart-tab-line-initial-mode 'toolbox
-  "Initial mode for smart tab line configuration.
-
-When this variable is not nil, tab line is configured to get the list of tabs
-depending on the buffer's major mode (for more information see
-`>>=|smart-tab-line-major-mode-roots').
-
-The following options are possible:
-- If nil, the tab line is not configured.
-- Symbol `toolbox', to enable `tab-line-mode' only in the toolbox buffers.
-- Symbol `global', to globally enable the smart tab line.
-- Any other true value, to use the smart `tabl-ine' only for buffers with
-  `tab-line-mode' enabled.")
-
-
-(defvar >>=|smart-tab-line-priority-modes '(prog-mode text-mode)
-  "Priority modes when listing tabs.
-First priority is for toolbox buffers, then those whose `major-mode' is
-derived from one of those defined in this variable, and finally those that
-share the first ancestor of the `major-mode'.")
-
-
-(defvar >>=|smart-tab-line-sort-predicate '>>-sort-buffers-default
-  "Predicate to `sort' two buffers for the smart tab line.")
-
-
-(use-package tab-line
-  :custom
-  (tab-line-new-button-show nil)
-  (tab-line-close-button-show nil)
-  (tab-line-switch-cycling t)
-  (tab-bar-tab-hints t)
-  (tab-bar-select-tab-modifiers '(alt))
-  :config
-  (setq tab-line-separator " | ")
-  (let ((fg (face-attribute 'default :foreground))
-        (bg (face-attribute 'default :background))
-        (dark-fg (face-attribute 'shadow :foreground)))
-    ;; background behind tabs
-    (set-face-attribute 'tab-line nil
-      :inherit nil
-      :foreground dark-fg
-      :background bg
-      :height 0.95
-      :box nil)
-    ;; active tab in current window
-    (set-face-attribute 'tab-line-tab-current nil
-      :inherit nil
-      :foreground fg
-      :background bg
-      :weight 'extra-bold
-      :underline t
-      :box nil)
-    ;; inactive tab
-    (set-face-attribute 'tab-line-tab-inactive nil
-      :inherit nil
-      :foreground dark-fg
-      :background bg
-      :weight 'light
-      :height 0.9
-      :box nil)
-    ;; active tab in another window
-    (set-face-attribute 'tab-line-tab nil
-      :inherit nil
-      :foreground dark-fg
-      :background bg
-      :weight 'extra-bold
-      :box nil)
-    ;; mouse over
-    (set-face-attribute 'tab-line-highlight nil
-      :foreground 'unspecified)
-      :background bg))
-
-
-(defun >>-tab-line/check-buffer (&optional buffer)
-  "Return whether BUFFER can be included in the tab line.
-See `tab-line-mode--turn-on' for more information on which buffers cannot be
-included in the tab line."
-  (unless buffer
-    (setq buffer (current-buffer)))
-  (let ((mode (>>=buffer-major-mode buffer)))
-    (and
-      (>>=standard-buffer-p buffer)
-      (not
-        (or
-          (memq mode tab-line-exclude-modes)
-          (get mode 'tab-line-exclude)
-          (buffer-local-value 'tab-line-exclude buffer))))))
-
-
-(defsubst >>-tab-line/check-toolbox-buffer ()
-  "Check if `current-buffer' is a toolbox buffer and can be in the tab line."
-  (and (>>=toolbox-p) (>>-tab-line/check-buffer)))
-
-
-(defun >>-tab-line/turn-toolbox-on ()
-  "Turn on `tab-line-mode' in a toolbox buffer."
-  (when (>>-tab-line/check-toolbox-buffer)
-    (tab-line-mode +1)))
-
-
-(define-minor-mode toolbox-tab-line-mode
-  "Toggle whether tab line is used for toolbox buffers."
-  :init-value nil
-  :lighter " tbox-tabs"
-  :global t
-  :group 'toolbox
-  (unless global-tab-line-mode     ; global is higher-level than toolbox mode
-    (let ((arg (if toolbox-tab-line-mode +1 -1)))
-      (dolist (buffer (buffer-list))
-        (when (>>=toolbox-p buffer)
-          (with-current-buffer buffer
-            (tab-line-mode arg)))))))
-
-
-(define-globalized-minor-mode global-tab-line-mode
-  tab-line-mode tab-line-mode--turn-on
-  :group 'tab-line
-  :version "27.1")
-
-
-(defun >>-sort-buffers-default (one two)
-  "Default value for predicate when sorting buffer ONE and TWO."
-  (cl-every 'string<
-    (list (>>=buffer-major-mode one) (buffer-name one))
-    (list (>>=buffer-major-mode two) (buffer-name two))))
-
-
-(defun >>-buffer-priority-mode (buffer)
-  "Return whether the BUFFER has a priority mode."
-  (>>=derived-mode-p
-    (>>=buffer-major-mode buffer)
-    >>=|smart-tab-line-priority-modes))
-
-
-(defun >>=smart-tab-line-buffers ()
-  "Sort list of all live toolbox buffers ready to be used in the `tab-line'."
-  (sort
-    (let ((buffer (current-buffer)))
-      (if (>>=toolbox-p buffer)
-        (>>=toolbox-buffers)
-        ;; else
-        (>>=filter-toolbox-buffers
-          (let ((mode (>>-buffer-priority-mode buffer)))
-            (if mode
-              (>>=derived-mode-buffers mode)
-              ;; else
-              (funcall (>>=get-original-value tab-line-tabs-function)))))))
-    >>=|smart-tab-line-sort-predicate))
-
-
-(defun >>=configure-smart-tab-line ()
-  "Configure smart tab line using MODE."
-  (let ((mode >>=|smart-tab-line-initial-mode))
-    (if mode
-      (progn
-        (setq tab-line-tabs-function '>>=smart-tab-line-buffers)
-        (pcase mode
-          ('toolbox
-            (toolbox-tab-line-mode +1))
-          ('global
-            (global-tab-line-mode +1))))
-      ;; else
-      (when (eq tab-line-tabs-function '>>=smart-tab-line-buffers)
-        (setq tab-line-tabs-function
-          (>>=get-original-value tab-line-tabs-function))))))
-
-
-
 ;;; Toolbox
-
-(defvar >>=|toolbox/match-buffer-condition
-  '(or
-     "[*]scratch[*]"
-     (derived-mode . term-mode)
-     (derived-mode . eshell-mode))
-  "Determine how to switch to toolbox buffers.")
-
-
-(defvar >>=|toolbox/display-buffer-action nil
-  "Determine how to switch to toolbox buffers.
-
-The value of this variable is used by `>>=toolbox/switch-to-buffer' (the main
-toolbox function) to call the `display-buffer' function.
-
-The following values are possible:
-- Any valid value for the ACTION argument of the `display-buffer' function.
-- Symbol `other-window', or boolean t: To display the buffer in a window other
-  than the selected one.
-- A number, nil, or symbol `bottom': To display window at the bottom of the
-  selected frame (see `>>-toolbox/cast-height' on how this option is
-  evaluated).  A number means the window height; nil and `bottom' use
-  `>>=|toolbox/default-bottom-height' as the default value.  A `floatp' is a
-  fraction of the frame's height; and an `integerp' (not recommended) is in
-  units of the frame's canonical character height (see `frame-height'
-  function).
-- Any other symbol (or string) will be used to try an ACTION-FUNCTION by
-  formatting `display-buffer-%s'; for example `same-window', to use
-  `display-buffer-same-window'.")
-
-
-(defvar >>=|toolbox/default-bottom-height 0.4
-  "Default value for height when toolbox panel is displayed at `bottom'.
-See `>>=|toolbox/display-buffer-action' configuration variable.")
-
-
-(defvar >>=|toolbox/base-action
-  '((display-buffer-if-in-visible-window display-buffer-reuse-toolbox-window))
-  "Default action for ‘display-buffer’ executed before any logic.")
-
-
-(defvar >>=|toolbox/fallback-action nil
-  "Override `display-buffer-fallback-action' if not nil.")
-
-
-(defvar >>=|toolbox/same-in-both-directions
-  '(display-buffer-same-window)
-  "Actions that are the same in both directions.")
-
-
-(defvar >>=|toolbox/reverse-bottom-action
-  '((display-buffer-reuse-mode-window display-buffer-reuse-window))
-  "Action to reverse from a bottom toolbox buffer.
-When nil, a `top' window with reversed height is used.")
-
 
 (defvar >>-toolbox/properties nil
   "Local property list to store options of toolbox panel buffers.
@@ -404,24 +274,19 @@ This is set by `>>=toolbox/setup-buffer'.")
     (get-buffer (or buffer-or-name (current-buffer)))))
 
 
+(defun >>=toolbox-buffers ()
+  "Return a sorted list of all live toolbox buffers."
+  (sort (match-buffers 'toolbox-p) '>>-sort-buffers))
+
+
 (defun >>=toolbox/setup-buffer (buffer)
   "Configure BUFFER to be part of the toolbox panel."
   (unless (>>=toolbox-p buffer)
     (with-current-buffer buffer
       (set
         (make-local-variable '>>-toolbox/properties)
-        `(:toolbox-kind ,major-mode))
-      (when toolbox-tab-line-mode
-        (tab-line-mode +1)))
+        `(:toolbox-kind ,major-mode)))
     buffer))
-
-
-(defun >>=toolbox/check-buffer (&optional buffer)
-  "Configure BUFFER to be part of the toolbox panel."
-  (unless buffer
-    (setq buffer (current-buffer)))
-  (when (buffer-match-p >>=|toolbox/match-buffer-condition buffer)
-    (>>=toolbox/setup-buffer buffer)))
 
 
 (defun >>=toolbox/set-properties (buffer &rest properties)
@@ -431,21 +296,6 @@ This is set by `>>=toolbox/setup-buffer'.")
       (>>=plist-update target properties)
       ;; else
       (user-error ">>= '%s' is not a toolbox buffer" (buffer-name buffer)))))
-
-
-(defun >>=toolbox/setup-new-buffer (buffer &rest properties)
-  "Setup a newly created BUFFER which should be part of the toolbox panel.
-Optional PROPERTIES could be given to set some extra initial options.  The
-`:toolbox-kind' property is set to the value of `major-mode' unless given in
-PROPERTIES."
-  (let ((props (>>=plist-fix properties)))
-    (unless (plist-get props :toolbox-kind)
-      (setq props `(:toolbox-kind ,major-mode ,@props)))
-    (with-current-buffer buffer
-      (set (make-local-variable '>>-toolbox/properties) props)
-      (when (and toolbox-tab-line-mode (not global-tab-line-mode))
-        (tab-line-mode +1))))
-  buffer)
 
 
 (defun display-buffer-if-in-visible-window (buffer alist)
@@ -570,30 +420,197 @@ The optional argument MODE will take precedence over the variable
   "Switch to the *scratch* toolbox buffer, creating a new one if needed."
   (interactive)
   (let ((buffer (get-scratch-buffer-create)))
-    (cl-assert (>>=toolbox-p buffer))
     (>>=toolbox/switch-to-buffer buffer)))
 
 
-(defun >>=toolbox-buffers ()
-  "Return a list of all live toolbox buffers."
-  (match-buffers 'toolbox-p))
+
+;;; Tabs
+
+(use-package tab-line
+  :custom
+  (tab-line-new-button-show nil)
+  (tab-line-close-button-show nil)
+  (tab-line-switch-cycling t)
+  :config
+  (setq tab-line-separator " | ")
+  (let ((fg (face-attribute 'default :foreground))
+        (bg (face-attribute 'default :background))
+        (dark-fg (face-attribute 'shadow :foreground)))
+    ;; background behind tabs
+    (set-face-attribute 'tab-line nil
+      :inherit nil
+      :foreground dark-fg
+      :background bg
+      :height 0.95
+      :box nil)
+    ;; active tab in current window
+    (set-face-attribute 'tab-line-tab-current nil
+      :inherit nil
+      :foreground fg
+      :background bg
+      :weight 'extra-bold
+      :underline t
+      :box nil)
+    ;; inactive tab
+    (set-face-attribute 'tab-line-tab-inactive nil
+      :inherit nil
+      :foreground dark-fg
+      :background bg
+      :weight 'light
+      :height 0.85
+      :box nil)
+    ;; active tab in another window
+    (set-face-attribute 'tab-line-tab nil
+      :inherit nil
+      :foreground dark-fg
+      :background bg
+      :weight 'extra-bold
+      :box nil)
+    ;; mouse over
+    (set-face-attribute 'tab-line-highlight nil
+      :foreground 'unspecified)
+      :background bg))
 
 
-(defun >>=filter-toolbox-buffers (&optional buffers)
-  "Return a list of all live BUFFERS that are not a toolbox buffer."
-  (match-buffers '(and (not toolbox-p) standard-buffer-p) buffers))
+(defun >>-tab-line/valid-buffer (&optional buffer)
+  "Return whether BUFFER can be included in the tab line."
+  (unless buffer
+    (setq buffer (current-buffer)))
+  (let ((mode (>>=buffer-major-mode buffer)))
+    (and
+      (>>=standard-buffer-p buffer)
+      (not
+        (or
+          (memq mode tab-line-exclude-modes)
+          (get mode 'tab-line-exclude)
+          (buffer-local-value 'tab-line-exclude buffer))))))
+
+
+(defalias 'extended-mode-buffer-p '>>-tab-line/extended-mode-buffer-p)
+(defun >>-tab-line/extended-mode-buffer-p (&optional buffer)
+  "Return whether BUFFER is in one of the `extended' modes."
+  (buffer-in-parent-mode-p
+    (or buffer (current-buffer))
+    >>=|tab-line/extended-modes))
+
+
+(defalias 'extended-buffer-p '>>-tab-line/extended-buffer-p)
+(defun >>-tab-line/extended-buffer-p (&optional buffer)
+  "Return whether BUFFER is valid for the `extended' tabs."
+  (or (toolbox-p buffer) (extended-mode-buffer-p buffer)))
+
+
+(defalias 'tab-buffer-p '>>-tab-buffer-p)
+(defun >>-tab-buffer-p (&optional buffer)
+  "Return whether BUFFER must be configured in tabs."
+  (pcase >>=|tab-line/kind
+    ('toolbox
+      (toolbox-p buffer))
+    ('extended
+      (extended-buffer-p buffer))))
+
+
+(defun >>=extended-mode-buffers ()
+  "All live buffers in one of the extended modes but not a toolbox."
+  (sort
+    (cl-remove-if 'toolbox-p (match-buffers 'extended-buffer-p))
+    '>>-sort-buffers))
+
+
+(define-minor-mode >>-tab-line-mode
+  "Toggle whether tab line is used for `toolbox' and/or `extended' buffers.
+This global minor mode is used internally based on the value of the
+`>>=|tab-line/kind' variable and should only be configured using the
+`>>=tab-line/configure' function."
+  :init-value nil
+  :lighter " xtabs"
+  :global t
+  :group 'toolbox
+  (unless global-tab-line-mode     ; global is higher-level than toolbox mode
+    (let ((arg (if >>-tab-line-mode +1 -1)))
+      (dolist (buffer (match-buffers 'tab-buffer-p))
+        (with-current-buffer buffer
+          (tab-line-mode arg))))))
+
+
+(defun >>=tab-line/buffers ()
+  "List of tabs to display in the `tab-line'.
+To be used with `tab-line-tabs-function' variable."
+  (cond
+    ((toolbox-p)
+      (>>=toolbox-buffers))
+    ((extended-mode-buffer-p)
+      (>>=extended-mode-buffers))
+    (t
+      (funcall (>>=get-original-value tab-line-tabs-function)))))
+
+
+(defun >>-tab-line/set-function ()
+  "Set `tab-line-tabs-function' to our function."
+  (unless (eq tab-line-tabs-function '>>=tab-line/buffers)
+    (setq tab-line-tabs-function '>>=tab-line/buffers)))
+
+
+(defun >>-tab-line/reset-function ()
+  "Reset `tab-line-tabs-function' to its original value."
+  (when (eq tab-line-tabs-function '>>=tab-line/buffers)
+    (>>=restore-original-value tab-line-tabs-function)))
+
+
+(defun >>-tab-line/set-kind (kind)
+  "Change `>>=|tab-line/kind' variable to the value of KIND."
+  (if (null kind)
+    (progn
+      (>>-tab-line-mode -1)
+      (global-tab-line-mode -1)
+      (>>-tab-line/reset-function))
+    ;; else
+    (>>-tab-line/set-function)
+    (pcase kind
+      ((or 'toolbox 'extended)
+        (>>-tab-line-mode +1))
+      ('global
+        (global-tab-line-mode +1)))))
+
+
+(defun >>=tab-line/configure (kind)
+  "Configure tabs using KIND.
+In addition to the types defined in the `>>=|tab-line/kind' variable, the
+special type `init' can be used for initial configuration."
+  (if (eq kind 'init)
+    (when >>=|tab-line/kind
+      (setq kind >>=|tab-line/kind)
+      (>>-tab-line/set-kind kind))
+    ;; else
+    (setq >>=|tab-line/kind kind)
+    (>>-tab-line/set-kind kind)))
 
 
 
-;;; Hooks
+;;; Module configuration (hooks, ...)
+
+(defun >>-check-buffer ()
+  "Setup `current-buffer' the first time its mode is set."
+  (let ((buffer (current-buffer)))
+    (cond
+      ((buffer-match-p >>=|toolbox/match-buffer-condition buffer)
+        (>>=toolbox/setup-buffer buffer)
+        (when >>-tab-line-mode
+          (tab-line-mode +1)))
+      ((and
+         >>-tab-line-mode
+         (eq >>=|tab-line/kind 'extended)
+         (extended-buffer-p buffer))
+        (tab-line-mode +1)))))
+
 
 (defun >>=configure-window-module ()
   "Initial window module configuration."
-  (>>=configure-smart-tab-line))
+  (>>=tab-line/configure 'init))
 
 
 (add-hook 'after-change-major-mode-hook '>>-setup-current-buffer)
-(add-hook 'buffer-setup-hook '>>=toolbox/check-buffer)
+(add-hook 'buffer-setup-hook '>>-check-buffer)
 (add-hook 'after-init-hook '>>=configure-window-module)
 
 
