@@ -507,7 +507,9 @@ The optional argument MODE will take precedence over the variable
     ('toolbox
       (toolbox-p buffer))
     ('extended
-      (extended-buffer-p buffer))))
+      (extended-buffer-p buffer))
+    ('global
+      t)))
 
 
 (defun >>=extended-mode-buffers ()
@@ -515,6 +517,20 @@ The optional argument MODE will take precedence over the variable
   (sort
     (cl-remove-if 'toolbox-p (match-buffers 'extended-buffer-p))
     '>>-sort-buffers))
+
+
+(defun >>-xtabs/tab-line-enable ()
+  "Turn on `tab-line-mode' in all `xtabs' buffers.
+See functions `>>-tab-line/valid-buffer' and `>>-tab-buffer-p' to find which
+buffers are eligible."
+  (when (and (>>-tab-line/valid-buffer) (tab-buffer-p))
+    (tab-line-mode +1)))
+
+
+(define-globalized-minor-mode xtabs-mode tab-line-mode
+  >>-xtabs/tab-line-enable
+  :link '(variable-link '>>=|tab-line/kind)
+  :group 'xtabs)
 
 
 (define-minor-mode >>-tab-line-mode
