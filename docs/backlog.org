@@ -32,6 +32,9 @@
 - [ ] Check [[https://www.emacswiki.org/emacs/awesome-tab.el][awesome-tab]] to configure the [[file:/usr/share/emacs/29.1/lisp/tab-line.el.gz][tab-line]].
 - [ ] Rename [[file:~/work/emacs/xorns/horns/xorns-window.el::(define-minor-mode >>=window-coach-mode][>>=window-coach-mode]].
 - [ ] Move [[file:~/work/emacs/xorns/horns/xorns-exwm.el::defun >>-exwm/swap-last-buffers (][>>-exwm/swap-last-buffers]] to module [[file:~/work/emacs/xorns/horns/xorns-window.el][window]].
+- [ ] Check orphan packages.
+- [ ] Define some keys in [[file:~/work/emacs/xorns/horns/xorns-system.el::(use-package treemacs][treemacs]] similar to ~dired~, for example,
+  =(keymap-set treemacs-mode-map "+" 'treemacs-create-dir)=.
 
 * Look for better options to show a System Tray for EXWM
 
