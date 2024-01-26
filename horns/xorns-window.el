@@ -27,30 +27,34 @@
 ;; base
 
 (defvar buffer-setup-hook nil
-  "Normal hook run after creating a buffer to configure it.")
+  "Normal hook run after creating a buffer to configure it.
+Only buffers that match condition `standard-buffer-p' are configured.")
 
 
 ;; toolbox
 
-(defvar >>=|toolbox/match-buffer-condition
+(defvar >>=|toolbox/buffer-match-condition
   '(or
      "[*]scratch[*]"
      (derived-mode . term-mode)
      (derived-mode . eshell-mode))
-  "Determine how to switch to toolbox buffers.")
+  "Determine whether a buffer should be configured to be part of the toolbox.
+The value of this variable must be a valid CONDITION for the function
+`buffer-match-p'.  Once a buffer is configured, the `toolbox-p' function can
+be used to check whether it is a toolbox buffer or not.")
 
 
 (defvar >>=|toolbox/display-buffer-action nil
-  "Determine how to switch to toolbox buffers.
+  "Determine how to switch to a toolbox buffer.
 
-The value of this variable is used by `>>=toolbox/switch-to-buffer' (the main
-toolbox function) to call the `display-buffer' function.
+The value of this variable is used by `>>=toolbox/switch-to-buffer' to call
+the `display-buffer' function.
 
-The following values are possible:
+The following values are possible options:
 - Any valid value for the ACTION argument of the `display-buffer' function.
-- Symbol `other-window', or boolean t: To display the buffer in a window other
+- Symbol `other-window', or boolean t: to display the buffer in a window other
   than the selected one.
-- A number, nil, or symbol `bottom': To display window at the bottom of the
+- Symbol `bottom', nil, or a number: to display window at the bottom of the
   selected frame (see `>>-toolbox/cast-height' on how this option is
   evaluated).  A number means the window height; nil and `bottom' use
   `>>=|toolbox/default-bottom-height' as the default value.  A `floatp' is a
@@ -76,7 +80,7 @@ See `>>=|toolbox/display-buffer-action' configuration variable.")
   "Override `display-buffer-fallback-action' if not nil.")
 
 
-(defvar >>=|toolbox/same-in-both-directions
+(defvar >>=|toolbox/same-in-both-directions    ;; TODO: check this
   '(display-buffer-same-window)
   "Actions that are the same in both directions.")
 
@@ -89,25 +93,39 @@ When nil, a `top' window with reversed height is used.")
 
 ;; tabs
 
-(defvar >>=|tab-line/kind 'toolbox
-  "Mode to configure tabs.
-This value will only take effect when using the `>>=tab-line/configure'
-function.  The following are the possible options:
-- If nil, tabs will be disabled.
-- Symbol `toolbox', to enable tabs only for toolbox buffers.
-- Symbol `extended', to enable tabs for toolbox, for editing, and programming
-  related buffers.  See `>>=|tab-line/extended-modes' for more information.
-- Symbol `global', to globally enable the tabs for all valid buffers.
-- Boolean value t, to use tabs only for buffers with `tab-line-mode' manually
-  enabled.")
+(defvar >>=|xtabs/kind 'toolbox
+  "Configuration kind for `xtabs' (intuitive use of `tab-line').
+At Emacs initialization, the `>>=xtabs/configure' function is used to
+configure `xtabs'.  You can use this same function at any time to reconfigure
+this concept.  If nil, `xtabs' will be disabled, if a symbol, it will be a
+buffer group, see `>>=|xtabs/buffer-groups' variable for more information.")
 
 
-(defvar >>=|tab-line/extended-modes '(text-mode prog-mode)
-  "Modes for which tabs are enabled when `>>=|tab-line/kind' is `extended'.")
+(defvar >>=|xtabs/buffer-groups
+  '((toolbox . toolbox-p)
+    (text . (derived-mode . text-mode))
+    (prog . (derived-mode . prog-mode)))
+  "Rules for grouping buffers into hierarchical levels.
+The value of this variable must be an association list where each element is a
+rule of the form (GROUP . CONDITION).  See `buffer-match-p' on how to define a
+CONDITION.  See also variables `>>=|xtabs/suitable-buffer-condition' and
+`>>=|xtabs/global-group'.")
+
+
+(defvar >>=|xtabs/suitable-buffer-condition 'xtabs/suitable-buffer-p
+  "Condition matching if a buffer is valid for `xtabs'.
+The value must be a valid CONDITION argument for `buffer-match-p'.  Buffers
+that do not match this condition will always be excluded before trying any
+group defined in the `>>=|xtabs/buffer-groups' variable.")
+
+
+(defvar >>=|xtabs/global-group 'global
+  "Special group that matches all standard buffers.
+See variable `>>=|xtabs/buffer-groups' for more information.")
 
 
 
-;;; Base configuration
+;;; Basic configuration
 
 (use-package window
   :init
@@ -193,16 +211,17 @@ buffer."
           (delete-window win))))))
 
 
-(defsubst >>=buffer-major-mode (buffer)
+(defun >>=buffer-major-mode (&optional buffer)
   "Return the `major-mode' of BUFFER."
-  (buffer-local-value 'major-mode buffer))
+  (buffer-local-value 'major-mode (or buffer (current-buffer))))
 
 
 (defalias 'standard-buffer-p '>>=standard-buffer-p)
-(defun >>=standard-buffer-p (buffer)
-  "Define whether the BUFFER is standard.
-A buffer is not considered standard if it is temporary, or if its name begins
-with a space, or if its `major-mode' is `fundamental-mode'."
+(defun >>=standard-buffer-p (&optional buffer)
+  "Match if a BUFFER is standard.
+A buffer is non-standard if it is temporary, or if its name begins with a
+space, or if its `major-mode' is `fundamental-mode'.  The mechanism for
+setting a buffer up when it is initially opened uses this condition."
   (not
     (or
       (minibufferp buffer)
@@ -212,7 +231,7 @@ with a space, or if its `major-mode' is `fundamental-mode'."
 
 (defalias 'buffer-in-mode-p '>>=buffer-in-mode-p)
 (defun >>=buffer-in-mode-p (buffer &rest check-modes)
-  "Non-nil if `major-mode' of BUFFER is one of the CHECK-MODES."
+  "Match if `major-mode' of BUFFER is one of the CHECK-MODES."
   (>>=mode-find
     (>>=buffer-major-mode buffer)
     (>>=fix-rest-list check-modes)))
@@ -220,7 +239,7 @@ with a space, or if its `major-mode' is `fundamental-mode'."
 
 (defalias 'buffer-in-parent-mode-p '>>=buffer-in-parent-mode-p)
 (defun >>=buffer-in-parent-mode-p (buffer &rest check-modes)
-  "Non-nil if `major-mode' of BUFFER is derived from one of the CHECK-MODES."
+  "Match if `major-mode' of BUFFER is derived from one of the CHECK-MODES."
   (>>=derived-mode-p
     (>>=buffer-major-mode buffer)
     (>>=fix-rest-list check-modes)))
@@ -243,17 +262,19 @@ followed by the rest of the buffers."
 
 
 (defsubst >>-buffer-key (buffer)
-  "Join `major-mode' and name of the BUFFER to form a key for sorting."
+  "Create a string key from a BUFFER by joining `major-mode' and name."
   (format "%s/%s" (>>=buffer-major-mode buffer) (buffer-name buffer)))
 
 
-(defun >>-sort-buffers (one two)
-  "Predicate to `sort' buffers ONE and TWO."
+(defun >>-buffer< (one two)
+  "Non-nil if buffer ONE is less than buffer TWO in lexicographic order.
+This function uses `>>-buffer-key' and `string<' to compare.  It is used to
+`sort' list of buffers in `xtabs'."
   (string< (>>-buffer-key one) (>>-buffer-key two)))
 
 
 (defun >>-setup-current-buffer ()
-  "Configure `current-buffer' by running `buffer-setup-hook'."
+  "Run `buffer-setup-hook' on `current-buffer'."
   (when (>>=standard-buffer-p (current-buffer))
     (run-hooks 'buffer-setup-hook)))
 
@@ -263,7 +284,8 @@ followed by the rest of the buffers."
 
 (defvar >>-toolbox/properties nil
   "Local property list to store options of toolbox panel buffers.
-This is set by `>>=toolbox/setup-buffer'.")
+This variable is local and not-nil in toolbox buffers, it must be nil in all
+other buffers.  This is set up by `>>=toolbox/setup-buffer'.")
 
 
 (defalias 'toolbox-p '>>=toolbox-p)
@@ -275,8 +297,8 @@ This is set by `>>=toolbox/setup-buffer'.")
 
 
 (defun >>=toolbox-buffers ()
-  "Return a sorted list of all live toolbox buffers."
-  (sort (match-buffers 'toolbox-p) '>>-sort-buffers))
+  "Return a list of all live toolbox buffers."
+  (sort (match-buffers 'toolbox-p) '>>-buffer<))
 
 
 (defun >>=toolbox/setup-buffer (buffer)
@@ -285,7 +307,7 @@ This is set by `>>=toolbox/setup-buffer'.")
     (with-current-buffer buffer
       (set
         (make-local-variable '>>-toolbox/properties)
-        `(:toolbox-kind ,major-mode)))
+        `(:toolbox ,major-mode)))
     buffer))
 
 
@@ -351,7 +373,7 @@ This is an ACTION function, so we don't use the `xorns' naming convention."
       >>=|toolbox/default-bottom-height)
     ((eq action 'other-window)
       t)
-    ((or (>>=real-symbol action) (stringp action))
+    ((>>=real-symbol action)
       (>>=check-function (format "display-buffer-%s" action) 'strict))
     (t
       action)))
@@ -414,8 +436,6 @@ The optional argument MODE will take precedence over the variable
         (display-buffer buffer (or >>=|toolbox/fallback-action org-fba))))))
 
 
-(define-obsolete-function-alias '>>=scratch/force
-  '>>=toolbox/scratch-buffer "0.9.8")
 (defun >>=toolbox/scratch-buffer ()
   "Switch to the *scratch* toolbox buffer, creating a new one if needed."
   (interactive)
@@ -472,13 +492,14 @@ The optional argument MODE will take precedence over the variable
       :background bg))
 
 
-(defun >>-tab-line/valid-buffer (&optional buffer)
+(defalias 'xtabs/suitable-buffer-p '>>-xtabs/suitable-buffer-p)
+(defun >>-xtabs/suitable-buffer-p (&optional buffer)
   "Return whether BUFFER can be included in the tab line."
   (unless buffer
     (setq buffer (current-buffer)))
-  (let ((mode (>>=buffer-major-mode buffer)))
-    (and
-      (>>=standard-buffer-p buffer)
+  (and
+    (>>=standard-buffer-p buffer)
+    (let ((mode (>>=buffer-major-mode buffer)))
       (not
         (or
           (memq mode tab-line-exclude-modes)
@@ -486,120 +507,138 @@ The optional argument MODE will take precedence over the variable
           (buffer-local-value 'tab-line-exclude buffer))))))
 
 
-(defalias 'extended-mode-buffer-p '>>-tab-line/extended-mode-buffer-p)
-(defun >>-tab-line/extended-mode-buffer-p (&optional buffer)
-  "Return whether BUFFER is in one of the `extended' modes."
-  (buffer-in-parent-mode-p
-    (or buffer (current-buffer))
-    >>=|tab-line/extended-modes))
+(defsubst >>-xtabs/op-cond (operator condition)
+  "Head a CONDITION with an OPERATOR."
+  (when condition
+    (let ((tail (cdr condition)))
+      (if (null tail)
+        (car condition)
+        ;; else
+        (cons operator condition)))))
 
 
-(defalias 'extended-buffer-p '>>-tab-line/extended-buffer-p)
-(defun >>-tab-line/extended-buffer-p (&optional buffer)
-  "Return whether BUFFER is valid for the `extended' tabs."
-  (or (toolbox-p buffer) (extended-mode-buffer-p buffer)))
+(defun >>-xtabs/kind-condition (kind)
+  "Look a condition up in `>>=|xtabs/buffer-groups' based on a KIND.
+Return a `cons' (FOUND-CONDITION . UPPER-CONDITIONS)."
+  (when kind
+    (if (memq kind `(t ,>>=|xtabs/global-group))
+      '(t)
+      ;; else
+      (let ((groups >>=|xtabs/buffer-groups)
+            upper
+            res)
+        (while (and groups (not res))
+          (setq upper (cons (cdar groups) upper))
+          (if (eq (caar groups) kind)
+            (setq res upper)
+            ;; else
+            (setq groups (cdr groups))))
+        (if res
+          res
+          ;; else
+          (switch-to-buffer "*Messages*")
+          (user-error ">>= invalid `xtabs' kind: %s" kind))))))
 
 
-(defalias 'tab-buffer-p '>>-tab-buffer-p)
-(defun >>-tab-buffer-p (&optional buffer)
-  "Return whether BUFFER must be configured in tabs."
-  (pcase >>=|tab-line/kind
-    ('toolbox
-      (toolbox-p buffer))
-    ('extended
-      (extended-buffer-p buffer))
-    ('global
-      t)))
+(defun >>-xtabs/buffer-condition (buffer)
+  "Look a condition up in `>>=|xtabs/buffer-groups' based on a BUFFER.
+Return a `cons' (FOUND-CONDITION . UPPER-CONDITIONS)."
+  (let ((groups >>=|xtabs/buffer-groups)
+        upper
+        res)
+    (while (and groups (not res))
+      (let ((current (cdar groups)))
+        (setq upper (cons current upper))
+        (if (buffer-match-p current buffer)
+          (setq res upper)
+          ;; else
+          (setq groups (cdr groups)))))
+    res))
 
 
-(defun >>=extended-mode-buffers ()
-  "All live buffers in one of the extended modes but not a toolbox."
-  (sort
-    (cl-remove-if 'toolbox-p (match-buffers 'extended-buffer-p))
-    '>>-sort-buffers))
+(defun >>-xtabs/get-condition (key)
+  "Calculate a condition based on the given KEY.
+KEY could be a valid `>>=|xtabs/kind', a buffer, or a `buffer-name'."
+  (if (or (stringp key) (bufferp key))
+    (let* ((pair (>>-xtabs/buffer-condition key))
+           (head (car pair))
+           (tail (>>-xtabs/op-cond 'or (cdr pair))))
+      (if head
+        (if tail
+          `(and ,head (not ,tail) ,>>=|xtabs/suitable-buffer-condition)
+          ;; else
+          `(and ,head ,>>=|xtabs/suitable-buffer-condition))
+        ;; else
+        t))
+    ;; else
+    (when-let ((pair (>>-xtabs/kind-condition key)))
+      (if (eq (car pair) t)
+        >>=|xtabs/suitable-buffer-condition
+        ;; else
+        (setq pair (>>-xtabs/op-cond 'or pair))
+        `(and ,pair ,>>=|xtabs/suitable-buffer-condition)))))
 
 
-(defun >>-xtabs/tab-line-enable ()
-  "Turn on `tab-line-mode' in all `xtabs' buffers.
-See functions `>>-tab-line/valid-buffer' and `>>-tab-buffer-p' to find which
-buffers are eligible."
-  (when (and (>>-tab-line/valid-buffer) (tab-buffer-p))
+(defsubst >>-xtabs/current-condition ()
+  "Calculate the condition to match a buffer based on `>>=|xtabs/kind'."
+  (>>-xtabs/get-condition >>=|xtabs/kind))
+
+
+(defun >>-xtabs/enable-on-buffer ()
+  "Turn on `tab-line-mode' in a `current-buffer' if pertinent.
+Advice to :override `tab-line-mode--turn-on'."
+  (when (buffer-match-p (>>-xtabs/current-condition) (current-buffer))
     (tab-line-mode +1)))
 
 
-(define-globalized-minor-mode xtabs-mode tab-line-mode
-  >>-xtabs/tab-line-enable
-  :link '(variable-link '>>=|tab-line/kind)
-  :group 'xtabs)
-
-
-(define-minor-mode >>-tab-line-mode
-  "Toggle whether tab line is used for `toolbox' and/or `extended' buffers.
-This global minor mode is used internally based on the value of the
-`>>=|tab-line/kind' variable and should only be configured using the
-`>>=tab-line/configure' function."
-  :init-value nil
-  :lighter " xtabs"
-  :global t
-  :group 'toolbox
-  (unless global-tab-line-mode     ; global is higher-level than toolbox mode
-    (let ((arg (if >>-tab-line-mode +1 -1)))
-      (dolist (buffer (match-buffers 'tab-buffer-p))
-        (with-current-buffer buffer
-          (tab-line-mode arg))))))
-
-
-(defun >>=tab-line/buffers ()
+(defun >>=xtabs/buffers ()
   "List of tabs to display in the `tab-line'.
 To be used with `tab-line-tabs-function' variable."
-  (cond
-    ((toolbox-p)
-      (>>=toolbox-buffers))
-    ((extended-mode-buffer-p)
-      (>>=extended-mode-buffers))
-    (t
-      (funcall (>>=get-original-value tab-line-tabs-function)))))
+  (when-let ((condition (>>-xtabs/get-condition (current-buffer))))
+    (if (eq condition t)
+      (funcall (>>=get-original-value tab-line-tabs-function))
+      ;; else
+      (sort (match-buffers condition) '>>-buffer<))))
 
 
-(defun >>-tab-line/set-function ()
-  "Set `tab-line-tabs-function' to our function."
-  (unless (eq tab-line-tabs-function '>>=tab-line/buffers)
-    (setq tab-line-tabs-function '>>=tab-line/buffers)))
+(defun >>-xtabs/enable ()
+  "Enable the mechanisms of `xtabs'."
+  (unless (eq tab-line-tabs-function '>>=xtabs/buffers)
+    (setq tab-line-tabs-function '>>=xtabs/buffers))
+  (unless (advice-member-p '>>-xtabs/enable-on-buffer 'tab-line-mode--turn-on)
+    (advice-add 'tab-line-mode--turn-on :override '>>-xtabs/enable-on-buffer))
+  (global-tab-line-mode +1))
 
 
-(defun >>-tab-line/reset-function ()
-  "Reset `tab-line-tabs-function' to its original value."
-  (when (eq tab-line-tabs-function '>>=tab-line/buffers)
+(defun >>-xtabs/disable ()
+  "Deactivate the mechanisms of `xtabs'."
+  (global-tab-line-mode -1)
+  (when (advice-member-p '>>-xtabs/enable-on-buffer 'tab-line-mode--turn-on)
+    (advice-remove 'tab-line-mode--turn-on '>>-xtabs/enable-on-buffer))
+  (when (eq tab-line-tabs-function '>>=xtabs/buffers)
     (>>=restore-original-value tab-line-tabs-function)))
 
 
-(defun >>-tab-line/set-kind (kind)
-  "Change `>>=|tab-line/kind' variable to the value of KIND."
+(defun >>-xtabs/set-kind (kind)
+  "Activate/deactivate `xtabs' according to KIND."
   (if (null kind)
-    (progn
-      (>>-tab-line-mode -1)
-      (global-tab-line-mode -1)
-      (>>-tab-line/reset-function))
+    (>>-xtabs/disable)
     ;; else
-    (>>-tab-line/set-function)
-    (pcase kind
-      ((or 'toolbox 'extended)
-        (>>-tab-line-mode +1))
-      ('global
-        (global-tab-line-mode +1)))))
+    (>>-xtabs/enable)))
 
 
-(defun >>=tab-line/configure (kind)
+(defalias 'xtabs '>>=xtabs/configure)
+(defun >>=xtabs/configure (kind)
   "Configure tabs using KIND.
-In addition to the types defined in the `>>=|tab-line/kind' variable, the
+In addition to the types defined in the `>>=|xtabs/kind' variable, the
 special type `init' can be used for initial configuration."
   (if (eq kind 'init)
-    (when >>=|tab-line/kind
-      (setq kind >>=|tab-line/kind)
-      (>>-tab-line/set-kind kind))
+    (when >>=|xtabs/kind
+      (setq kind >>=|xtabs/kind)
+      (>>-xtabs/set-kind kind))
     ;; else
-    (setq >>=|tab-line/kind kind)
-    (>>-tab-line/set-kind kind)))
+    (setq >>=|xtabs/kind kind)
+    (>>-xtabs/set-kind kind)))
 
 
 
@@ -608,26 +647,19 @@ special type `init' can be used for initial configuration."
 (defun >>-check-buffer ()
   "Setup `current-buffer' the first time its mode is set."
   (let ((buffer (current-buffer)))
-    (cond
-      ((buffer-match-p >>=|toolbox/match-buffer-condition buffer)
-        (>>=toolbox/setup-buffer buffer)
-        (when >>-tab-line-mode
-          (tab-line-mode +1)))
-      ((and
-         >>-tab-line-mode
-         (eq >>=|tab-line/kind 'extended)
-         (extended-buffer-p buffer))
-        (tab-line-mode +1)))))
+    (when (buffer-match-p >>=|toolbox/buffer-match-condition buffer)
+      (>>=toolbox/setup-buffer buffer)))
+  (>>-xtabs/enable-on-buffer))
 
 
-(defun >>=configure-window-module ()
+(defun >>-configure-window-module ()
   "Initial window module configuration."
-  (>>=tab-line/configure 'init))
+  (>>=xtabs/configure 'init))
 
 
 (add-hook 'after-change-major-mode-hook '>>-setup-current-buffer)
 (add-hook 'buffer-setup-hook '>>-check-buffer)
-(add-hook 'after-init-hook '>>=configure-window-module)
+(add-hook 'after-init-hook '>>-configure-window-module)
 
 
 (provide 'xorns-window)
