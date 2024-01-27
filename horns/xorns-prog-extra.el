@@ -87,9 +87,8 @@ For example (toml classic-snippets).")
 
   (use-package lsp-rescript
     :ensure t
-    :config
-    (add-hook 'rescript-mode-hook 'lsp-deferred)
-    (add-hook 'before-save-hook 'lsp-format-buffer)))
+    :hook
+    (before-save . >>=lsp/safe-format-buffer)))
 
 
 

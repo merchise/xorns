@@ -120,11 +120,7 @@ variable documentation."
 ;;; Python
 
 (defvar >>=|blacken/enable t
-  "Determines if `blacken' is enabled when entering `python-mode'.
-Possible values are any of the two canonical boolean values, or the symbol
-`ask', in which case the first time entering the mode the user will be asked.
-You always can manually enable this mode using `>>=blacken/turn-on' or
-`blacken-mode'.")
+  "Whether `blacken' is enabled when entering `python-mode'.")
 
 
 (defconst >>-!python/env-locators
@@ -276,10 +272,8 @@ the function `>>=python/locate-env'.")
 
 (use-package blacken
   :ensure t
+  :commands blacken-mode blacken-buffer
   :preface
-  (declare-function blacken-mode 'blacken)
-  (declare-function blacken-buffer 'blacken)
-
   (defun >>=blacken/turn-on ()
     "Setup `blacken' inner a file in `python-mode'."
     (interactive)
@@ -293,12 +287,11 @@ the function `>>=python/locate-env'.")
 
   (defun >>-blacken/may-enable-mode ()
     "Determine whether `blacken' may be enabled (see `>>=|blacken/enable')."
-    (>>=major-mode-trigger blacken >>=|blacken/enable >>=blacken/turn-on))
-
+    (when >>=|blacken/enable
+      (>>=blacken/turn-on)))
   :hook
   (python-mode . >>-blacken/may-enable-mode)
   (before-save . >>=blacken/try-reformat-buffer)
-
   :custom
   (blacken-line-length 'fill)
   (blacken-only-if-project-is-blackened t))
@@ -336,41 +329,46 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 (use-package lsp-mode
   :ensure t
   :demand t
+  :commands lsp lsp-deferred
+  :autoload lsp-buffer-language--configured-id lsp-format-buffer
   :preface
-  (declare-function lsp 'lsp-mode)
-  (declare-function lsp-deferred 'lsp-mode)
+  (defsubst >>=lsp/startup-function ()
+    "Return LSP entry point function based on `>>=|lsp/startup-deferred'."
+    (if >>=|lsp/startup-deferred 'lsp-deferred 'lsp))
 
-  (defun >>-lsp/entry-point ()
-    "Entry point that determines if defers server startup or not."
-    (if >>=|lsp/startup-deferred
-      (lsp-deferred)
-      ;; else
-      (lsp)))
+  (defsubst >>-lsp/entry-point ()
+    "Entry point that determines whether to defer the server startup or not."
+    (funcall (>>=lsp/startup-function)))
 
   (defun >>-lsp-buffer? ()
     "Validate current buffer language for `lsp-language-id-configuration'."
-    ;; TODO: refactor this, this code was copied from `lsp-buffer-language'
-    ;; but skipping the warning.
-    (when-let ((fn (buffer-file-name)))
-      (->> lsp-language-id-configuration
-        (-first
-          (-lambda ((mode-or-pattern . language))
-            (cond
-              ((and (stringp mode-or-pattern)
-                 (s-matches? mode-or-pattern fn))
-                language)
-              ((eq mode-or-pattern major-mode)
-                language))))
-        cl-rest)))
+    ;; based on `lsp-buffer-language'
+    (and
+      (buffer-file-name)
+      (lsp-buffer-language--configured-id)))
+
+  (defun >>-lsp/enable-mode-function ()
+    (cond
+      ((null >>=|lsp/enable-mode)
+        nil)
+      ((eq >>=|lsp/enable-mode 'ask)
+        'lsp)
+      ((functionp >>=|lsp/enable-mode)
+        >>=|lsp/enable-mode)
+      (t
+        '>>-lsp-buffer?)))
 
   (defun >>-lsp/may-enable-server ()
     "Determine whether `lsp' may be enabled (see `>>=|lsp/enable-mode')."
-    (>>=major-mode-trigger
-      lsp
-      (if (eq >>=|lsp/enable-mode t)
-        '>>-lsp-buffer?
-        >>=|lsp/enable-mode)
-      >>-lsp/entry-point))
+    (let ((fn (>>-lsp/enable-mode-function)))
+      (when (and fn (funcall fn))
+        (>>-lsp/entry-point))))
+
+  (defun >>=lsp/safe-format-buffer ()
+    "Ask the server to format this document, checking if possible."
+    (interactive)
+    (when lsp-mode
+      (lsp-format-buffer)))
   :custom
   (lsp-auto-guess-root t)
   (lsp-keymap-prefix "C-s-l")    ; "s-l" is the lock key in several laptops
