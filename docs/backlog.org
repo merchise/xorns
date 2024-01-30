@@ -2,9 +2,10 @@
 
 * Misc
 
-- [ ] Upgrade support to Emacs version > 29.1.  Now =use-package= is part of
-  Emacs, change [[file:~/work/emacs/xorns/horns/xorns-packages.el::defun >>=package/ensure (package][>>=package/ensure]] function to test =(require package nil
-  'noerror)= instead of =(package-installed-p package)=.
+- [X] Upgrade support to Emacs version > 29.1.  Now =use-package= is part of
+  Emacs,
+  - [X] Change [[file:~/work/emacs/xorns/horns/xorns-packages.el::defun >>=package/ensure (package][>>=package/ensure]] function to test =(require package nil
+    'noerror)= instead of =(package-installed-p package)=.
 - [ ] Check 'obsolete' definitions to remove some.
 - [ ] On =use-package=, check =:autoload= keyword to replace some =:commands=
   definitions.

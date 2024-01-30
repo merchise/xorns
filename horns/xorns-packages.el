@@ -33,7 +33,7 @@
 
 (defun >>=package/ensure (package)
   "Ensure that PACKAGE is properly installed."
-  (unless (package-installed-p package)
+  (unless (require package nil 'noerror)
     (condition-case nil
       (package-install package)
       (error
@@ -63,6 +63,7 @@ of the eval of BODY forms sequentially and return value of last one."
      (>>=package/ensure pkg)))
 
 
+;; TODO: remove this after Emacs > 29.1
 (with-eval-after-load 'xorns-packages
   (>>=package/ensure 'use-package))
 
