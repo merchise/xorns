@@ -492,6 +492,12 @@ The optional argument MODE will take precedence over the variable
       :background bg))
 
 
+(defun >>=xtabs/toggle-switch-cycling ()
+  "Toggle cycling tab switch."
+  (interactive)
+  (setq tab-line-switch-cycling (not tab-line-switch-cycling)))
+
+
 (defalias 'xtabs/suitable-buffer-p '>>-xtabs/suitable-buffer-p)
 (defun >>-xtabs/suitable-buffer-p (&optional buffer)
   "Return whether BUFFER can be included in the tab line."
@@ -642,7 +648,34 @@ special type `init' can be used for initial configuration."
 
 
 
-;;; Module configuration (hooks, ...)
+;;; Module configuration (hooks, navigation, ...)
+
+(defun >>=switch-to-next-buffer ()
+  "Switch to the next tab/buffer."
+  (interactive)
+  (or
+    (and
+      tab-line-mode
+      (tab-line-switch-to-next-tab))
+    (>>=call? '>>=exwm/send-last-key)
+    (next-buffer)))
+
+
+(defun >>=switch-to-previous-buffer ()
+  "Switch to the previous tab/buffer."
+  (interactive)
+  (or
+    (and
+      tab-line-mode
+      (tab-line-switch-to-prev-tab))
+    (>>=call? '>>=exwm/send-last-key)
+    (previous-buffer)))
+
+
+(>>=bind-global-keys
+  "C-<next>" >>=switch-to-next-buffer
+  "C-<prior>" >>=switch-to-previous-buffer)
+
 
 (defun >>-check-buffer ()
   "Setup `current-buffer' the first time its mode is set."
