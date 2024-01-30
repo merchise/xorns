@@ -326,6 +326,7 @@ optional argument."
   exwm-input-set-key
   exwm-input-send-next-key
   exwm-workspace-switch-create
+  exwm-input-send-simulation-key
   :preface
   (defun >>-exwm/swap-last-buffers ()
     "Switch currently visible buffer by last one."
@@ -333,6 +334,11 @@ optional argument."
     (interactive)
     (switch-to-buffer (other-buffer (current-buffer))))
   :config
+  (defun >>=exwm/send-last-key ()
+    "Send last key sequence if in `exwm-mode'."
+    (when (eq major-mode 'exwm-mode)
+      (or (exwm-input-send-simulation-key 1) t)))
+
   (defun >>-exwm/input-set-key (key command)
     "Advice for `exwm-input-set-key' to give KEY a global binding as COMMAND."
     (exwm-input-set-key (>>=key-parse key) command))
