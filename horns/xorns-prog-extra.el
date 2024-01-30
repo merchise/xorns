@@ -87,6 +87,10 @@ For example (toml classic-snippets).")
 
   (use-package lsp-rescript
     :ensure t
+    :after lsp-mode rescript-mode
+    :demand t
+    :custom
+    (lsp-rescript-server-command  '("rescript-language-server" "--stdio"))
     :hook
     (before-save . >>=lsp/safe-format-buffer)))
 
