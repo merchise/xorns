@@ -1,0 +1,13 @@
+#+TITLE: Changes in release 0.9.9
+
+* Misc
+
+- Improve use of EXWM:
+  - Fix issue to calculate system-tray width.
+  - Preserve frame when switching to EXWM buffers.
+- Fixe some 'xterm' issues that appeared when using it as a 'toolbox'.
+- Improve 'tools' module.
+- Improve the 'window' module
+  - Create the concept of 'xtabs': intuitive use of 'tab-line'.
+- Simplify 'lsp' configuration.
+  - Fix an issue when reformating a 'rescript' buffer before saving.
