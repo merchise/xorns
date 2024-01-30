@@ -39,10 +39,6 @@
 
 ;;; Variables
 
-(defvaralias '>>-xterm/state '>>-toolbox/properties
-  "Terminal state (local variable in terminal buffers).")
-
-
 (defvar >>-xterm/linked nil
   "Linked tab-index (local variable in buffers that trigger a terminal).")
 
@@ -145,6 +141,12 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
   )
 
 
+(defsubst >>-xterm/state ()
+  "Terminal state (local variable in terminal buffers)."
+  (when (eq (plist-get >>-toolbox/properties :toolbox) 'term-mode)
+    >>-toolbox/properties))
+
+
 (defsubst >>-xterm/default-value (term key)
   "Get TERM default KEY value."
   (pcase key
@@ -186,7 +188,7 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
 
 (defsubst >>-xterm/get-implicit-tab-index ()
   "Get the implicit tab-index for the current buffer."
-  (or (plist-get >>-xterm/state :tab-index) >>-xterm/linked 0))
+  (or (plist-get (>>-xterm/state) :tab-index) >>-xterm/linked 0))
 
 
 (defsubst >>-xterm/buffer-name (term &optional tab-index)
@@ -206,7 +208,7 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
 
 (defsubst >>-xterm/get-paster ()
   "Get the paster function for current buffer."
-  (let ((term (plist-get >>-xterm/state :term)))
+  (let ((term (plist-get (>>-xterm/state) :term)))
     (if term
       (>>-xterm/key term :paster)
       ;; else
@@ -249,13 +251,13 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
 
 (defun >>-xterm/get-alt-buffer (term)
   "Get alternative buffer for a TERM."
-  (let ((file-name (plist-get >>-xterm/state :file-name)))
+  (let ((file-name (plist-get (>>-xterm/state) :file-name)))
     (if (and file-name (file-exists-p file-name))
       (find-file-noselect file-name)
       ;; else
       (or
         (>>-xterm/find-buffer-by-mode (car (rassq term >>-xterm-modes)))
-        (>>-xterm/find-buffer-by-mode (plist-get >>-xterm/state :mode))
+        (>>-xterm/find-buffer-by-mode (plist-get (>>-xterm/state) :mode))
         (get-scratch-buffer-create)))))
 
 
@@ -264,7 +266,7 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
   (delq nil
     (mapcar
       (lambda (buffer)
-        (when-let ((state (buffer-local-value '>>-xterm/state buffer)))
+        (when-let ((state (buffer-local-value '(>>-xterm/state) buffer)))
           (when (or (null term) (eq (plist-get state :term) term))
             buffer)))
       (buffer-list))))
@@ -272,10 +274,10 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
 
 (defun >>-xterm/get-default-term ()
   "Get the default term for the current buffer."
-  (if >>-xterm/state    ; called while already in a terminal
+  (if (>>-xterm/state)    ; called while already in a terminal
     (or
-      (plist-get >>-xterm/state :term)
-      (error ">>= :term was not found in `>>-xterm/state': %s" >>-xterm/state))
+      (plist-get (>>-xterm/state) :term)
+      (error ">>= :term was not found in `(>>-xterm/state)': %s" (>>-xterm/state)))
     ;; else
     (or
       (cdr (assq major-mode >>-xterm-modes))
@@ -346,15 +348,15 @@ condition."
     (setq target (>>-xterm/get-or-create-buffer term tab-index))
     (when (eq target source)
       (setq
-        target (plist-get >>-xterm/state :source)
+        target (plist-get (>>-xterm/state) :source)
         implicit t)
       (unless (buffer-live-p target)
         (setq target (>>-xterm/get-alt-buffer term))))
     (unless implicit
       (set (make-local-variable '>>-xterm/linked) tab-index))
     (>>=toolbox/switch-to-buffer target)
-    (when >>-xterm/state
-      (>>=plist-update >>-xterm/state
+    (when (>>-xterm/state)
+      (>>=plist-update (>>-xterm/state)
         :source source
         :file-name (buffer-file-name source)
         :term term
