@@ -2,10 +2,16 @@
 
 * Misc
 
-- [X] Upgrade support to Emacs version > 29.1.  Now =use-package= is part of
-  Emacs,
-  - [X] Change [[file:~/work/emacs/xorns/horns/xorns-packages.el::defun >>=package/ensure (package][>>=package/ensure]] function to test =(require package nil
-    'noerror)= instead of =(package-installed-p package)=.
+- [ ] Create a framework to register formatters to act before saving in a safe
+  way.
+  - [ ] Use =ruff-format= instead of =blacken= to format Python source.
+- [ ] Upgrade support to Emacs version > 29.1.
+  - [X] Now =use-package= is part of Emacs.  Change [[file:~/work/emacs/xorns/horns/xorns-packages.el::defun >>=package/ensure (package][>>=package/ensure]] function
+    to test =(require package nil 'noerror)= instead of =(package-installed-p
+    package)=.
+  - [ ] Remove the tools and code that allow 'xorns' to be installed as an
+    ELPA package.
+  - Remove fallback [[file:~/work/emacs/xorns/horns/compat][compatibility]] support.
 - [ ] Check 'obsolete' definitions to remove some.
 - [ ] On =use-package=, check =:autoload= keyword to replace some =:commands=
   definitions.
@@ -134,3 +140,5 @@ See also:
 - [ ] Use icons in labels like =dired=.
 
 - [ ] Disable =magit= text buffers.
+
+- [ ] Create navigation commands and assign keys to them.
