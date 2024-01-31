@@ -5,6 +5,10 @@
 - [ ] Create a framework to register formatters to act before saving in a safe
   way.
   - [ ] Use =ruff-format= instead of =blacken= to format Python source.
+- [ ] Create a mechanism for configurations that strictly are used for editing
+  modes.
+- [ ] Check [[file:~/work/emacs/xorns/horns/xorns-prog-extra.el::(use-package rescript-mode][ReScript]] configuration.  See [[https://github.com/jjlee/rescript-mode][github repository]] for more
+  information.
 - [ ] Upgrade support to Emacs version > 29.1.
   - [X] Now =use-package= is part of Emacs.  Change [[file:~/work/emacs/xorns/horns/xorns-packages.el::defun >>=package/ensure (package][>>=package/ensure]] function
     to test =(require package nil 'noerror)= instead of =(package-installed-p
