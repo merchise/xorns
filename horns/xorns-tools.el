@@ -144,12 +144,17 @@ nil is returned."
         (if (eq strict t) "" (format "%s " strict)) value))))
 
 
+(defsubst >>=str-non-empty (string)
+  "Return a STRING if it is not empty."
+  (when (and string (not (string-empty-p string)))
+    string))
+
+
 (defsubst >>=str-trim (string &optional trim-left trim-right)
   "Trim a STRING using `string-trim' but returning nil on an empty result.
 Arguments TRIM-LEFT and TRIM-RIGHT are used verbatim."
   (when string
-    (let ((res (string-trim string trim-left trim-right)))
-      (unless (eq res "") res))))
+    (>>=str-non-empty (string-trim string trim-left trim-right))))
 
 
 (defsubst >>=str-first-line (string)
@@ -924,9 +929,10 @@ discarded."
 
 
 (defun >>=buffer-focused-text ()
-  "Return focused-text in current buffer, selected region or current line."
-  (let (begin end
-        (region (use-region-p)))
+  "Return focused-text in current buffer (selected region or current line)."
+  (let ((region (use-region-p))
+        begin
+        end)
     (if region
       (setq
         begin (point)
