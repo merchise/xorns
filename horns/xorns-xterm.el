@@ -44,52 +44,33 @@
 
 
 (defvar >>-xterm-modes nil
-  "A mapping of (major-mode . xterm) pairs.")
+  "A mapping of (major-mode . xterm).")
 
 
 
 ;;; Utility functions
 
-(defsubst >>-xterm/get-default-shell-file-name ()
-  "Adjust a STRING to paste it into a terminal."
-  (purecopy
-    (or
-      explicit-shell-file-name
-      shell-file-name
-      (>>=executable-find (getenv "ESHELL") (getenv "SHELL") "bash" "zsh"))))
-
-
-(defun >>-xterm/adjust-string (string)
-  "Adjust a STRING to paste it into a terminal."
-  (let ((res (and string (string-trim-right string))))
-    (if (and res (not (string-empty-p res)))
-      res)))
-
-
-(defun >>-xterm/get-paste-text ()
-  "Get current buffer focused-text and adjust it for a terminal shell."
-  (>>-xterm/adjust-string (>>=buffer-focused-text)))
-
-
-(defun >>-xterm/paster (text)
+(defun >>-xterm/paste (text)
   "Send TEXT to a selected terminal shell session."
-  (term-send-raw-string (concat text "\n")))
+  (unless (string= (>>=suffix text 1) "\n")
+    (setq text (concat text "\n")))
+  (term-send-raw-string text))
 
 
 (eval-and-compile
   (defun >>=xterm/define-paste-magic (&optional magic)
     "Create a ':paster' adapter like IPython's MAGIC '%paste' command."
-    (if (null magic)
+    (unless magic
       (setq magic "%paste"))
     (lambda (text)
       (when text
         (if (string-match-p "\n" text)
           (progn
             (kill-new text)
-            (>>-xterm/paster magic)
+            (>>-xterm/paste magic)
             (current-kill 1))
           ;; else
-          (>>-xterm/paster text)))))
+          (>>-xterm/paste text)))))
 
   (defun >>-xterm/check-paster (paster)
     "Check a PASTER definition and convert it to a valid function."
@@ -97,10 +78,8 @@
       (when (stringp paster)
         (>>=xterm/define-paste-magic paster))
       (>>=cast-function paster)
-      (if (and (symbolp paster) (not (booleanp paster)))
-        paster
-        ;; else
-        (error ">>= wrong :paster definition '%s'" paster))))
+      (>>=real-symbol paster)
+      (error ">>= wrong :paster definition '%s'" paster)))
 
   (defun >>-xterm/command-name (&optional id)
     "Create a command name for a terminal from the given ID.
@@ -137,8 +116,7 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
             (mapcar (lambda (mode) (>>=str mode :mode)) (>>=cast-list value)))
           (_
             (error ">>= unexpected keyword '%s' with value '%s'" key value))))
-      (>>=plist-fix keywords)))
-  )
+      (>>=plist-fix keywords))))
 
 
 (defsubst >>-xterm/state ()
@@ -150,8 +128,8 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
 (defsubst >>-xterm/default-value (term key)
   "Get TERM default KEY value."
   (pcase key
-    (:program (>>-xterm/get-default-shell-file-name))
-    (:paster '>>-xterm/paster)
+    (:program (>>=term/shell-file-name))
+    (:paster '>>-xterm/paste)
     (:buffer-name (replace-regexp-in-string "^>>=" "" (symbol-name term)))))
 
 
@@ -213,9 +191,10 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
       (>>-xterm/key term :paster)
       ;; else
       (if (eq major-mode 'term-mode)
-        '>>-xterm/paster
+        '>>-xterm/paste
         ;; else
-        (unless buffer-read-only 'insert)))))
+        (unless buffer-read-only
+          'insert)))))
 
 
 (defsubst >>-xterm/get-buffer (buffer-name)
@@ -274,10 +253,12 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
 
 (defun >>-xterm/get-default-term ()
   "Get the default term for the current buffer."
-  (if (>>-xterm/state)    ; called while already in a terminal
+  (if (>>-xterm/state)    ;; called while already in a terminal
     (or
       (plist-get (>>-xterm/state) :term)
-      (error ">>= :term was not found in `(>>-xterm/state)': %s" (>>-xterm/state)))
+      (error
+        ">>= :term was not found in `(>>-xterm/state)': %s"
+        (>>-xterm/state)))
     ;; else
     (or
       (cdr (assq major-mode >>-xterm-modes))
@@ -335,12 +316,12 @@ condition."
           (setq
             tab-index (abs prefix)
             paste (< prefix 0)))
-        (t    ; `negative-argument'
+        (t    ;; `negative-argument'
           (setq
             tab-index 0
             paste t))))
     (when paste
-      (setq paste (>>-xterm/get-paste-text)))
+      (setq paste (>>=str-trim (>>=buffer-focused-text))))
     (unless tab-index
       (setq
         implicit t
@@ -355,8 +336,8 @@ condition."
     (unless implicit
       (set (make-local-variable '>>-xterm/linked) tab-index))
     (>>=toolbox/switch-to-buffer target)
-    (when (>>-xterm/state)
-      (>>=plist-update (>>-xterm/state)
+    (when-let ((state (>>-xterm/state)))
+      (>>=plist-update state
         :source source
         :file-name (buffer-file-name source)
         :term term
@@ -433,7 +414,7 @@ The following KEYWORDS can be used:
 :paster -- Function to paste text into a terminal.  A string is converted to a
         function using `>>=term/define-paste-magic'.  Could be specified as
         part of a form (command . paster) for a :program choice.  Its default
-        value is `>>-xterm/paster'.
+        value is `>>-xterm/paste'.
 
 :mode -- Sequence of one or more identifiers to be added to `>>-xterm-modes'.
 
@@ -442,7 +423,7 @@ The following KEYWORDS can be used:
 
 The defined command is a wrapper around `>>=xterminal'."
   (declare (doc-string 2) (indent 1) (debug t))
-  (unless (symbolp id)
+  (unless (>>=real-symbol id)
     (error ">>= invalid xterm ID '%s', must be a symbol" id))
   (when (and docstring (not (stringp docstring)))
     (setq

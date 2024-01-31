@@ -22,12 +22,14 @@
   (require 'em-alias)    ; eshell/alias
   (require 'term)
   (require 'use-package)
-  (require 'xorns-tools))
+  (require 'xorns-tools)
+  (require 'xorns-window))
 
 
 
 ;;; Common setup
 
+;; TODO: remove this variable, always kill buffer
 (defvar >>=|term/preserve-finished-buffer nil
   "Preserve terminal buffer when finished.
 After a terminal is closed, you get a useless buffer with no process.  That
@@ -38,17 +40,20 @@ buffer is killed automatically unless this variable is not nil.")
   "Add customizable 256 color support to `term' and `ansi-term' .")
 
 
-(defun >>-term/kill-finished-buffer ()
-  "Internal function to be used on `term-exec-hook'."
-  ;; Based on https://oremacs.com/2015/01/01/three-ansi-term-tips/
-  (let* ((buff (current-buffer))
-         (proc (get-buffer-process buff)))
-    ;; TODO: assert not nil `proc'
-    (set-process-sentinel
-      proc
-      `(lambda (process event)
-         (if (string= event "finished\n")
-           (>>=kill-buffer-and-window ,buff))))))
+(defun >>=term/shell-file-name ()
+  "Get the executable file name to load inferior shells from.
+Attempt until finding a value, first the variables `explicit-shell-file-name'
+and `shell-file-name', then the environment variables `ESHELL' and `SHELL' and
+finally the executables `bash', `zsh' and `sh'."
+  (purecopy
+    (>>=executable-find
+      explicit-shell-file-name
+      shell-file-name
+      (getenv "ESHELL")
+      (getenv "SHELL")
+      "bash"
+      "zsh"
+      "sh")))
 
 
 ;; TODO: https://github.com/howardabrams/dot-files/blob/master/emacs-eshell.org
@@ -63,7 +68,7 @@ buffer is killed automatically unless this variable is not nil.")
     (if (and (eolp) (looking-back eshell-prompt-regexp nil))
       (progn
         (eshell-life-is-too-much)
-        (ignore-errors    ; TODO: use `>>=kill-buffer-and-window'
+        (ignore-errors    ; TODO: use `kill-buffer-and-window'
           (delete-window)))
       ;;; else
       (delete-char arg)))
@@ -132,7 +137,11 @@ buffer is killed automatically unless this variable is not nil.")
     (keymap-set term-mode-map key 'term-char-mode)
     (keymap-set term-raw-map key 'term-line-mode))
   (unless >>=|term/preserve-finished-buffer
-    (add-hook 'term-exec-hook '>>-term/kill-finished-buffer)))
+    (defun >>-term/handle-exit (&optional proc event)
+      (ignore proc event)
+      (ignore-errors
+        (kill-buffer-and-window)))
+    (advice-add 'term-handle-exit :after '>>-term/handle-exit)))
 
 
 (use-package eterm-256color
