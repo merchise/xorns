@@ -80,19 +80,20 @@ For example (toml classic-snippets).")
 
 ;;; ReScript
 
-(when (memq 'rescript >>=|programming/extra-languages)
-  (use-package rescript-mode
-    :ensure t
-    :mode ("\\.res\\'"))
+(use-package rescript-mode
+  :when (memq 'rescript >>=|programming/extra-languages)
+  :ensure t
+  :mode ("\\.res\\'"))
 
-  (use-package lsp-rescript
-    :ensure t
-    :after lsp-mode rescript-mode
-    :demand t
-    :custom
-    (lsp-rescript-server-command  '("rescript-language-server" "--stdio"))
-    :hook
-    (before-save . >>=lsp/safe-format-buffer)))
+(use-package lsp-rescript
+  :when (memq 'rescript >>=|programming/extra-languages)
+  :ensure t
+  :after lsp-mode rescript-mode
+  :demand t    ;; TODO: WTF, without this the package is not loaded, weird.
+  :custom
+  (lsp-rescript-server-command  '("rescript-language-server" "--stdio"))
+  :hook
+  (before-save . >>=lsp/safe-format-buffer))
 
 
 
