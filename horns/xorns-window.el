@@ -196,21 +196,6 @@ See variable `>>=|xtabs/buffer-groups' for more information.")
 
 ;;; Basic tools
 
-(defun >>=kill-buffer-and-window (&optional buffer)
-  "Kill the specified BUFFER, and delete the window currently displaying it.
-Argument nil or omitted means kill the current buffer.  Similar to standard
-`kill-buffer-and-window' function but it is just a function to specify a
-buffer."
-  (unless buffer
-    (setq buffer (current-buffer)))
-  (let ((win (get-buffer-window buffer)))
-    (prog1
-      (kill-buffer buffer)
-      (when win
-        (ignore-errors
-          (delete-window win))))))
-
-
 (defun >>=buffer-major-mode (&optional buffer)
   "Return the `major-mode' of BUFFER."
   (buffer-local-value 'major-mode (or buffer (current-buffer))))
