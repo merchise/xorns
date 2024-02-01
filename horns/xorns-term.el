@@ -29,13 +29,6 @@
 
 ;;; Common setup
 
-;; TODO: remove this variable, always kill buffer
-(defvar >>=|term/preserve-finished-buffer nil
-  "Preserve terminal buffer when finished.
-After a terminal is closed, you get a useless buffer with no process.  That
-buffer is killed automatically unless this variable is not nil.")
-
-
 (defvar >>=|term/install-customizable-colors t
   "Add customizable 256 color support to `term' and `ansi-term' .")
 
@@ -126,6 +119,12 @@ finally the executables `bash', `zsh' and `sh'."
     (interactive)
     (term-send-raw-string "\C-k")
     (kill-line))
+
+  (defun >>-term/handle-exit (&optional proc event)
+    "After advice for `term-handle-exit'."
+    (ignore proc event)
+    (ignore-errors
+      (kill-buffer-and-window)))
   :bind
   (:map term-raw-map
     ("C-y" . term-paste)
@@ -136,19 +135,24 @@ finally the executables `bash', `zsh' and `sh'."
   (let ((key (concat (key-description term-escape-char) " C-t")))
     (keymap-set term-mode-map key 'term-char-mode)
     (keymap-set term-raw-map key 'term-line-mode))
-  (unless >>=|term/preserve-finished-buffer
-    (defun >>-term/handle-exit (&optional proc event)
-      (ignore proc event)
-      (ignore-errors
-        (kill-buffer-and-window)))
-    (advice-add 'term-handle-exit :after '>>-term/handle-exit)))
+    (advice-add 'term-handle-exit :after '>>-term/handle-exit))
 
 
 (use-package eterm-256color
   :when >>=|term/install-customizable-colors
+  :after term
   :ensure t
   :hook
   (term-mode . eterm-256color-mode))
+
+
+(use-package vterm
+  :ensure t
+  :commands vterm
+  :custom
+  (vterm-max-scrollback 10000)
+  (vterm-always-compile-module t)
+  (vterm-shell (>>=term/shell-file-name)))
 
 
 (provide 'xorns-term)
