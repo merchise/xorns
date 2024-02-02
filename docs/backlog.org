@@ -19,12 +19,10 @@
 - [ ] Check 'obsolete' definitions to remove some.
 - [ ] On =use-package=, check =:autoload= keyword to replace some =:commands=
   definitions.
-- [ ] Check why [[file:~/.emacs.d/elpa/exwm-0.28/exwm.el][EXWM]] has a new "Kill terminal?" prompt.
 - [ ] Deft is too slow after Emacs 28.  Function =deft-parse-summary= was
   replaced.  Check after Emacs or Deft are updated.
 - [ ] After configuring 'js2-mode', check ELPA for more packages that use this
   one.
-- [ ] Check [[https://wiki.archlinux.org/title/EXWM][Use of multi-monitor on EXWM]]
 - [ ] Remove =xorns-mail= module (check =xorns-building-blocks=).
 - [ ] Check =system-packages=, and =use-package-ensure-system-package= for
   =use-package=.
@@ -40,13 +38,16 @@
 - [ ] Create tools to work with recently opened projects, see [[file:~/.emacs.d/elpa/projectile-20231130.1934/projectile.el::defun projectile-recentf (][projectile]].
 - [ ] Replace [[help:custom-file][custom-file]] variable to the corresponding function.
 - [ ] Check [[https://www.emacswiki.org/emacs/awesome-tab.el][awesome-tab]] to configure the [[file:/usr/share/emacs/29.1/lisp/tab-line.el.gz][tab-line]].
-- [ ] Rename [[file:~/work/emacs/xorns/horns/xorns-window.el::(define-minor-mode >>=window-coach-mode][>>=window-coach-mode]].
 - [ ] Check orphan packages.
 - [ ] Define some keys in [[file:~/work/emacs/xorns/horns/xorns-system.el::(use-package treemacs][treemacs]] similar to ~dired~, for example,
   =(keymap-set treemacs-mode-map "+" 'treemacs-create-dir)=.
 
 * Improve EXWM
 
+- [ ] Check why [[file:~/.emacs.d/elpa/exwm-0.28/exwm.el][EXWM]] has a new "Kill terminal?" prompt.
+- [ ] Check [[https://wiki.archlinux.org/title/EXWM][Use of multi-monitor on EXWM]].
+- [ ] Check [[help:browse-url-at-point][browse-url-at-point]] key configuration.  Maybe replace this to
+  enable [[help:goto-address-mode][goto-address-mode]] in all proper buffers.
 - [ ] Configure [[file:~/work/emacs/xorns/horns/xorns-exwm.el::defun >>=exwm/enlarge-window-horizontally (&optional delta][exwm-layout]] using a minor mode to resize windows.
 - [ ] Look for better options to show a System Tray.  Maybe use the project
   [[https://github.com/ultrabug/py3status][py3status]] as a base to create a similar one named 'exwm-status'.
@@ -97,14 +98,11 @@ See also:
 - [ ] Every time a =Python= file is opened it is added to the same =LSP=
   session.  There would be some problems when simultaneously opening files
   from different projects using different versions of Python.
-
 - [ ] You may need to activate a new =LSP= session.  Temporarily you can call
   =lsp-workspace-remove-all-folders= every time you need to switch to a new
   workspace.
-
 - [ ] See command =lsp-describe-session=, and the article "[[https://github.com/emacs-lsp/lsp-mode/discussions/3095][Workspaces in
   emacs-lsp]]" for more information.
-
 - [ ] See [[https://github.com/nex3/perspective-el][Perspective for Emacs]].
 
 * Use browser automation library to create some advanced utilities
@@ -124,7 +122,6 @@ See also:
       ("C--" . er/contract-region))
   #+END_SRC
 
-
 * Fix the issue that some UNICODE characters are not displayed
 
 - [ ] Install ttf-dejavu and ttf-dejavu-nerd, [[https://superuser.com/questions/13562/how-to-make-unicode-characters-visible-in-emacs][try and set]] "DejaVu Sans Mono"
@@ -132,17 +129,25 @@ See also:
 - [ ] Use [[https://github.com/syohex/emacs-fontawesome][fontawesome]] utilities from ELPA.
 - [ ] Complement [[file:xorns.org::*Prerequisites][related documentation]].
 
-* Redefine configuration of tabs
+* Improve configuration of our [[file:~/work/emacs/xorns/horns/xorns-window.el][window]] module
 
-- [X] There must be three modes in the >[[file:~/work/emacs/xorns/horns/xorns-window.el::(defvar >>=|tab-line/initial-mode 'toolbox][>=|tab-line/initial-mode]] variable:
-  (toolbox, global, and local).  Standard modes should not be mutually
-  exclusive with the new toolbox mode.
+- [-] Redefine configuration of tabs.
+  - [X] There must be three modes in the >[[file:~/work/emacs/xorns/horns/xorns-window.el::(defvar >>=|tab-line/initial-mode 'toolbox][>=|tab-line/initial-mode]] variable:
+    (toolbox, global, and local).  Standard modes should not be mutually
+    exclusive with the new toolbox mode.
+  - [X] There must be a [[help:tab-line-tabs-function][tab-line-tabs-function]] that is valid for all three
+    modes, always isolating toolbox buffers from the others.
+  - [ ] Use icons in labels like =dired=.
+  - [ ] Disable =magit= text buffers.
+  - [X] Create navigation commands and assign keys to them.
+- [ ] Use [[help:display-buffer-alist][display-buffer-alist]] variable for toolbox buffers.  That will make
+  the [[file:~/work/emacs/xorns/horns/xorns-window.el::defun >>=toolbox/switch-to-buffer (buffer-or-name][>>=toolbox/switch-to-buffer]] function unnecessary.  See this [[https://whhone.com/emacs-config/#terminal-with-vterm][vterm]]
+  configuration secction as an example.
+- [ ] Rename [[file:~/work/emacs/xorns/horns/xorns-window.el::(define-minor-mode >>=window-coach-mode][>>=window-coach-mode]].
 
-- [X] There must be a [[help:tab-line-tabs-function][tab-line-tabs-function]] that is valid for all three
-  modes, always isolating toolbox buffers from the others.
+* Check good configuration examples
 
-- [ ] Use icons in labels like =dired=.
-
-- [ ] Disable =magit= text buffers.
-
-- [ ] Create navigation commands and assign keys to them.
+- [ ] [[https://github.com/terlar][Terje Larsen]].
+  - [ ] Configure [[https://github.com/terlar/emacs-config][use-package]] depending on the 'init-file-debug' variable.
+- [ ] Learn to Love the [[https://systemcrafters.net/emacs-from-scratch/learn-to-love-the-terminal-modes/][Terminal Modes]].
+- [ ] Nicolas De Jaeghere ([[https://github.com/Koekelas/dotfiles][dotfiles]]).
