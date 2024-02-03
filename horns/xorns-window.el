@@ -36,8 +36,11 @@ Only buffers that match condition `standard-buffer-p' are configured.")
 (defvar >>=|toolbox/buffer-match-condition
   '(or
      "[*]scratch[*]"
+     (derived-mode . comint-mode)
+     (derived-mode . shell-mode)
+     (derived-mode . eshell-mode)
      (derived-mode . term-mode)
-     (derived-mode . eshell-mode))
+     (derived-mode . vterm-mode))
   "Determine whether a buffer should be configured to be part of the toolbox.
 The value of this variable must be a valid CONDITION for the function
 `buffer-match-p'.  Once a buffer is configured, the `toolbox-p' function can
