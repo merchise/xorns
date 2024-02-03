@@ -215,20 +215,6 @@ optional argument."
       (>>=exwm/start-subprocess command))))
 
 
-(defun >>=exwm/enlarge-window-horizontally (&optional delta)
-  "Make the selected window DELTA*50 pixels wider."
-  (interactive "p")
-  (declare-function exwm-layout-enlarge-window-horizontally 'exwm-layout)
-  (exwm-layout-enlarge-window-horizontally (* +50 delta)))
-
-
-(defun >>=exwm/reduce-window-horizontally (&optional delta)
-  "Make the selected window DELTA*50 pixels narrower."
-  (interactive "p")
-  (declare-function exwm-layout-enlarge-window-horizontally 'exwm-layout)
-  (exwm-layout-enlarge-window-horizontally (* -50 delta)))
-
-
 (defun >>-exwm/create-url-keys ()
   "Return pairs of (KEY . URL) used by `browse-url'."
   (mapcan
@@ -327,6 +313,7 @@ optional argument."
   exwm-input-send-next-key
   exwm-workspace-switch-create
   exwm-input-send-simulation-key
+  exwm-layout-enlarge-window
   :preface
   (defun >>-exwm/swap-last-buffers ()
     "Switch currently visible buffer by last one."
@@ -338,6 +325,26 @@ optional argument."
     "Send last key sequence if in `exwm-mode'."
     (when (eq major-mode 'exwm-mode)
       (or (exwm-input-send-simulation-key 1) t)))
+
+  (defun >>=exwm/enlarge-window-horizontally (&optional delta)
+    "Make the selected window DELTA*50 pixels horizontally narrower."
+    (interactive "p")
+    (exwm-layout-enlarge-window (* 50 delta) 'horizontal))
+
+  (defun >>=exwm/enlarge-window-vertically (&optional delta)
+    "Make the selected window DELTA*50 pixels vertically narrower."
+    (interactive "p")
+    (exwm-layout-enlarge-window (* 50 delta)))
+
+  (defun >>=exwm/shrink-window-horizontally (&optional delta)
+    "Make the selected window DELTA*50 pixels horizontally narrower."
+    (interactive "p")
+    (exwm-layout-enlarge-window (* -50 delta) 'horizontal))
+
+  (defun >>=exwm/shrink-window-vertically (&optional delta)
+    "Make the selected window DELTA*50 pixels vertically narrower."
+    (interactive "p")
+    (exwm-layout-enlarge-window (* -50 delta)))
 
   (defun >>-exwm/input-set-key (key command)
     "Advice for `exwm-input-set-key' to give KEY a global binding as COMMAND."
@@ -368,8 +375,10 @@ optional argument."
     "<s-tab>" other-frame
     "s-o" other-window
     "s-;" >>-exwm/swap-last-buffers
-    "s-{" >>=exwm/reduce-window-horizontally
     "s-}" >>=exwm/enlarge-window-horizontally
+    "s-]" >>=exwm/enlarge-window-vertically
+    "s-{" >>=exwm/shrink-window-horizontally
+    "s-[" >>=exwm/shrink-window-vertically
     "C-s-/" browse-url-at-point)
 
   (eval `(>>=bind-global-keys ,@(>>-exwm/create-url-keys)))
@@ -502,7 +511,6 @@ optional argument."
           (maxws (1- (exwm-workspace--count))))
       (exwm-workspace-switch
         (if (< current maxws) (1+ current) 0))))
-
   :custom
   (exwm-workspace-show-all-buffers t)
   (exwm-layout-show-all-buffers t)
