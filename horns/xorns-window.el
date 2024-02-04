@@ -147,13 +147,10 @@ See variable `>>=|xtabs/buffer-groups' for more information.")
     :lighter " xwc"
     :global t
     :keymap
-      (let ((map (make-sparse-keymap)))
-        (dolist (item >>-window-coach-mode-keys)
-          (let ((fn (car item))
-                (keys (cdr item)))
-            (dolist (key keys)
-              (keymap-set map key fn))))
-        map)
+    (let ((map (make-sparse-keymap)))
+      (>>=alist-do (fn keys >>-window-coach-mode-keys map)
+        (dolist (key keys)
+          (keymap-set map key fn))))
     :group 'window)
 
   (defun >>=window/split-toggle (&optional arg)
