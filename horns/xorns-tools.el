@@ -388,6 +388,49 @@ Equality is defined by the function TEST, defaulting to `equal'."
           (>>=list/deep-find key tail test))))))
 
 
+(defmacro >>=alist-do (spec &rest body)
+  "Loop over an association-list using SPEC.
+
+Evaluate BODY with KEY-VAR and VALUE-VAR bound to each pair from ALIST, in
+turn.  Then evaluate RESULT to get return value, default nil.
+
+Based on `dolist' original macro.  Keys are not checked to be valid keywords,
+so this macro can be used to iterate over tuples of two values in any list.
+
+\(fn (KEY-VAR VALUE-VAR ALIST [RESULT]) BODY...)"
+  (declare (indent 1) (debug ((symbolp form &optional form) body)))
+  (unless (consp spec)
+    ;; TODO: must be in a "(declare (compiler-macro ", see `keymap-set'
+    ;; (cl-define-compiler-macro FUNC ARGS &rest BODY)
+    (signal 'wrong-type-argument (list 'consp spec)))
+  (unless (<= 3 (length spec) 4)
+    (signal 'wrong-number-of-arguments (list '(3 . 4) (length spec))))
+  (let ((temp '>>--alist-do-tail--))
+    (if lexical-binding
+      `(let ((,temp ,(nth 2 spec)))
+         (while ,temp
+           (let ((,(car spec) (caar ,temp))
+                 (,(nth 1 spec) (cdar ,temp)))
+             ,@body
+             (setq ,temp (cdr ,temp))))
+         ,@(cdr (cdr (cdr spec))))
+      ;; else
+      `(let ((,temp ,(nth 2 spec))
+             ,(car spec)
+             ,(nth 1 spec))
+         (while ,temp
+           (setq
+             ,(car spec) (caar ,temp)
+             ,(nth 1 spec) (cdar ,temp))
+           ,@body
+           (setq ,temp (cdr ,temp)))
+         ,@(if (cdr (cdr (cdr spec)))
+             `((setq
+                 ,(car spec) nil
+                 ,(nth 1 spec) nil)
+                ,@(cdr (cdr (cdr spec)))))))))
+
+
 (defmacro >>=plist-do (spec &rest body)
   "Loop over a property-list using SPEC.
 
