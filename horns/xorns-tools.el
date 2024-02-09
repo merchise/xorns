@@ -102,6 +102,18 @@ function."
     (get symbol 'saved-value)))
 
 
+(defsubst >>=load (file)
+  "Load a FILE silently except if in debug mode."
+  (let ((silent (not init-file-debug)))
+    (load file silent silent)))
+
+
+(defsubst >>=init-time ()
+  "Initialization time in seconds for this session."
+  (float-time (time-subtract after-init-time before-init-time)))
+
+
+
 
 ;;; string - symbol conversion
 
@@ -277,17 +289,6 @@ For a lambda function, its documentation is returned if it exists."
            (setq kind 'lambda))
          (format "(%s %s ...)" kind (>>=function-arglist function))))
       ((format "%s:%s" (type-of function) function)))))
-
-
-(defsubst >>=load (file)
-  "Load a FILE silently except if in debug mode."
-  (let ((silent (not init-file-debug)))
-    (load file silent silent)))
-
-
-(defsubst >>=init-time ()
-  "Initialization time in seconds for this session."
-  (float-time (time-subtract after-init-time before-init-time)))
 
 
 (defmacro >>=breaker (function)
@@ -550,6 +551,24 @@ returns a non-nil value."
             (nconc zs (list x)))
           (nconc ys (list x)))))
     (cons (cdr ys) (cdr zs))))
+
+
+(defun >>=pair-list (&rest flat-list)
+  "Convert a FLAT-LIST into a paired-list."
+  (setq flat-list (>>=fix-rest-list flat-list))
+  (let (key res)
+    (while flat-list
+      (let ((value (car flat-list)))
+        (if key
+          (setq
+            res (nconc res `((,key ,value)))
+            key nil)
+          ;; else
+          (setq key value)))
+      (setq flat-list (cdr flat-list)))
+    (when key
+      (setq res (nconc res `((,key)))))
+    res))
 
 
 (defun >>=plist-merge (target key &rest values)
