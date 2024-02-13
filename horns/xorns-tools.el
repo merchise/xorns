@@ -523,11 +523,14 @@ so this macro can be used to iterate over tuples of two values in any list.
 
 (defun >>=plist-update (target &rest source)
   "Update TARGET from a SOURCE property-list."
-  (>>=plist-do (key value (>>=fix-rest-list source) target)
-    (if value
-      (plist-put target key value)
-      ;; else
-      (map-delete target key))))
+  (if target
+    (>>=plist-do (key value (>>=fix-rest-list source) target)
+      (if value
+        (plist-put target key value)
+        ;; else
+        (map-delete target key)))
+    ;; else
+    source))
 
 
 (defun >>=map-pair (fn sequence)
