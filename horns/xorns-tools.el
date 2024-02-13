@@ -115,6 +115,16 @@ function."
 
 
 
+;;; object oriented programming
+
+(defalias 'super 'cl-call-next-method)
+(defalias 'defgeneric 'cl-defgeneric)
+(defalias 'defmethod 'cl-defmethod)
+(defalias 'typep 'cl-typep)
+(defalias 'instance-of 'cl-typep)
+
+
+
 ;;; string - symbol conversion
 
 (defun >>=prefix (string size)
