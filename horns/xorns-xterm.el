@@ -121,7 +121,8 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
 
 (defsubst >>-xterm/state ()
   "Terminal state (local variable in terminal buffers)."
-  (when (eq (plist-get >>-toolbox/properties :toolbox) 'term-mode)
+  ;; TODO: generalize this
+  (when (eq (>>=toolbox/property :toolbox) 'term-mode)
     >>-toolbox/properties))
 
 
@@ -245,9 +246,10 @@ If ID is a whole word, it is formated using '>>=<ID>-term'.  It defaults to
   (delq nil
     (mapcar
       (lambda (buffer)
-        (when-let ((state (buffer-local-value '(>>-xterm/state) buffer)))
-          (when (or (null term) (eq (plist-get state :term) term))
-            buffer)))
+        (with-current-buffer buffer
+          (when-let ((state (>>-xterm/state)))
+            (when (or (null term) (eq (plist-get state :term) term))
+              buffer))))
       (buffer-list))))
 
 
