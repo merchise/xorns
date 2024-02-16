@@ -264,6 +264,17 @@ This function uses `>>-buffer-key' and `string<' to compare.  It is used to
     (run-hooks 'buffer-setup-hook)))
 
 
+(defun >>=safe-kill-buffer-and-window (&rest args)
+  "Kill the `current-buffer' and delete the selected window.
+If the first argument in ARGS is a buffer, this is used instead of
+`current-buffer'."
+  (let* ((head (car args))
+         (buffer (if (bufferp head) head (current-buffer))))
+    (ignore-errors
+      (with-current-buffer buffer
+        (kill-buffer-and-window)))))
+
+
 
 ;;; Toolbox
 
@@ -276,9 +287,16 @@ other buffers.  This is set up by `>>=toolbox/setup-buffer'.")
 (defalias 'toolbox-p '>>=toolbox-p)
 (defun >>=toolbox-p (&optional buffer-or-name)
   "Return non-nil when BUFFER-OR-NAME is a toolbox buffer."
-  (buffer-local-value
-    '>>-toolbox/properties
-    (get-buffer (or buffer-or-name (current-buffer)))))
+  (if buffer-or-name
+    (buffer-local-value '>>-toolbox/properties (get-buffer buffer-or-name))
+    ;; else
+    >>-toolbox/properties))
+
+
+(defun >>=toolbox/property (key &optional buffer)
+  "Return the value of a property KEY for a toolbox BUFFER."
+  (when-let ((props (>>=toolbox-p buffer)))
+    (plist-get props key)))
 
 
 (defun >>=toolbox-buffers ()
