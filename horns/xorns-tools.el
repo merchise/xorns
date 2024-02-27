@@ -512,7 +512,7 @@ so this macro can be used to iterate over tuples of two values in any list.
 (defun >>=plist-delete (target &rest keys)
   "Delete all KEYS in-place from a TARGET property-list."
   (dolist (key (>>=fix-rest-list keys) target)
-    (map-delete target key)))
+    (setq target (map-delete target key))))
 
 
 (define-obsolete-function-alias '>>=plist-exclude '>>=plist-remove "1.0")
@@ -531,6 +531,19 @@ so this macro can be used to iterate over tuples of two values in any list.
         (map-delete target key)))
     ;; else
     source))
+
+
+(defmacro >>=plist-pop (place key)
+  "Return KEY value of PLACE, and remove it from PLACE.
+PLACE must be symbol representing a generalized variable whose value is a
+property list."
+  (if (symbolp place)
+    `(when-let ((value (plist-get ,place ,key)))
+       (prog1
+         value
+         (setq ,place (map-delete ,place ,key))))
+    ;; else
+    (error ">>= PLACE must be a symbol, not '%s'" place)))
 
 
 (defun >>=map-pair (fn sequence)
@@ -768,7 +781,7 @@ If MODE is an alias, then look up the real mode function first."
   "Verify a `major-mode' symbol.
 MODE could be a symbol; or a string in which case it is converted to a symbol
 by adding the suffix '-mode' and then using using `intern'."
-  (when (and (symbolp mode) (not (booleanp mode)))
+  (when (>>=real-symbol mode)
     (setq mode (symbol-name mode)))
   (if (stringp mode)
     (intern
@@ -1113,6 +1126,7 @@ conditions.  FUNCTION is called using our remaining ARGS."
        (,function ,@args))))
 
 
+;; TODO: remove this
 (defun >>=mode-command-alist (source command &rest modes)
   "Join the SOURCE association-list with a sequence of `(MODE . COMMAND)'.
 Each item in MODES is validated and associated with the given COMMAND."
