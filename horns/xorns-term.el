@@ -29,6 +29,10 @@
 
 ;;; Common setup
 
+(defvar >>=|term/default-buffer-name "*TERMINAL*"
+  "Default buffer name when creating a new terminal.")
+
+
 (defvar >>=|term/install-customizable-colors t
   "Add customizable 256 color support to `term' and `ansi-term' .")
 
@@ -125,6 +129,20 @@ finally the executables `bash', `zsh' and `sh'."
     (ignore proc event)
     (ignore-errors
       (kill-buffer-and-window)))
+
+  (defun >>=ansi-term (&optional program name)
+    "Create an interactive terminal buffer running PROGRAM and a buffer NAME."
+    (interactive)
+    (unless program (setq program (>>=term/shell-file-name)))
+    (unless name (setq name >>=|term/default-buffer-name))
+    (let ((prog (split-string-shell-command program)))
+      (apply 'term-ansi-make-term name (car prog) nil (cdr prog)))
+    (set-buffer name)
+    (term-mode)
+    (term-char-mode)
+    (let (term-escape-char)
+      (term-set-escape-char ?\C-x))
+    (switch-to-buffer name))
   :bind
   (:map term-raw-map
     ("C-y" . term-paste)
