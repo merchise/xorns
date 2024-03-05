@@ -15,12 +15,14 @@
 
 (eval-and-compile
   (require 'compile)
-  (require 'xorns-text)
   (require 'xorns-tools)
   (require 'xorns-buffers)
+  (require 'xorns-text)
   (require 'hideshow)
   (require 'transient)
   (require 'use-package))
+
+(require 'xorns-term)
 
 
 
@@ -306,6 +308,27 @@ the function `>>=python/locate-env'.")
   :custom
   (pipenv-projectile-after-switch-function
     #'pipenv-projectile-after-switch-extended))
+
+
+
+;;; Python terminal
+
+(defvar >>=|python/use-ipython-as-terminal t
+  "Try using IPython as a terminal if it is installed.")
+
+
+(if (and >>=|python/use-ipython-as-terminal (executable-find "ipython"))
+  (>>=term/define >>=python-term
+    :program "ipython"
+    :buffer-name "*PYTHON*"
+    :modes 'python-mode
+    :paster "%paste"
+    )
+  ;; else
+  (>>=term/define >>=python-term
+    :program "python"
+    :buffer-name "*PYTHON*"
+    :modes 'python-mode))
 
 
 
