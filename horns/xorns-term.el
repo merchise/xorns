@@ -470,5 +470,26 @@ slots defined in `>>=term/settins'.  The defined command is a wrapper around
          (>>=term/launch ,name prefix)))))
 
 
+
+;;; Define terminal settings
+
+(>>=term/define >>=main-term)
+
+
+(>>=bind-global-keys
+  "C-c t" >>=main-term
+  "s-M-t" >>=main-term
+  "C-`" >>=term/launch
+  "C-~" >>=term/add
+  "s-/" >>=term/launch
+  "s-?" >>=term/add
+  "C-M-`" >>=term/select)
+
+
+(when (bound-and-true-p >>=!emacs-as-wm)
+  ;; Like on my i3 window manager
+  (>>=bind-global-keys "<s-return>" >>=main-term))
+
+
 (provide 'xorns-term)
 ;;; xorns-term.el ends here
