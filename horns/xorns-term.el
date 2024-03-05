@@ -61,17 +61,40 @@
     "Add customizable 256 color support to `term' and `ansi-term' .")
 
   (defun >>=term/shell-file-name ()
-    "Get the executable file name to load inferior shells from."
-    (purecopy
-      (>>=executable-find
-        explicit-shell-file-name
-        shell-file-name
-        (getenv "ESHELL")
-        (getenv "SHELL")
-        "bash"
-        "zsh"
-        "sh"))))
+  "Get the executable file name to load inferior shells from."
+  (purecopy
+    (>>=executable-find
+      explicit-shell-file-name
+      shell-file-name
+      (getenv "ESHELL")
+      (getenv "SHELL")
+      "bash"
+      "zsh"
+      "sh"))))
 
+
+
+;;; Common tools
+
+(defalias '>>-term/handle-exit '>>=safe-kill-buffer-and-window)
+
+
+(defmethod >>=term/get-buffer-name (base-name &optional prefix)
+  "Return a new `buffer-name' based on BASE-NAME and PREFIX arguments."
+  (unless base-name (setq base-name >>=|term/default-buffer-name))
+  (cond
+    ((null prefix)
+      base-name)
+    ((integerp prefix)
+      (format "%s<%s>" base-name prefix))
+    ((stringp prefix)
+      prefix)
+    (t
+      (generate-new-buffer-name base-name))))
+
+
+
+;;; Packages
 
 ;; TODO: https://github.com/howardabrams/dot-files/blob/master/emacs-eshell.org
 (use-package eshell
@@ -144,12 +167,6 @@
     (term-send-raw-string "\C-k")
     (kill-line))
 
-  (defun >>-term/handle-exit (&optional proc event)
-    "After advice for `term-handle-exit'."
-    (ignore proc event)
-    (ignore-errors
-      (kill-buffer-and-window)))
-
   (defun >>=ansi-term (&optional program name)
     "Create an interactive terminal buffer running PROGRAM and a buffer NAME."
     (interactive)
@@ -186,28 +203,14 @@
 
 (use-package vterm
   :ensure t
+  :defines vterm-exit-functions
   :commands vterm vterm-send-string
   :custom
   (vterm-max-scrollback 10000)
   (vterm-always-compile-module t)
-  (vterm-shell (>>=term/shell-file-name)))
-
-
-
-;;; Common tools
-
-(defmethod >>=term/get-buffer-name (base-name &optional prefix)
-  "Return a new `buffer-name' based on BASE-NAME and PREFIX arguments."
-  (unless base-name (setq base-name >>=|term/default-buffer-name))
-  (cond
-    ((null prefix)
-      base-name)
-    ((integerp prefix)
-      (format "%s<%s>" base-name prefix))
-    ((stringp prefix)
-      prefix)
-    (t
-      (generate-new-buffer-name base-name))))
+  (vterm-shell (>>=term/shell-file-name))
+  :config
+  (add-hook 'vterm-exit-functions '>>-term/handle-exit))
 
 
 
