@@ -79,11 +79,11 @@
 (defalias '>>-term/handle-exit '>>=safe-kill-buffer-and-window)
 
 
-(defmethod >>=term/get-buffer-name (base-name &optional prefix)
+(defun >>=term/get-buffer-name (base-name &optional prefix)
   "Return a new `buffer-name' based on BASE-NAME and PREFIX arguments."
   (unless base-name (setq base-name >>=|term/default-buffer-name))
   (cond
-    ((null prefix)
+    ((or (null prefix) (eq prefix 0) (eq prefix '-))
       base-name)
     ((integerp prefix)
       (format "%s<%s>" base-name prefix))
@@ -147,7 +147,6 @@
 
 
 (use-package comint
-  :ensure helm
   :preface
   (defun >>-comint/init ()
     "Initialize comint."
@@ -260,8 +259,8 @@
       :documentation
       "A global mapping of (MAJOR-MODE . TERMINAL-SETTINGS).")
     (main-instance
+      ;; :type `>>=term/emulator'
       :initform nil
-      :type (or null object)
       :allocation :class
       :documentation
       "First terminal emulator instance."))
@@ -272,9 +271,9 @@
 (defclass >>=term/emulator ()
   (;; instance slots
     (settings
+      ;; type `>>=term/settings'
       :initform nil
       :initarg :settings
-      :type (or null object)    ;; >>=term/settings
       :documentation
       "Terminal configuration settings that created this instance.")
     (buffer
@@ -296,12 +295,19 @@
   "Send STRING to a terminal EMULATOR shell session.")
 
 
+(defun >>=term/buffer-p (&optional buffer-or-name terminal)
+  "Return non-nil when BUFFER-OR-NAME is a TERMINAL buffer."
+  (when-let ((obj (>>=toolbox/property :term-instance buffer-or-name)))
+    (when (or (null terminal) (eq (oref obj settings) terminal))
+      obj)))
+
+
 (defun >>-term/get-instance (buffer)
   "Get the terminal emulator instance from an existing BUFFER."
-  (if-let ((obj (>>=toolbox/property :term-instance buffer)))
+  (if-let ((obj (>>=term/buffer-p buffer)))
     obj
     ;; else
-    (signal 'missing-instance `(:buffer-name ,(buffer-name buffer)))))
+    (signal 'missing-instance (list :buffer-name (buffer-name buffer)))))
 
 
 (defmethod make-instance
@@ -339,30 +345,57 @@ optional interactive command PREFIX argument."
         obj))))
 
 
-(defun >>-term/get-default-settings ()
-  "Get the default terminal configuration settings for the `current-buffer'."
+(defun >>-term/get-default-terminal ()
+  "Get the default terminal settings for the `current-buffer'."
   (or
-    (when-let ((obj (>>=toolbox/property :term-instance))) ; >>=term/emulator
+    (when-let ((obj (>>=term/buffer-p)))     ; >>=term/emulator
       (oref obj settings))
     (cdr (assq major-mode (oref-default '>>=term/settings global-modes)))
     (oref-default '>>=term/settings main-instance)
     (signal 'missing-instance `(:term-instance ,(current-buffer)))))
 
 
+(defun >>=term/buffer-list (&optional terminal)
+  "Return a list of TERMINAL buffers."
+  (match-buffers '>>=term/buffer-p nil terminal))
+
+
 (defun >>=term/launch (terminal &optional prefix)
   "Launch a TERMINAL using PREFIX to complement the buffer name.
 TERMINAL must be a `>>=term/settings' instance.  If nil, its actual value is
 determined based on default values for the `current-buffer' (see function
-`>>-term/get-default-settings').  Argument PREFIX represents the terminal tab
+`>>-term/get-default-terminal').  Argument PREFIX represents the terminal tab
 to launch.  An integer PREFIX value sets the tab-index to its value.  A nil
 PREFIX means the linked terminal if any or the implicit tab-index."
   (interactive "i\nP")
   (unless terminal
-    (setq terminal (>>-term/get-default-settings)))
+    (setq terminal (>>-term/get-default-terminal)))
   (let* ((res (make-instance (oref terminal emulator-class) terminal prefix))
          (buffer (oref res buffer)))
     (>>=toolbox/switch-to-buffer buffer)
     res))
+
+
+(defun >>=term/add (&optional terminal)
+  "Add a new tab for a TERMINAL."
+  (interactive)
+  (>>=term/launch terminal t))
+
+
+(defun >>=term/select ()
+  "Select a terminal buffer."
+  (interactive)
+  (let* ((items
+           (cons
+             (list "[add new tab]")
+             (mapcar
+               (lambda (buffer) (cons (buffer-name buffer) buffer))
+               (>>=term/buffer-list))))
+         (name (completing-read ">>= terminal: " items nil t)))
+    (if-let ((buffer (cdr (assoc-string name items))))
+      (switch-to-buffer buffer)
+      ;; else
+      (>>=term/add))))
 
 
 (defclass >>=term/ansi (>>=term/emulator) ()
