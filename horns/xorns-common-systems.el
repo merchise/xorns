@@ -20,14 +20,14 @@
 (require 'xorns-mode-line)
 (require 'xorns-buffers)
 (require 'xorns-dired)
-(require 'xorns-xterm)
+(require 'xorns-term)
+(require 'xorns-system)
+(require 'xorns-project)
+(require 'xorns-pim)
 (require 'xorns-text)
 (require 'xorns-prog)
 (require 'xorns-prog-extra)
 (require 'xorns-devop)
-(require 'xorns-system)
-(require 'xorns-project)
-(require 'xorns-pim)
 
 (require 'xorns-bots)
 
