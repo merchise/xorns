@@ -77,7 +77,7 @@ Intended for future use of configuration variables."
       'message ">>= xorns initialized in %.1f seconds." (>>=init-time))))
 
 
-(when (and >>=|enable-server (not noninteractive))
+(when (or (and >>=|enable-server (not noninteractive)) >>=!emacs-as-wm)
   (eval-and-compile
     (require 'server))
   (unless (or (daemonp) (server-running-p))
