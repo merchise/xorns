@@ -264,6 +264,21 @@ This function uses `>>-buffer-key' and `string<' to compare.  It is used to
     (run-hooks 'buffer-setup-hook)))
 
 
+(defun >>-window/find-first (predicate &optional all-frames)
+  "Find the first item satisfying PREDICATE in current window list.
+See optional argument ALL-FRAMES meaning on `window-list-1' function."
+  (let ((windows (window-list-1 nil 'nomini all-frames))
+        res)
+    (while (and (not res) windows)
+      (let ((win (car windows)))
+        (if (funcall predicate win)
+          (setq res win)
+          ;; else
+          (setq windows (cdr windows)))))
+    (when (window-live-p res)
+      res)))
+
+
 (defun >>=safe-kill-buffer-and-window (&rest args)
   "Kill the `current-buffer' and delete the selected window.
 If the first argument in ARGS is a buffer, this is used instead of
@@ -353,18 +368,19 @@ ignored.
 
 This is an ACTION function, so we don't use the `xorns' naming convention."
   (when (>>=toolbox-p buffer)
-    (let* ((frames (cdr (assq 'reusable-frames alist)))
-           (not-same (cdr (assq 'inhibit-same-window alist)))
-           (windows (window-list-1 nil 'nomini frames))
-           window)
-      (while (and (not window) windows)
-        (let ((win (car windows)))
-          (when (>>=toolbox-p (window-buffer win))
-            (unless (and not-same (eq win (selected-window)))
-              (setq window win))))
-        (setq windows (cdr windows)))
-      (when (window-live-p window)
-        (prog1 (window--display-buffer buffer window 'reuse alist)
+    (let ((frames (cdr (assq 'reusable-frames alist)))
+          (not-same (cdr (assq 'inhibit-same-window alist)))
+          window)
+      (setq window
+        (>>-window/find-first
+          (lambda (win)
+            (and
+              (>>=toolbox-p (window-buffer win))
+              (not (and not-same (eq win (selected-window))))))
+          frames))
+      (when window
+        (prog1
+          (window--display-buffer buffer window 'reuse alist)
           (unless (cdr (assq 'inhibit-switch-frame alist))
             (window--maybe-raise-frame (window-frame window))))))))
 
