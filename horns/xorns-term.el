@@ -219,6 +219,10 @@
   "Existent buffer with no associated instance")
 
 
+(defvar >>-term/linked nil
+  "Local variable to link common buffers with terminals.")
+
+
 (defclass >>=term/settings ()
   (;; instance slots
     (emulator-class
@@ -295,6 +299,19 @@
   "Send STRING to a terminal EMULATOR shell session.")
 
 
+(defsubst >>-term/check-prefix (prefix base-name)
+  "Check PREFIX for BASE-NAME."
+  (when (string= (>>=prefix prefix (length base-name)) base-name)
+    prefix))
+
+
+(defun >>-term/get-defaul-prefix (base-name)
+  "Get default prefix for BASE-NAME."
+  (or
+    (>>-term/check-prefix >>-term/linked base-name)
+    (>>-term/check-prefix (buffer-name) base-name)))
+
+
 (defun >>=term/buffer-p (&optional buffer-or-name terminal)
   "Return non-nil when BUFFER-OR-NAME is a TERMINAL buffer."
   (when-let ((obj (>>=toolbox/property :term-instance buffer-or-name)))
@@ -335,14 +352,20 @@ Do not use this method directly, use `>>=term/define' macro instead."
   "Create a terminal emulator instance.
 Instance is built based on the emulator CLASS, a SETTINGS definition, and an
 optional interactive command PREFIX argument."
-  (let ((name (>>=term/get-buffer-name (oref settings buffer-name) prefix)))
-    (if-let ((buffer (get-buffer name)))    ;; existing buffer
-      (>>-term/get-instance buffer)
-      ;; else
-      (setq buffer (>>-term/create-buffer class (oref settings program) name))
-      (let ((obj (super class :settings settings :buffer buffer)))
-        (>>=toolbox/set-properties buffer :term-instance obj)
-        obj))))
+  (let ((base-name (oref settings buffer-name)))
+    (unless prefix
+      (when-let ((aux (>>-term/get-defaul-prefix base-name)))
+        (when (get-buffer aux)
+          (setq prefix aux))))
+    (let ((name (>>=term/get-buffer-name base-name prefix)))
+      (if-let ((buffer (get-buffer name)))    ;; existing buffer
+        (>>-term/get-instance buffer)
+        ;; else
+        (let* ((program (oref settings program))
+               (buf (>>-term/create-buffer class program name))
+               (obj (super class :settings settings :buffer buf)))
+          (>>=toolbox/set-properties buf :term-instance obj)
+          obj)))))
 
 
 (defun >>-term/get-default-terminal ()
@@ -353,6 +376,40 @@ optional interactive command PREFIX argument."
     (cdr (assq major-mode (oref-default '>>=term/settings global-modes)))
     (oref-default '>>=term/settings main-instance)
     (signal 'missing-instance `(:term-instance ,(current-buffer)))))
+
+
+(defun >>-term/linked-p (item name)
+  "Check if ITEM (a buffer or a window) is linked with NAME."
+  (let ((buf (if (bufferp item) item (window-buffer item))))
+    (string-equal (buffer-local-value '>>-term/linked buf) name)))
+
+
+(defun >>-term/link-buffers (source target)
+  "Link SOURCE and TARGET buffers."
+  (unless (>>=term/buffer-p source)
+    (set (make-local-variable '>>-term/linked) (buffer-name target))
+    (>>=toolbox/set-properties target :linked-source source)))
+
+
+(defun >>-term/visible-linked-buffer (name)
+  "Find a visible BUFFER linked to terminal NAME."
+  (let ((res (>>-window/find-first (lambda (w) (>>-term/linked-p w name)))))
+    (when res
+      (window-buffer res))))
+
+
+(defun >>-term/get-linked-buffer ()
+  "Get buffer linked to a terminal buffer."
+  (or
+    ;; source buffer
+    (when-let ((res (>>=toolbox/property :linked-source)))
+      (when (buffer-live-p res)
+        res))
+    ;; visible window or buffer
+    (let ((name (buffer-name)))
+      (or
+        (>>-term/visible-linked-buffer name)
+        (car (match-buffers '>>-term/linked-p nil name))))))
 
 
 (defun >>=term/buffer-list (&optional terminal)
@@ -370,10 +427,18 @@ PREFIX means the linked terminal if any or the implicit tab-index."
   (interactive "i\nP")
   (unless terminal
     (setq terminal (>>-term/get-default-terminal)))
-  (let* ((res (make-instance (oref terminal emulator-class) terminal prefix))
-         (buffer (oref res buffer)))
-    (>>=toolbox/switch-to-buffer buffer)
-    res))
+  (let* ((obj (make-instance (oref terminal emulator-class) terminal prefix))
+         (current (current-buffer))
+         (target (oref obj buffer)))
+    (if (eq target current)
+      (when-let ((source (>>-term/get-linked-buffer)))
+        (>>=toolbox/switch-to-buffer source)
+        (>>-term/link-buffers source target)
+        source)
+      ;; else
+      (>>-term/link-buffers current target)
+      (>>=toolbox/switch-to-buffer target)
+      target)))
 
 
 (defun >>=term/add (&optional terminal)
