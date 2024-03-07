@@ -1,0 +1,18 @@
+#+TITLE: Changes in release 0.10.0
+
+* Misc
+
+- After an update of the ~tree-sitter~ module an error occurred due to a new
+  system dependency (~tree-sitter-rust~).  After installing it the error was
+  resolved.
+- The Emacs server now runs automatically when in EXWM.
+- EXWM mecanisms to resize windows were improved.
+- Object Oriented Programming tools were added to the 'tools' module.
+- Extended terminals are migrated to a new style:
+  - Configured 'vterm' package.
+  - Used OOP to encapsulate configuration of terminal emulator types, now you
+    can configure to use ~vterm~ or ~ansi-term~ by setting variable
+    [[file:~/work/emacs/xorns/horns/xorns-term.el::(defvar
+    >>=|term/emulator-class '>>=term/vt][>>=|term/emulator-class]] to any of ~>>=term/vt~ or ~>>=term/ansi~ classes.
+  - New key shortcuts defined.
+  - Removed old ~xterm~ module.
