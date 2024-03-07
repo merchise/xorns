@@ -412,6 +412,52 @@ optional interactive command PREFIX argument."
         (car (match-buffers '>>-term/linked-p nil name))))))
 
 
+(defun >>-term/get-paste-text ()
+  "Return a list of TERMINAL buffers."
+  (unless (>>=term/buffer-p)
+    (>>=str-non-empty (>>=str-trim (>>=buffer-focused-text)))))
+
+
+(defsubst >>-term/check-eol (text)
+  "Check if TEXT ends with an EOL."
+  (let ((EOL "\n"))
+    (if (string= (>>=suffix text 1) EOL)
+      text
+      ;; else
+      (concat text EOL))))
+
+
+(defun >>-term/get-paster (&optional buffer)
+  "Get the paste function for BUFFER."
+  (unless buffer
+    (setq buffer (current-buffer)))
+  (when-let ((obj (>>=toolbox/property :term-instance buffer)))
+    (let* ((settings (oref obj settings))
+           (paster (oref settings paster)))
+      (cond
+        ((null paster)
+          (lambda (text)
+            (when text
+              (>>-term/send-string obj (>>-term/check-eol text)))))
+        ((functionp paster)
+          (lambda (text)
+            (when text
+              (>>-term/send-string obj
+                (>>-term/check-eol (funcall paster text))))))
+        ((stringp paster)
+          (lambda (text)
+            (when text
+              (if (string-match-p "\n" text)
+                (progn
+                  (kill-new text)
+                  (>>-term/send-string obj (>>-term/check-eol paster))
+                  (current-kill 1))
+                ;; else
+                (>>-term/send-string obj (>>-term/check-eol text))))))
+        (t
+          (user-error ">>= invalid terminal paster '%s'" paster))))))
+
+
 (defun >>=term/buffer-list (&optional terminal)
   "Return a list of TERMINAL buffers."
   (match-buffers '>>=term/buffer-p nil terminal))
@@ -458,9 +504,33 @@ PREFIX means the linked terminal if any or the implicit tab-index."
                (>>=term/buffer-list))))
          (name (completing-read ">>= terminal: " items nil t)))
     (if-let ((buffer (cdr (assoc-string name items))))
-      (switch-to-buffer buffer)
+      (progn
+        (>>=toolbox/switch-to-buffer buffer)
+        buffer)
       ;; else
       (>>=term/add))))
+
+
+(defun >>=term/paste (&optional prefix)
+  "Paste current buffer selected text to the linked terminal.
+When the optional argument PREFIX is not nil, an existing terminal is used or
+selected."
+  (interactive "P")
+  (when-let ((text (>>-term/get-paste-text)))
+    (>>=toolbox/switch-to-buffer
+      (save-window-excursion
+        (cond
+          ((consp prefix)
+            (>>=term/select))
+          ((bufferp prefix)
+            prefix)
+          ((instance-of prefix '>>=term/emulator)
+            (oref prefix buffer))
+          ((instance-of prefix '>>=term/settings)
+            (>>=term/launch prefix))
+          (t
+            (>>=term/launch nil prefix)))))
+    (funcall (>>-term/get-paster) text)))
 
 
 (defclass >>=term/ansi (>>=term/emulator) ()
@@ -541,6 +611,15 @@ slots defined in `>>=term/settins'.  The defined command is a wrapper around
 (>>=term/define >>=main-term)
 
 
+(defun >>=term/paste-to-main (&optional prefix)
+  "Paste current buffer selected text to the main terminal.
+Optional PREFIX argument has the same meaning as in `>>=term/launch'"
+  (interactive "P")
+  (when-let ((text (>>-term/get-paste-text)))
+    (>>=term/launch >>=main-term prefix)
+    (funcall (>>-term/get-paster) text)))
+
+
 (>>=bind-global-keys
   "C-c t" >>=main-term
   "s-M-t" >>=main-term
@@ -548,12 +627,15 @@ slots defined in `>>=term/settins'.  The defined command is a wrapper around
   "C-~" >>=term/add
   "s-/" >>=term/launch
   "s-?" >>=term/add
-  "C-M-`" >>=term/select)
+  "C-M-`" >>=term/select
+  "M-s-/" >>=term/paste)
 
 
 (when (bound-and-true-p >>=!emacs-as-wm)
   ;; Like on my i3 window manager
-  (>>=bind-global-keys "<s-return>" >>=main-term))
+  (>>=bind-global-keys
+    "<s-return>" >>=main-term
+    "<M-s-return>" >>=term/paste-to-main))
 
 
 (provide 'xorns-term)
