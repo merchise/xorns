@@ -1,0 +1,7 @@
+#+TITLE: Changes in release 0.10.1
+
+* Misc
+
+- Fix minor issues.
+- Add a task based on manu's configuration file.
+- Create a new binding for '>>=term/paste-to-main' command.
