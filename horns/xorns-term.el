@@ -623,6 +623,7 @@ Optional PREFIX argument has the same meaning as in `>>=term/launch'"
 
 (>>=bind-global-keys
   "C-c t" >>=main-term
+  "C-c C-t" >>=term/paste-to-main
   "s-M-t" >>=main-term
   "C-`" >>=term/launch
   "C-~" >>=term/add
