@@ -1,0 +1,5 @@
+#+TITLE: Changes in release 0.10.2
+
+* Misc
+
+- This is a small release to fix 'rust-mode' configuration.
