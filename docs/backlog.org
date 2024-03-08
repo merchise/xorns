@@ -11,7 +11,7 @@
   modes.
 - [ ] Check [[file:~/work/emacs/xorns/horns/xorns-prog-extra.el::(use-package rescript-mode][ReScript]] configuration.  See [[https://github.com/jjlee/rescript-mode][github repository]] for more
   information.
-- [ ] Upgrade support to Emacs version > 29.1.
+- [-] Upgrade support to Emacs version > 29.1.
   - [X] Now =use-package= is part of Emacs.  Change [[file:~/work/emacs/xorns/horns/xorns-packages.el::defun >>=package/ensure (package][>>=package/ensure]] function
     to test =(require package nil 'noerror)= instead of =(package-installed-p
     package)=.
@@ -25,7 +25,7 @@
   replaced.  Check after Emacs or Deft are updated.
 - [ ] After configuring 'js2-mode', check ELPA for more packages that use this
   one.
-- [ ] Remove =xorns-mail= module (check =xorns-building-blocks=).
+- [X] Remove =xorns-mail= module (check =xorns-building-blocks=).
 - [ ] Check =system-packages=, and =use-package-ensure-system-package= for
   =use-package=.
 - [ ] Change =email= from =med@merchise.org= to =med.merchise@gmail.com=, and

@@ -24,24 +24,10 @@
     emacs-version))
 
 
-(defconst >>=!xorns/standalone-dir
-  (let ((lib-dir (expand-file-name "horns" user-emacs-directory)))
-    (if (file-directory-p lib-dir) lib-dir))
-  "Non-nil if `xorns' is used in standalone mode.")
-
-
 (defconst >>=!xorns/lib-dir
-  (or
-    >>=!xorns/standalone-dir
-    (progn
-      ;; `xorns' is used as an ELPA package
-      (eval-and-compile (require 'package))
-      (when-let ((pkg-info (assq 'xorns package-alist)))
-        (expand-file-name
-          (package-desc-full-name (cadr pkg-info))
-          package-user-dir))))
-  "Directory containing `xorns' library.
-Valid in standalone mode or as an ELPA pacxkage.")
+  (let ((lib-dir (expand-file-name "horns" user-emacs-directory)))
+    (when (file-directory-p lib-dir) lib-dir))
+  "Directory containing `xorns' library.")
 
 
 (defsubst >>-startup-file-name-handler-alist ()
@@ -52,8 +38,7 @@ Valid in standalone mode or as an ELPA pacxkage.")
 
 
 (let ((file-name-handler-alist (>>-startup-file-name-handler-alist)))
-  (when >>=!xorns/standalone-dir
-    (add-to-list 'load-path >>=!xorns/standalone-dir))
+  (add-to-list 'load-path >>=!xorns/lib-dir)
   (require 'xorns))
 
 
