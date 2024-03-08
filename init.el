@@ -44,10 +44,6 @@
 Valid in standalone mode or as an ELPA pacxkage.")
 
 
-(when (version<= emacs-version "29.0")    ; some fallback compatibility
-  (add-to-list 'load-path (expand-file-name "compat" >>=!xorns/lib-dir)))
-
-
 (defsubst >>-startup-file-name-handler-alist ()
   "Safe value of `file-name-handler-alist' trying to improve startup time."
   (let ((option "--without-compress-install"))
