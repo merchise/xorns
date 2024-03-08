@@ -13,7 +13,7 @@
 ;; (package-initialize)
 
 
-(defconst >>=!xorns/emacs-min-version "28.1"
+(defconst >>=!xorns/emacs-min-version "29.1"
   "Minimal version of Emacs.")
 
 
