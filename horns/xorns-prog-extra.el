@@ -43,7 +43,7 @@ For example (toml classic-snippets).")
   (add-to-list '>>=|programming/extra-features 'toml)
   (use-package rust-mode
     :ensure t
-    :defer t)
+    :commands rust-mode)
   (use-package flycheck-rust
     :ensure t
     :defer t
