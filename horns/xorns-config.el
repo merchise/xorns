@@ -393,11 +393,7 @@ of targets valid for `set-fontset-font', or a sequence of such forms."
 
 (defun >>=font/configure ()
   "Called after `xorns' is completely initialized to configure fonts."
-  (if (boundp 'after-focus-change-function)
-    (add-function :after after-focus-change-function '>>=configure-font)
-    ;; else
-    (with-no-warnings    ; `focus-in-hook' is obsolete since 27.1
-      (add-hook focus-in-hook '>>=configure-font)))
+  (add-function :after after-focus-change-function '>>=configure-font)
   (>>=configure-font))
 
 

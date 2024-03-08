@@ -49,9 +49,9 @@ report the identity of the enclosed body."
      (error (message (concat ">>= error on (" ,header "): %s") err))))
 
 
-;; TODO: never used, maybe make obsolete
 (defun >>=var-value (variable &optional default)
   "Return the value of a VARIABLE, or DEFAULT if it is void."
+  (declare (obsolete nil "0.10.5"))    ;; never used
   (let ((symbol (intern-soft variable)))
     (if (and symbol (boundp symbol))
       (symbol-value symbol)
@@ -340,7 +340,6 @@ Example:
 
 ;;; lists, property lists extensions
 
-(define-obsolete-function-alias '>>=length '>>=slist-length "0.9.7")
 (defsubst >>=slist-length (value)
   "Return the `length' of a VALUE that is a strict list, nil otherwise."
   (if (and (listp value) (listp (cdr value)))
@@ -515,7 +514,6 @@ so this macro can be used to iterate over tuples of two values in any list.
     (setq target (map-delete target key))))
 
 
-(define-obsolete-function-alias '>>=plist-exclude '>>=plist-remove "1.0")
 (defsubst >>=plist-remove (target &rest keys)
   "Return a copy of a TARGET property-list with all KEYS excluded."
   (>>=plist-delete (copy-sequence target) keys))
@@ -624,8 +622,6 @@ returns a non-nil value."
     res))
 
 
-(define-obsolete-function-alias
-  '>>=plist-setdefault '>>=plist-set-defaults "0.9.8")
 (defun >>=plist-set-defaults (target &rest defaults)
   "Insert into TARGET all DEFAULTS properties that are not already members.
 Return updated TARGET."
@@ -662,56 +658,6 @@ Return updated TARGET."
                 value)))
           source (cdr xs))))
     target))
-
-
-(defun >>=plist-normalize (class name keywords &rest defaults)
-  "Normalize a sequence of KEYWORDS.
-
-KEYWORDS must be a pseudo property-list, usually provided as final arguments
-to a macro that defines a new concept.
-
-Each normalization process is identified with a CLASS and an instance NAME.
-For example, in (use-package magit) the equivalent would be `use-package'
-being the CLASS and `magit' being the NAME.
-
-KEYWORDS are first fixed by the `>>=plist-fix' function, then DEFAULTS are
-updated.
-
-Finally each VALUE is normalized as follows: function `eval' is applied when
-the VALUE is defined using the form (:eval <lisp-expression>); functions
-`<CLASS>-normalize/<:KEY>' and `<NAME>-normalize/<:KEY>' are applied when
-defined, these functions must be defined to get three arguments (KEY VALUE
-KEYWORDS).  KEYWORDS will be passed as the lexical environment argument."
-  (declare (obsolete nil "0.9.7"))    ;; never used
-  (if (null keywords)
-    (setq keywords defaults)
-    ;; else
-    (setq keywords (>>=plist-fix keywords))
-    (>>=plist-do (key value defaults)
-      (if (keywordp key)
-        (when (not (plist-member keywords key))
-          (plist-put keywords key value))
-        ;; else
-        (error ">>= '%s' must be a keyword, not %s" key (type-of key)))))
-  (>>=plist-do (key value keywords)
-    (let (changed)
-      (when (eq (car-safe value) :eval)
-        (if (eq (length value) 2)
-          (setq
-            value (eval (cadr value) `((keywords . ,keywords)))
-            changed t)
-          ;; else
-          (error ">>= eval form '%s' must have two elements, not %s"
-            value (length value))))
-      (dolist (prefix `(,class ,name))
-        (when-let* ((name (format "%s-normalize/%s" prefix key))
-                    (check (>>=check-function name)))
-          (setq
-            value (funcall check value keywords)
-            changed t)))
-      (if changed
-        (plist-put keywords key value))))
-  keywords)
 
 
 (defun >>=plist-rename-aliases (target &rest aliases)
@@ -844,13 +790,11 @@ value will combine both logics."
 
 ;;; files and directories
 
-(define-obsolete-variable-alias '>>=!path/separator '>>=!path-separator "1.0")
 (defconst >>=!path/separator
   "Character used by the operating system to separate pathname components."
   (substring (file-name-as-directory "x") 1))
 
 
-(define-obsolete-function-alias '>>=dir-join '>>=path/join "1.0")
 (defun >>=path/join (&rest parts)
   "Join PARTS to a single path."
   (setq parts (delq nil parts))
@@ -879,7 +823,6 @@ value will combine both logics."
     res))
 
 
-(define-obsolete-function-alias '>>=find-dir '>>=path/find-directory "1.0")
 (defun >>=path/find-directory (&rest options)
   "Find the first existing directory in a sequence of OPTIONS."
   (let (res)
@@ -899,8 +842,6 @@ See `mkdir' and `>>=path/join'."
     name))
 
 
-(define-obsolete-function-alias
-  '>>=canonical-directory-name '>>=path/canonical-directory-name "1.0")
 (defun >>=path/canonical-directory-name (name)
   "Convert directory NAME to absolute canonical form."
   (when name
@@ -924,26 +865,6 @@ The optional argument EXCLUDE could be a string or a list of strings."
             (not (member fn exclude))
             (string-match-p base fn))))
       files)))
-
-
-(defun >>=find-env-executable (format &rest options)
-  "Find the first valid command from a set of OPTIONS.
-This is different from `>>=executable-find' in that each option is first
-formatted with the FORMAT string, upcased, and looked up in the environment
-using `getenv'.  Another difference is that the result is a `cons' with the
-form (OPTION . COMMAND)."
-  (declare (obsolete nil "0.9.5"))    ;; never used
-  (let ((aux (delq nil (>>=fix-rest-list options)))
-        (fmt (or format "%s"))
-        res)
-    (while (and aux (not res))
-      (let* ((var (>>=str (car aux)))
-             (env-var (getenv (upcase (format fmt var))))
-             (tmp (executable-find (or env-var var))))
-        (if tmp
-          (setq res (cons var tmp))))
-      (setq aux (cdr aux)))
-    res))
 
 
 (defun >>=executable-find (&rest options)
@@ -1156,8 +1077,6 @@ If FULL is nil, return only the file name part sans its directory."
     (if full res (file-name-nondirectory res))))
 
 
-(define-obsolete-function-alias
-  '>>=setup/command-check '>>=command/check "1.0")
 (defun >>=command/check (command)
   "Check if a system COMMAND is installed.
 Intended to find out if a feature that depends on the given command can be
@@ -1276,7 +1195,6 @@ found in DIR."
 
 ;;; key bindings
 
-(define-obsolete-function-alias '>>-kbd '>>=key-parse "0.9.7")
 (defsubst >>=key-parse (key)
   "Convert KEY to the internal Emacs key representation (a vector).
 Similar to `kbd' function with a main extension: if KEY is already a `vector',
@@ -1337,8 +1255,8 @@ directly, instead use the `>>=bind-global-keys' macro."
   (global-set-key (>>=key-parse key) command))
 
 
-(define-obsolete-function-alias
-  '>>=global-set-keys '>>=bind-global-keys "0.9.7")
+(define-obsolete-function-alias '>>=global-set-keys
+  '>>=bind-global-keys "0.11.0")
 (defmacro >>=bind-global-keys (&rest pairs)
   "Bind on the current global keymap [KEY COMMAND] PAIRS.
 

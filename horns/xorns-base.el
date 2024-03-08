@@ -139,9 +139,6 @@ to configure for yourself: see `save-buffer' function for more information.")
       (save-mark-and-excursion
         (deactivate-mark 'force)
         (funcall-interactively 'delete-trailing-whitespace))))
-
-  (define-obsolete-function-alias '>>=scratch/get-buffer-create
-    'get-scratch-buffer-create "0.9.8")
   :hook
   (tabulated-list-mode . hl-line-mode)    ; TODO: why is this here?
   :bind

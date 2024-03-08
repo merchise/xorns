@@ -31,14 +31,10 @@
   (require 'xorns-packages))
 
 
-(define-obsolete-variable-alias
-  '>>=|dired-omit-mode '>>=|dired/omit-mode "1.0")
 (defvar >>=|dired/omit-mode nil
   "Non-nil opens new `dired' buffers with `dired-omit-mode' enabled.")
 
 
-(define-obsolete-variable-alias
-  '>>=|dired-omit-extra-files '>>=|dired/omit-extra-files "1.0")
 (defvar >>=|dired/omit-extra-files '("__pycache__")
   "A list of extra files (strings) to omit from Dired listings.
 This value will complement both `dired-omit-files' main custom variable and

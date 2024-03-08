@@ -161,14 +161,11 @@ Right now, variable `epg-pinentry-mode' is set, but other configurations would
 be needed in the future..")
 
 
-(when >>=|crypt/gpg-integration
-  (require 'epg-config)
-  (set
-    (if (> emacs-major-version 26)
-      'epg-pinentry-mode
-      ;; else: ; obsolete since 27.1
-      'epa-pinentry-mode)
-    'loopback))
+(use-package epg-config
+  :when >>=|crypt/gpg-integration
+  :demand t
+  :init
+  (setq epg-pinentry-mode 'loopback))
 
 
 
