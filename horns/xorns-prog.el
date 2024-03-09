@@ -249,7 +249,7 @@ the function `>>=python/locate-env'.")
             "Setting Python (virtual) environment '%s' in (%s) modules"
             venv-path (string-join modules ", "))))
 
-      ;; lsp-pyrigth does its own lookup with the function
+      ;; lsp-pyright does its own lookup with the function
       ;; lsp-pyright-locate-venv; so we don't need to do anything here for it.
       ;; TODO: See other options:
       ;; https://github.com/emacs-lsp/lsp-python-ms/blob/master/lsp-python-ms.el
@@ -349,6 +349,10 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
   "Use the entry point that defers server startup until buffer is visible.")
 
 
+(defvar >>=|lsp/use-pyright nil
+  "Use lsp-pyright.")
+
+
 (use-package lsp-mode
   :ensure t
   :demand t
@@ -411,6 +415,11 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
     ([remap xref-find-references] . lsp-ui-peek-find-references))
   :config
   (advice-add 'lsp-ui-imenu :after (lambda () (setq mode-line-format nil))))
+
+
+(use-package lsp-pyright
+  :when >>=|lsp/use-pyright
+  :ensure t)
 
 
 
