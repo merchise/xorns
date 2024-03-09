@@ -1,0 +1,10 @@
+#+TITLE: Changes in release 0.10.3
+
+* Misc
+
+- Remove 'make' related files.
+- Migrate make release command to lisp code in `bots` module.
+- Remove some obsolete alias definitions.
+- Remove 'python' compatibility definition.
+- Remove support for Emacs version < 29.0.
+- Remove support to install 'xorns' as an ELPA package.
