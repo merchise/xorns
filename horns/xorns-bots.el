@@ -58,6 +58,43 @@
       res)))
 
 
+(defun >>-bots/get-current-release ()
+  "Get the current version of the repository in the local working folder."
+  (if-let ((path (>>-bots/local-working-folder)))
+    (let ((default-directory path)
+          (command "git describe --tags --abbrev=0 2> /dev/null"))
+      (>>=shell-command-to-string command))
+    ;; else
+    (warn ">>= xorns working-folder not found.")))
+
+
+(defun >>-bots/set-package-version (version)
+  "Set package VERSION to a new release."
+  (if-let ((wf (>>-bots/local-working-folder)))
+    (let ((file-name (expand-file-name "xorns.el" (>>=path/join wf "horns"))))
+      (with-temp-file file-name
+        (insert-file-contents file-name)
+        (re-search-forward "^;; Version: ")
+        (delete-region (point) (line-end-position))
+        (insert version)))
+    ;; else
+    (warn ">>= xorns working-folder not found.")))
+
+
+(defun >>-bots/get-next-release-options (&optional current)
+  "Get some options for the next release based on the CURRENT one."
+  (unless current
+    (setq current (>>-bots/get-current-release)))
+  (let ((parts (split-string current "[.]")))
+    (list
+      (format "%s.%s.%s"
+        (nth 0 parts) (nth 1 parts) (1+ (string-to-number (nth 2 parts))))
+      (format "%s.%s.%s"
+        (nth 0 parts) (1+ (string-to-number (nth 1 parts))) 0)
+      (format "%s.%s.%s"
+        (1+ (string-to-number (nth 0 parts))) 0 1))))
+
+
 (defun >>=bots/dired+git-status ()
   "Open `dired' and `magit-status' buffers in `user-emacs-directory'.
 This assumes that `user-emacs-directory' is a valid cloned `xorns' GIT
@@ -95,6 +132,24 @@ If BASE argument is non-nil, open project directory instead."
         (>>=bots/dired-working-folder)))
     ;; else
     (warn ">>= xorns working-folder not found.")))
+
+
+(defun >>=bots/make-release (version)
+  "Set new release to VERSION in local folder repository."
+  (interactive
+    (list (completing-read ">>= " (>>-bots/get-next-release-options))))
+  (let ((current (>>-bots/get-current-release)))
+    (if (version< current version)
+      (let ((tag-command "git tag %s")
+            (commit-command "git commit -am \"Set new release to %s\""))
+        (message "Setting new release '%s'" version)
+        (>>-bots/set-package-version version)
+        (shell-command (format tag-command version))
+        (shell-command (format commit-command version)))
+      ;; else
+      (warn
+        ">>= new version '%s' should be greater than current release '%s'"
+        version current))))
 
 
 (defun >>=bots/open-sketch ()
@@ -158,6 +213,7 @@ has an ‘.elc’ file; otherwise only those that needs recompilation."
      ("r" "Open recent-file"    >>=bots/recent-working-file)
      ("k" "Open sketch"         >>=bots/open-sketch)
      ("s" "Switch to scratch"   >>=toolbox/scratch-buffer)
+     ("v" "Make new release"    >>=bots/make-release)
      ]]
   (interactive)
   (transient-setup '>>=bots/menu))
