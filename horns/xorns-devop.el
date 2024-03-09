@@ -22,8 +22,10 @@
 (defvar >>=|devops/enable t
   "Enable devops-related features: docker, compose, etc.")
 
+
 (use-package docker
   :when >>=|devops/enable
+  :ensure t
   :bind ("C-c d" . docker)) ;; TODO: customisable map.
 
 
