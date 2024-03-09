@@ -29,12 +29,14 @@
 
 (use-package dockerfile-mode
   :when >>=|devops/enable
+  :ensure t
   :init
   (add-to-list 'auto-mode-alist '("\\.docker\\'" . dockerfile-mode)))
 
 
 (use-package docker-compose-mode
-  :when >>=|devops/enable)
+  :when >>=|devops/enable
+  :ensure t)
 
 (use-package lsp-docker
   :ensure t
