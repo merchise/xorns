@@ -202,15 +202,18 @@ Only return the name if the file is readable."
   (cond
     ((stringp option)
       option)
-    ((and option (listp option))
+    ((consp option)
       (let ((head (car option)))
-        (if (stringp head)
-          head
-          ;; else
-          (>>-font/raw-option->name
+        (cond
+          ((stringp head)
+            head)
+          ((>>=real-symbol head)
+            (face-attribute head :family))
+          (t
+            (>>-font/raw-option->name
             (or
               (plist-get option :name)
-              (plist-get option :family))))))))
+              (plist-get option :family)))))))))
 
 
 (defsubst >>-font/alias->size (alias)
