@@ -204,12 +204,21 @@
   :ensure t
   :defines vterm-exit-functions
   :commands vterm vterm-send-string vterm-send-key vterm-end-of-line
+            vterm--set-directory
   :preface
   (defun >>-vterm/kill-line ()
     "Kill the rest of the current line."
     (interactive)
     (kill-ring-save (point) (vterm-end-of-line))
     (vterm-send-key "k" nil nil t))
+
+  (defun >>=vterm/directory-sync ()
+    "Synchronize current working directory in `vterm' BUFFER."
+    (interactive)
+    (when vterm--process
+      (vterm--set-directory
+        (file-truename
+          (format "/proc/%d/cwd/" (process-id vterm--process))))))
   :custom
   (vterm-max-scrollback 10000)
   (vterm-always-compile-module t)
@@ -220,6 +229,7 @@
     ("M-y" . vterm-yank-pop)
     ("C-k" . >>-vterm/kill-line))
   :config
+  (advice-add 'vterm-send-return :after '>>=vterm/directory-sync)
   (add-hook 'vterm-exit-functions '>>-term/handle-exit))
 
 
