@@ -1,0 +1,6 @@
+#+TITLE: Changes in release 0.10.7
+
+* Misc
+
+- Minor release to include mechanisms for yanking and kill-line in ~vterm~
+  module.
