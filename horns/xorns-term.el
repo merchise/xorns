@@ -203,11 +203,22 @@
 (use-package vterm
   :ensure t
   :defines vterm-exit-functions
-  :commands vterm vterm-send-string
+  :commands vterm vterm-send-string vterm-send-key vterm-end-of-line
+  :preface
+  (defun >>-vterm/kill-line ()
+    "Kill the rest of the current line."
+    (interactive)
+    (kill-ring-save (point) (vterm-end-of-line))
+    (vterm-send-key "k" nil nil t))
   :custom
   (vterm-max-scrollback 10000)
   (vterm-always-compile-module t)
   (vterm-shell (>>=term/shell-file-name))
+  :bind
+  (:map vterm-mode-map
+    ("C-y" . vterm-yank)
+    ("M-y" . vterm-yank-pop)
+    ("C-k" . >>-vterm/kill-line))
   :config
   (add-hook 'vterm-exit-functions '>>-term/handle-exit))
 
