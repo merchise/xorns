@@ -1,0 +1,5 @@
+#+TITLE: Changes in release 0.10.6
+
+* Misc
+
+- Minor release to add 'lsp-pyright' configuration.
