@@ -153,3 +153,47 @@ See also:
   - [ ] Configure [[https://github.com/terlar/emacs-config][use-package]] depending on the 'init-file-debug' variable.
 - [ ] Learn to Love the [[https://systemcrafters.net/emacs-from-scratch/learn-to-love-the-terminal-modes/][Terminal Modes]].
 - [ ] Nicolas De Jaeghere ([[https://github.com/Koekelas/dotfiles][dotfiles]]).
+
+* Improve font configuration tools
+
+- [ ] Use next code as an example:
+
+  #+BEGIN_SRC emacs-lisp
+    ;; This causes xorns to issue some messages, but somehow it works.
+    (setq-default
+        >>=|font-settings
+        '((default
+            ((t
+               ( :inherit nil
+                 :extend nil
+                 :stipple nil
+                 :inverse-video nil
+                 :box nil
+                 :strike-through nil
+                 :overline nil
+                 :underline nil
+                 :slant normal
+                 :weight light
+                 :height 125
+                 :width normal
+                 :family "RobotoMono Nerd Font"))))
+           (bold
+             ((t
+                ( :inherit nil
+                  :extend nil
+                  :stipple nil
+                  :inverse-video nil
+                  :box nil :strike-through nil
+                  :overline nil
+                  :underline nil
+                  :slant normal
+                  :weight normal
+                  :height 125
+                  :width normal
+                  :family "RobotoMono Nerd Font"))))
+           (lsp-lsp-flycheck-warning-unnecessary-face
+             ((t (:underline (:color "DarkOrange" :style wave)))) t)
+          (lsp-ui-sideline-code-action
+            ((t (:foreground "sienna" :underline t))))
+          (markdown-code-face ((t nil)))))
+  #+END_SRC
