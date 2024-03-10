@@ -1,0 +1,6 @@
+#+TITLE: Changes in release 0.10.5
+
+* Misc
+
+- Create a task to improve font configuration tools.
+- Fix minor issue to font configuration tools
