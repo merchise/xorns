@@ -43,8 +43,13 @@ variable documentation."
 
 ;;; Common Systems
 
+(defvar >>=|programming/features '(auto-fill flycheck yasnippet)
+  "Features to turn on in prog mode.")
+
+
 (use-package yasnippet
   :ensure t
+  :when (memq 'yasnippet >>=|programming/features)
   :preface
   (declare-function yas-global-mode 'yasnippet)
   (declare-function yas-load-directory 'yasnippet)
@@ -66,6 +71,7 @@ variable documentation."
 
 (use-package flycheck
   :ensure t
+  :when (memq 'flycheck >>=|programming/features)
   :preface
   (declare-function global-flycheck-mode 'flycheck)
   :custom
@@ -81,7 +87,8 @@ variable documentation."
     (when (>>=local-buffer)
       (flyspell-prog-mode))
     (>>=init-text-mode)
-    (turn-on-auto-fill)
+    (when (memq 'flycheck >>=|programming/features)
+      (turn-on-auto-fill))
     (subword-mode))
   :hook
   (prog-mode . >>=init-prog-mode))
@@ -131,7 +138,7 @@ variable documentation."
      ".venv"
      ("poetry.lock" "poetry" "env" "info" "-p")
      ("Pipfile.lock" "pipenv" "--venv")
-     (".python-version" "pyenv" "prefix")
+     (".python-version" "pyenv" "prefix") ;; TODO [manu]: Clashes with rye
      )
   "Default python (virtual) environment locators.
 See `>>=|python/env-locators' for more information.")
