@@ -110,6 +110,12 @@ For example (toml classic-snippets).")
   :when (memq 'classic-snippets >>=|programming/extra-features)
   :ensure t)
 
+(use-package envrc
+  :ensure t
+  :when (memq 'envrc >>=|programming/extra-features)
+  :config
+  (envrc-global-mode t))
+
 
 
 ;;; Gitlab
@@ -124,6 +130,12 @@ For example (toml classic-snippets).")
     :defer t))
 
 
+
+;;; Jinja2
+
+(use-package jinja2-mode
+  :when (memq 'jinja2 >>=|programming/extra-languages)
+  :ensure t)
 
 
 (provide 'xorns-prog-extra)
