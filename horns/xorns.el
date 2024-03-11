@@ -86,8 +86,7 @@ Intended for future use of configuration variables."
 
 
 (>>=progn "main initialization"
-  (require 'xorns-common-systems)
-  (require 'xorns-building-blocks))
+  (require 'xorns-common-systems))
 
 
 (provide 'xorns)
