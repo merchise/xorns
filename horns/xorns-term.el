@@ -54,11 +54,26 @@
   (defvar >>=|term/default-buffer-name "*TERMINAL*"
     "Default buffer name when creating a new terminal.")
 
-  (defvar >>=|term/emulator-class '>>=term/ansi
-    "Default terminal emulator class, a sub-class of `>>=term/emulator'.")
+  (defvar >>=|term/emulator-class nil
+    "Terminal emulator class, sub-class of `>>=term/emulator'.
+Could be `>>=term/ansi' (the default) or `>>=term/vt' (the recommended).")
 
   (defvar >>=|term/install-customizable-colors t
     "Add customizable 256 color support to `term' and `ansi-term' .")
+
+  (defsubst >>-term/vt-p ()
+    "Check if `vterm' should be activated."
+    (memq >>=|term/emulator-class '(>>=term/vt t)))
+
+  (defun >>-term/emulator-class ()
+    "Get the configured value for `>>=|term/emulator-class'."
+    (cond
+      ((null >>=|term/emulator-class)
+        '>>=term/ansi)
+      ((>>-term/vt-p)
+        '>>=term/vt)
+      (t
+        >>=|term/emulator-class)))
 
   (defun >>=term/shell-file-name ()
   "Get the executable file name to load inferior shells from."
@@ -200,39 +215,6 @@
   (term-mode . eterm-256color-mode))
 
 
-(use-package vterm
-  :ensure t
-  :defines vterm-exit-functions
-  :commands vterm vterm-send-string vterm-send-key vterm-end-of-line
-            vterm--set-directory
-  :preface
-  (defun >>-vterm/kill-line ()
-    "Kill the rest of the current line."
-    (interactive)
-    (kill-ring-save (point) (vterm-end-of-line))
-    (vterm-send-key "k" nil nil t))
-
-  (defun >>=vterm/directory-sync ()
-    "Synchronize current working directory in `vterm' BUFFER."
-    (interactive)
-    (when vterm--process
-      (vterm--set-directory
-        (file-truename
-          (format "/proc/%d/cwd/" (process-id vterm--process))))))
-  :custom
-  (vterm-max-scrollback 10000)
-  (vterm-always-compile-module t)
-  (vterm-shell (>>=term/shell-file-name))
-  :bind
-  (:map vterm-mode-map
-    ("C-y" . vterm-yank)
-    ("M-y" . vterm-yank-pop)
-    ("C-k" . >>-vterm/kill-line))
-  :config
-  (advice-add 'vterm-send-return :after '>>=vterm/directory-sync)
-  (add-hook 'vterm-exit-functions '>>-term/handle-exit))
-
-
 
 ;;; Managed Terminals
 
@@ -247,9 +229,9 @@
 (defclass >>=term/settings ()
   (;; instance slots
     (emulator-class
-      :initform (>>=value-of >>=|term/emulator-class)
+      :initform (>>-term/emulator-class)
       :initarg :emulator-class
-      :type class
+      :type symbol    ;; class
       :documentation
       "Terminal emulator class, a sub-class of `>>=term/emulator'.")
     (buffer-name
@@ -571,23 +553,64 @@ selected."
   (with-current-buffer (oref term buffer)
     (term-send-raw-string string)))
 
+(defun >>-term/vt-setup ()
+  "Setup `vterm'."
+  (use-package vterm
+    :ensure t
+    :defines vterm-mode-map vterm-exit-functions vterm-always-compile-module
+    :commands vterm vterm-send-string vterm-send-key vterm-end-of-line
+    vterm--set-directory
+    :init
+    (defun >>-vterm/kill-line ()
+      "Kill the rest of the current line."
+      (interactive)
+      (kill-ring-save (point) (vterm-end-of-line))
+      (vterm-send-key "k" nil nil t))
 
-(defclass >>=term/vt (>>=term/emulator) ()
-  "Specialization class for `xorns' terminals using `vterm'.")
+    (defun >>=vterm/directory-sync ()
+      "Synchronize current working directory in `vterm' BUFFER."
+      (interactive)
+      (when (bound-and-true-p vterm--process)
+        (vterm--set-directory
+          (file-truename
+            (format "/proc/%d/cwd/" (process-id vterm--process))))))
+    :custom
+    (vterm-max-scrollback 10000)
+    (vterm-always-compile-module t)
+    (vterm-shell (>>=term/shell-file-name))
+    :bind
+    (:map vterm-mode-map
+      ("C-y" . vterm-yank)
+      ("M-y" . vterm-yank-pop)
+      ("C-k" . >>-vterm/kill-line))
+    :config
+    (advice-add 'vterm-send-return :after '>>=vterm/directory-sync)
+    (add-hook 'vterm-exit-functions '>>-term/handle-exit))
+
+  (defclass >>=term/vt (>>=term/emulator) ()
+    "Specialization class for `xorns' terminals using `vterm'.")
+
+  ;; avoid warning the function is not known to be defined
+  (declare-function >>=term/vt--eieio-childp nil)
+
+  (defmethod >>-term/create-buffer
+    ((_ (subclass >>=term/vt)) program name)
+    "Create an `vterm' running PROGRAM and using NAME for the new buffer."
+    (require 'vterm nil 'noerror)
+    (unless (boundp 'vterm-shell)
+      (defvar vterm-shell))
+    (let ((vterm-shell program))
+      (save-window-excursion
+        (funcall 'vterm name))))
+
+  (defmethod >>-term/send-string ((term >>=term/vt) string)
+    "Send STRING to a `vterm' TERM shell session."
+    (with-current-buffer (oref term buffer)
+      (vterm-send-string string))))
 
 
-(defmethod >>-term/create-buffer
-  ((_ (subclass >>=term/vt)) program name)
-  "Create an `vterm' running PROGRAM and using NAME for the new buffer."
-  (let ((vterm-shell program))
-    (save-window-excursion
-      (vterm name))))
-
-
-(defmethod >>-term/send-string ((term >>=term/vt) string)
-  "Send STRING to a `vterm' TERM shell session."
-  (with-current-buffer (oref term buffer)
-    (vterm-send-string string)))
+(when (>>-term/vt-p)
+  (add-hook 'emacs-startup-hook '>>-term/vt-setup))
 
 
 (eval-and-compile
