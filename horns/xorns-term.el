@@ -54,7 +54,7 @@
   (defvar >>=|term/default-buffer-name "*TERMINAL*"
     "Default buffer name when creating a new terminal.")
 
-  (defvar >>=|term/emulator-class '>>=term/vt
+  (defvar >>=|term/emulator-class '>>=term/ansi
     "Default terminal emulator class, a sub-class of `>>=term/emulator'.")
 
   (defvar >>=|term/install-customizable-colors t

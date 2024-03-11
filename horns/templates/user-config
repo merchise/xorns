@@ -27,7 +27,7 @@ default values are not suitable for your configuration."
     ;; >>=|term/install-customizable-colors nil
     ;; >>=|toolbox/display-buffer-action 'other-window
     ;; >>=|dap/enable nil                     ; Debug Adapter Protocol
-    ;; >>=|term/emulator-class '>>=term/ansi
+    ;; >>=|term/emulator-class '>>=term/vt
     ;; >>=|exwm/startup-applications
     ;; '(
     ;;    "blueman-applet"                    ; Blueman Applet
