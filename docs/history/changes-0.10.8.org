@@ -1,0 +1,9 @@
+#+TITLE: Changes in release 0.10.8
+
+* Misc
+
+- Add 'vterm' shell-side configuration script.
+- Make optional 'vterm' installation.  Document an issued in the 'vterm'
+  module configuration
+- Set default terminal emulator class to '>>=term/ansi'
+- Create mechanism to synchronize the 'default-directory' in 'vterm' module.
