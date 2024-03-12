@@ -160,6 +160,29 @@ See also:
   Even when the configuration of [[file:~/work/emacs/xorns/horns/xorns-term.el::add-hook 'emacs-startup-hook '>>-term/vt-setup)][vterm]] is optional this package is installed
   from ELPA and the C module =vterm-module= is compiled.
 
+* Improve mechanism to configure 'xorns' features
+
+This will be a re-engineering of the configuration process.
+
+- [ ] Some simple tasks could be done before:
+  - [ ] In the ~prog~ module check if [[file:~/work/emacs/xorns/horns/xorns-prog.el::(use-package company][company]] configuration check if this
+    should be included as part of in ~>>=|programming/features~.
+  - [ ] Check if [[file:~/work/emacs/xorns/horns/xorns-prog.el::(defvar >>=|blacken/enable t][blacken enable]] should be included as part of
+    ~>>=|programming/features~.
+  - [ ] Check if [[file:~/work/emacs/xorns/horns/xorns-prog.el::(defvar >>=|lsp/use-pyright nil][pyright]] configuration should be included as part of
+    ~>>=|programming/features~.
+  - [ ] Check if [[file:~/work/emacs/xorns/horns/xorns-prog.el::(defvar >>=|dap/enable t][DAP]] configuration should be included as part of
+    ~>>=|programming/features~.
+- [ ] Create the concept of xorns' plugin.
+  - [ ] Two types of plugins must be defined, those that are subordinate to a
+    major mode or those that are global to the system.
+  - [ ] A single logical plugin concept must allow for alternative options.
+    For example, ~eglot~ and ~lsp-mode~, for language servers.
+  - [ ] Plugins must allow alternative choices.
+  - [ ] Improve [[file:~/work/emacs/xorns/horns/xorns-config.el][config]] module with a mechanism to load plugins.
+  - [ ] Migrate plugins related to major modes.
+  - [ ] Migrate global plugins.
+
 * Improve font configuration tools
 
 - [ ] Use next code as an example:
