@@ -48,12 +48,10 @@ variable documentation."
 
 
 (use-package yasnippet
-  :ensure t
   :when (memq 'yasnippet >>=|programming/features)
+  :ensure t
+  :commands yas-global-mode yas-load-directory
   :preface
-  (declare-function yas-global-mode 'yasnippet)
-  (declare-function yas-load-directory 'yasnippet)
-
   (defun >>=snippets/initialize ()
     "Initialize `xorns' snippets."
     (let* ((lib-dir (>>=value-of >>=!xorns/lib-dir))
@@ -70,10 +68,9 @@ variable documentation."
 
 
 (use-package flycheck
-  :ensure t
   :when (memq 'flycheck >>=|programming/features)
-  :preface
-  (declare-function global-flycheck-mode 'flycheck)
+  :ensure t
+  :commands global-flycheck-mode
   :custom
   (flycheck-idle-change-delay 10)
   :config
@@ -102,6 +99,7 @@ variable documentation."
 
 ;; `company-mode' can be managed internally by `lsp-mode'.  Other possible
 ;; choices are to activate it globally, or by using `prog-mode-hook'.
+;; TODO: check if this should be included in `>>=|programming/features'
 (use-package company
   :ensure t)
 
@@ -129,6 +127,7 @@ variable documentation."
 ;;; Python
 
 (defvar >>=|blacken/enable t
+  ;; TODO: check if this should be included in `>>=|programming/features'
   "Whether `blacken' is enabled when entering `python-mode'.")
 
 
@@ -138,7 +137,7 @@ variable documentation."
      ".venv"
      ("poetry.lock" "poetry" "env" "info" "-p")
      ("Pipfile.lock" "pipenv" "--venv")
-     (".python-version" "pyenv" "prefix") ;; TODO [manu]: Clashes with rye
+     (".python-version" "pyenv" "prefix")   ;; TODO [manu]: Clashes with rye
      )
   "Default python (virtual) environment locators.
 See `>>=|python/env-locators' for more information.")
@@ -357,6 +356,7 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 
 (defvar >>=|lsp/use-pyright nil
+  ;; TODO: check if this should be included in `>>=|programming/features'
   "Use lsp-pyright.")
 
 
@@ -433,6 +433,7 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 ;;; Debug Adapter Protocol
 
 (defvar >>=|dap/enable t
+  ;; TODO: check if this should be included in `>>=|programming/features'
   "Determines if `dap-mode' (Debug Adapter Protocol) is configured.")
 
 
