@@ -19,9 +19,9 @@
 
 ;;; Configuration
 
-(defvar >>=|devops/enable t
-  "Enable devops-related features: docker, compose, etc.")
-
+(define-obsolete-variable-alias '>>=|devops/enable
+  '>>=|devops/features "0.11.1"
+  "These two variables were redundant definitions.")
 (defvar >>=|devops/features '(docker)
   "Enable specific features of DevOps.")
 
@@ -29,31 +29,33 @@
 
 ;;; Docker
 (use-package docker
-  :when (and >>=|devops/enable (memq 'docker >>=|devops/features)
+  :when (memq 'docker >>=|devops/features)
   :ensure t
   :bind ("C-c d" . docker)) ;; TODO: customisable map.
 
 
 (use-package dockerfile-mode
-  :when (and >>=|devops/enable (memq 'docker >>=|devops/features)
+  :when (memq 'docker >>=|devops/features)
   :ensure t
   :init
   (add-to-list 'auto-mode-alist '("\\.docker\\'" . dockerfile-mode)))
 
 
 (use-package docker-compose-mode
-  :when (and >>=|devops/enable (memq 'docker >>=|devops/features)
+  :when (memq 'docker >>=|devops/features)
   :ensure t)
 
+
 (use-package lsp-docker
-  :ensure t
-  :when (and >>=|devops/enable (memq 'docker >>=|devops/features))
+  :when (memq 'docker >>=|devops/features)
+  :ensure t)
+
 
 
 ;;; Caddy
 
 (use-package caddyfile-mode
-  :when (and >>=|devops/enable (memq 'caddy >>=|devops/features)
+  :when (memq 'caddy >>=|devops/features)
   :ensure t)
 
 
@@ -61,7 +63,7 @@
 ;;; Nginx
 
 (use-package nginx-mode
-  :when (and >>=|devops/enable (memq 'nginx >>=|devops/features)
+  :when (memq 'nginx >>=|devops/features)
   :ensure t)
 
 
