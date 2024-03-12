@@ -1,0 +1,6 @@
+#+TITLE: Changes in release 0.10.9
+
+* Misc
+
+- Create a task to improve mechanism to configure 'xorns' features.
+- Generalize 'programming' and 'devops' features' configuration.
