@@ -154,6 +154,12 @@ See also:
 - [ ] Learn to Love the [[https://systemcrafters.net/emacs-from-scratch/learn-to-love-the-terminal-modes/][Terminal Modes]].
 - [ ] Nicolas De Jaeghere ([[https://github.com/Koekelas/dotfiles][dotfiles]]).
 
+* Configuring terminals
+
+- [ ] The configuration of terminals in module =xorns-term= must be reviewed.
+  Even when the configuration of [[file:~/work/emacs/xorns/horns/xorns-term.el::add-hook 'emacs-startup-hook '>>-term/vt-setup)][vterm]] is optional this package is installed
+  from ELPA and the C module =vterm-module= is compiled.
+
 * Improve font configuration tools
 
 - [ ] Use next code as an example:

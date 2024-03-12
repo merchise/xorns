@@ -98,6 +98,15 @@ Check the [Xorns User Manual][docs/xorns.org].
 [nerd-icons]: https://github.com/rainstormstudio/nerd-icons.el
 
 
+## Known Issues
+
+- When the module containing the `vterm` configuration is compiled to native
+  code, although this configuration is optional, it is installed from ELPA and
+  the `vterm-module` package is compiled.  Sometimes I needed to manually
+  install the ELPA =vterm= package to avoid some errors when compiling the
+  modules.  See `backlog` file for more information.
+
+
 ## Contributions
 
 This package is currently experimental, but the plan is that in the future it
