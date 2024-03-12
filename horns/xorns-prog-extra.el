@@ -111,8 +111,8 @@ For example (toml classic-snippets).")
   :ensure t)
 
 (use-package envrc
-  :ensure t
   :when (memq 'envrc >>=|programming/extra-features)
+  :ensure t
   :config
   (envrc-global-mode t))
 
