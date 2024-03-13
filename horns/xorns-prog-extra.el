@@ -91,8 +91,6 @@ For example (toml classic-snippets).")
   :ensure t
   :after lsp-mode rescript-mode
   :demand t    ;; TODO: WTF, without this the package is not loaded, weird.
-  :custom
-  (lsp-rescript-server-command  '("rescript-language-server" "--stdio"))
   :hook
   (before-save . >>=lsp/safe-format-buffer))
 
