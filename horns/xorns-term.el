@@ -580,6 +580,7 @@ selected."
     (vterm-shell (>>=term/shell-file-name))
     :bind
     (:map vterm-mode-map
+      ("M-:" . eval-expression)
       ("C-y" . vterm-yank)
       ("M-y" . vterm-yank-pop)
       ("C-k" . >>-vterm/kill-line))
