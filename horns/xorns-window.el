@@ -411,26 +411,6 @@ See `>>=|toolbox/display-buffer-action' variable for more information."
       action)))
 
 
-;; TODO: check if this can be replaced with `display-buffer-reuse-window'
-(defun display-buffer-if-in-visible-window (buffer alist)
-  "Return a window currently visible and displaying BUFFER.
-
-ALIST is an association list of action symbols and values.  When it has a
-non-nil `inhibit-same-window' entry, the selected window is not eligible.  If
-it contains a `reusable-frames' entry, its value has the same semantics as the
-ALL-FRAMES argument of the `get-buffer-window' function.  All other values are
-ignored.
-
-This is an ACTION function, so we don't use the `xorns' naming convention."
-  (let* ((frames (cdr (assq 'reusable-frames alist)))
-         (not-same (cdr (assq 'inhibit-same-window alist)))
-         (windows (get-buffer-window-list buffer 'nomini frames))
-         (window (car windows)))
-    (when (and not-same (eq window (selected-window)))
-      (setq window (cadr windows)))
-    window))
-
-
 (defun display-buffer-reuse-toolbox-window (buffer alist)
   "Return a window displaying a toolbox buffer if the given BUFFER is one.
 
@@ -469,7 +449,7 @@ The optional argument MODE will take precedence over the variable
     (select-window
       (or
         (display-buffer buffer
-          '((display-buffer-if-in-visible-window
+          '((display-buffer-reuse-window
              display-buffer-reuse-toolbox-window)))
         (display-buffer buffer (>>-toolbox/get-action buffer))
         (display-buffer buffer org-fba)))))
