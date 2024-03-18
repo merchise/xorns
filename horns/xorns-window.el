@@ -411,6 +411,17 @@ See `>>=|toolbox/display-buffer-action' variable for more information."
       action)))
 
 
+(defun >>-get-bottom-end-window ()
+  "Internal function to get the window at the bottom end."
+  (let (res)
+    (when-let ((aux (window-in-direction 'below)))
+      (while aux
+        (setq
+          res aux
+          aux (window-in-direction 'below aux))))
+    res))
+
+
 (defun display-buffer-reuse-toolbox-window (buffer alist)
   "Return a window displaying a toolbox buffer if the given BUFFER is one.
 
