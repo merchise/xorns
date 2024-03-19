@@ -290,6 +290,59 @@ If the first argument in ARGS is a buffer, this is used instead of
         (kill-buffer-and-window)))))
 
 
+(defalias '>>=frame/pixel-width 'frame-pixel-width)
+(defalias '>>=frame/pixel-height 'frame-pixel-height)
+(defalias '>>=frame/outer-width 'frame-outer-width)
+(defalias '>>=frame/outer-height 'frame-outer-height)
+(defalias '>>=frame/inner-width 'frame-inner-width)
+
+
+(defun >>=frame/inner-height (&optional frame)
+  "Return inner height of FRAME in pixels.
+FRAME defaults to the selected frame.  There is a difference between this
+function and standard `frame-inner-height', in this case The height of
+`minibuffer-window' window is also subtracted."
+  (-
+    (frame-inner-height frame)
+    (window-old-pixel-height (minibuffer-window))))
+
+
+(defalias '>>=window/body-width 'window-body-width)
+(defalias '>>=window/pixel-width 'window-pixel-width)
+(defalias '>>=window/total-width 'window-old-pixel-width)
+(defalias '>>=window/body-height 'window-body-height)
+(defalias '>>=window/pixel-height 'window-pixel-height)
+(defalias '>>=window/total-height 'window-old-pixel-height)
+
+
+(defun >>=window/width-percentage (&optional window frame)
+  "Percentage of WINDOW width with respect to the FRAME."
+  (/
+    (* 100.0 (>>=window/total-width window))
+    (>>=frame/outer-width frame)))
+
+
+(defun >>=window/height-percentage (&optional window frame)
+  "Percentage of WINDOW height with respect to the FRAME."
+  (/
+    (* 100.0 (>>=window/total-height window))
+    (>>=frame/outer-height frame)))
+
+
+(defun >>=window/inner-width-percentage (&optional window frame)
+  "Percentage of WINDOW width with respect to the FRAME inner width."
+  (/
+    (* 100.0 (>>=window/total-width window))
+    (>>=frame/inner-width frame)))
+
+
+(defun >>=window/inner-height-percentage (&optional window frame)
+  "Percentage of WINDOW height with respect to the FRAME inner height."
+  (/
+    (* 100.0 (>>=window/total-height window))
+    (>>=frame/inner-height frame)))
+
+
 
 ;;; Toolbox
 
