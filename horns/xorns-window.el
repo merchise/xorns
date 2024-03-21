@@ -331,6 +331,30 @@ other buffers.  This is set up by `>>=toolbox/setup-buffer'.")
     >>-toolbox/properties))
 
 
+(defalias 'toolbox-window-p '>>=toolbox-window-p)
+(defun >>=toolbox-window-p (&optional window)
+  "Return non-nil when WINDOW is showing a toolbox buffer."
+  (>>=toolbox-p (window-buffer window)))
+
+
+(defalias 'from-toolbox-p '>>=from-toolbox-p)
+(defun >>=from-toolbox-p (&optional buffer-or-name)
+  "Not null if BUFFER-OR-NAME is not a toolbox buffer but the current one is."
+  (and
+    (not (toolbox-p buffer-or-name))
+    (toolbox-p)))
+
+
+(defalias 'toolbox-env-p '>>=toolbox-env-p)
+(defun >>=toolbox-env-p (&optional buffer-or-name)
+  "Not null if BUFFER-OR-NAME is in a toolbox environment.
+A buffer is in a toolbox environment if either the one given as an argument or
+the current one is a toolbox buffer."
+  (or
+    (and buffer-or-name (toolbox-p buffer-or-name))
+    (toolbox-p)))
+
+
 (defun >>=toolbox/property (key &optional buffer)
   "Return the value of a property KEY for a toolbox BUFFER."
   (when-let ((props (>>=toolbox-p buffer)))
@@ -440,7 +464,7 @@ This is an ACTION function, so we don't use the `xorns' naming convention."
         (>>-window/find-first
           (lambda (win)
             (and
-              (>>=toolbox-p (window-buffer win))
+              (>>=toolbox-window-p win)
               (not (and not-same (eq win (selected-window))))))
           frames))
       (when window
