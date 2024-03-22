@@ -92,7 +92,11 @@ For example (toml classic-snippets).")
   :after lsp-mode rescript-mode
   :demand t    ;; TODO: WTF, without this the package is not loaded, weird.
   :hook
-  (before-save . >>=lsp/safe-format-buffer))
+  (before-save . >>=lsp/safe-format-buffer)
+  :config
+  (>>=set-custom-value?
+    lsp-rescript-server-command
+    '("rescript-language-server" "--stdio")))
 
 
 
@@ -108,8 +112,10 @@ For example (toml classic-snippets).")
   :when (memq 'classic-snippets >>=|programming/extra-features)
   :ensure t)
 
+
 (use-package envrc
   :when (memq 'envrc >>=|programming/extra-features)
+  :commands envrc-global-mode
   :ensure t
   :config
   (envrc-global-mode t))
@@ -122,6 +128,7 @@ For example (toml classic-snippets).")
   (use-package gitlab-ci-mode
     :ensure t
     :defer t)
+
 
   (use-package gitlab-ci-mode-flycheck
     :ensure t
