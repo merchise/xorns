@@ -1,0 +1,7 @@
+#+TITLE: Changes in release 0.10.10
+
+* Misc
+
+- Minor release to conditionally customize ~lsp-rescript-server-command~
+  variable.  This is done to fix a configuration problem in ~lsp-rescript~
+  module.
