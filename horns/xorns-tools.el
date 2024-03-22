@@ -75,15 +75,20 @@ Similar to `set' but calling `custom-load-symbol' if needed."
 (defalias '>>=value-of 'bound-and-true-p)
 
 
+(defmacro >>=get-standard-value (symbol)
+  "Return standard value of SYMBOL or nil if that is void."
+  `(ignore-errors (eval (car (get ',symbol 'standard-value)))))
+
+
 (defmacro >>=get-original-value (symbol)    ; TODO: check this
-  "Return SYMBOL's original value or nil if that is void."
+  "Return original value of SYMBOL or nil if that is void."
   `(if (boundp ',symbol)
      (or
        (eval (car (get ',symbol 'standard-value)))
        (default-value ',symbol))))
 
 
-(defmacro >>=restore-original-value (symbol)
+(defmacro >>=restore-original-value (symbol)    ; TODO: check this
   "Restore SYMBOL's original value."
   `(setq ,symbol (>>=get-original-value ,symbol)))
 
@@ -94,12 +99,25 @@ Similar to `set' but calling `custom-load-symbol' if needed."
 
 
 (defsubst >>=customized? (symbol)
-  "Return t if SYMBOL’s value is already customized.
+  "Return t if SYMBOL is already customized.
 Same protocol as `boundp', but not the same as the `custom-variable-p'
 function."
   (or
     (get symbol 'customized-value)
     (get symbol 'saved-value)))
+
+
+(defun >>=customized-value (symbol)
+  "Return customized value of SYMBOL."
+  (when-let ((def (>>=customized? symbol)))
+    (car def)))
+
+
+(defmacro >>=set-custom-value? (symbol value)
+  "Set SYMBOL to VALUE if not already customized."
+  (declare (debug setq))
+  `(unless (>>=customized? ',symbol)
+     (customize-set-variable ',symbol ,value)))
 
 
 (defsubst >>=load (file)
