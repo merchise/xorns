@@ -14,6 +14,7 @@
 ;;; Code:
 
 (require 'use-package)
+(require 'xorns-tools)
 
 
 (defvar >>=|programming/extra-languages nil
