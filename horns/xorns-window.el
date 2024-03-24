@@ -279,15 +279,12 @@ See optional argument ALL-FRAMES meaning on `window-list-1' function."
       res)))
 
 
-(defun >>=safe-kill-buffer-and-window (&rest args)
-  "Kill the `current-buffer' and delete the selected window.
-If the first argument in ARGS is a buffer, this is used instead of
-`current-buffer'."
-  (let* ((head (car args))
-         (buffer (if (bufferp head) head (current-buffer))))
-    (ignore-errors
-      (with-current-buffer buffer
-        (kill-buffer-and-window)))))
+(defun >>=safe-kill-buffer-and-window (&optional buffer)
+  "Kill BUFFER and delete and delete the window currently displaying it.
+If BUFFER is not given, `current-buffer' is used instead."
+  (ignore-errors
+    (with-current-buffer (or buffer (current-buffer))
+      (kill-buffer-and-window))))
 
 
 (defalias '>>=frame/pixel-width 'frame-pixel-width)

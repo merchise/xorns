@@ -50,6 +50,12 @@
 
 ;;; Common setup
 
+(defvar >>=|term/kill-exclude-buffers nil
+  "Which buffers should not be killed when exiting a terminal.
+Each definition must be a condition compatible with the `buffer-match-p'
+predicate.")
+
+
 (eval-and-compile
   (defvar >>=|term/default-buffer-name "*TERMINAL*"
     "Default buffer name when creating a new terminal.")
@@ -91,7 +97,25 @@ Could be `>>=term/ansi' (the default) or `>>=term/vt' (the recommended).")
 
 ;;; Common tools
 
-(defalias '>>-term/handle-exit '>>=safe-kill-buffer-and-window)
+(defun >>-term/process-buffer (process)
+  "Safely return the terminal buffer associated with PROCESS."
+  (or
+    (ignore-errors (process-buffer process))
+    (let ((res (current-buffer)))
+      (when (>>=buffer-in-parent-mode-p res 'term-mode)
+        res))))
+
+
+(defalias '>>-vterm/handle-exit '>>-internal-kill-buffer-and-window)
+(defun >>-internal-kill-buffer-and-window (buffer &rest _)
+  "Kill BUFFER and delete the window currently displaying it."
+  (unless (>>=list/find 'buffer-match-p >>=|term/kill-exclude-buffers buffer)
+    (>>=safe-kill-buffer-and-window buffer)))
+
+
+(defun >>-term/handle-exit (process &rest _)
+  "Kill the buffer of PROCESS and delete the window currently displaying it."
+  (>>-internal-kill-buffer-and-window (>>-term/process-buffer process)))
 
 
 (defun >>=term/get-buffer-name (base-name &optional prefix)
@@ -586,7 +610,7 @@ selected."
       ("C-k" . >>-vterm/kill-line))
     :config
     (advice-add 'vterm-send-return :after '>>=vterm/directory-sync)
-    (add-hook 'vterm-exit-functions '>>-term/handle-exit))
+    (add-hook 'vterm-exit-functions '>>-vterm/handle-exit))
 
   (defclass >>=term/vt (>>=term/emulator) ()
     "Specialization class for `xorns' terminals using `vterm'.")
