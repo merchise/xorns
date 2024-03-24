@@ -392,13 +392,17 @@ Example:
   `(setq ,target (append ,target ,@sequences)))
 
 
-(defsubst >>=list/find (predicate options)
-  "Find the first item satisfying PREDICATE in OPTIONS sequence.
-Return the matching (not nil) PREDICATE result, or nil if not found."
+(defun >>=list/find (predicate sequence &optional extra)
+  "Find the first item in SEQUENCE that satisfies PREDICATE.
+Return the matching PREDICATE result, or nil if not found.  The optional AUX
+argument, when provided, is passed as a second argument to PREDICATE."
+  (when extra    ;; prepare last argument to `apply'
+    (setq extra (list extra)))
   (let (res)
-    (while (and (not res) options)
-      (when-let ((item (funcall predicate (pop options))))
-        (setq res item)))
+    (while (and (not res) sequence)
+      (let ((item (pop sequence)))
+        (when (apply predicate item extra)
+          (setq res item))))
     res))
 
 
