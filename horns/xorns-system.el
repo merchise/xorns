@@ -34,6 +34,7 @@
 
 (eval-and-compile
   (require 'use-package)
+  (require 'xorns-tools)
   (require 'xorns-tools))
 
 
@@ -100,8 +101,14 @@ default value is \"fzf\".  Usually this variable is used with the function
 
 
 (use-package fzf
-  :when (>>=command/check >>=|ext/fzf)
-  :ensure t)
+  :when >>=|ext/fzf
+  :ensure t
+  :bind
+   ("C-c z" . fzf)
+  :config
+  (let ((command (if (stringp >>=|ext/fzf) >>=|ext/fzf "fzf")))
+    (>>=command/check command))
+  (add-to-list '>>=|term/kill-exclude-buffers "^\\*fzf"))
 
 
 
