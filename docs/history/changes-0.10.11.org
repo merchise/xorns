@@ -1,0 +1,6 @@
+#+TITLE: Changes in release 0.10.11
+
+* Misc
+
+- Minor release to add a mechanism to exclude terminal buffers from killing on
+  exit.  This was done to fix and error using ~fzf~.
