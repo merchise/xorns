@@ -2,6 +2,8 @@
 
 * Misc
 
+- [ ] Split [[file:~/work/emacs/xorns/horns/xorns-system.el::(use-package deadgrep][deadgrep and rg configurations]].  Modify the semantics of variable
+  ~>>=|ext/ripgrep~.
 - [ ] Use manu's configuration file to resolve some configuration issues and
   make new definitions.
 - [ ] Create a framework to register formatters to act before saving in a safe
