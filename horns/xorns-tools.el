@@ -184,10 +184,10 @@ nil is returned."
         (if (eq strict t) "" (format "%s " strict)) value))))
 
 
-(defsubst >>=str-non-empty (string)
-  "Return a STRING if it is not empty."
-  (when (and string (not (string-empty-p string)))
-    string))
+(defsubst >>=str-non-empty (value)
+  "Return if VALUE is a non-empty string."
+  (when (and (stringp value) (not (string-empty-p value)))
+    value))
 
 
 (defsubst >>=str-trim (string &optional trim-left trim-right)
@@ -212,6 +212,11 @@ function."
          (value (if is-symbol (symbol-name source) source))
          (res (replace-regexp-in-string regexp rep value)))
     (if is-symbol (intern res) res)))
+
+
+(defsubst >>=ss-p (object)
+  "Return if OBJECT is a real symbol or a non-empty string."
+  (or (>>=real-symbol object) (>>=str-non-empty object)))
 
 
 
@@ -939,6 +944,15 @@ discarded."
   (let ((aux (>>=path/canonical-directory-name default-directory)))
     (when (equal aux >>=!home-dir)
       (setq default-directory >>=|preferred-default-directory))))
+
+
+(defun >>=read-initial-directory (&optional id)
+  "Read the value of an initial directory to be used as an argument.
+A service ID could be given to conform the prompt argument to call the
+function `read-directory-name'."
+  (read-directory-name
+    (concat ">>= " (if id (format "%s in" id) "initial") " directory: ")
+    nil nil 'must-match))
 
 
 
