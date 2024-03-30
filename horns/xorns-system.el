@@ -35,7 +35,7 @@
 (eval-and-compile
   (require 'use-package)
   (require 'xorns-tools)
-  (require 'xorns-tools))
+  (require 'xorns-term))
 
 
 
