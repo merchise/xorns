@@ -1,0 +1,7 @@
+#+TITLE: Changes in release 0.10.12
+
+* Misc
+
+- Add a smart command to excute ~fzf~ in a more predictive and general way.
+- Add some new basic tools.
+- Fix some minor issues in related modules.
