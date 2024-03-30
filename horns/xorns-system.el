@@ -91,23 +91,43 @@ default value is \"rg\".  Usually this variable is used with the function
 
 
 
-;;; fzf
+;;; FZF
 
 (defvar >>=|ext/fzf nil
-  "Whether `fzf' extensions must be configured.
-Could be a boolean, or a string specifying the `fzf' command name, the
-default value is \"fzf\".  Usually this variable is used with the function
-`>>=command/check'.")
+  "Whether `fzf' extension must be configured.")
 
 
 (use-package fzf
   :when >>=|ext/fzf
   :ensure t
+  :commands fzf
+  :init
+  (defvar >>=|fzf/vc-names '("git" "hg")
+    "List of version-control names.")
+
+  (defun >>=fzf (&optional initial-directory)
+    "Starts a `fzf' session using a smart logic.
+First, try to start one of the `fzf-<VC>-files' commands for tracked files in
+the current version control repository (see `>>=|fzf/vc-names' variable).  If
+not in a repository, the standard `fzf' command is used as a fallback.
+
+With a `\\[universal-argument]' prefix argument, it will prompt for the
+INITIAL-DIRECTORY (the root directory for search)."
+    (interactive
+      (list (when current-prefix-arg (>>=read-initial-directory "FZF"))))
+    (let ((default-directory (or initial-directory default-directory))
+          (vcs >>=|fzf/vc-names)
+          res)
+      (while (and (not res) vcs)
+        (let ((fn (>>=check-function (format "fzf-%s-files" (pop vcs)))))
+          (condition-case nil
+            (let ((aux (funcall fn)))
+              (setq res (or aux t)))
+            (error nil)))
+        (or res (fzf)))))
   :bind
-   ("C-c z" . fzf)
+   ("C-c z" . >>=fzf)
   :config
-  (let ((command (if (stringp >>=|ext/fzf) >>=|ext/fzf "fzf")))
-    (>>=command/check command))
   (add-to-list '>>=|term/kill-exclude-buffers "^\\*fzf"))
 
 
