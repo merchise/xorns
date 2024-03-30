@@ -42,6 +42,7 @@
   (require 'esh-io)
   (require 'em-alias)    ; eshell/alias
   (require 'term)
+  (require 'eieio)
   (require 'use-package)
   (require 'xorns-tools)
   (require 'xorns-window))
