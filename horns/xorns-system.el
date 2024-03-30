@@ -219,6 +219,7 @@ be needed in the future..")
   :when >>=|treemacs/enable
   :ensure t
   :defer t
+  :commands treemacs-project-follow-mode treemacs-git-commit-diff-mode
   :bind
   ("C-<tab>"    . treemacs-select-window)
   ("C-x t 1"    . treemacs-delete-other-windows)
