@@ -44,6 +44,8 @@ default values are not suitable for your configuration."
     ;; >>=|which-key/enable nil
     ;; >>=|ext/git-forges nil
     ;; >>=|treemacs/enable nil
+    ;; >>=|ext/fzf t
+    ;; >>=|ext/ripgrep 'rg
     ))
 
 

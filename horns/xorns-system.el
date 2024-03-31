@@ -41,11 +41,10 @@
 
 ;;; grep
 
-(defvar >>=|ext/ripgrep "rg"
-  "Whether `ripgrep' extensions must be configured.
-Could be a boolean, or a string specifying the `ripgrep' command name, the
-default value is \"rg\".  Usually this variable is used with the function
-`>>=command/check'.")
+(defvar >>=|ext/ripgrep t
+  "Whether a `ripgrep' extension should be configured.
+Its value can be a boolean or one of the symbols `deadgrep' (same as the
+boolean value `t') or `rg'.")
 
 
 (use-package grep    ;; todo: check `wgrep', `scf-mode', `deadgrep'
@@ -70,24 +69,30 @@ default value is \"rg\".  Usually this variable is used with the function
       (add-to-list 'grep-find-ignored-directories name))))
 
 
+
+;;; ripgrep
+
 (use-package deadgrep
-  :when (>>=command/check >>=|ext/ripgrep)
+  :when (memq >>=|ext/ripgrep '(deadgrep t))
+  :ensure t
+  :after grep
+  :bind
+  ([remap rgrep] . deadgrep))
+
+
+(use-package rg
+  :when (eq >>=|ext/ripgrep 'rg)
   :ensure t
   :after grep
   :init
-  (use-package rg
-    :ensure t
-    :init
-    (defvar >>=|rg/max-columns 512
-      "Override value for `--max-columns' option.")
-    :bind
-    ("C-c s" . rg-project)
-    :config
-    (when >>=|rg/max-columns
-      (let ((max (format "--max-columns=%s" >>=|rg/max-columns)))
-        (setq rg-command-line-flags (cons max rg-command-line-flags)))))
+  (defvar >>=|rg/max-columns 512
+    "Override value for `--max-columns' option.")
   :bind
-  ([remap rgrep] . deadgrep))
+  ([remap rgrep] . rg-project)
+  :config
+  (when >>=|rg/max-columns
+    (let ((max (format "--max-columns=%s" >>=|rg/max-columns)))
+      (setq rg-command-line-flags (cons max rg-command-line-flags)))))
 
 
 
