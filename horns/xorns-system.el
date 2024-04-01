@@ -84,11 +84,17 @@ boolean value `t') or `rg'.")
   :when (eq >>=|ext/ripgrep 'rg)
   :ensure t
   :after grep
+  :commands transient-get-value rg-run rg-project-root rg-read-pattern
   :init
   (defvar >>=|rg/max-columns 512
     "Override value for `--max-columns' option.")
+
+  (rg-define-search >>=rg-project
+    "Similar to `rg-project' searching for REGEXP but for all FILES."
+    :dir project
+    :files "*")
   :bind
-  ([remap rgrep] . rg-project)
+  ([remap rgrep] . >>=rg-project)
   (:map rg-mode-map
     ("o" . compile-goto-error))
   :config
