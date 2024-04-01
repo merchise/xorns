@@ -89,6 +89,8 @@ boolean value `t') or `rg'.")
     "Override value for `--max-columns' option.")
   :bind
   ([remap rgrep] . rg-project)
+  (:map rg-mode-map
+    ("o" . compile-goto-error))
   :config
   (when >>=|rg/max-columns
     (let ((max (format "--max-columns=%s" >>=|rg/max-columns)))
