@@ -28,7 +28,7 @@
 (use-package projectile
   :ensure t
   :demand t
-  :commands projectile-project-root
+  :commands projectile-project-root projectile-mode
   :bind-keymap
   ("C-c p" . projectile-command-map)
   :custom
@@ -52,6 +52,28 @@
     (setq projectile-completion-system 'ivy))
   (if (bound-and-true-p helm-mode)
     (setq projectile-completion-system 'helm)))
+
+
+(use-package counsel-projectile
+  :when (featurep 'counsel)
+  :after projectile
+  :ensure t
+  :commands counsel-projectile-mode counsel-projectile-grep counsel-git-grep
+  :init
+  (defun >>=counsel-project-grep ()
+    "Grep for a string in the current project."
+    (interactive)
+    (or
+      (condition-case nil
+        (or (counsel-git-grep) t)
+        (error nil))
+      (counsel-projectile-grep)))
+  :bind
+  ("C-c s" . >>=counsel-project-grep)
+  (:map projectile-command-map
+    ("." . >>=counsel-project-grep))
+  :config
+  (counsel-projectile-mode +1))
 
 
 (provide 'xorns-project)
