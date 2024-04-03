@@ -100,6 +100,8 @@ For example (toml classic-snippets).")
   :hook
   (before-save . >>=lsp/safe-format-buffer)
   :config
+  ;; TODO: check the nvm package below to see if can guess the right node
+  ;; version and find the 'rescript-language-server' there.
   (>>=set-custom-value?
     lsp-rescript-server-command
     '("rescript-language-server" "--stdio")))
@@ -148,6 +150,12 @@ For example (toml classic-snippets).")
   :when (memq 'jinja2 >>=|programming/extra-languages)
   :ensure t)
 
+
+;;; nvm
+
+(use-package nvm
+  :when (memq 'nvm >>=|programming/extra-features)
+  :ensure t)
 
 (provide 'xorns-prog-extra)
 ;;; xorns-prog-extra.el ends here
