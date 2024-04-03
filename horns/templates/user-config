@@ -20,8 +20,6 @@ default values are not suitable for your configuration."
     ;; >>=|enable-server t
     ;; >>=|ext/multiple-cursors nil
     ;; >>=|xtabs/kind nil
-    ;; >>=|projectile/extra-ignored-directories '()
-    ;; >>=|projectile/project-root-files '()
     ;; >>=|dired/omit-mode t
     ;; >>=|mode-line/kind 'mini
     ;; >>=|term/install-customizable-colors nil

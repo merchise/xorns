@@ -19,16 +19,39 @@
 
 (defvar >>=|projectile/extra-ignored-directories nil
   "A list of extra directories ignored by projectile.")
+(make-obsolete-variable '>>=|projectile/extra-ignored-directories
+  "Use `>>=projectile/add-ignored-directories' function instead." "0.11")
 
 
 (defvar >>=|projectile/project-root-files nil
   "A list of files considered to mark the root of a project.")
+(make-obsolete-variable '>>=|projectile/project-root-files
+  "Use `>>=projectile/add-root-files' function instead." "0.11")
 
 
 (use-package projectile
   :ensure t
   :demand t
   :commands projectile-project-root projectile-mode
+  :preface
+  (defun >>=projectile/add-ignored-directories (&rest patterns)
+    "Add all PATTERNS to `projectile-globally-ignored-directories'."
+    (mapc
+      (lambda (pattern)
+        (add-to-list 'projectile-globally-ignored-directories pattern))
+      patterns))
+
+  (defun >>=projectile/add-root-files (&rest files)
+    "Add all FILES to `projectile-project-root-files'."
+    (mapc
+      (lambda (file) (add-to-list 'projectile-project-root-files file))
+      files))
+
+  (defun >>=projectile/add-globally-ignored-files (&rest files)
+    "Add all FILES to `projectile-globally-ignored-files'."
+    (mapc
+      (lambda (file) (add-to-list 'projectile-globally-ignored-files file))
+      files))
   :bind-keymap
   ("C-c p" . projectile-command-map)
   :custom
@@ -36,21 +59,13 @@
   (projectile-switch-project-action 'projectile-dired)
   (projectile-ignored-project-function 'file-remote-p)
   :config
-  (>>=append projectile-globally-ignored-directories
-    '("elpa" ".vscode" "node_modules")
-    >>=|projectile/extra-ignored-directories)
-  (>>=append projectile-project-root-files
-    '(".travis.yml") >>=|projectile/project-root-files)
-  (when (memq 'rescript >>=|programming/extra-languages)
-    (>>=append projectile-project-root-files
-      '("bsconfig.json") >>=|projectile/project-root-files))
-  (add-to-list
-    ;; Ignore Mac Search Index Cache
-    'projectile-globally-ignored-files ".DS_Store")
+  (>>=projectile/add-ignored-directories "^elpa$" "^node_modules$")
+  (>>=projectile/add-root-files ".travis.yml")
+  (>>=projectile/add-globally-ignored-files ".DS_Store") ; MacOS search cache
   (projectile-mode +1)
-  (if (bound-and-true-p ivy-mode)
+  (when (bound-and-true-p ivy-mode)
     (setq projectile-completion-system 'ivy))
-  (if (bound-and-true-p helm-mode)
+  (when (bound-and-true-p helm-mode)
     (setq projectile-completion-system 'helm)))
 
 

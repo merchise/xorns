@@ -15,6 +15,7 @@
 
 (require 'use-package)
 (require 'xorns-tools)
+(require 'xorns-project)
 
 
 (defvar >>=|programming/extra-languages nil
@@ -84,7 +85,11 @@ For example (toml classic-snippets).")
 (use-package rescript-mode
   :when (memq 'rescript >>=|programming/extra-languages)
   :ensure t
-  :mode ("\\.res\\'"))
+  :mode ("\\.res\\'")
+  :config
+  (>>=projectile/add-root-files
+    "bsconfig.json"    ; TODO: obsolete after ReScript version 11
+    "rescript.json"))
 
 
 (use-package lsp-rescript
