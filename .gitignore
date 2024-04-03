@@ -77,3 +77,4 @@ emojis/
 
 .dap-breakpoints
 forge-database*.sqlite
+multisession/
