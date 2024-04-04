@@ -147,6 +147,25 @@ INITIAL-DIRECTORY (the root directory for search)."
 
 
 
+;;; Main search tools keys
+
+(defvar >>=|search/main-map-key
+  (if (>>=key-binding "C-z") "C-M-z" "C-z")
+  "Prefix key for the main search tools (see `>>=search/main-map'.")
+
+
+(defvar-keymap >>=search/main-map
+  :doc "Keymap for main search tools."
+  "g" '>>=counsel-project-grep
+  "l" '>>=counsel-locate
+  "r" '>>=rg-project
+  "z" 'counsel-fzf
+  "Z" '>>=fzf)
+
+(keymap-global-set >>=|search/main-map-key >>=search/main-map)
+
+
+
 ;;; Dictionary servers
 
 (use-package dictionary

@@ -113,7 +113,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   :when (eq >>=|minibuffer/completing-framework 'ivy)
   :ensure t
   :demand t
-  :commands counsel-mode counsel-yank-pop
+  :commands counsel-mode counsel-yank-pop counsel-locate
   :preface
   (defun >>-counsel-yank-pop (&optional arg)
     "xorns replacement for `counsel-yank-pop' (ARG is used as in original)."
@@ -122,6 +122,12 @@ Always considered true when `>>=|minibuffer/completing-framework' is
       (yank-pop arg)
       ;; else
       (counsel-yank-pop arg)))
+
+  (defun >>=counsel-locate (&optional initial-input)
+    "Internal `counsel-locate' wrap to ."
+    (interactive
+      (list (thing-at-point 'filename 'no-properties)))
+    (counsel-locate initial-input))
   :custom
   (counsel-find-file-at-point t)
   :bind
