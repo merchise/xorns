@@ -1,0 +1,10 @@
+#+TITLE: Changes in release 0.10.13
+
+* Misc
+
+- Configure some key shortcuts to define a main set of search tools.
+- Improve search tools by splitting configurations for ~deadgrep~ and ~rg~
+  packages.,
+- Add support for 'counsel-projectile' (the keymap ~C-c s~ is used for the new
+  related command).
+- Correct some minor issues in 'projectile' module.
