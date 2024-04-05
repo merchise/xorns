@@ -76,8 +76,10 @@ boolean value `t') or `rg'.")
   :when (memq >>=|ext/ripgrep '(deadgrep t))
   :ensure t
   :after grep
+  :init
+  (defalias '>>=rg-project 'deadgrep)
   :bind
-  ([remap rgrep] . deadgrep))
+  ([remap rgrep] . >>=rg-project))
 
 
 (use-package rg
