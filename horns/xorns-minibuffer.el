@@ -89,7 +89,7 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   :preface
   (eval-when-compile
     (declare-function embark-prefix-help-command 'embark))
-  :bind
+  :bind    ;; TODO: these keymaps are conflicting
   ("C-'" . embark-act)
   ("C-." . embark-dwim)
   ("C-h B" . embark-bindings)
@@ -102,7 +102,6 @@ Always considered true when `>>=|minibuffer/completing-framework' is
        (window-parameters (mode-line-format . none)))))
 
 
-
 (use-package swiper
   :when (eq >>=|minibuffer/completing-framework 'ivy)
   :ensure t
