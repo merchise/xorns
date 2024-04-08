@@ -386,6 +386,14 @@ the current one is a toolbox buffer."
       (user-error ">>= '%s' is not a toolbox buffer" (buffer-name buffer)))))
 
 
+(defun >>-get-action-function (symbol)
+  "Get an action function from a SYMBOL."
+  (if (functionp symbol)
+    symbol
+    ;; else
+    (>>=check-function (format "display-buffer-%s" symbol) 'strict)))
+
+
 (defun >>-toolbox/normalize-action (action)
   "Normalize a raw form for the ACTION value."
   (cond
@@ -397,8 +405,10 @@ the current one is a toolbox buffer."
       t)
     ((eq action 'same)
       '(display-buffer-same-window))
-    (t
-      (user-error ">>= invalid display buffer action: %s" action))))
+    ((>>=real-symbol action)
+      (list (>>-get-action-function action)))
+    (t    ;; allow to configure explicit actions
+      action)))
 
 
 (defsubst >>-toolbox/normalize-configured-action ()
@@ -452,32 +462,102 @@ See `>>=|toolbox/display-buffer-action' variable for more information."
     res))
 
 
-(defun display-buffer-reuse-toolbox-window (buffer alist)
-  "Return a window displaying a toolbox buffer if the given BUFFER is one.
+(defsubst >>-frames (&optional alist)
+  "Get a set of frames to be used when search for windows.
+Use the resulting value for the ALL-FRAMES argument in functions related to
+`display-buffer'.  First, check the `reusable-frames' entry in the ALIST
+argument (see the Info node `(elisp) Buffer Display Action Alists' for more
+information), and then check the value of the `pop-up-frames' variable."
+  (cond
+    ((alist-get 'reusable-frames alist))
+    ((if (eq pop-up-frames 'graphic-only) (display-graphic-p) pop-up-frames)
+      0)
+    (t nil)))
 
-ALIST is an association list of action symbols and values.  When it has a
-non-nil `inhibit-same-window' entry, the selected window is not eligible.  If
-it contains a `reusable-frames' entry, its value has the same semantics as the
-ALL-FRAMES argument of the `get-buffer-window' function.  All other values are
-ignored.
 
-This is an ACTION function, so we don't use the `xorns' naming convention."
+(defun >>-get-toolbox-window (&optional all-frames)
+  "Get the toolbox window if visible.
+The optional argument ALL-FRAMES has the same meaning as in the
+`window-list-1' function."
+  (>>=window/find-first '>>=toolbox-window-p all-frames))
+
+
+(defun >>-get-best-visible-window ()
+  "Get best visible window candidate in the current frame.
+The priority is the least recently used and not-selected window.  Never return
+a window whose `no-other-window' parameter is non-nil."
+  (or
+    (get-lru-window nil nil 'not-selected 'no-other)
+    (get-largest-window nil nil 'not-selected 'no-other)
+    (get-largest-window nil nil nil 'no-other)))
+
+
+(defun >>-display-buffer (buffer &optional action)
+  "Internal tool to display BUFFER in some window, without selecting it.
+This is similar to standard function `display-buffer', but ignoring the value
+of `display-buffer-alist' and only using the value of the ACTION argument."
+  (let (display-buffer-alist)
+    (display-buffer buffer action)))
+
+
+(defun >>-display-buffer-vertically (buffer direction height)
+  "Display BUFFER in a vertical DIRECTION with the given HEIGHT.
+Argument direction could be `top' or `bottom'."
+  (display-buffer-in-direction buffer
+    `((direction . ,direction) (window-height . ,height))))
+
+
+(defun >>-display-buffer-in-window (buffer window &optional alist)
+  "Internal tool to display BUFFER in existing WINDOW.
+ALIST is a buffer display action alist as compiled by `display-buffer'."
+  (prog1
+    (window--display-buffer buffer window 'reuse alist)
+    (unless (alist-get 'inhibit-switch-frame alist)
+      (window--maybe-raise-frame (window-frame window)))))
+
+
+(defun display-buffer-in-best-window (buffer)
+  "Display BUFFER using the best visible window in current frame."
+  (let ((alist '((inhibit-same-window . t) (inhibit-switch-frame . t))))
+    (or
+      (display-buffer-in-previous-window buffer alist)
+      (display-buffer-reuse-mode-window buffer alist)
+      (let (split-width-threshold split-height-threshold)
+        (display-buffer-use-some-window buffer alist)))))
+
+
+(defun display-buffer-if-toolbox (buffer alist)
+  "Display BUFFER if it is a toolbox.
+Argument ALIST is an association list of action symbols and values like in all
+action functions (see `display-buffer')."
   (when (>>=toolbox-p buffer)
-    (let ((frames (cdr (assq 'reusable-frames alist)))
-          (not-same (cdr (assq 'inhibit-same-window alist)))
-          window)
-      (setq window
-        (>>-window/find-first
-          (lambda (win)
-            (and
-              (>>=toolbox-window-p win)
-              (not (and not-same (eq win (selected-window))))))
-          frames))
-      (when window
-        (prog1
-          (window--display-buffer buffer window 'reuse alist)
-          (unless (cdr (assq 'inhibit-switch-frame alist))
-            (window--maybe-raise-frame (window-frame window))))))))
+    (if-let ((window (>>-get-toolbox-window (>>-frames alist))))
+      (>>-display-buffer-in-window buffer window alist)
+      ;; else
+      (let ((action (>>-toolbox/normalize-configured-action)))
+        (if (numberp action)
+          (>>-display-buffer-vertically buffer 'bottom action)
+          ;; else
+          (>>-display-buffer buffer action))))))
+
+
+(defun display-buffer-from-toolbox-window (buffer alist)
+  "Display BUFFER if the source window is a toolbox.
+Argument ALIST is an association list of action symbols and values like in all
+action functions (see `display-buffer')."
+  (when (toolbox-window-p)
+    (if (>>=toolbox-p buffer)
+      (>>-display-buffer-in-window buffer (selected-window) alist)
+      ;; else
+      (let ((action (>>-toolbox/normalize-configured-action)))
+        (if (numberp action)
+          (if (eq (>>=count-windows) 1)
+            (let ((height (>>-toolbox/reverse-height action)))
+              (>>-display-buffer-vertically buffer 'top height))
+            ;; else
+            (display-buffer-in-best-window buffer))
+          ;; else
+          (>>-display-buffer buffer action))))))
 
 
 (defun >>=toolbox/switch-to-buffer (buffer-or-name)
@@ -491,8 +571,9 @@ The optional argument MODE will take precedence over the variable
       (or
         (display-buffer buffer
           '((display-buffer-reuse-window
-             display-buffer-reuse-toolbox-window)))
-        (display-buffer buffer (>>-toolbox/get-action buffer))
+             display-buffer-if-toolbox
+             display-buffer-from-toolbox-window)))
+        ;; (display-buffer buffer (>>-toolbox/get-action buffer))
         (display-buffer buffer org-fba)))))
 
 
