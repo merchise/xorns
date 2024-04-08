@@ -306,6 +306,14 @@ function and standard `frame-inner-height', in this case The height of
     (>>=frame/inner-height frame)))
 
 
+(defun >>=count-windows ()
+  "Return the number of standard live windows on the selected frame.
+Standard windows do not include the mini-buffer, nor side windows."
+  (let ((count 0))
+    (dolist (win (window-list-1 nil 'minibuf) count)
+      (unless (window-parameter win 'window-side)
+        (setq count (1+ count))))))
+
 
 ;;; Toolbox
 
@@ -422,7 +430,7 @@ See `>>=|toolbox/display-buffer-action' variable for more information."
       (if (>>=toolbox-p buffer)
         (>>-toolbox/cast-height 'bottom action)
         ;; else
-        (let ((count (count-windows 'nomini)))
+        (let ((count (>>=count-windows)))
           (if (> count 1)
             '((display-buffer-reuse-mode-window
                display-buffer-in-previous-window))
