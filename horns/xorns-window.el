@@ -385,9 +385,8 @@ the current one is a toolbox buffer."
       (user-error ">>= '%s' is not a toolbox buffer" (buffer-name buffer)))))
 
 
-(defun >>-toolbox/cast-action (action)
-  "Process a preliminary form for the ACTION value.
-See `>>=|toolbox/display-buffer-action' variable for more information."
+(defun >>-toolbox/normalize-action (action)
+  "Normalize a raw form for the ACTION value."
   (cond
     ((or (null action) (eq action 'bottom))
       >>=|toolbox/default-bottom-height)
@@ -399,6 +398,12 @@ See `>>=|toolbox/display-buffer-action' variable for more information."
       '(display-buffer-same-window))
     (t
       (user-error ">>= invalid display buffer action: %s" action))))
+
+
+(defsubst >>-toolbox/normalize-configured-action ()
+  "Normalize the configured action value.
+See `>>=|toolbox/display-buffer-action' variable for more information."
+  (>>-toolbox/normalize-action >>=|toolbox/display-buffer-action))
 
 
 (defun >>-toolbox/reverse-height (height)
@@ -419,7 +424,7 @@ See `>>=|toolbox/display-buffer-action' variable for more information."
 
 (defun >>-toolbox/get-action (buffer)
   "Get action to use `display-buffer' action functions to switch to BUFFER."
-  (let ((action (>>-toolbox/cast-action >>=|toolbox/display-buffer-action)))
+  (let ((action (>>-toolbox/normalize-configured-action)))
     (if (numberp action)
       (if (>>=toolbox-p buffer)
         (>>-toolbox/cast-height 'bottom action)
