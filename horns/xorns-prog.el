@@ -47,9 +47,12 @@ variable documentation."
   "Features to turn on in prog mode.")
 
 
+;; TODO: move this to `xorns-text.el', there are snippets not only for
+;; programming modes.
 (use-package yasnippet
   :when (memq 'yasnippet >>=|programming/features)
   :ensure t
+  :demand t
   :commands yas-global-mode yas-load-directory
   :preface
   (defun >>=snippets/initialize ()
