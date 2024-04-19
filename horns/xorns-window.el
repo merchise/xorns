@@ -219,6 +219,14 @@ followed by the rest of the buffers."
   (match-buffers 'buffer-in-parent-mode-p (buffer-list frame) modes))
 
 
+(defun >>=window/find-first (predicate &optional all-frames)
+  "Return a live window satisfying PREDICATE.
+Similar to `get-window-with-predicate' but never considering the mini-buffer
+window.  The optional ALL-FRAMES argument has the same meaning as the
+`window-list-1' function."
+  (get-window-with-predicate predicate 'nomini all-frames))
+
+
 (defsubst >>-buffer-key (buffer)
   "Create a string key from a BUFFER by joining `major-mode' and name."
   (format "%s/%s" (>>=buffer-major-mode buffer) (buffer-name buffer)))
@@ -235,21 +243,6 @@ This function uses `>>-buffer-key' and `string<' to compare.  It is used to
   "Run `buffer-setup-hook' on `current-buffer'."
   (when (>>=standard-buffer-p (current-buffer))
     (run-hooks 'buffer-setup-hook)))
-
-
-(defun >>-window/find-first (predicate &optional all-frames)
-  "Find the first item satisfying PREDICATE in current window list.
-See optional argument ALL-FRAMES meaning on `window-list-1' function."
-  (let ((windows (window-list-1 nil 'nomini all-frames))
-        res)
-    (while (and (not res) windows)
-      (let ((win (car windows)))
-        (if (funcall predicate win)
-          (setq res win)
-          ;; else
-          (setq windows (cdr windows)))))
-    (when (window-live-p res)
-      res)))
 
 
 (defun >>=safe-kill-buffer-and-window (&optional buffer)

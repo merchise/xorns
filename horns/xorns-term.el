@@ -421,7 +421,7 @@ optional interactive command PREFIX argument."
 
 (defun >>-term/visible-linked-buffer (name)
   "Find a visible BUFFER linked to terminal NAME."
-  (let ((res (>>-window/find-first (lambda (w) (>>-term/linked-p w name)))))
+  (let ((res (>>=window/find-first (lambda (w) (>>-term/linked-p w name)))))
     (when res
       (window-buffer res))))
 
