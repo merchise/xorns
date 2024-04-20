@@ -59,7 +59,7 @@
 - [ ] Look for better options to show a System Tray.  Maybe use the project
   [[https://github.com/ultrabug/py3status][py3status]] as a base to create a similar one named 'exwm-status'.
 - [ ] Move [[file:~/work/emacs/xorns/horns/xorns-exwm.el::defun >>-exwm/swap-last-buffers (][>>-exwm/swap-last-buffers]] to module [[file:~/work/emacs/xorns/horns/xorns-window.el][window]].
-- [ ] Fix Brave losing focus when switching workspaces. Below is a
+- [ ] Fix X App losing focus when switching workspaces.  Below is a
   experimental code being tested.
 
   #+BEGIN_SRC emacs-lisp
@@ -77,6 +77,15 @@
     (setq exwm-workspace-switch-hook '(exwm-systemtray--on-workspace-switch))
   #+END_SRC
 
+  - Commenting the line containing:
+
+    #+BEGIN_SRC emacs-lisp
+      (cl-pushnew xcb:Atom:_NET_WM_STATE_HIDDEN exwm--ewmh-state)
+    #+END_SRC
+
+    on file =exwm-layout.el=, will do the work.  But this cannot be a
+    definitive solution because it can cause additional problems.  See issues
+    [[https://github.com/ch11ng/exwm/issues/759][759]] and [[https://github.com/ch11ng/exwm/pull/933][933]].
 
 References:
 - A [[https://github.com/johanwiden/exwm-setup][complete configuration]].
