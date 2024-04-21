@@ -1,0 +1,5 @@
+#+TITLE: Changes in release 0.10.15
+
+* Misc
+
+- Minor release to add basic support to Odoo's traceback logs.
