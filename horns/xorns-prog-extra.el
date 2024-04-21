@@ -157,5 +157,31 @@ For example (toml classic-snippets).")
   :when (memq 'nvm >>=|programming/extra-features)
   :ensure t)
 
+
+;;; Odoo tools
+
+(eval-and-compile
+  (defconst odoo--compilation-error-rx
+    (rx-to-string
+      '(seq
+         "ERROR"
+         (* any)
+         "`"
+         (* (or space control))
+         "File \""
+         (group (group (* (not "\"")))
+           "\","
+           (* space)
+           "line"
+           (* space)
+           (group (+ digit)))))))
+
+(when (memq 'odoo >>=|programming/extra-features)
+  (add-to-list 'compilation-error-regexp-alist 'odoo-traceback-error)
+  (add-to-list
+    'compilation-error-regexp-alist-alist
+    (cons 'odoo-traceback-error (cons odoo--compilation-error-rx '(2 3 4 2 1)))))
+
+
 (provide 'xorns-prog-extra)
 ;;; xorns-prog-extra.el ends here
