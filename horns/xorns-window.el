@@ -340,10 +340,9 @@ other buffers.  This is set up by `>>=toolbox/setup-buffer'.")
 
 (defalias 'from-toolbox-p '>>=from-toolbox-p)
 (defun >>=from-toolbox-p (&optional buffer-or-name)
-  "Not null if BUFFER-OR-NAME is not a toolbox buffer but the current one is."
-  (and
-    (not (toolbox-p buffer-or-name))
-    (toolbox-p)))
+  "Ignore BUFFER-OR-NAME and return if current window is a toolbox."
+  (ignore buffer-or-name)
+  (toolbox-p))
 
 
 (defalias 'toolbox-env-p '>>=toolbox-env-p)
@@ -496,7 +495,7 @@ a window whose `no-other-window' parameter is non-nil."
   "Internal tool to display BUFFER in some window, without selecting it.
 This is similar to standard function `display-buffer', but ignoring the value
 of `display-buffer-alist' and only using the value of the ACTION argument."
-  (let (display-buffer-alist)
+  (let (display-buffer-alist display-buffer-base-action)
     (display-buffer buffer action)))
 
 
@@ -520,6 +519,7 @@ ALIST is a buffer display action alist as compiled by `display-buffer'."
   "Display BUFFER using the best visible window in current frame."
   (let ((alist '((inhibit-same-window . t) (inhibit-switch-frame . t))))
     (or
+      (display-buffer-reuse-window buffer alist)
       (display-buffer-in-previous-window buffer alist)
       (display-buffer-reuse-mode-window buffer alist)
       (let (split-width-threshold split-height-threshold)
@@ -560,21 +560,7 @@ action functions (see `display-buffer')."
           (>>-display-buffer buffer action))))))
 
 
-(defun >>=toolbox/switch-to-buffer (buffer-or-name)
-  "Select BUFFER-OR-NAME in the toolbox panel.
-The optional argument MODE will take precedence over the variable
-`>>=|toolbox/display-buffer-action'."
-  (let ((org-fba display-buffer-fallback-action)
-        (display-buffer-fallback-action nil)
-        (buffer (get-buffer buffer-or-name)))
-    (select-window
-      (or
-        (display-buffer buffer
-          '((display-buffer-reuse-window
-             display-buffer-if-toolbox
-             display-buffer-from-toolbox-window)))
-        ;; (display-buffer buffer (>>-toolbox/get-action buffer))
-        (display-buffer buffer org-fba)))))
+(defalias '>>=toolbox/switch-to-buffer 'pop-to-buffer)
 
 
 (defun >>=toolbox/scratch-buffer ()
@@ -826,9 +812,16 @@ special type `init' can be used for initial configuration."
   (>>-xtabs/enable-on-buffer))
 
 
+(defun >>-configure-display-buffer-action ()
+  "Initial window module configuration."
+  (add-to-list 'display-buffer-base-action
+    '(display-buffer-if-toolbox display-buffer-from-toolbox-window)))
+
+
 (defun >>-configure-window-module ()
   "Initial window module configuration."
-  (>>=xtabs/configure 'init))
+  (>>=xtabs/configure 'init)
+  (>>-configure-display-buffer-action))
 
 
 (add-hook 'after-change-major-mode-hook '>>-setup-current-buffer)
