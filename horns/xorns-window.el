@@ -345,16 +345,6 @@ other buffers.  This is set up by `>>=toolbox/setup-buffer'.")
   (toolbox-p))
 
 
-(defalias 'toolbox-env-p '>>=toolbox-env-p)
-(defun >>=toolbox-env-p (&optional buffer-or-name)
-  "Not null if BUFFER-OR-NAME is in a toolbox environment.
-A buffer is in a toolbox environment if either the one given as an argument or
-the current one is a toolbox buffer."
-  (or
-    (and buffer-or-name (toolbox-p buffer-or-name))
-    (toolbox-p)))
-
-
 (defun >>=toolbox/property (key &optional buffer)
   "Return the value of a property KEY for a toolbox BUFFER."
   (when-let ((props (>>=toolbox-p buffer)))
@@ -432,35 +422,6 @@ See `>>=|toolbox/display-buffer-action' variable for more information."
     `((direction . ,direction) (window-height . ,height))))
 
 
-(defun >>-toolbox/get-action (buffer)
-  "Get action to use `display-buffer' action functions to switch to BUFFER."
-  (let ((action (>>-toolbox/normalize-configured-action)))
-    (if (numberp action)
-      (if (>>=toolbox-p buffer)
-        (>>-toolbox/cast-height 'bottom action)
-        ;; else
-        (let ((count (>>=count-windows)))
-          (if (> count 1)
-            '((display-buffer-reuse-mode-window
-               display-buffer-in-previous-window))
-            ;; else
-            (>>-toolbox/cast-height 'top
-              (>>-toolbox/reverse-height action)))))
-      ;; else
-      action)))
-
-
-(defun >>-get-bottom-end-window ()
-  "Internal function to get the window at the bottom end."
-  (let (res)
-    (when-let ((aux (window-in-direction 'below)))
-      (while aux
-        (setq
-          res aux
-          aux (window-in-direction 'below aux))))
-    res))
-
-
 (defsubst >>-frames (&optional alist)
   "Get a set of frames to be used when search for windows.
 Use the resulting value for the ALL-FRAMES argument in functions related to
@@ -479,16 +440,6 @@ information), and then check the value of the `pop-up-frames' variable."
 The optional argument ALL-FRAMES has the same meaning as in the
 `window-list-1' function."
   (>>=window/find-first '>>=toolbox-window-p all-frames))
-
-
-(defun >>-get-best-visible-window ()
-  "Get best visible window candidate in the current frame.
-The priority is the least recently used and not-selected window.  Never return
-a window whose `no-other-window' parameter is non-nil."
-  (or
-    (get-lru-window nil nil 'not-selected 'no-other)
-    (get-largest-window nil nil 'not-selected 'no-other)
-    (get-largest-window nil nil nil 'no-other)))
 
 
 (defun >>-display-buffer (buffer &optional action)
