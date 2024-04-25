@@ -466,49 +466,74 @@ ALIST is a buffer display action alist as compiled by `display-buffer'."
       (window--maybe-raise-frame (window-frame window)))))
 
 
-(defun display-buffer-in-best-window (buffer)
+(defun >>-get-best-window (not-selected no-other)
+  "Return the best visible window on current frame.
+Optional argument NOT-SELECTED non-nil means never return the
+selected window.  Optional argument NO-OTHER non-nil means to
+never return a window whose `no-other-window' parameter is
+non-nil."
+  (or
+    (get-lru-window nil nil not-selected no-other)
+    (get-largest-window nil nil not-selected no-other)))
+
+
+(defun >>-display-buffer-protecting-toolbox (buffer toolbox)
   "Display BUFFER using the best visible window in current frame."
-  (let ((alist '((inhibit-same-window . t) (inhibit-switch-frame . t))))
-    (or
-      (display-buffer-reuse-window buffer alist)
-      (display-buffer-in-previous-window buffer alist)
-      (display-buffer-reuse-mode-window buffer alist)
-      (let (split-width-threshold split-height-threshold)
-        (display-buffer-use-some-window buffer alist)))))
+  (let ((alist '((inhibit-switch-frame . t)))
+        (selected (eq toolbox (selected-window)))
+        sdedicated
+        sother)
+    (if selected
+      (setq alist (cons '(inhibit-same-window . t) alist))
+      ;; else
+      (setq
+        sother (window-parameter toolbox 'no-other-window)
+        sdedicated (window-dedicated-p toolbox))
+      (set-window-dedicated-p toolbox 'soft)
+      (set-window-parameter toolbox 'no-other-window t))
+    (unwind-protect
+      (or
+        (display-buffer-reuse-window buffer alist)
+        (display-buffer-in-previous-window buffer alist)
+        (display-buffer-reuse-mode-window buffer alist)
+        (when-let ((window (>>-get-best-window selected 'no-other)))
+          (>>-display-buffer-in-window buffer window))
+        (display-buffer-use-some-window buffer alist))
+      ;; unwind form
+      (unless selected
+        (set-window-parameter toolbox 'no-other-window sother)
+        (set-window-dedicated-p toolbox sdedicated)))))
 
 
-(defun display-buffer-if-toolbox (buffer alist)
-  "Display BUFFER if it is a toolbox.
+(defun display-buffer-in-toolbox-env (buffer alist)
+  "Display BUFFER if currently in a toolbox environment.
 Argument ALIST is an association list of action symbols and values like in all
 action functions (see `display-buffer')."
-  (when (>>=toolbox-p buffer)
-    (if-let ((window (>>-get-toolbox-window (>>-frames alist))))
-      (>>-display-buffer-in-window buffer window alist)
-      ;; else
-      (let ((action (>>-toolbox/normalize-configured-action)))
-        (if (numberp action)
-          (>>-display-buffer-vertically buffer 'bottom action)
-          ;; else
-          (>>-display-buffer buffer action))))))
-
-
-(defun display-buffer-from-toolbox-window (buffer alist)
-  "Display BUFFER if the source window is a toolbox.
-Argument ALIST is an association list of action symbols and values like in all
-action functions (see `display-buffer')."
-  (when (toolbox-window-p)
-    (if (>>=toolbox-p buffer)
-      (>>-display-buffer-in-window buffer (selected-window) alist)
-      ;; else
+  (cond
+    ((>>=toolbox-p buffer)
+      (if-let ((window (>>-get-toolbox-window (>>-frames alist))))
+        (>>-display-buffer-in-window buffer window alist)
+        ;; else
+        (let ((action (>>-toolbox/normalize-configured-action)))
+          (if (numberp action)
+            (>>-display-buffer-vertically buffer 'bottom action)
+            ;; else
+            (>>-display-buffer buffer action)))))
+    ((toolbox-window-p)
       (let ((action (>>-toolbox/normalize-configured-action)))
         (if (numberp action)
           (if (eq (>>=count-windows) 1)
             (let ((height (>>-toolbox/reverse-height action)))
               (>>-display-buffer-vertically buffer 'top height))
             ;; else
-            (display-buffer-in-best-window buffer))
+            (>>-display-buffer-protecting-toolbox buffer (selected-window)))
           ;; else
-          (>>-display-buffer buffer action))))))
+          (>>-display-buffer buffer action))))
+    ((when-let ((toolbox (>>-get-toolbox-window (>>-frames alist))))
+       (if (numberp (>>-toolbox/normalize-configured-action))
+         (>>-display-buffer-protecting-toolbox buffer toolbox)
+         ;; else
+         (>>-display-buffer buffer t))))))
 
 
 (defalias '>>=toolbox/switch-to-buffer 'pop-to-buffer)
@@ -766,7 +791,7 @@ special type `init' can be used for initial configuration."
 (defun >>-configure-display-buffer-action ()
   "Initial window module configuration."
   (add-to-list 'display-buffer-base-action
-    '(display-buffer-if-toolbox display-buffer-from-toolbox-window)))
+    '(display-buffer-in-toolbox-env)))
 
 
 (defun >>-configure-window-module ()
