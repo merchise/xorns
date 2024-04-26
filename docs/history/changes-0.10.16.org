@@ -1,0 +1,9 @@
+#+TITLE: Changes in release 0.10.16
+
+* Misc
+
+- Change logic to display buffers when in a toolbox environment.
+- Create a temporary solution to EXWM focus lost.
+- Remove some useless functions.
+- Add a task to create a module to configure LLM clients.
+- Fix a minor 'yasnippet' configuration issue.
