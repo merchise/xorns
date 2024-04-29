@@ -62,7 +62,7 @@ Similar to `set' but calling `custom-load-symbol' if needed."
   (set symbol value))
 
 
-(defalias '>>=value-of 'bound-and-true-p)
+(define-obsolete-function-alias '>>=value-of 'bound-and-true-p "0.10.19")
 
 
 (defmacro >>=get-standard-value (symbol)

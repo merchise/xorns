@@ -57,7 +57,7 @@ variable documentation."
   :preface
   (defun >>=snippets/initialize ()
     "Initialize `xorns' snippets."
-    (let* ((lib-dir (>>=value-of >>=!xorns/lib-dir))
+    (let* ((lib-dir (bound-and-true-p >>=!xorns/lib-dir))
            (snip-dir (expand-file-name "snippets" lib-dir)))
       (if (file-exists-p snip-dir)
         (progn
