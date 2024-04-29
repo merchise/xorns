@@ -17,18 +17,6 @@
 (require 'xorns-tools)
 
 
-(defvar >>=|projectile/extra-ignored-directories nil
-  "A list of extra directories ignored by projectile.")
-(make-obsolete-variable '>>=|projectile/extra-ignored-directories
-  "Use `>>=projectile/add-ignored-directories' function instead." "0.11")
-
-
-(defvar >>=|projectile/project-root-files nil
-  "A list of files considered to mark the root of a project.")
-(make-obsolete-variable '>>=|projectile/project-root-files
-  "Use `>>=projectile/add-root-files' function instead." "0.11")
-
-
 (use-package projectile
   :ensure t
   :demand t

@@ -491,7 +491,6 @@ optional interactive command PREFIX argument."
   (match-buffers '>>=term/buffer-p nil terminal))
 
 
-(define-obsolete-function-alias '>>=xterminal '>>=term/launch "0.11.0")
 (defun >>=term/launch (terminal &optional prefix)
   "Launch a TERMINAL using PREFIX to complement the buffer name.
 TERMINAL must be a `>>=term/settings' instance.  If nil, its actual value is

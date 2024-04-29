@@ -49,16 +49,6 @@ report the identity of the enclosed body."
      (error (message (concat ">>= error on (" ,header "): %s") err))))
 
 
-(defun >>=var-value (variable &optional default)
-  "Return the value of a VARIABLE, or DEFAULT if it is void."
-  (declare (obsolete nil "0.10.5"))    ;; never used
-  (let ((symbol (intern-soft variable)))
-    (if (and symbol (boundp symbol))
-      (symbol-value symbol)
-      ;; else
-      default)))
-
-
 ;; TODO: set-default-toplevel-value
 (defun >>=set (symbol value)
   "Set SYMBOL to the given VALUE.
@@ -1291,8 +1281,6 @@ directly, instead use the `>>=bind-global-keys' macro."
   (global-set-key (>>=key-parse key) command))
 
 
-(define-obsolete-function-alias '>>=global-set-keys
-  '>>=bind-global-keys "0.11.0")
 (defmacro >>=bind-global-keys (&rest pairs)
   "Bind on the current global keymap [KEY COMMAND] PAIRS.
 

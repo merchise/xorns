@@ -19,9 +19,6 @@
 
 ;;; Configuration
 
-(define-obsolete-variable-alias '>>=|devops/enable
-  '>>=|devops/features "0.11.1"
-  "These two variables were redundant definitions.")
 (defvar >>=|devops/features '(docker)
   "Enable specific features of DevOps.")
 
