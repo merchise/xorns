@@ -23,7 +23,8 @@
 
 (eval-and-compile
   (require 'use-package)
-  (require 'xorns-tools))
+  (require 'xorns-tools)
+  (require 'xorns-traits))
 
 (require 'xorns-buffers)
 
@@ -71,12 +72,8 @@
 
 ;;; multiple-cursors
 
-(defvar >>=|ext/multiple-cursors t
-  "Define whether to configure the `multiple-cursors' extension.")
-
-
-(use-package multiple-cursors
-  :when >>=|ext/multiple-cursors
+(>>=trait/check-obsolete >>=|ext/multiple-cursors multiple-cursors "0.11.5")
+(>>=trait multiple-cursors
   :ensure t
   :demand t
   :init

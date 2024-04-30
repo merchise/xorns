@@ -18,13 +18,11 @@ default values are not suitable for your configuration."
     ;; >>=|make-backup-files t
     ;; >>=|show-title-in-header-line t
     ;; >>=|enable-server t
-    ;; >>=|ext/multiple-cursors nil
     ;; >>=|xtabs/kind nil
     ;; >>=|dired/omit-mode t
     ;; >>=|mode-line/kind 'mini
     ;; >>=|term/install-customizable-colors nil
     ;; >>=|toolbox/display-buffer-action 'other-window
-    ;; >>=|dap/enable nil                     ; Debug Adapter Protocol
     ;; >>=|term/emulator-class '>>=term/vt
     ;; >>=|exwm/startup-applications
     ;; '(
@@ -37,7 +35,6 @@ default values are not suitable for your configuration."
     ;; >>=|exwm/start-process-model t         ; use sub-processes
     ;; >>=|lsp/enable-mode 'ask
     ;; >>=|lsp/startup-deferred t
-    ;; >>=|blacken/enable 'ask
     ;; >>=|crypt/gpg-integration nil
     )
   (>>=trait/set    ;; useful to change the default value
@@ -62,7 +59,6 @@ This function should only modify variables to customize how building-blocks
 are loaded (those prefixed with '>>+') when their default values are not
 suitable for your configuration."
   (setq-default
-    ;; >>=|base/extra-packages '(autorevert recentf saveplace)
     ;; >>=|programming/extra-languages '(java rust haskell)
     ))
 

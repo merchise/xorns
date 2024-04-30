@@ -854,6 +854,8 @@ for example a date or a release number.
 
 This declaration must be evaluated before the definition of the CURRENT
 variable(s)."
+  (unless (>>=real-symbol current)
+    (setq current (macroexpand current)))
   (unless info
     (if (>>=real-symbol current)
       (setq info (symbol-name current))
@@ -870,7 +872,7 @@ variable(s)."
         (if (>>=real-symbol current)
           `(set-default-toplevel-value ',current ,obsolete)
           ;; else
-          `(let ((this ,obsolete)) ,(macroexpand current)))
+          `(let ((this ,obsolete)) ,current))
         sexps))
     (setq sexps
       (cons `(make-obsolete-variable ',obsolete ',info ',when)

@@ -50,7 +50,8 @@
 (require 'cus-edit)
 (eval-and-compile
   (require 'cl-lib)
-  (require 'xorns-tools))
+  (require 'xorns-tools)
+  (require 'xorns-traits))
 
 
 

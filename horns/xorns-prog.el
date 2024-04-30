@@ -16,6 +16,7 @@
 (eval-and-compile
   (require 'compile)
   (require 'xorns-tools)
+  (require 'xorns-traits)
   (require 'xorns-buffers)
   (require 'xorns-text)
   (require 'hideshow)
@@ -43,14 +44,17 @@ variable documentation."
 
 ;;; Common Systems
 
-(defvar >>=|programming/features '(auto-fill flycheck yasnippet)
-  "Features to turn on in prog mode.")
+(>>=check-obsolete-variable >>=|programming/features
+  (>>=trait/set
+    yasnippet (memq 'yasnippet this)
+    flycheck (memq 'flycheck this))
+  "0.11.5"
+  "traits `yasnippet' and `flycheck'")
 
 
 ;; TODO: move this to `xorns-text.el', there are snippets not only for
 ;; programming modes.
-(use-package yasnippet
-  :when (memq 'yasnippet >>=|programming/features)
+(>>=trait yasnippet
   :ensure t
   :demand t
   :commands yas-global-mode yas-load-directory
@@ -70,8 +74,7 @@ variable documentation."
   (>>=snippets/initialize))
 
 
-(use-package flycheck
-  :when (memq 'flycheck >>=|programming/features)
+(>>=trait flycheck
   :ensure t
   :commands global-flycheck-mode
   :custom
@@ -87,7 +90,7 @@ variable documentation."
     (when (>>=local-buffer)
       (flyspell-prog-mode))
     (>>=init-text-mode)
-    (when (memq 'flycheck >>=|programming/features)
+    (when (>>=trait? flycheck)
       (turn-on-auto-fill))
     (subword-mode))
   :hook
@@ -100,14 +103,9 @@ variable documentation."
   (conf-mode . >>=init-prog-mode))
 
 
-;; `company-mode' can be managed internally by `lsp-mode'.  Other possible
-;; choices are to activate it globally, or by using `prog-mode-hook'.
-;; TODO: check if this should be included in `>>=|programming/features'
 (use-package company
+  ;; managed internally by `lsp-mode'
   :ensure t)
-
-
-;; TODO (use-package eldoc
 
 
 
@@ -129,9 +127,7 @@ variable documentation."
 
 ;;; Python
 
-(defvar >>=|blacken/enable t
-  ;; TODO: check if this should be included in `>>=|programming/features'
-  "Whether `blacken' is enabled when entering `python-mode'.")
+(>>=trait/check-obsolete >>=|blacken/enable python.blacken "0.11.5")
 
 
 (defconst >>-!python/env-locators
@@ -281,6 +277,11 @@ the function `>>=python/locate-env'.")
   :ensure t)
 
 
+(>>=trait python.blacken
+  ;; TODO: change this logic.
+  "Python `blacken' is enabled by default when entering `python-mode'.")
+
+
 (use-package blacken
   :ensure t
   :commands blacken-mode blacken-buffer
@@ -297,8 +298,10 @@ the function `>>=python/locate-env'.")
       (blacken-buffer init-file-debug)))
 
   (defun >>-blacken/may-enable-mode ()
-    "Determine whether `blacken' may be enabled (see `>>=|blacken/enable')."
-    (when >>=|blacken/enable
+    "Determine whether `blacken' may be enabled."
+    ;; TODO: change this logic, trait `python.blacken' must be defined only
+    ;; if this package is configured.
+    (when (>>=trait? python.blacken)
       (>>=blacken/turn-on)))
   :hook
   (python-mode . >>-blacken/may-enable-mode)
@@ -356,11 +359,6 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 (defvar >>=|lsp/startup-deferred nil
   "Use the entry point that defers server startup until buffer is visible.")
-
-
-(defvar >>=|lsp/use-pyright nil
-  ;; TODO: check if this should be included in `>>=|programming/features'
-  "Use lsp-pyright.")
 
 
 (use-package lsp-mode
@@ -427,21 +425,18 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
   (advice-add 'lsp-ui-imenu :after (lambda () (setq mode-line-format nil))))
 
 
-(use-package lsp-pyright
-  :when >>=|lsp/use-pyright
+(>>=trait/check-obsolete >>=|lsp/use-pyright lsp-pyright "0.11.5")
+(>>=trait lsp-pyright
+  ;; TODO: convert this to a multi-domain trait `lsp.python.pyright'
+  :initial-value nil
   :ensure t)
 
 
 
 ;;; Debug Adapter Protocol
 
-(defvar >>=|dap/enable t
-  ;; TODO: check if this should be included in `>>=|programming/features'
-  "Determines if `dap-mode' (Debug Adapter Protocol) is configured.")
-
-
-(use-package dap-mode
-  :when >>=|dap/enable
+(>>=trait/check-obsolete >>=|dap/enable dap-mode "0.11.5")
+(>>=trait dap-mode
   :ensure t
   :after lsp-mode
   :commands dap-debug

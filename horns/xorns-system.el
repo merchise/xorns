@@ -35,17 +35,12 @@
 (eval-and-compile
   (require 'use-package)
   (require 'xorns-tools)
+  (require 'xorns-traits)
   (require 'xorns-term))
 
 
 
 ;;; grep
-
-(defvar >>=|ext/ripgrep t
-  "Whether a `ripgrep' extension should be configured.
-Its value can be a boolean or one of the symbols `deadgrep' (same as the
-boolean value `t') or `rg'.")
-
 
 (use-package grep    ;; todo: check `wgrep', `scf-mode', `deadgrep'
   :demand t
@@ -72,8 +67,16 @@ boolean value `t') or `rg'.")
 
 ;;; ripgrep
 
+(>>=trait/check-obsolete >>=|ext/ripgrep ripgrep "0.11.5")
+(>>=trait ripgrep
+  "Configure `ripgrep' extension.
+The control variable can also be set with one of the `deadgrep' (an alias for
+t) or `rg' symbols."
+  :initial-value 'deadgrep)
+
+
 (use-package deadgrep
-  :when (memq >>=|ext/ripgrep '(deadgrep t))
+  :when (memq (>>=trait? ripgrep) '(deadgrep t))
   :ensure t
   :after grep
   :init
@@ -83,7 +86,7 @@ boolean value `t') or `rg'.")
 
 
 (use-package rg
-  :when (eq >>=|ext/ripgrep 'rg)
+  :when (eq (>>=trait? ripgrep) 'rg)
   :ensure t
   :after grep
   :commands transient-get-value rg-run rg-project-root rg-read-pattern
@@ -108,12 +111,9 @@ boolean value `t') or `rg'.")
 
 ;;; FZF
 
-(defvar >>=|ext/fzf nil
-  "Whether `fzf' extension must be configured.")
-
-
-(use-package fzf
-  :when >>=|ext/fzf
+(>>=trait/check-obsolete >>=|ext/fzf fzf "0.11.5")
+(>>=trait fzf
+  :initial-value nil
   :ensure t
   :commands fzf
   :init
@@ -188,14 +188,13 @@ INITIAL-DIRECTORY (the root directory for search)."
 
 ;;; which-key
 
-(defvar >>=|which-key/enable t
-  "Whether `which-key' package must be configured.
-If not a boolean value, a side-window will be configured and should be one of
-top, bottom, left or right symbols.")
 
+(>>=trait/check-obsolete >>=|which-key/enable which-key "0.11.5")
 
-(use-package which-key
-  :when >>=|which-key/enable
+(>>=trait which-key
+  "Configuration for `which-key' package.
+Use one of the symbols `top', `bottom', `left' or `right' to set a side
+window."
   :ensure t
   :demand t
   :hook
@@ -205,10 +204,11 @@ top, bottom, left or right symbols.")
   :config
   (when (and (featurep 'exwm) (eq which-key-popup-type 'frame))
     (setq which-key-popup-type 'side-window))
-  (unless (eq >>=|which-key/enable t)
-    (setq
-      which-key-popup-type 'side-window
-      which-key-side-window-location >>=|which-key/enable)))
+  (let ((side (>>=trait? which-key)))
+    (unless (eq side t)
+      (setq
+        which-key-popup-type 'side-window
+        which-key-side-window-location side))))
 
 
 
@@ -233,10 +233,6 @@ be needed in the future..")
 
 ;;; Version Control Integration
 
-(defvar >>=|ext/git-forges t
-  "Whether `forge' extensions must be configured.")
-
-
 (use-package git-modes
   :ensure t
   :defer t)
@@ -257,8 +253,9 @@ be needed in the future..")
   (put 'magit-clean 'disabled nil))
 
 
-(use-package forge
-  :when >>=|ext/git-forges
+(>>=trait/check-obsolete >>=|ext/git-forges forge "0.11.5")
+(>>=trait forge
+  "Configure GIT `forge' extension."
   :ensure t
   :after magit)
 
@@ -266,12 +263,13 @@ be needed in the future..")
 
 ;;; Tree layout file explorer
 
-(defvar >>=|treemacs/enable t
-  "Determines if `treemacs' is enabled.")
+(>>=trait/check-obsolete >>=|treemacs/enable treemacs "0.11.5")
+(>>=trait treemacs
+  "Configure `treemacs' package.")
 
 
 (use-package treemacs
-  :when >>=|treemacs/enable
+  :when (>>=trait? treemacs)
   :ensure t
   :defer t
   :commands treemacs-project-follow-mode treemacs-git-commit-diff-mode
@@ -306,25 +304,25 @@ be needed in the future..")
 
 
 (use-package all-the-icons
-  :when >>=|treemacs/enable
+  :when (>>=trait? treemacs)
   :after treemacs
   :ensure t)
 
 
 (use-package treemacs-icons-dired
-  :when >>=|treemacs/enable
+  :when (>>=trait? treemacs)
   :hook (dired-mode . treemacs-icons-dired-enable-once)
   :ensure t)
 
 
 (use-package treemacs-projectile
-  :when >>=|treemacs/enable
+  :when (>>=trait? treemacs)
   :after (treemacs projectile)
   :ensure t)
 
 
 (use-package treemacs-magit
-  :when >>=|treemacs/enable
+  :when (>>=trait? treemacs)
   :after (treemacs magit)
   :ensure t)
 

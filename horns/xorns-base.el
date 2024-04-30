@@ -17,8 +17,8 @@
 ;; always configured; `frame' is configured if a graphic display is present,
 ;; while `xt-mouse' and `xclip' when running in a console.
 ;;
-;; Extra packages can be configured through `>>=|base/extra-packages'
-;; variable.  Options are (`autorevert', `recentf', and `saveplace').
+;; Extra packages can be configured through traits `autorevert', `recentf' and
+;; `saveplace'.
 
 ;; It's installed just by calling `(require 'xorns-packages)' in the
 ;; initialization process, which is done automatically.
@@ -35,7 +35,8 @@
 
 (eval-and-compile
   (require 'use-package)
-  (require 'xorns-tools))
+  (require 'xorns-tools)
+  (require 'xorns-traits))
 
 
 
@@ -57,9 +58,13 @@ variable is the best way to configure this leaving this value unchanged as
 nil).")
 
 
-(defvar >>=|base/extra-packages nil
-  "List of optional base packages to install.
-A full of options are (autorevert recentf saveplace).")
+(>>=check-obsolete-variable >>=|base/extra-packages
+  (>>=trait/set
+    autorevert (memq 'autorevert this)
+    recentf (memq 'recentf this)
+    saveplace (memq 'saveplace this))
+  "0.11.5"
+  "traits `autorevert', `recentf' and `saveplace'")
 
 
 (defvar >>=|make-backup-files nil
@@ -259,8 +264,9 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 
 ;; browse UNIX manual pages
+
 (use-package man
-  :defer t
+  :commands man
   :custom
   (Man-notify-method 'aggressive))
 
@@ -285,13 +291,12 @@ to configure for yourself: see `save-buffer' function for more information.")
   :demand t)
 
 
-(use-package autorevert
-  :when (memq 'autorevert >>=|base/extra-packages)
+(>>=trait autorevert
+  :after-load emacs
   :init
   (defun >>-auto-revert? ()
     (unless (>>=current-buffer-remote?)
       (auto-revert-mode)))
-  :defer t
   :custom
   ;; global-auto-revert-non-file-buffers
   (auto-revert-verbose nil)
@@ -301,8 +306,7 @@ to configure for yourself: see `save-buffer' function for more information.")
   (dired-mode . auto-revert-mode))
 
 
-(use-package recentf
-  :when (memq 'recentf >>=|base/extra-packages)
+(>>=trait recentf
   :demand t
   :custom
   (recentf-max-saved-items 64)
@@ -317,9 +321,7 @@ to configure for yourself: see `save-buffer' function for more information.")
   (recentf-mode +1))
 
 
-(use-package saveplace
-  :when (memq 'saveplace >>=|base/extra-packages)
-  :config
+(>>=trait saveplace
   (save-place-mode +1))
 
 
