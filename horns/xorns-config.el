@@ -318,6 +318,9 @@ list."
         ))))
 
 
+
+;;; fonts
+
 (defun >>=set-font (&optional option)
   "Set the font defined by OPTION.
 The given OPTION will be normalized to a property-list as used for the
@@ -369,7 +372,7 @@ of targets valid for `set-fontset-font', or a sequence of such forms."
             (let ((spec (apply 'font-spec :name (car fb) props)))
               (dolist (target (cdr fb))
                 (set-fontset-font
-                  "fontset-default" target spec nil 'prepend)))))
+                  "fontset-default-toplevel-value" target spec nil 'prepend)))))
         font))))
 
 

@@ -148,18 +148,20 @@ done.
 
 * Source Code Conventions
 
-We use prefixes for most symbols, next are some conventions:
+To name variables and functions, prefixes such as the following are used:
 
-- '>>=' - for general definitions,
-- '>>=!' - for constants,
-- '>>=|' - for configuration variables,
-- '>>=+' - for building blocks configuration variables,
-- ->>-' - for module internals, and
-- '>>:' for declarative functions in package configuration options.
+- ">>="  - general definitions.
+- ">>-"  - module internals.
+- ">>=!" - constants.
+- ">>=|" - configuration variables.
+- ">>-|" - configuration features or other extensions.
 
-Standard modules will use "-" separator in its names (for example
-[[file:~/work/emacs/xorns/horns/xorns-config.el][xorns-config.el]]).  Sub-levels are joined with "/" (for example
-">>=config/user-folder").
+For module names, the separator "-" is used for semantic segments, "+" to add
+an extension and "." for subdomains; For example:
+
+- "xorns-config.el"
+- "xorns+python.blacken.el"
+
 
 # Local Variables:
 # eval: (require 'org-man     nil t)
