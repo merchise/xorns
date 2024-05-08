@@ -53,8 +53,10 @@
 
 - [ ] Check why [[file:~/.emacs.d/elpa/exwm-0.28/exwm.el][EXWM]] has a new "Kill terminal?" prompt.
 - [ ] Check [[https://wiki.archlinux.org/title/EXWM][Use of multi-monitor on EXWM]].
-- [ ] Check [[help:browse-url-at-point][browse-url-at-point]] key configuration.  Maybe replace this to
-  enable [[help:goto-address-mode][goto-address-mode]] in all proper buffers.
+- [ ] Check [[help:browse-url-at-point][browse-url-at-point]] use.
+  - [ ] Maybe replace this to enable [[help:goto-address-mode][goto-address-mode]] in all proper buffers.
+  - [ ] Create a new command to always return a URL in case one is not found
+    around the point, it can be a search query or the browser's empty page.
 - [ ] Configure [[file:~/work/emacs/xorns/horns/xorns-exwm.el::defun >>=exwm/enlarge-window-horizontally (&optional delta][exwm-layout]] using a minor mode to resize windows.
 - [ ] Look for better options to show a System Tray.  Maybe use the project
   [[https://github.com/ultrabug/py3status][py3status]] as a base to create a similar one named 'exwm-status'.
@@ -170,6 +172,7 @@ See also:
 
 * Configuring terminals
 
+- [ ] Check package [[https://github.com/justinlime/toggle-term.el][toggle-term]] for quickly toggle persistent term buffers.
 - [ ] The configuration of terminals in module =xorns-term= must be reviewed.
   Even when the configuration of [[file:~/work/emacs/xorns/horns/xorns-term.el::add-hook 'emacs-startup-hook '>>-term/vt-setup)][vterm]] is optional this package is installed
   from ELPA and the C module =vterm-module= is compiled.

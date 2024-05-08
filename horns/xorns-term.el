@@ -84,15 +84,15 @@ Could be `>>=term/ansi' (the default) or `>>=term/vt' (the recommended).")
 
   (defun >>=term/shell-file-name ()
   "Get the executable file name to load inferior shells from."
-  (purecopy
-    (>>=executable-find
-      explicit-shell-file-name
-      shell-file-name
-      (getenv "ESHELL")
-      (getenv "SHELL")
-      "bash"
-      "zsh"
-      "sh"))))
+    (purecopy
+      (>>=executable-find
+        explicit-shell-file-name
+        shell-file-name
+        (getenv "ESHELL")
+        (getenv "SHELL")
+        "bash"
+        "zsh"
+        "sh"))))
 
 
 

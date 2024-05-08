@@ -197,6 +197,7 @@ top, bottom, left or right symbols.")
 (use-package which-key
   :when >>=|which-key/enable
   :ensure t
+  :demand t
   :hook
   (after-init . which-key-mode)
   :custom
