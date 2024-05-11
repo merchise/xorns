@@ -83,11 +83,6 @@ Similar to `set' but calling `custom-load-symbol' if needed."
   `(setq ,symbol (>>=get-original-value ,symbol)))
 
 
-(defsubst >>=real-symbol (object)
-  "Return if OBJECT is a real symbol (not including a boolean)."
-  (and (symbolp object) (not (eq object t)) object))
-
-
 (defsubst >>=customized? (symbol)
   "Return t if SYMBOL is already customized.
 Same protocol as `boundp', but not the same as the `custom-variable-p'
@@ -121,7 +116,6 @@ function."
   (float-time (time-subtract after-init-time before-init-time)))
 
 
-
 
 ;;; object oriented programming
 
@@ -130,6 +124,42 @@ function."
 (defalias 'defmethod 'cl-defmethod)
 (defalias 'typep 'cl-typep)
 (defalias 'instance-of 'cl-typep)
+
+
+
+;;; predicates
+
+(defsubst >>=keywordp (value)
+  "Return VALUE if it is a keyword."
+  (if (keywordp value)
+    value))
+
+
+(defsubst >>=real-symbol (value)
+  "Return if VALUE is a real symbol (not including a boolean)."
+  (and (symbolp value) (not (eq value t)) value))
+
+
+(defsubst >>=str-non-empty (value)
+  "Return if VALUE is a non-empty string."
+  (when (and (stringp value) (not (string-empty-p value)))
+    value))
+
+
+(defsubst >>=as-symbol (value)
+  "Return VALUE as a symbol if it is already a symbol or a non-empty string."
+  (or
+    (>>=real-symbol value)
+    (when-let ((aux (>>=str-non-empty value)))
+      (intern aux))))
+
+
+(defsubst >>=as-string (value)
+  "Return VALUE as a string if it is already a non-empty string or a symbol."
+  (or
+    (>>=str-non-empty value)
+    (when-let ((aux (>>=real-symbol value)))
+      (symbol-name aux))))
 
 
 
@@ -143,12 +173,24 @@ function."
     (substring string 0 size)))
 
 
+(defsubst >>=prefix-equal (string prefix)
+  "Return STRING if it has the given PREFIX."
+  (when (string-equal (>>=prefix string (length prefix)) prefix)
+    string))
+
+
 (defun >>=suffix (string size)
   "Return the STRING prefix of SIZE characters."
   (if (> size (length string))
     string
     ;; else
     (substring string (- size))))
+
+
+(defsubst >>=suffix-equal (string suffix)
+  "Return STRING if it has the given SUFFIX."
+  (when (string-equal (>>=suffix string (length suffix)) suffix)
+    string))
 
 
 (defun >>=prefix-beffore (regexp string)
@@ -158,26 +200,6 @@ function."
       (substring string 0 space)
       ;; else
       string)))
-
-
-(defsubst >>=str (value &optional strict)
-  "Return a string only if VALUE is a symbol or a string.
-When STRICT is given, and this function fails, an error is issued, otherwise
-nil is returned."
-  (cond
-    ((stringp value)
-      value)
-    ((>>=real-symbol value)
-      (symbol-name value))
-    (strict
-      (error ">>= %s'%s' is not a string nor a symbol"
-        (if (eq strict t) "" (format "%s " strict)) value))))
-
-
-(defsubst >>=str-non-empty (value)
-  "Return if VALUE is a non-empty string."
-  (when (and (stringp value) (not (string-empty-p value)))
-    value))
 
 
 (defsubst >>=str-trim (string &optional trim-left trim-right)
@@ -194,19 +216,56 @@ Arguments TRIM-LEFT and TRIM-RIGHT are used verbatim."
 
 
 (defun >>=safe-replace (regexp rep source)
-  "Replace all occurrences for REGEXP with REP in SOURCE.
-Argument SOURCE could be either a string or a symbol, return a new value of
-the same type containing the replacements.  See `replace-regexp-in-string'
-function."
-  (let* ((is-symbol (symbolp source))
-         (value (if is-symbol (symbol-name source) source))
-         (res (replace-regexp-in-string regexp rep value)))
-    (if is-symbol (intern res) res)))
+  "Replace all matches for REGEXP with REP in SOURCE.
+SOURCE could be either a string or a symbol, return a new value of the same
+type containing the replacements.  See `replace-regexp-in-string' function."
+  (when source
+    (let* ((is-symbol (symbolp source))
+           (value (if is-symbol (symbol-name source) source))
+           (res (replace-regexp-in-string regexp rep value)))
+      (if is-symbol (intern res) res))))
 
 
-(defsubst >>=ss-p (object)
+(defun >>=strict-replace (regexp rep source)
+  "Safe replace all matches for REGEXP with REP in SOURCE.
+Return nil if no replacement is made.  See `>>=safe-replace' for more
+information."
+  (let ((res (>>=safe-replace regexp rep source)))
+    (unless (eq res source)
+      res)))
+
+
+(defsubst >>=non-empty-string-or-symbol (object)
   "Return if OBJECT is a real symbol or a non-empty string."
   (or (>>=real-symbol object) (>>=str-non-empty object)))
+
+
+(defun >>=split-domains (source &optional count)
+  "Split SOURCE up to COUNT times into a list of domains.
+Argument SOURCE could be a string or a symbol.  If the optional COUNT argument
+is omitted all possible values are returned.  This function is not intended to
+split a string using a dot as a separator; see `split-string' for that;
+instead it returns all parent domains, for example \"x.y.z\" results in (\"x\"
+\"x.y\" \"x.y.z\")."
+  (unless count    ;; a large number that is never possible
+    (setq count 65535))
+  (setq source (>>=as-string source))
+  (let ((start 0)
+        res)
+    (while (and (> count 0) (length> source start))
+      (let ((pos (string-search "." source start))
+            aux)
+        (if pos
+          (setq
+            aux (list (substring-no-properties source 0 pos))
+            count (1- count)
+            start (1+ pos))
+          ;; else
+          (setq
+            aux (list source)
+            count 0))
+        (setq res (if res (nconc res aux) aux))))
+    res))
 
 
 
@@ -273,6 +332,14 @@ for that purpose."
       (apply fn arguments))))
 
 
+(defsubst >>=function-intern (string &rest objects)
+  "Return whether the symbol being internalized is a function.
+The symbol is obtained by formatting a STRING with the given OBJECTS."
+  (when-let ((res (intern-soft (apply 'format string objects))))
+    (if (functionp res)
+      res)))
+
+
 (defsubst >>=check-function (value &optional strict)
   "Check if VALUE is an existing function.
 When STRICT is not nil and VALUE is not a function, an error is issued."
@@ -314,6 +381,14 @@ For a lambda function, its documentation is returned if it exists."
       ((format "%s:%s" (type-of function) function)))))
 
 
+(defun >>=macroexp-nonnull-progn (&rest exps)
+  "Return EXPS (a list of expressions) with `progn' prepended.
+Similar to the standard `macroexp-progn' function but EXPS can be passed as
+several optional additional arguments (`&rest'), and this function also
+removes all the nil elements from EXPS."
+  (macroexp-progn (delq nil (>>=fix-rest-list exps))))
+
+
 (defmacro >>=breaker (function)
   "FUNCTION wrapper to signal a quit condition on any standard error.
 Wrapper to signal a quit condition on any standard error on a FUNCTION.  Can
@@ -351,7 +426,7 @@ Example:
 
 
 
-;;; lists, property lists extensions
+;;; lists extensions
 
 (defsubst >>=slist-length (value)
   "Return the `length' of a VALUE that is a strict list, nil otherwise."
@@ -466,6 +541,10 @@ turn.  Then evaluate RESULT to get return value, default nil.
 
 Based on `dolist' original macro.  Keys are not checked to be valid keywords,
 so this macro can be used to iterate over tuples of two values in any list.
+
+The number of elements in the list does not necessarily have to be even, the
+default value for the last odd tuple is nil.  Use `cl-evenp' to check that in
+a client function.
 
 \(fn (KEY-VAR VALUE-VAR PLIST [RESULT]) BODY...)"
   (declare (indent 1) (debug ((symbolp form &optional form) body)))
@@ -723,8 +802,89 @@ Similar to `>>=plist2alist' but members on key positions that already are a
     res))
 
 
+(defun >>=alist-update (target key value)
+  "Update TARGET association list with the given KEY VALUE pair.
+This function alters TARGET unless it is null."
+  (if-let ((cell (assq key target)))
+    (setcdr cell value)
+    ;; else
+    (setq target (nconc target `((,key . ,value)))))
+  target)
+
+
+(defun >>=alist-add-item (target key item)
+  "Add ITEM to the list `cdr' of the cell mapped by KEY in TARGET.
+This function alters TARGET unless it is null."
+  (if-let ((cell (assq key target)))
+    (setcdr cell (nconc (cdr cell) `(,item)))
+    ;; else
+    (setq target (nconc target `((,key . (,item))))))
+  target)
+
+
+(defmacro >>=alist-pop (source key &optional default)
+  "Get the element of SOURCE whose `car' equals KEY and return its `cdr'.
+The found cell is deleted.  If KEY is not found, return DEFAULT.  Because this
+is a macro, argument SOURCE must be a variable symbol."
+  `(let ((>>--result-- (assq ,key ,source)))
+     (if >>--result--
+       (prog1
+         (cdr >>--result--)
+         (setq ,source (assq-delete-all ,key ,source)))
+       ;; else
+       ,default)))
+
+
 
 ;;; misc utils
+
+(defmacro >>=check-obsolete-variable (obsolete current when &optional info)
+  "Check if an OBSOLETE variable is being used.
+When OBSOLETE is bound, a warning is issued indicating that CURRENT should be
+used instead.
+
+CURRENT is usually a SYMBOL that represents the new variable that will receive
+the value of the OBSOLETE.  In case CURRENT involves more complex definitions,
+it must be a LISP form (`this' can be used as an alias for the OBSOLETE value
+in this body).  The optional INFO argument can be used in place of CURRENT in
+the `use instead' message.
+
+WHEN should be a string indicating when the variable was first made obsolete,
+for example a date or a release number.
+
+This declaration must be evaluated before the definition of the CURRENT
+variable(s)."
+  (unless info
+    (if (>>=real-symbol current)
+      (setq info (symbol-name current))
+      ;; else
+      (error
+        (concat
+          ">>= missing `info' argument for obsolete variable `%s' definition "
+          "for a non-symbol `current' argument")
+        obsolete)))
+  (let* ((msg ">>= `%s' is an obsolete variable (as of %s); use %s instead")
+         (sexps `((warn ,msg ',obsolete ',when ',info))))
+    (setq sexps
+      (cons
+        (if (>>=real-symbol current)
+          `(set-default-toplevel-value ',current ,obsolete)
+          ;; else
+          `(let ((this ,obsolete)) ,(macroexpand current)))
+        sexps))
+    (setq sexps
+      (cons `(make-obsolete-variable ',obsolete ',info ',when)
+        sexps))
+    (when (>>=real-symbol current)
+      (setq sexps
+        (cons
+          `(dolist (p '(saved-value saved-variable-comment))
+             (when-let ((v (unless (get ',current p) (get ',obsolete p))))
+               (put ',current p v)))
+        sexps)))
+    `(when (boundp ',obsolete)
+       ,@sexps)))
+
 
 (defun >>=mode-find (mode &rest check-modes)
   "Not-nil if the MODE is one of the CHECK-MODES.
@@ -891,14 +1051,11 @@ symbol, a string, or a `cons' like `(command . args)', nil items are just
 discarded."
   (setq options (>>=fix-rest-list options))
   (let (res)
-    (while (and options (null res))    ; discard nil options
+    (while (and options (null res))
       (when-let ((item (car options)))
-        (if (consp item)
-          (when-let (aux (executable-find (>>=str (car item))))
-            (setq res (cons aux (cdr item))))
-          ;; else
-          (when-let (aux (executable-find (>>=str item)))
-            (setq res aux))))
+        (let ((head (car-safe item)))    ;; item is a list
+          (when-let ((aux (executable-find (or head item))))
+            (setq res (if head (cons aux (cdr item)) aux)))))
       (setq options (cdr options)))
     res))
 
@@ -1133,7 +1290,7 @@ Returns nil, if an error is signaled."
 
 
 
-;;; Xorns Lisp configuration files
+;;; Lisp configuration files
 
 ;; TODO: not used
 (defun >>=config/read-lisp (file)
@@ -1302,7 +1459,9 @@ Example:
       [142606452] '>>=main-term
       \"C-`\" (let ((aux \">>=\")) (intern (format \"%sxterminal\" aux)))
       \"C-~\" (lambda () (interactive) (>>=xterm/add))
-      (\"s-?\" . (identity add-function))))"
+      (\"s-?\" . (identity add-function))))
+
+\(fn [KEY COMMAND]...)"
   (macroexp-progn
     (mapcar
       (lambda (pair)
