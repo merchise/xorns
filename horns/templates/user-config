@@ -39,12 +39,21 @@ default values are not suitable for your configuration."
     ;; >>=|lsp/startup-deferred t
     ;; >>=|blacken/enable 'ask
     ;; >>=|crypt/gpg-integration nil
-    ;; >>=|which-key/enable nil
-    ;; >>=|ext/git-forges nil
-    ;; >>=|treemacs/enable nil
-    ;; >>=|ext/fzf t
-    ;; >>=|ext/ripgrep 'rg
-    ))
+    )
+  (>>=trait/set    ;; useful to change the default value
+    ;; which-key 'right
+    ;; ripgrep 'rg
+    ;; fzf t
+    ;; multiple-cursors nil
+    ;; git-forges nil
+    ;; dap-mode nil                     ; Debug Adapter Protocol
+    ;; python.blacken nil
+    ;; autorevert nil
+    ;; recentf nil
+    ;; saveplace nil
+    ;; treemacs nil
+    )
+  )
 
 
 (defun >>=building-blocks/configuration ()
