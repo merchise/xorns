@@ -283,6 +283,7 @@ the function `>>=python/locate-env'.")
 
 
 (use-package blacken
+  ;; TODO: migrate this to use a trait with :entering-mode set to `python-mode'
   :ensure t
   :commands blacken-mode blacken-buffer
   :preface
