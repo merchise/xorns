@@ -1,0 +1,8 @@
+#+TITLE: Changes in release 0.11.0
+
+* Misc
+
+- Create the concept of xorns' plugin in the new module named ~traits~.  This
+  allows to customize the dependencies for the system configuration.
+- To migrate old configuration variables to using "traits" use the warnings
+  that are issued and see the examples in the [[file:~/work/emacs/xorns/horns/templates/user-config::(>>=trait/set ;; useful to change the default value][user-config]] template.
