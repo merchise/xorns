@@ -478,7 +478,7 @@ non-nil."
 
 
 (defun >>-display-buffer-protecting-toolbox (buffer toolbox)
-  "Display BUFFER using the best visible window in current frame."
+  "Display BUFFER protecting TOOLBOX using a visible window in current frame."
   (let ((alist '((inhibit-switch-frame . t)))
         (selected (eq toolbox (selected-window)))
         sdedicated
@@ -496,16 +496,16 @@ non-nil."
         (display-buffer-reuse-window buffer alist)
         (display-buffer-in-previous-window buffer alist)
         (display-buffer-reuse-mode-window buffer alist)
-        (when-let ((window (>>-get-best-window selected 'no-other)))
-          (>>-display-buffer-in-window buffer window))
-        (display-buffer-use-some-window buffer alist))
+        (when-let ((window (>>-get-best-window 'no-selected 'no-other)))
+          (>>-display-buffer-in-window buffer window)))
       ;; unwind form
       (unless selected
         (set-window-parameter toolbox 'no-other-window sother)
         (set-window-dedicated-p toolbox sdedicated)))))
 
 
-(defun display-buffer-in-toolbox-env (buffer alist)
+(defalias 'display-buffer-in-toolbox-env '>>=display-buffer-in-toolbox-env)
+(defun >>=display-buffer-in-toolbox-env (buffer alist)
   "Display BUFFER if currently in a toolbox environment.
 Argument ALIST is an association list of action symbols and values like in all
 action functions (see `display-buffer')."
