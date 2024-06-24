@@ -199,16 +199,10 @@ for traits must be specified before those for `use-package'.
 \(fn NAME [DOCUMENTATION] [KEYWORD VALUE]... &rest BODY])"
   (declare (doc-string 3) (indent 2))
   (let ((symbol (>>-trait/internal-symbol name))
-        (doc nil)
+        (doc (when (stringp (car body)) (pop body)))
         (default t)
         (defer nil)
         sexps)
-    ;; documentation string
-    (setq doc
-      (if (stringp (car body))
-        (pop body)
-        ;; else
-        (format "Configuration for \"%s\" trait." name)))
     ;; keywords
     (catch 'done
       (while-let ((key (>>-trait/kvp name body)))
@@ -255,6 +249,9 @@ for traits must be specified before those for `use-package'.
         (setq body (nthcdr 2 body))))
     (when (and defer (not body))
       (>>-trait/value-error name (car defer) "non-empty body"))
+    (unless doc
+      (setq doc
+        (format "Trait \"%s\" %s." name (if body "configuration" "flag"))))
     (when body
       (setq sexps
         (if (not defer)
