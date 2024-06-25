@@ -1,5 +1,73 @@
 #+TITLE: Backlog
 
+* Initialization and Configuration
+
+** Traits - a re-engineering of the configuration process
+
+- [X] Create the concept of xorns' plugin: module [[file:~/work/emacs/xorns/horns/xorns-traits.el][traits]] was created in
+  release ~0.11.0~.  Two types of plugins must be defined, those that are
+  subordinate to a major mode or those that are global to the system.
+- [ ] Traits must be extended to include the following concepts.
+  - [ ] Always enabled traits.
+  - [ ] Multi-domain trait names allowing hierarchical control.
+  - [ ] Define multiple execution bodies for the same trait using the
+    ~trait==value~ condition syntax.
+  - [ ] Include "alternative-options" for a single logical trait concept, for
+    example, ~eglot~ and ~lsp-mode~, for language servers.
+  - [ ] Consider having modal traits that can be executed every time the mode
+    is entered instead of just the first time.
+- [-] Migrate global configurations to use traits.
+  - [X] Basic ~use-package~ settings.
+  - [ ] Traits related to major modes.
+  - [ ] Hierarchical options.
+- [ ] Create the documentation for the new module ~traits~.
+
+** Fonst and Themes
+
+- [ ] Improve font configuration tools.  Use next code as an example:
+
+  #+BEGIN_SRC emacs-lisp
+    ;; This causes xorns to issue some messages, but somehow it works.
+    (setq-default
+        >>=|font-settings
+        '((default
+            ((t
+               ( :inherit nil
+                 :extend nil
+                 :stipple nil
+                 :inverse-video nil
+                 :box nil
+                 :strike-through nil
+                 :overline nil
+                 :underline nil
+                 :slant normal
+                 :weight light
+                 :height 125
+                 :width normal
+                 :family "RobotoMono Nerd Font"))))
+           (bold
+             ((t
+                ( :inherit nil
+                  :extend nil
+                  :stipple nil
+                  :inverse-video nil
+                  :box nil :strike-through nil
+                  :overline nil
+                  :underline nil
+                  :slant normal
+                  :weight normal
+                  :height 125
+                  :width normal
+                  :family "RobotoMono Nerd Font"))))
+           (lsp-lsp-flycheck-warning-unnecessary-face
+             ((t (:underline (:color "DarkOrange" :style wave)))) t)
+          (lsp-ui-sideline-code-action
+            ((t (:foreground "sienna" :underline t))))
+          (markdown-code-face ((t nil)))))
+  #+END_SRC
+
+
+
 * Misc
 
 - [ ] Use manu's configuration file to resolve some configuration issues and
@@ -172,69 +240,3 @@ See also:
 - [ ] The configuration of terminals in module =xorns-term= must be reviewed.
   Even when the configuration of [[file:~/work/emacs/xorns/horns/xorns-term.el::add-hook 'emacs-startup-hook '>>-term/vt-setup)][vterm]] is optional this package is installed
   from ELPA and the C module =vterm-module= is compiled.
-
-* Improve mechanism to configure 'xorns' features
-
-This will be a re-engineering of the configuration process.
-
-- [X] Create the concept of xorns' plugin: module [[file:~/work/emacs/xorns/horns/xorns-traits.el][traits]] was created in
-  release ~0.11.0~.  Two types of plugins must be defined, those that are
-  subordinate to a major mode or those that are global to the system.
-- [ ] Traits must be extended to include the following concepts.
-  - [ ] Always enabled traits.
-  - [ ] Multi-domain trait names allowing hierarchical control.
-  - [ ] Define multiple execution bodies for the same trait using the
-    ~trait==value~ condition syntax.
-  - [ ] Include "alternative-options" for a single logical trait concept, for
-    example, ~eglot~ and ~lsp-mode~, for language servers.
-  - [ ] Consider having modal traits that can be executed every time the mode
-    is entered instead of just the first time.
-- [-] Migrate global configurations to use traits.
-  - [X] Basic ~use-package~ settings.
-  - [ ] Traits related to major modes.
-  - [ ] Hierarchical options.
-- [ ] Create the documentation for the new module ~traits~.
-
-* Improve font configuration tools
-
-- [ ] Use next code as an example:
-
-  #+BEGIN_SRC emacs-lisp
-    ;; This causes xorns to issue some messages, but somehow it works.
-    (setq-default
-        >>=|font-settings
-        '((default
-            ((t
-               ( :inherit nil
-                 :extend nil
-                 :stipple nil
-                 :inverse-video nil
-                 :box nil
-                 :strike-through nil
-                 :overline nil
-                 :underline nil
-                 :slant normal
-                 :weight light
-                 :height 125
-                 :width normal
-                 :family "RobotoMono Nerd Font"))))
-           (bold
-             ((t
-                ( :inherit nil
-                  :extend nil
-                  :stipple nil
-                  :inverse-video nil
-                  :box nil :strike-through nil
-                  :overline nil
-                  :underline nil
-                  :slant normal
-                  :weight normal
-                  :height 125
-                  :width normal
-                  :family "RobotoMono Nerd Font"))))
-           (lsp-lsp-flycheck-warning-unnecessary-face
-             ((t (:underline (:color "DarkOrange" :style wave)))) t)
-          (lsp-ui-sideline-code-action
-            ((t (:foreground "sienna" :underline t))))
-          (markdown-code-face ((t nil)))))
-  #+END_SRC
