@@ -1,0 +1,5 @@
+#+TITLE: Changes in release 0.11.1
+
+* Misc
+
+- Fix minor issue displaying buffer when the toolbox window is visible.
