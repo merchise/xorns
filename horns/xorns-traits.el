@@ -124,20 +124,14 @@ same meaning."
     `(>>=check-obsolete-variable ,obsolete (>>=trait? ,trait) ,when ,info)))
 
 
-(defmacro >>=trait/bound (trait)
-  "Return the value of a TRAIT if it is defined, else nil."
-  `(bound-and-true-p ,(>>-trait/internal-symbol trait)))
-
-
 (defmacro >>=trait? (trait)
   "Check a TRAIT current value if defined."
   `,(>>-trait/internal-symbol trait))
 
 
-(defmacro >>=trait/symbol (trait)
-  "Return the TRAIT symbol without evaluating it (quoted)."
-  (let ((symbol (>>-trait/internal-symbol trait)))
-    `(quote ,symbol)))
+(defmacro >>=trait/bound (trait)
+  "Return the value of a TRAIT if it is defined, else nil."
+  `(bound-and-true-p ,(>>-trait/internal-symbol trait)))
 
 
 (defmacro >>=trait/set (&rest pairs)
@@ -163,8 +157,8 @@ at system initialization.
 
 (defmacro >>=trait (name &rest body)
   "Define NAME as a new trait.
-A trait is composed of a control variable and an optional execution BODY.  The
-variable is named using the trait name prefixed with \">>-|\".  In some
+A trait is composed of a control variable and/or an optional execution BODY.
+The variable is named using the trait name prefixed with \">>-|\".  In some
 contexts a function is necessary to encapsulate the execution body, in these
 cases the same name is used for it.
 
