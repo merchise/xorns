@@ -20,6 +20,13 @@
   - [X] Basic ~use-package~ settings.
   - [ ] Traits related to major modes.
   - [ ] Hierarchical options.
+- [ ] Migrate current configurations to use ~traits~.
+  - [ ] [[file:~/work/emacs/xorns/horns/xorns-mode-line.el::(defvar >>=|mode-line/kind nil][mode-line/kind]].
+  - [ ] [[file:~/work/emacs/xorns/horns/xorns-minibuffer.el::(defvar >>=|minibuffer/completing-framework nil][minibuffer/completing-framework]].
+  - [ ] [[file:~/work/emacs/xorns/horns/xorns-devop.el::defvar >>=|devops/features '(docker][devops/features]].
+  - [ ] [[file:~/work/emacs/xorns/horns/xorns-system.el::(>>=trait treemacs][treemacs]].
+  - [ ] [[file:~/work/emacs/xorns/horns/xorns-prog-extra.el::(defvar >>=|programming/extra-languages nil][programming/extra-languages]].
+  - [ ] [[file:~/work/emacs/xorns/horns/xorns-prog-extra.el::(defvar >>=|programming/extra-features nil][programming/extra-features]].
 - [ ] Create the documentation for the new module ~traits~.
 
 ** Fonst and Themes
