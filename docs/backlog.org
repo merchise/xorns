@@ -79,6 +79,8 @@
 
 - [ ] Use manu's configuration file to resolve some configuration issues and
   make new definitions.
+- [ ] Remove ~auto-fill-mode~ from ~prog-mode~ derived modes.  SCHEDULED:
+  <2024-07-01>
 - [ ] Create a framework to register formatters to act before saving in a safe
   way.
   - [ ] Use =ruff-format= instead of =blacken= to format Python source.
