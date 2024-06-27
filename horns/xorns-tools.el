@@ -21,7 +21,7 @@
 ;;; Code:
 
 (require 'subr-x)    ; for `string-trim'
-(eval-when-compile
+(eval-and-compile
   (require 'cl-lib)
   (require 'map))
 (require 'files)
@@ -30,23 +30,41 @@
 
 ;;; general
 
-(defmacro >>=on-debug-message (format-string &rest args)
+(defsubst >>-xorns/prefix-message (string)
+  "Prefix the given STRING with the xorns symbol '>>='."
+  (concat ">>= " string))
+
+
+(defun >>=warn (message &rest objects)
+  "Display a warning MESSAGE using the OBJECTS argument to format it."
+  (display-warning 'xorns (apply #'format-message message objects)))
+
+
+(defun >>=error (message &rest objects)
+  "Signal an `error', making a MESSAGE by formatting OBJECTS."
+  (apply 'error (>>-xorns/prefix-message message) objects))
+
+
+(defsubst >>=message (format-string &rest arguments)
+  "Display a message at the bottom of the screen.
+Similar to standard function `message' but prefixing the FORMAT-STRING with
+'>>= '.  Extra ARGUMENTS can also be used."
+  (apply 'message (>>-xorns/prefix-message format-string) arguments))
+
+
+(defsubst >>=on-debug-message (format-string &rest args)
   "Display a message only when `init-file-debug' is active.
 Use the same parameters as `message' standard function: FORMAT-STRING and
 ARGS."
-  `(if init-file-debug
-     (message (concat ">>= " ,format-string) ,@args)))
+  (when init-file-debug
+    (apply '>>=message format-string args)))
 
 
-(defmacro >>=progn (header &rest body)
-  "Safe evaluate BODY forms sequentially and return value of last one.
-Use a HEADER message when `init-file-debug' is t, or in case of error, to
-report the identity of the enclosed body."
-  `(condition-case-unless-debug err
-     (progn
-       (>>=on-debug-message ,header)
-       ,@body)
-     (error (message (concat ">>= error on (" ,header "): %s") err))))
+(defsubst >>=error-message (error &optional place)
+  "Displays a `message' related to an ERROR that has occurred at a PLACE."
+  (>>=message
+    (concat "error" (if place (format " on '%s'" place) "") ": %s")
+    (error-message-string error)))
 
 
 ;; TODO: set-default-toplevel-value
@@ -105,21 +123,20 @@ function."
      (customize-set-variable ',symbol ,value)))
 
 
+(defsubst >>=init-time ()
+  "Return initialization time in seconds for this session."
+  (float-time (time-subtract after-init-time before-init-time)))
+
+
 (defsubst >>=load (file)
   "Load a FILE silently except if in debug mode."
   (let ((silent (not init-file-debug)))
     (load file silent silent)))
 
 
-(defsubst >>=init-time ()
-  "Initialization time in seconds for this session."
-  (float-time (time-subtract after-init-time before-init-time)))
-
-
 
 ;;; object oriented programming
 
-(defalias 'super 'cl-call-next-method)
 (defalias 'defgeneric 'cl-defgeneric)
 (defalias 'defmethod 'cl-defmethod)
 (defalias 'typep 'cl-typep)
@@ -127,11 +144,152 @@ function."
 
 
 
+;;; comparison of values
+
+(defsubst symbol-or-string-p (value)
+  "Return t if VALUE is a symbol or a string."
+  (or (symbolp value) (stringp value)))
+
+
+(require 'compat nil 'noerror)
+(if (fboundp 'value<)    ;; TODO: remove this after Emacs version 30
+  (defalias '>>=value< 'value<)
+  ;; else
+  (defalias 'value< '>>=value<)
+  (defun >>=value< (a b)
+    "Return non-nil if A precedes B in standard value order.
+A and B must have the same basic type.  Numbers are compared with <.  Strings
+and symbols are compared with string-lessp.  Lists, vectors, bool-vectors and
+records are compared in lexicographical order.  Markers are compared in
+lexicographical order by buffer and position.  Buffers and processes are
+compared by name.  Other types are considered unordered and the return value
+will be ‘nil’."
+    (cond
+      ((and (number-or-marker-p a) (number-or-marker-p b))
+        (< a b))
+      ((and (symbol-or-string-p a) (symbol-or-string-p b))
+        (string-lessp a b))
+      ((and (listp a) (listp b))
+        (while (and (consp a) (consp b) (equal (car a) (car b)))
+          (setq a (cdr a) b (cdr b)))
+        (cond
+          ((not b) nil)
+          ((not a) t)
+          ((and (consp a) (consp b)) (value< (car a) (car b)))
+          (t (value< a b))))
+      ((and (vectorp a) (vectorp b))
+        (let* ((na (length a))
+               (nb (length b))
+               (n (min na nb))
+               (i 0))
+          (while (and (< i n) (equal (aref a i) (aref b i)))
+            (cl-incf i))
+          (if (< i n) (value< (aref a i) (aref b i)) (< n nb))))
+      ((and (bufferp a) (bufferp b))
+        ;; `buffer-name' is nil for killed buffers.
+        (setq
+          a (buffer-name a)
+          b (buffer-name b))
+        (cond
+          ((and a b) (string< a b))
+          (b t)))
+      ((and (processp a) (processp b))
+        (string< (process-name a) (process-name b)))
+      ;; TODO: add support for more types here
+      ((eq (type-of a) (type-of b))
+        nil)    ;; other values of equal type are considered unordered
+      ;; different types.
+      (t
+        (error "value< type mismatch: %S %S" a b)))))
+
+
+(defalias 'value= '>>=value=)
+(defun >>=value= (a b)
+  "Return if A is equal to B in standard value order.
+See the `value<' function for more information on how values ​​are compared."
+  (cond
+    ((and (number-or-marker-p a) (number-or-marker-p b))
+      (= a b))
+    ((and (symbol-or-string-p a) (symbol-or-string-p b))
+      (string-equal a b))
+    ((and (listp a) (listp b))
+      (and
+        (eq (safe-length a) (safe-length b))
+        (value= (car a) (car b))
+        (value= (cdr a) (cdr b))))
+    ((and (vectorp a) (vectorp b))
+      (let ((n (length a))
+            (i 0))
+        (when (eq n (length b))
+          (while (and (< i n) (value= (aref a i) (aref b i)))
+            (setq i (1+ i))))))
+    ((and (bufferp a) (bufferp b))
+      ;; `buffer-name' is nil for killed buffers
+      (let ((na (buffer-name a))
+            (nb (buffer-name b)))
+        (and na nb (string-equal na nb))))
+    ((and (processp a) (processp b))
+      (string-equal (process-name a) (process-name b)))
+    ;; TODO: add support for more types here
+    (t
+      (equal a b))))
+
+
+(defalias 'value/= '>>=value/=)
+(defsubst >>=value/= (a b)
+  "Return if A is different to B in standard value order.
+See the `value<' function for more information on how values ​​are compared."
+  (not (value= a b)))
+
+
+(defalias 'value> '>>=value>)
+(defsubst >>=value> (a b)
+  "Return if A follows B in standard value order.
+See the `value<' function for more information on how values ​​are compared."
+  (value< b a))
+
+
+(defalias 'value<= '>>=value<=)
+(defsubst >>=value<= (a b)
+  "Return whether A precedes B, or they are equal, in standard value order.
+See the `value<' function for more information on how values ​​are compared."
+  (or (value< a b) (value= a b)))
+
+
+(defalias 'value>= '>>=value>=)
+(defsubst >>=value>= (a b)
+  "Return whether A follows B, or they are equal, in standard value order.
+See the `value<' function for more information on how values ​​are compared."
+  (or (value> a b) (value= a b)))
+
+
+(defalias 'value-in '>>=value-in)
+(defun >>=value-in (item sequence)
+  "Return non-nil if ITEM is an element of SEQUENCE.
+Comparison done with `value='."
+  (cl-position item sequence :test 'value=))
+
+
+
 ;;; predicates
+
+(defconst >>-!wrapped-nil ''nil
+  "Value to be used in predicates where nil must be a valid result.
+Value nil has different meanings, it could be an empty list, a flag for an
+undefined value, or the boolean value false.  This is a problem for predicate
+functions that should return values ​​to signal that a result is valid.  See
+function `>>=car-safe' as an example.")
+
 
 (defsubst >>=keywordp (value)
   "Return VALUE if it is a keyword."
   (if (keywordp value)
+    value))
+
+
+(defsubst >>=stringp (value)
+  "Return VALUE if it is a string."
+  (if (stringp value)
     value))
 
 
@@ -140,26 +298,120 @@ function."
   (and (symbolp value) (not (eq value t)) value))
 
 
-(defsubst >>=str-non-empty (value)
-  "Return if VALUE is a non-empty string."
-  (when (and (stringp value) (not (string-empty-p value)))
+(defsubst >>=string-or-symbol (value)
+  "Return if VALUE is a real symbol or a string."
+  (or (>>=stringp value) (>>=real-symbol value)))
+
+
+(define-obsolete-function-alias '>>=str-non-empty '>>=non-empty-string
+  "0.11.5")
+(defsubst >>=non-empty-string (value &optional required)
+  "Return VALUE if it is a non-empty string, nil otherwise.
+When REQUIRED is not-nil, an error is yielded if the VALUE is not a string or
+is empty."
+  (or
+    (when (stringp value)
+      (if (string-empty-p value) nil value))
+    (when required
+      (error
+        ">>= expecting a non empty string%s, not %s '%s'"
+        (if (memq required '(t required)) "" (format " for '%s'" required))
+        (type-of value) value))))
+
+
+(defsubst >>=non-empty-string-or-symbol (value)
+  "Return if VALUE is a real symbol or a non-empty string."
+  (or (>>=real-symbol value) (>>=non-empty-string value)))
+
+
+(defsubst >>=as-symbol (value &optional safe)
+  "Return VALUE if it is a real symbol or a non-empty string, nil otherwise.
+When SAFE is not-nil, an error is yielded if the VALUE is not a string."
+  (or
+    (>>=real-symbol value)
+    (if-let ((aux (>>=non-empty-string value)))
+      (intern aux)
+      ;; else
+      (when safe
+        (error
+          ">>= invalid value %s '%s' to intern a symbol"
+          (type-of value) value)))))
+
+
+(defsubst >>=as-string (value &optional required)
+  "Get VALUE as a string if it is a non-empty string or a real-symbol.
+If REQUIRED is given, it yields an error if the VALUE can not be converted."
+  (if (>>=real-symbol value)
+    (symbol-name value)
+    ;; else
+    (>>=non-empty-string value required)))
+
+
+(defsubst >>=cast-string (object)
+  "Return the string representation of OBJECT."
+  (if (stringp object) object (prin1-to-string object)))
+
+
+(defsubst >>=str-trim (string &optional trim-left trim-right)
+  "Trim a STRING using `string-trim' but returning nil on an empty result.
+Arguments TRIM-LEFT and TRIM-RIGHT are used verbatim."
+  (when string
+    (>>=non-empty-string (string-trim string trim-left trim-right))))
+
+
+(defsubst >>=wrap-nil (value)
+  "Wrap a VALUE if nil."
+  (or value >>-!wrapped-nil))
+
+
+(defsubst >>=unwrap-nil (value)
+  "Unwrap a VALUE if nil."
+  (unless (equal value >>-!wrapped-nil)
     value))
 
 
-(defsubst >>=as-symbol (value)
-  "Return VALUE as a symbol if it is already a symbol or a non-empty string."
-  (or
-    (>>=real-symbol value)
-    (when-let ((aux (>>=str-non-empty value)))
-      (intern aux))))
+(defsubst >>=quoted (value)
+  "Return if a VALUE is wrapped using the `quote' function."
+  (and (eq (car-safe value) 'quote) (length= value 2)))
 
 
-(defsubst >>=as-string (value)
-  "Return VALUE as a string if it is already a non-empty string or a symbol."
+(defsubst >>-atom (value)
+  "Return if the given VALUE is atomic (nil is wrapped using `quote')."
+  (when (atom value)
+    (>>=wrap-nil value)))
+
+
+(defsubst >>=atom (value)
+  "Return a normalized VALUE if the given argument is atomic, nil otherwise.
+Similar to `atom' but returns the value itself instead of a boolean (when the
+value is nil the result is wrapped)."
   (or
-    (>>=str-non-empty value)
-    (when-let ((aux (>>=real-symbol value)))
-      (symbol-name aux))))
+    (>>-atom value)
+    (when-let ((aux (and (>>=quoted value) (>>-atom (cadr value)))))
+      (if (>>=real-symbol aux) value aux))))
+
+
+(defsubst >>=car-safe (list)
+  "Return the car of LIST if it is a `cons' cell, or else nil.
+A null result from the standard `car-safe' function is ambiguous; it may mean
+that the value at the head of the LIST is the null value itself, or that the
+argument is not a list at all.  Because of that, a valid nil result is wrapped
+so that this function can be used as a predicate."
+  (or (car-safe list) (when (consp list) >>-!wrapped-nil)))
+
+
+(defsubst >>=car (list)
+  "Return the car of LIST or nil if the argument is nil.
+A valid nil result is wrapped so that this function can be used as a
+predicate."
+  (or (car list) (and list >>-!wrapped-nil)))
+
+
+(defsubst >>=nth (n list)
+  "Return the Nth element of LIST.
+N counts from zero.  If LIST is not that long, nil is returned.  A valid nil
+result is wrapped so that this function can be used as a predicate."
+  (or (nth n list) (when (< n (length list)) >>-!wrapped-nil)))
 
 
 
@@ -195,18 +447,11 @@ function."
 
 (defun >>=prefix-beffore (regexp string)
   "Return the STRING prefix before REGEXP is matched."
-  (let ((space (string-match-p regexp string)))
-    (if space
-      (substring string 0 space)
+  (let ((count (string-match-p regexp string)))
+    (if count
+      (substring string 0 count)
       ;; else
       string)))
-
-
-(defsubst >>=str-trim (string &optional trim-left trim-right)
-  "Trim a STRING using `string-trim' but returning nil on an empty result.
-Arguments TRIM-LEFT and TRIM-RIGHT are used verbatim."
-  (when string
-    (>>=str-non-empty (string-trim string trim-left trim-right))))
 
 
 (defsubst >>=str-first-line (string)
@@ -235,9 +480,32 @@ information."
       res)))
 
 
-(defsubst >>=non-empty-string-or-symbol (object)
-  "Return if OBJECT is a real symbol or a non-empty string."
-  (or (>>=real-symbol object) (>>=str-non-empty object)))
+(defun >>=bisect-string (source separator)
+  "Split SOURCE string or symbol into two sub-strings delimited by SEPARATOR.
+The sub-strings are returned in a (HEAD . TAIL) `cons'.  TAIL is optional,
+defaults to nil, but HEAD is required."
+  (let ((src (>>=as-string source))
+        (sep (>>=as-string separator))
+        (len (length separator)))
+    (when-let ((pos (string-search sep src)))
+      (if-let ((head (>>=non-empty-string (substring src 0 pos))))
+        (cons head (>>=non-empty-string (substring src (+ pos len))))
+        ;; else
+        (error
+          ">>= HEAD part is required when bisecting '%s' with separator '%s'"
+          source separator)))))
+
+
+(defun >>=split (source &optional separator)
+  "Split SOURCE into sub-strings bounded by matches for SEPARATOR.
+The SOURCE and SEPARATOR arguments can be strings or symbols.  A null
+SEPARATOR is an alias for blanks.  Unlike the `string-split', SEPARATOR is a
+literal string, not a regular expression.  All sub-strings are trimmed and all
+empty ones are omitted from the list."
+  (let ((src (>>=as-string source 'required))
+        (sep (>>=as-string separator 'required))
+        (blank "[[:blank:]]+"))
+    (string-split src (if sep (regexp-quote sep) blank) 'omit-nulls blank)))
 
 
 (defun >>=split-domains (source &optional count)
@@ -268,10 +536,90 @@ instead it returns all parent domains, for example \"x.y.z\" results in (\"x\"
     res))
 
 
+(defsubst >>=key/counter (key)
+  "Return a counter of how many times a KEY has been accessed.
+Keys must be a symbol or a string."
+  (when key
+    (unless (boundp '>>-key--counters)
+      (set-default '>>-key--counters (list (cons nil 0))))
+    (let* ((counters (symbol-value '>>-key--counters))
+           (counter (assoc-string key counters)))
+      (if counter
+        (setcdr counter (1+ (cdr counter)))
+        ;; else
+        (setq counter (cons key 0))
+        (nconc counters (list counter)))
+      (cdr counter))))
+
+
+(defsubst >>=new-symbol (base-name)
+  "Generate a new symbol with a unique name.
+The result symbol is made by appending a unique number to BASE-NAME.  This
+function is similar to `cl-gentemp' but using different approach for suffixes,
+see the function `>>=key/counter'."
+  (setq base-name (>>=as-string base-name 'required))
+  (let (res)
+    (while (not res)
+      (let* ((idx (>>=key/counter base-name))
+             (name (if (zerop idx) base-name (format "%s-%s" base-name idx)))
+             (aux (intern-soft name)))
+        (unless aux
+          (setq res (intern name)))))
+    res))
+
+
 
-;;; functions
+;;; functions and form evaluation
 
 (define-error '>>=quit ">>= xorns quit" 'quit)
+
+
+(defmacro >>=progn (&rest body)
+  "Extended version of `progn' special form.
+Safely evaluate BODY forms sequentially and return the value of the last one.
+An error is managed as a message.  If the first form of the body is a symbol
+or a string, a message is logged when `init-file-debug' is non-nil, or in case
+of error, to report the identity of the enclosed body."
+  (when body
+    (let ((header (>>=non-empty-string (car body))))
+      (when header
+        (setcar body `(>>=on-debug-message ,header)))
+      `(condition-case err
+         ,(macroexp-progn body)
+         (error
+           (>>=error-message err ,header)
+           (when init-file-debug
+             (signal (car err) (cdr err))))))))
+
+
+(defun >>=macroexp-progn (&rest exps)
+  "Return EXPS (a list of expressions) with `progn' prepended.
+Similar to the standard `macroexp-progn' function but EXPS can be passed as
+several optional additional arguments (`&rest'), and this function also
+removes all the nil elements from EXPS."
+  (macroexp-progn (delq nil (>>=fix-rest-list exps))))
+
+
+(defsubst >>=function-arglist (function)
+  "Return the argument list for the FUNCTION formatted as a string."
+  (let ((res (help-function-arglist function t)))
+    (if res (format "%s" res) "()")))
+
+
+(defun >>=function-repr (function)
+  "Return FUNCTION string representation.
+For a lambda function, its documentation is returned if it exists."
+  (when (functionp function)
+    (cond
+      ((when-let ((doc (>>=str-first-line (documentation function 'raw))))
+         (format "'%s'" (string-trim-right doc "[.]"))))
+      ((symbolp function)
+        (symbol-name function))
+      ((when-let ((kind (>>=real-symbol (car-safe function))))
+         (when (eq kind 'closure)
+           (setq kind 'lambda))
+         (format "(%s %s ...)" kind (>>=function-arglist function))))
+      ((format "%s:%s" (type-of function) function)))))
 
 
 (defmacro ->? (function &rest arguments)
@@ -279,17 +627,8 @@ instead it returns all parent domains, for example \"x.y.z\" results in (\"x\"
 This is a safe macro that prints a debug message if `init-file-debug' is not
 nil."
   `(when (fboundp ',function)
-     (if init-file-debug
-       (message ">>= calling: %s"
-         (or
-           (>>=str-first-line (documentation ',function))
-           ,(symbol-name function))))
-     (condition-case err
-       (,function ,@arguments)
-       (error
-         (message ">>= error in '%s': %s\n"
-           ',(symbol-name function) (error-message-string err))
-         (signal (car err) (cdr err))))))
+     (>>=progn ,(format "calling: %s" (>>=function-repr function))
+       (,function ,@arguments))))
 
 
 (defsubst >>=call? (function &rest arguments)
@@ -309,7 +648,7 @@ Similar to `eval' but returns nil on errors."
 
 (defun >>=cast-function (value)
   "Recognize a function in VALUE.
-This function does not check if the result is valid, use `>>=check-function'
+This function does not check if the result is valid, use `>>=function/ensure'
 for that purpose."
   (cond
     ((>>=real-symbol value))
@@ -332,125 +671,72 @@ for that purpose."
       (apply fn arguments))))
 
 
-(defsubst >>=function-intern (string &rest objects)
-  "Return whether the symbol being internalized is a function.
-The symbol is obtained by formatting a STRING with the given OBJECTS."
-  (when-let ((res (intern-soft (apply 'format string objects))))
-    (if (functionp res)
+(defsubst >>=function/intern-soft (name)
+  "Convert NAME to a canonical identifier for a function (a symbol).
+The differences from `intern-soft' are that this function also returns nil if
+the symbol exists but is not a function, and that the default value of
+`obarray' is always used."
+  (when-let ((res (intern-soft name)))
+    (when (fboundp res)
       res)))
+
+
+(defsubst >>=function/find (&rest names)
+  "Return the first existing function among the given NAMES.
+The result is nil if none is found."
+  (>>=list/some '>>=function/intern-soft names))
+
+
+(defsubst >>=function/search (pattern &rest objects)
+  "Return the first existing function by searching among multiple names.
+Similar to `>>=function/find' but options are obtained by formatting a PATTERN
+with each element of OBJECTS."
+  (apply
+    '>>=function/find
+    (mapcar (lambda (obj) (format pattern obj)) objects)))
+
+
+(defsubst >>=function/ensure (&rest options)
+  "Search for an existing function by trying among the given OPTIONS.
+An error is issued if no option is valid."
+  (or
+    (apply '>>=function/find options)
+    (error ">>= no function found in: %s" options)))
 
 
 (defsubst >>=check-function (value &optional strict)
   "Check if VALUE is an existing function.
 When STRICT is not nil and VALUE is not a function, an error is issued."
-  (when (stringp value)
-    (setq value (intern-soft value)))
-  (if (functionp value)
-    value
+  (declare (obsolete use-package "0.11.5"))
+  (if strict
+    (>>=function/ensure value)
     ;; else
-    (when strict
-      (error ">>= wrong%s function '%s'"
-        (if (eq strict t) "" (format " %s" strict)) value))))
-
-
-(defsubst >>=normalize-function (value)
-  "Normalize VALUE as a function for macro expansion."
-  (let ((res (>>=cast-function value)))
-    (if (>>=real-symbol res) (list 'quote res) res)))
-
-
-(defsubst >>=function-arglist (function)
-  "Return the argument list for the FUNCTION formatted as a string."
-  (let ((res (help-function-arglist function t)))
-    (if res (format "%s" res) "()")))
-
-
-(defun >>=function-repr (function)
-  "Return FUNCTION string representation.
-For a lambda function, its documentation is returned if it exists."
-  (when (functionp function)
-    (cond
-      ((symbolp function)
-        (symbol-name function))
-      ((when-let ((doc (>>=str-first-line (documentation function 'raw))))
-         (format "<%s>" (string-trim-right doc "[.]"))))
-      ((when-let ((kind (>>=real-symbol (car-safe function))))
-         (when (eq kind 'closure)
-           (setq kind 'lambda))
-         (format "(%s %s ...)" kind (>>=function-arglist function))))
-      ((format "%s:%s" (type-of function) function)))))
-
-
-(defun >>=macroexp-nonnull-progn (&rest exps)
-  "Return EXPS (a list of expressions) with `progn' prepended.
-Similar to the standard `macroexp-progn' function but EXPS can be passed as
-several optional additional arguments (`&rest'), and this function also
-removes all the nil elements from EXPS."
-  (macroexp-progn (delq nil (>>=fix-rest-list exps))))
-
-
-(defmacro >>=breaker (function)
-  "FUNCTION wrapper to signal a quit condition on any standard error.
-Wrapper to signal a quit condition on any standard error on a FUNCTION.  Can
-be used to mark a function as a breaker in a `>>=function-chain' argument."
-  `(lambda (value)
-     (condition-case err
-       (,function value)
-       (error
-         (signal '>>=quit err)))))
-
-
-(defalias '>>=chain '>>=function-chain)
-(defmacro >>=function-chain (&rest functions)
-  "Compose a chain of FUNCTIONS.
-
-Similar to function composition but FUNCTIONS are applied from left to right,
-It can be thought of as a chaining process in which the output of one function
-becomes the input of the next.
-
-If a result is nil, that step is ignored.  Also when an error occurs, the
-signaling step is ignored too unless you use `>>=breaker' to wrap a function
-that breaks the chain.
-
-This feature is especially useful for checking macro arguments at compile
-time.
-
-Example:
-  (funcall (>>=function-chain car eval 1+) (quote ((+ 5 3) is not 9)))"
-  `(lambda (value)
-     (dolist (fn '(,@(mapcar '>>=cast-function functions)) value)
-       (condition-case nil
-         (when-let ((aux (>>=funcall fn value)))
-           (setq value aux))
-         (error)))))
+    (>>=function/intern-soft value)))
 
 
 
 ;;; lists extensions
 
-(defsubst >>=slist-length (value)
-  "Return the `length' of a VALUE that is a strict list, nil otherwise."
-  (if (and (listp value) (listp (cdr value)))
-    (length value)))
+(define-obsolete-function-alias '>>=slist-length 'proper-list-p "0.11.5")
 
 
 (defsubst >>=cast-list (value)
   "Force VALUE to be a strict list."
-  (if (>>=slist-length value) value (list value)))
+  (if (proper-list-p value) value (list value)))
 
 
 (defsubst >>=list-value (value)
   "Extract a singleton VALUE from a list if it has only one value."
-  (if (eq (>>=slist-length value) 1) (car value) value))
+  (if (eq (proper-list-p value) 1) (car value) value))
 
 
 (defun >>=fix-rest-list (value)
   "Normalize VALUE used as rest-list argument."
-  (let ((len (>>=slist-length value)))
+  (let ((len (proper-list-p value)))
     (if len
       (if (eq len 1)
         (let ((res (car value)))
-          (if (>>=slist-length res) res value))
+          (if (proper-list-p res) res value))
         ;; else
         value)
       ;; else
@@ -462,17 +748,34 @@ Example:
   `(setq ,target (append ,target ,@sequences)))
 
 
-(defun >>=list/find (predicate sequence &optional extra)
-  "Find the first item in SEQUENCE that satisfies PREDICATE.
-Return the matching PREDICATE result, or nil if not found.  The optional AUX
-argument, when provided, is passed as a second argument to PREDICATE."
-  (when extra    ;; prepare last argument to `apply'
-    (setq extra (list extra)))
+(defun >>=list/find (predicate sequence &rest extra)
+  "Return the first element in SEQUENCE that satisfies PREDICATE.
+The result is nil if no such element is found.  This function is similar to
+`seq-find', but in this case the PREDICATE can take EXTRA arguments.
+
+Note that this function has an ambiguity if the found element is nil, as in
+that case it is impossible to know whether an element was found or not."
   (let (res)
-    (while (and (not res) sequence)
-      (let ((item (pop sequence)))
-        (when (apply predicate item extra)
-          (setq res item))))
+    (while sequence
+      (let ((item (car sequence)))
+        (if (apply predicate item extra)
+          (setq
+            res item
+            sequence nil)
+          ;; else
+          (setq sequence (cdr sequence)))))
+    res))
+
+
+(defun >>=list/some (predicate list &rest extra)
+  "Return the first non-nil result of applying PREDICATE to each item of LIST.
+Similarly to `>>=list/find' PREDICATE can take EXTRA arguments, but this
+function returns the result instead of the found element."
+  (let (res)
+    (while (and (not res) list)
+      (setq
+        res (apply predicate (car list) extra)
+        list (cdr list)))
     res))
 
 
@@ -656,21 +959,24 @@ Function FN must take two arguments but return a single value, not a pair."
       sequence)))
 
 
-(defun >>=split-list (pred xs)
-  "Split list XS into a `cons' of two lists (HEAD . TAIL).
-HEAD is all successive items of XS for which (PRED item) returns nil.  TAIL is
-a list of all items remaining starting from the first for which (PRED item)
-returns a non-nil value."
-  (let ((ys (list nil)) (zs (list nil)) flip)
+(defun >>=split-list (predicate xs)
+  "Split XS into lists, each headed with an element validated by PREDICATE."
+  (when xs
+    (unless (functionp predicate)
+      (let ((aux predicate))
+        (setq predicate (lambda (arg) (value= aux arg)))))
+    (let ((res (list nil))
+          (pivot (list (car xs))))
+      (setq xs (cdr xs))
     (dolist (x xs)
-      (if flip
-        (nconc zs (list x))
-        (if (funcall pred x)
-          (progn
-            (setq flip t)
-            (nconc zs (list x)))
-          (nconc ys (list x)))))
-    (cons (cdr ys) (cdr zs))))
+      (if (funcall predicate x)
+        (progn
+          (nconc res (list pivot))
+          (setq pivot (list x)))
+        ;; else
+        (nconc pivot (list x))))
+      (nconc res (list pivot))
+      (cdr res))))
 
 
 (defun >>=pair-list (&rest flat-list)
@@ -716,63 +1022,6 @@ returns a non-nil value."
     (when key
       (setq res (nconc res `((,key)))))
     res))
-
-
-(defun >>=plist-set-defaults (target &rest defaults)
-  "Insert into TARGET all DEFAULTS properties that are not already members.
-Return updated TARGET."
-  (>>=plist-do (key value (>>=fix-rest-list defaults) target)
-    (when (and value (plist-get target key))
-      (plist-put target key value))))
-
-
-(defun >>=plist-fix (&rest source)
-  "Fix a pseudo SOURCE property-list into a regular one."
-  (setq source (delq 'elisp--witness--lisp (>>=fix-rest-list source)))
-  (let (target multi)
-    (while source
-      (let* ((xs (>>=split-list #'keywordp (cdr source)))
-             (key (car source))
-             (value (car xs)))
-        ;; value
-        (setq target
-          (plist-put target key
-            (if (plist-member target key)
-              (let ((current (plist-get target key)))
-                (append
-                  (if (memq key multi)
-                    current
-                    ;; else
-                    (setq multi (cons key multi))
-                    (list current))
-                  value))
-              ;; else
-              (if (eq (>>=slist-length value) 1)
-                (car value)
-                ;; else
-                (setq multi (cons key multi))
-                value)))
-          source (cdr xs))))
-    target))
-
-
-(defun >>=plist-rename-aliases (target &rest aliases)
-  "Rename a set of ALIASES in a TARGET property-list.
-ALIASES is given as an association-list of (CURRENT . NEW) pairs.  It could
-result in a pseudo property-list that needs additional normalization with
-`>>=plist-fix'."
-  (mapc
-    (lambda (pair)
-      (let ((cur (car pair))
-            (new (cdr pair))
-            aux)
-        (if (and (keywordp cur) (keywordp new) (not (eq cur new)))
-          (while (setq aux (memq cur target))
-            (setcar aux new))
-          ;; else
-          (error ">>= must be keywords, not '%s'" pair))))
-    (>>=fix-rest-list aliases))
-  target)
 
 
 (defun >>=alist-parse (&rest pairs)
@@ -837,6 +1086,30 @@ is a macro, argument SOURCE must be a variable symbol."
 
 
 ;;; misc utils
+
+(defsubst >>=str2lisp (string)
+  "Read one Lisp expression which is represented as text by STRING.
+The differences with the `read-from-string' function are that STRING is
+trimmed, only the recognized object is returned, and an error is issued if the
+entire string is not recognized."
+  (when-let ((trimmed (>>=str-trim string)))
+    (let ((pair (read-from-string trimmed)))
+      (if (= (cdr pair) (length trimmed))
+        (car pair)
+        ;; else
+        (error
+          ">>= invalid syntax error parsing '%s' string at index %s"
+          trimmed (cdr pair))))))
+
+
+(defsubst >>=declare-argument-obsolete (function obsolete when)
+  "Declare using an argument as OBSOLETE in a FUNCTION call.
+WHEN should be a string indicating when the argument was first made obsolete,
+for example a date or a release number."
+  (>>=warn
+    "`%s' is an obsolete %s argument (as of %s)"
+    obsolete function when))
+
 
 (defmacro >>=check-obsolete-variable (obsolete current when &optional info)
   "Check if an OBSOLETE variable is being used.
@@ -1046,22 +1319,6 @@ The optional argument EXCLUDE could be a string or a list of strings."
       files)))
 
 
-(defun >>=executable-find (&rest options)
-  "Search first valid command using the function `executable-find'.
-A set of OPTIONS is searched until a valid one is found.  Any item could be a
-symbol, a string, or a `cons' like `(command . args)', nil items are just
-discarded."
-  (setq options (>>=fix-rest-list options))
-  (let (res)
-    (while (and options (null res))
-      (when-let ((item (car options)))
-        (let ((head (car-safe item)))    ;; item is a list
-          (when-let ((aux (executable-find (or head item))))
-            (setq res (if head (cons aux (cdr item)) aux)))))
-      (setq options (cdr options)))
-    res))
-
-
 (defun >>=file-string (file)
   "Return the trimmed contents of the given FILE as a string."
   (if (file-readable-p file)
@@ -1255,11 +1512,40 @@ Each item in MODES is validated and associated with the given COMMAND."
 
 ;;; system
 
+(defun >>=command-to-process-name (command)
+  "Return process name from a given COMMAND string.
+The COMMAND should be in the format '[VAR=VALUE...] program [args...]'.  The
+result prioritizes the program part."
+  (when-let ((process-name
+               (>>=list/find
+                 (lambda (part) (not (string-match "=" part)))
+                 (split-string-shell-command command))))
+    (let* ((res (file-name-base process-name))
+           (counter (>>=key/counter res)))
+      (if (= 0 counter) res (format "%s-%s" res counter)))))
+
+
 (defun >>=command/get-name (command &optional full)
   "Extract the executable name from a COMMAND string.
 If FULL is nil, return only the file name part sans its directory."
   (let ((res (>>=prefix-beffore "[[:space:]]" command)))
     (if full res (file-name-nondirectory res))))
+
+
+(define-obsolete-function-alias '>>=executable-find '>>=command/find "0.11.5")
+(defun >>=command/find (&rest options)
+  "Search first valid command using the function `executable-find'.
+A set of OPTIONS is searched until a valid one is found.  Any item could be a
+symbol, a string, or a `cons' like `(command . args)', nil items are just
+discarded."
+  (let (res)
+    (while (and options (null res))
+      (when-let ((item (car options)))
+        (let ((head (car-safe item)))
+          (when-let ((aux (executable-find (>>=as-string (or head item)))))
+            (setq res (if head (cons aux (cdr item)) aux)))))
+      (setq options (cdr options)))
+    res))
 
 
 (defun >>=command/check (command)
@@ -1283,7 +1569,7 @@ configured."
 (defun >>=process/safe-lines (program &rest args)
   "Execute PROGRAM with ARGS, returning its output as a list of lines.
 Returns nil, if an error is signaled."
-  (when-let ((executable (>>=executable-find program)))
+  (when-let ((executable (>>=command/find program)))
     (when (and (eq (length args) 1) (listp (car args)))
       (setq args (car args)))
     (condition-case nil
@@ -1418,10 +1704,18 @@ Similar to `key-binding', but parsing the KEY using `>>=key-parse'."
 
 
 (defsubst >>=key-normalize (key)
-  "Safe convert KEY to the internal Emacs key representation."
+  "Convert KEY to the internal Emacs representation."
   (condition-case nil
     (>>=key-parse key)
     (error key)))
+
+
+(define-obsolete-function-alias '>>=normalize-function '>>=function/normalize
+  "0.11.5")
+(defsubst >>=function/normalize (value)
+  "Normalize VALUE as a function (useful for for macro expansion)."
+  (let ((res (>>=cast-function value)))
+    (if (>>=real-symbol res) (list 'quote res) res)))
 
 
 (defun >>=bind-global-key (key command)
@@ -1469,7 +1763,7 @@ Example:
       (lambda (pair)
         `(>>=bind-global-key
            ,(>>=key-normalize (car pair))
-           ,(>>=normalize-function (cdr pair))))
+           ,(>>=function/normalize (cdr pair))))
       (>>=alist-parse pairs))))
 
 
