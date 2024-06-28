@@ -30,11 +30,6 @@
   (require 'xorns-tools))
 
 
-(defconst >>-!trait/keywords
-  '(:initial-value :after-load :entering-mode :after-delay)
-  "Valid keywords for trait definitions.")
-
-
 (defconst >>-!trait/format-string ">>-|%s"
   "String used to format a trait symbol using its name.")
 
@@ -119,6 +114,48 @@
       value)
     ((memq (car-safe value) '(lambda closure identity))
       value)))
+
+
+(defun >>-trait/parse-name (name)
+  "Parse a trait NAME and return a (BASE-NAME OPERATOR VALUE) list.
+The NAME syntax is `BASE-NAME[OPERATOR[VALUE]]'."
+  (setq name (>>=as-string name))
+  (catch 'found
+    (dolist (op '(!= = : !))
+      (when-let ((pair (>>=bisect-string name (symbol-name op))))
+        (let ((base (car pair))
+              (value (cdr pair))
+              keyword)
+          (if value
+            (progn
+              (setq value (>>=str2lisp value))
+              (if (booleanp value)
+                (>>-trait/error name
+                  "explicit boolean values are not allowed in operators")
+                ;; else
+                (pcase op
+                  ('=
+                    (setq keyword :if-equal))
+                  ('!=
+                    (setq keyword :if-not-equal))
+                  (':
+                    (setq keyword :if-trait-enabled))
+                  ('!
+                    (setq keyword :if-trait-not-enabled))
+                  (_
+                    (>>-trait/error name
+                      "invalid operator '%s' with value '%s'" op value)))))
+            ;; else
+            (if (eq op ':)
+              (setq
+                keyword :immutable
+                value t)
+              ;; else
+              (>>-trait/error name
+                "no empty value allowed for operator '%s'" op)))
+          (throw 'found (list base keyword value)))))
+      ;; default
+    (list name)))
 
 
 (defun >>-trait/register-mode (mode trigger)
