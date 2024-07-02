@@ -382,9 +382,8 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 
 (>>=trait/check-obsolete >>=|lsp/use-pyright lsp-pyright "0.11.5")
-(>>=trait lsp-pyright
+(>>=trait lsp-pyright nil
   ;; TODO: convert this to a multi-domain trait `lsp.python.pyright'
-  :initial-value nil
   :ensure t)
 
 

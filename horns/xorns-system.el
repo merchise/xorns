@@ -108,8 +108,7 @@
 ;;; FZF
 
 (>>=trait/check-obsolete >>=|ext/fzf fzf "0.11.5")
-(>>=trait fzf
-  :initial-value nil
+(>>=trait fzf nil
   :ensure t
   :commands fzf
   :init
