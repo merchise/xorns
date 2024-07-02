@@ -64,7 +64,7 @@
 
 (defsubst >>-trait/repeated-keyword (trait keyword)
   "Signal an error if a KEYWORD repeated in a TRAIT definition."
-  (>>-trait/error trait "keyword %s is repeated" keyword))
+  (>>-trait/error trait "value of %s is repeated" keyword))
 
 
 (defsubst >>-trait/value-error (trait keyword type &optional value)
@@ -86,7 +86,7 @@
 
 
 (defsubst >>-trait/kvp (trait body)
-  "Return if the first two values ​​in the body are a (keyword, value) pair."
+  "Return the first (KEYWORD, VALUE) pair from the TRAIT definition BODY."
   (if-let ((key (>>=keywordp (car body))))
     (if (length> body 1)
       key
@@ -102,6 +102,23 @@
       value
       ;; else
       (intern (concat aux suffix)))))
+
+
+;; TODO: Check if this function can be generalized in 'tools' module
+(defsubst >>-trait/initial-value? (value)
+  "Return a normalized VALUE suitable for initial-value argument."
+  (cond
+    ((null value)
+      '(identity nil))
+    ((and (atom value) (not (keywordp value)) (not (stringp value)))
+      value)
+    ((eq (car-safe value) 'quote)
+      (let ((aux (cadr value)))
+        (if (or (keywordp aux) (stringp aux)) aux value)))
+    ((eq (car-safe value) 'function)
+      value)
+    ((memq (car-safe value) '(lambda closure identity))
+      value)))
 
 
 (defun >>-trait/register-mode (mode trigger)
@@ -162,8 +179,12 @@ The variable is named using the trait name prefixed with \">>-|\".  In some
 contexts a function is necessary to encapsulate the execution body, in these
 cases the same name is used for it.
 
-Optional extra arguments can contain three concepts: the DOCUMENTATION string,
-any number of [KEYWORD VALUE] pairs, and the execution BODY.
+Optional extra arguments can contain four concepts: a INITIAL-VALUE, the
+DOCUMENTATION string, any number of [KEYWORD VALUE] pairs, and the execution
+BODY.
+
+The INITIAL-VALUE argument has the same semantics as the `:initial-value'
+keyword but only atomic or quoted definitions can be specified.
 
 The following keys are accepted:
 
@@ -171,7 +192,8 @@ The following keys are accepted:
     The initial value of the control variable.  Traits are enabled by default.
     Using nil disables the trait.  Use the `>>=trait/set macro within the
     `>>=settings/init' function to change the default value during the Emacs
-    initialization process.
+    initialization process.  This parameter can be explicitly given as the
+    second argument.
 
 :after-load FILE
     By default, traits are executed immediately after they are defined.  This
@@ -190,13 +212,24 @@ The following keys are accepted:
 A trait can be an extension to a `use-package' definition, however keywords
 for traits must be specified before those for `use-package'.
 
-\(fn NAME [DOCUMENTATION] [KEYWORD VALUE]... &rest BODY])"
+\(fn NAME [INITIAL-VALUE] [DOCUMENTATION] [KEYWORD VALUE]... &rest BODY])"
   (declare (doc-string 3) (indent 2))
   (let ((symbol (>>-trait/internal-symbol name))
-        (doc (when (stringp (car body)) (pop body)))
-        (default t)
+        (doc nil)
+        (initial-value t)
         (defer nil)
-        sexps)
+        (sexps nil))
+    (let ((extra-body-head nil))
+      (when-let ((aux (when body (>>-trait/initial-value? (car body)))))
+        (when (eq (car-safe aux) 'identity)
+          (setq aux (cadr aux)))
+        (setq
+          extra-body-head (list :initial-value aux)
+          body (cdr body)))
+      (when (stringp (car body))
+        (setq doc (pop body)))
+      (when extra-body-head
+        (setq body (nconc extra-body-head body))))
     ;; keywords
     (catch 'done
       (while-let ((key (>>-trait/kvp name body)))
@@ -204,12 +237,12 @@ for traits must be specified before those for `use-package'.
           (pcase key
             (:initial-value
               (cond
-                ((not (eq default t))
+                ((not (eq initial-value t))
                   (>>-trait/repeated-keyword name key))
                 ((eq value t)
                   (>>-trait/error name "keyword %s is t by default" key))
                 (t
-                  (setq default value))))
+                  (setq initial-value value))))
             (:after-load
               (cond
                 (defer
@@ -270,8 +303,8 @@ for traits must be specified before those for `use-package'.
                     `(run-with-timer ,(cdr defer) nil ',symbol))))))))
 
     `(prog1
-       (defvar ,symbol ,default ,doc)
-       (put ',symbol 'standard-value ,default)
+       (defvar ,symbol ,initial-value ,doc)
+       (put ',symbol 'standard-value ,initial-value)
        ,@sexps)))
 
 
