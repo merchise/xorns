@@ -174,13 +174,26 @@ The NAME syntax is `BASE-NAME[OPERATOR[VALUE]]'."
   "Check if an OBSOLETE variable is being used instead of a TRAIT.
 This uses `>>=check-obsolete-variable' internally, the WHEN argument has the
 same meaning."
-  (let ((info (format "trait `%s'" trait)))
-    `(>>=check-obsolete-variable ,obsolete (>>=trait? ,trait) ,when ,info)))
+  (let ((info (format "trait `%s'" trait))
+        (symbol (>>-trait/internal-symbol trait)))
+    `(>>=check-obsolete-variable ,obsolete ,symbol ,when ,info)))
+
+
+(defun >>-trait/get-value-sexp (trait)
+  "Internal function to get the expression of a TRAIT atomic value."
+  (let ((var (>>-trait/internal-symbol trait)))
+    `(if (boundp (quote ,var)) ,var t)))
 
 
 (defmacro >>=trait? (trait)
-  "Check a TRAIT current value if defined."
-  `,(>>-trait/internal-symbol trait))
+  "Check if a TRAIT is enabled check its super-domains.
+Not defined traits are enabled by default."
+  (if-let ((parent-domains (cdr (reverse (>>=split-domains trait)))))
+    `(and
+       ,@(mapcar #'>>-trait/get-value-sexp parent-domains)
+       ,(>>-trait/get-value-sexp trait))
+    ;; else
+    (>>-trait/get-value-sexp trait)))
 
 
 (defmacro >>=trait/bound (trait)
