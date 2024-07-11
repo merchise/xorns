@@ -8,17 +8,65 @@
 
 ;;; Commentary:
 
-;; This module allows you to customize the dependencies for the system
-;; configuration.  The term trait is used to name a unit of configuration of a
-;; feature or package.  See `>>=trait' macro on how to declare traits.
+;; Traits are designed to extend the customization of Emacs initialization.
+;; The term "trait" is used to name a unit of configuration of a feature or
+;; package.  Use the `>>=trait' macro to declare traits.
 ;;
-;; Enabled traits are triggered (together with their dependencies) after the
-;; Emacs session is initialized (the default), or after the first time
-;; entering a `major-mode', or immediately after they are defined.
+;; For example:
 ;;
-;; Note that traits are not intended to replace `use-package' (that tool is
-;; great), but rather are a complement to organize when each definition should
-;; be run.
+;;   (>>=trait saveplace
+;;     (save-place-mode +1))
+;;
+;; The main extensions are:
+;;
+;;   - A virtual system to enable/disable traits.  The condition to determine
+;;     whether a trait is enabled is implemented with "virtual" control
+;;     variables.  To disable a trait use the `>>=trait/set' macro using a nil
+;;     value:
+;;
+;;       (>>=trait/set saveplace nil)
+;;
+;;   - Alternatives for when to run traits.  They can be triggered either when
+;;     they are defined, or after the Emacs session is initialized, or after
+;;     the first time a `major-mode' is entered.
+;;
+;; Traits can be used to extend a `use-package' definition, this is done by
+;; using a non-valid trait keyword assuming that it is valid for use package.
+;; For example:
+;;
+;;   (>>=trait flycheck
+;;     :ensure t
+;;     :init
+;;     (global-flycheck-mode))
+;;
+;; is equivalent to:
+;;
+;;   (when (>>=trait? flycheck)
+;;     (use-package flycheck
+;;       :ensure t
+;;       :init
+;;       (global-flycheck-mode)))
+;;
+;; The assignment of the control variable of a trait must be done before
+;; defining it, usually in the Emacs initialization process.
+;;
+;; A trait can be disabled by default, this is done by passing nil as a
+;; parameter to the initial value of the `>>=trait' macro or by using the
+;; `:initial-value' keyword:
+;;
+;;   (>>=trait lsp-pyright
+;;     :initial-value nil
+;;     :ensure t)
+
+;;; Backlog:
+
+;; - Remove the definition of variables when they are not necessary.
+;;
+;; - Define options to conditionally execute traits.
+;;
+;; - Define some aliases to main macros.
+;;
+;; - Create the possibility of `use-package' generation templates.
 
 ;; Enjoy!
 
@@ -202,9 +250,10 @@ Not defined traits are enabled by default."
 
 
 (defmacro >>=trait/set (&rest pairs)
-  "Set each trait in PAIRS to its value.
-Traits do not need to be defined because this is the way to configure them
-at system initialization.
+  "Set each TRAIT to its VALUE as defined in PAIRS.
+The primary intent of this macro is to toggle a trait's condition between
+enabled and disabled. It should be used before load the module where the trait
+is defined, see Info node `Init File'.
 
 \(fn [TRAIT VALUE]...)"
   (if (cl-evenp (length pairs))
@@ -224,26 +273,28 @@ at system initialization.
 
 (defmacro >>=trait (name &rest body)
   "Define NAME as a new trait.
-A trait is composed of a control variable and/or an optional execution BODY.
-The variable is named using the trait name prefixed with \">>-|\".  In some
-contexts a function is necessary to encapsulate the execution body, in these
-cases the same name is used for it.
+A trait declares a unit of configuration code along with a condition to
+execute it only when enabled.
 
-Optional extra arguments can contain four concepts: a INITIAL-VALUE, the
-DOCUMENTATION string, any number of [KEYWORD VALUE] pairs, and the execution
-BODY.
+Argument NAME must be a symbol and define the identity of the trait.  The name
+can be multidomain, for example `python.blacken', which allows traits to
+evaluate conditions hierarchically: a trait is only enabled when all
+super-domains are enabled.
 
 The INITIAL-VALUE argument has the same semantics as the `:initial-value'
 keyword but only atomic or quoted definitions can be specified.
 
-The following keys are accepted:
+Optional BODY extra argument can contain several concepts: a INITIAL-VALUE,
+any number of [KEYWORD VALUE] pairs, and the execution code.
+
+The following keywords are accepted:
 
 :initial-value VALUE
     The initial value of the control variable.  Traits are enabled by default.
-    Using nil disables the trait.  Use the `>>=trait/set macro within the
-    `>>=settings/init' function to change the default value during the Emacs
-    initialization process.  This parameter can be explicitly given as the
-    second argument.
+    Boolean value nil disables the trait.  Use the `>>=trait/set' macro to
+    change the default value during the Emacs initialization process.  This
+    parameter can be explicitly given as the second argument, it is not valid
+    when an equality operator is given.
 
 :after-load FILE
     By default, traits are executed immediately after they are defined.  This
@@ -259,16 +310,16 @@ The following keys are accepted:
 :after-delay NUMBER
     The trait runs after a delay of the specified seconds.
 
-A trait can be an extension to a `use-package' definition, however keywords
-for traits must be specified before those for `use-package'.
+See the main module documentation for more information.
 
-\(fn NAME [INITIAL-VALUE] [DOCUMENTATION] [KEYWORD VALUE]... &rest BODY])"
+\(fn NAME [INITIAL-VALUE|CONDITION] [KEYWORD VALUE]... &rest BODY])"
   (declare (doc-string 3) (indent 2))
   (let ((symbol (>>-trait/internal-symbol name))
         (doc nil)
         (initial-value t)
         (defer nil)
         (sexps nil))
+    ;; initial value and documentation string
     (let ((extra-body-head nil))
       (when-let ((aux (when body (>>-trait/initial-value? (car body)))))
         (when (eq (car-safe aux) 'identity)
