@@ -328,6 +328,8 @@ See the main module documentation for more information.
           extra-body-head (list :initial-value aux)
           body (cdr body)))
       (when (stringp (car body))
+        (>>=declare-argument-obsolete
+          `(>>=trait ,name ...) 'documentation-string "0.11.3")
         (setq doc (pop body)))
       (when extra-body-head
         (setq body (nconc extra-body-head body))))
