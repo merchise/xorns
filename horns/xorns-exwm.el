@@ -437,7 +437,7 @@ optional argument."
 (use-package exwm-systemtray
   :after exwm
   :demand t
-  :commands exwm-systemtray-enable exwm-systemtray--set-background-color
+  :commands exwm-systemtray-mode exwm-systemtray--set-background-color
   :preface
   (defsubst >>-exwm/mini-modeline-background-color ()
     "Get background mode-line color if `mini-modeline' is active."
@@ -489,7 +489,7 @@ optional argument."
   (display-battery-mode +1)
   (display-time-mode +1)
   (advice-add 'exwm-systemtray--init :after '>>-exwm/systemtray--init)
-  (exwm-systemtray-enable))
+  (exwm-systemtray-mode +1))
 
 
 (use-package exwm-workspace
