@@ -60,8 +60,6 @@
 
 ;;; Backlog:
 
-;; - Remove the definition of variables when they are not necessary.
-;;
 ;; - Define options to conditionally execute traits.
 ;;
 ;; - Define some aliases to main macros.
@@ -254,8 +252,8 @@ Not defined traits are enabled by default."
 (defmacro >>=trait/set (&rest pairs)
   "Set each TRAIT to its VALUE as defined in PAIRS.
 The primary intent of this macro is to toggle a trait's condition between
-enabled and disabled. It should be used before load the module where the trait
-is defined, see Info node `Init File'.
+enabled and disabled.  It should be used before load the module where the
+trait is defined, see Info node `Init File'.
 
 \(fn [TRAIT VALUE]...)"
   (if (cl-evenp (length pairs))
@@ -406,10 +404,9 @@ See the main module documentation for more information.
                     `(>>-trait/register-mode ',(cdr defer) ',symbol))
                   (:after-delay
                     `(run-with-timer ,(cdr defer) nil ',symbol))))))))
-    `(prog1
-       (defvar ,symbol ,initial-value ,doc)
-       (put ',symbol 'standard-value ,initial-value)
-       ,@sexps)))
+    (when (not (eq initial-value t))
+      (setq sexps (nconc `((defvar ,symbol ,initial-value ,doc)) sexps)))
+    (macroexp-progn sexps)))
 
 
 (provide 'xorns-traits)
