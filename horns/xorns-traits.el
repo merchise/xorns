@@ -67,6 +67,8 @@
 ;; - Define some aliases to main macros.
 ;;
 ;; - Create the possibility of `use-package' generation templates.
+;;
+;; - Check which `use-package' definitions can be converted to traits.
 
 ;; Enjoy!
 
@@ -114,8 +116,8 @@
   "Signal a KEYWORD VALUE error expecting a TYPE in a TRAIT definition."
   (let ((msg (format "invalid keyword '%s', '%s' expected" keyword type)))
     (when value
-      (setq msg (format "%s, not '%s'" msg value)))
-  (>>-trait/error trait msg)))
+      (setq msg (format "%s, not %s '%s'" msg (type-of value) value)))
+    (>>-trait/error trait msg)))
 
 
 (defsubst >>-trait/mutex-error (trait keyword cached)
@@ -385,11 +387,11 @@ See the main module documentation for more information.
     (when body
       (setq sexps
         (if (not defer)
-          `((if ,symbol ,(macroexp-progn body)))
+          `((if (>>=trait? ,name) ,(macroexp-progn body)))
           ;; else
           (list
             `(defun ,symbol () ,doc ,@body)
-            `(if ,symbol
+            `(if (>>=trait? ,name)
                ,(pcase (car defer)
                   (:after-load
                     (let ((file (cdr defer)))
@@ -404,7 +406,6 @@ See the main module documentation for more information.
                     `(>>-trait/register-mode ',(cdr defer) ',symbol))
                   (:after-delay
                     `(run-with-timer ,(cdr defer) nil ',symbol))))))))
-
     `(prog1
        (defvar ,symbol ,initial-value ,doc)
        (put ',symbol 'standard-value ,initial-value)
