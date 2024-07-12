@@ -68,11 +68,7 @@
 ;;; ripgrep
 
 (>>=trait/check-obsolete >>=|ext/ripgrep ripgrep "0.11.5")
-(>>=trait ripgrep
-  "Configure `ripgrep' extension.
-The control variable can also be set with one of the `deadgrep' (an alias for
-t) or `rg' symbols."
-  :initial-value 'deadgrep)
+(>>=trait ripgrep 'deadgrep)    ;; `deadgrep' (an alias for t) or `rg'
 
 
 (use-package deadgrep
@@ -192,10 +188,7 @@ INITIAL-DIRECTORY (the root directory for search)."
 
 (>>=trait/check-obsolete >>=|which-key/enable which-key "0.11.5")
 
-(>>=trait which-key
-  "Configuration for `which-key' package.
-Use one of the symbols `top', `bottom', `left' or `right' to set a side
-window."
+(>>=trait which-key    ;; valid-values: `top', `bottom', `left' or `right'
   :ensure t
   :demand t
   :hook
@@ -256,7 +249,6 @@ be needed in the future..")
 
 (>>=trait/check-obsolete >>=|ext/git-forges forge "0.11.5")
 (>>=trait forge
-  "Configure GIT `forge' extension."
   :ensure t
   :after magit)
 
@@ -265,12 +257,9 @@ be needed in the future..")
 ;;; Tree layout file explorer
 
 (>>=trait/check-obsolete >>=|treemacs/enable treemacs "0.11.5")
+
+
 (>>=trait treemacs
-  "Configure `treemacs' package.")
-
-
-(use-package treemacs
-  :when (>>=trait? treemacs)
   :ensure t
   :defer t
   :commands treemacs-project-follow-mode treemacs-git-commit-diff-mode
