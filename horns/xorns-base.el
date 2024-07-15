@@ -292,7 +292,6 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 
 (>>=trait autorevert
-  :after-load emacs
   :init
   (defun >>-auto-revert? ()
     (unless (>>=current-buffer-remote?)

@@ -201,7 +201,8 @@ INITIAL-DIRECTORY (the root directory for search)."
     (unless (eq side t)
       (setq
         which-key-popup-type 'side-window
-        which-key-side-window-location side))))
+        which-key-side-window-location side
+        which-key-show-prefix 'top))))
 
 
 

@@ -83,6 +83,7 @@
 
 (>>=trait/check-obsolete >>=|ext/multiple-cursors multiple-cursors "0.11.5")
 (>>=trait multiple-cursors
+  :after-load emacs
   :ensure t
   :demand t
   :init
