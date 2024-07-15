@@ -99,6 +99,10 @@
     ;; else
     (error ">>= wrong trait value '%s', must be a symbol" trait)))
 
+(defsubst >>-trait/use-package-symbol (trait)
+  "Get the symbol to use in a `use-package' definition from a TRAIT name."
+  (intern (car (last (>>=split trait ".")))))
+
 
 (defsubst >>-trait/error (trait message &rest args)
   "Signal a TRAIT error by passing MESSAGE and ARGS to `error'."
@@ -374,8 +378,9 @@ See the main module documentation for more information.
                   (>>-trait/value-error name key
                     "number of seconds up to 10 minutes" value))))
             (_
-              (setq body `((use-package ,name ,@body)))
-              (throw 'done nil))))
+              (let ((pkg (>>-trait/use-package-symbol name)))
+                (setq body `((use-package ,pkg ,@body)))
+                (throw 'done nil)))))
         (setq body (nthcdr 2 body))))
     (when (and defer (not body))
       (>>-trait/value-error name (car defer) "non-empty body"))
