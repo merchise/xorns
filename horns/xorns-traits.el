@@ -51,22 +51,11 @@
 ;; defining it, usually in the Emacs initialization process.
 ;;
 ;; A trait can be disabled by default, this is done by passing nil as a
-;; parameter to the initial value of the `>>=trait' macro or by using the
-;; `:initial-value' keyword:
+;; parameter of the `>>=trait' macro or by using the `:default-value' keyword:
 ;;
 ;;   (>>=trait lsp-pyright
-;;     :initial-value nil
+;;     :default-value nil
 ;;     :ensure t)
-
-;;; Backlog:
-
-;; - Define options to conditionally execute traits.
-;;
-;; - Define some aliases to main macros.
-;;
-;; - Create the possibility of `use-package' generation templates.
-;;
-;; - Check which `use-package' definitions can be converted to traits.
 
 ;; Enjoy!
 
@@ -99,136 +88,10 @@
     ;; else
     (error ">>= wrong trait value '%s', must be a symbol" trait)))
 
+
 (defsubst >>-trait/use-package-symbol (trait)
   "Get the symbol to use in a `use-package' definition from a TRAIT name."
   (intern (car (last (>>=split trait ".")))))
-
-
-(defsubst >>-trait/error (trait message &rest args)
-  "Signal a TRAIT error by passing MESSAGE and ARGS to `error'."
-  (apply 'error (concat (format ">>= trait '%s' - " trait) message) args))
-
-
-(defsubst >>-trait/repeated-keyword (trait keyword)
-  "Signal an error if a KEYWORD repeated in a TRAIT definition."
-  (>>-trait/error trait "value of %s is repeated" keyword))
-
-
-(defsubst >>-trait/value-error (trait keyword type &optional value)
-  "Signal a KEYWORD VALUE error expecting a TYPE in a TRAIT definition."
-  (let ((msg (format "invalid keyword '%s', '%s' expected" keyword type)))
-    (when value
-      (setq msg (format "%s, not %s '%s'" msg (type-of value) value)))
-    (>>-trait/error trait msg)))
-
-
-(defsubst >>-trait/mutex-error (trait keyword cached)
-  "Signal KEYWORD is mutually exclusive with CACHED in a TRAIT definition."
-  (let ((aux (car cached)))
-    (if (eq keyword aux)
-    (>>-trait/repeated-keyword trait keyword)
-    ;; else
-    (>>-trait/error trait
-      "%s keyword is mutually exclusive with %s" keyword aux))))
-
-
-(defsubst >>-trait/kvp (trait body)
-  "Return the first (KEYWORD, VALUE) pair from the TRAIT definition BODY."
-  (if-let ((key (>>=keywordp (car body))))
-    (if (length> body 1)
-      key
-      ;; else
-      (>>-trait/error trait "keyword %s given without a value" key))))
-
-
-(defsubst >>-trait/normalize-mode (value)
-  "Normalize a VALUE as a `major-mode' symbol."
-  (let ((aux (>>=as-string value))
-        (suffix "-mode"))
-    (if (>>=suffix-equal aux suffix)
-      value
-      ;; else
-      (intern (concat aux suffix)))))
-
-
-;; TODO: Check if this function can be generalized in 'tools' module
-(defsubst >>-trait/initial-value? (value)
-  "Return a normalized VALUE suitable for initial-value argument."
-  (cond
-    ((null value)
-      '(identity nil))
-    ((and (atom value) (not (keywordp value)) (not (stringp value)))
-      value)
-    ((eq (car-safe value) 'quote)
-      (let ((aux (cadr value)))
-        (if (or (keywordp aux) (stringp aux)) aux value)))
-    ((eq (car-safe value) 'function)
-      value)
-    ((memq (car-safe value) '(lambda closure identity))
-      value)))
-
-
-(defun >>-trait/parse-name (name)
-  "Parse a trait NAME and return a (BASE-NAME OPERATOR VALUE) list.
-The NAME syntax is `BASE-NAME[OPERATOR[VALUE]]'."
-  (setq name (>>=as-string name))
-  (catch 'found
-    (dolist (op '(!= = : !))
-      (when-let ((pair (>>=bisect-string name (symbol-name op))))
-        (let ((base (car pair))
-              (value (cdr pair))
-              keyword)
-          (if value
-            (progn
-              (setq value (>>=str2lisp value))
-              (if (booleanp value)
-                (>>-trait/error name
-                  "explicit boolean values are not allowed in operators")
-                ;; else
-                (pcase op
-                  ('=
-                    (setq keyword :if-equal))
-                  ('!=
-                    (setq keyword :if-not-equal))
-                  (':
-                    (setq keyword :if-trait-enabled))
-                  ('!
-                    (setq keyword :if-trait-not-enabled))
-                  (_
-                    (>>-trait/error name
-                      "invalid operator '%s' with value '%s'" op value)))))
-            ;; else
-            (if (eq op ':)
-              (setq
-                keyword :immutable
-                value t)
-              ;; else
-              (>>-trait/error name
-                "no empty value allowed for operator '%s'" op)))
-          (throw 'found (list base keyword value)))))
-      ;; default
-    (list name)))
-
-
-(defun >>-trait/register-mode (mode trigger)
-  "Register a trait TRIGGER to run when entering a major MODE."
-  (let ((hook (intern (format "%s-hook" mode)))
-        after)
-    (setq after
-      (lambda ()
-        (remove-hook hook trigger)
-        (advice-remove trigger after)))
-    (advice-add trigger :after after)
-    (add-hook hook trigger)))
-
-
-(defmacro >>=trait/check-obsolete (obsolete trait when)
-  "Check if an OBSOLETE variable is being used instead of a TRAIT.
-This uses `>>=check-obsolete-variable' internally, the WHEN argument has the
-same meaning."
-  (let ((info (format "trait `%s'" trait))
-        (symbol (>>-trait/internal-symbol trait)))
-    `(>>=check-obsolete-variable ,obsolete ,symbol ,when ,info)))
 
 
 (defun >>-trait/get-value-sexp (trait)
@@ -275,30 +138,196 @@ trait is defined, see Info node `Init File'.
     (signal 'wrong-number-of-arguments `(>>=trait/set odd ,(length pairs)))))
 
 
+(defalias '>>-trait/is= 'value=)
+(defalias '>>-trait/is/= 'value/=)
+(defalias '>>-trait/is< 'value<)
+(defalias '>>-trait/is<= 'value<=)
+(defalias '>>-trait/is> 'value>)
+(defalias '>>-trait/is>= 'value>=)
+
+
+(defsubst >>-trait/is| (one two)
+  "Intersection operator.
+Returns whether the intersection of the sets ONE and TWO is nonempty.  If any
+of the values ​​is not a list, it is considered to be the set containing that
+single element."
+  (or
+    (value= one two)
+    (let ((aux (proper-list-p two)))
+      (if (proper-list-p one)
+        (if aux
+          (seq-intersection one two 'value=)
+          ;; else
+          (value-in two one))
+        ;; else
+        (when aux
+          (value-in one two))))))
+
+
+(defsubst >>-trait/is^ (one two)
+  "Extended intersection operator.
+Return non-nil when the intersection operator '|' is validated on arguments
+ONE and TWO, but it is also validated when ONE (the current value of the
+trait) is the literal boolean t so that the operand TWO is considered as the
+default value."
+  (or
+    (eq one t)
+    (>>-trait/is| one two)))
+
+
+(defsubst >>-trait/error (trait message &rest args)
+  "Signal a TRAIT error by passing MESSAGE and ARGS to `error'."
+  (apply 'error (concat (format ">>= trait '%s' - " trait) message) args))
+
+
+(defsubst >>-trait/operator (value)
+  "Check if a VALUE is a valid trait operator."
+  (when (memq value '(= | ^ /= < <= > >= :))
+    value))
+
+
+(defsubst >>-trait/operator-pair (trait body)
+  "Return the head operator/value pair from a TRAIT BODY definition."
+  (when-let ((op (>>-trait/operator (car body))))
+    (if (length> body 1)
+      (let ((value (nth 1 body)))
+        (if (not (booleanp value))
+          (cons op value)
+          ;; else
+          (>>-trait/error trait
+            "operator '%s' uses an invalid literal boolean value" op)))
+      ;; else
+      (>>-trait/error trait "operator '%s' given without a value" op))))
+
+
+(defsubst >>-trait/keyword-pair (trait body)
+  "Return the head keyword/value pair from a TRAIT BODY definition."
+  (when-let ((key (>>=keywordp (car body))))
+    (if (length> body 1)
+      (cons key (nth 1 body))
+      ;; else
+      (>>-trait/error trait "keyword %s given without a value" key))))
+
+
+(defsubst >>-trait/inline-default-value (body)
+  "Check for a valid inline default value in BODY."
+  (when-let ((value (>>=car body)))
+    (and
+      (not (keywordp value))
+      (or (atom value) (>>=quoted value) (keywordp (nth 1 body))))))
+
+
+(defsubst >>-trait/identifier (base operator value)
+  "Get a new identifier from a BASE symbol, an OPERATOR and a VALUE."
+  (intern (format "%s%s%s" base operator (>>=identifier value 'unique))))
+
+
+(defmacro >>-trait/check-keyword (target type-info checker)
+  "Internal tool to be used only for `>>=trait' macro.
+Argument TARGET is the variable bind to store the value, TYPE-INFO should be a
+string explaining the expected type, CHECKER is a expression to check if the
+value is valid or not."
+  `(if ,target
+     (let ((duplicated (or (car-safe ,target) keyword)))
+       (if (eq keyword duplicated)
+         (>>-trait/error name "%s keyword is repeated" keyword)
+         ;; else
+         (>>-trait/error name
+           "%s is mutually exclusive with %s" keyword duplicated)))
+     ;; else
+     (if-let ((aux ,checker))
+       (setq ,target (cons keyword (>>=unwrap-nil aux)))
+       ;; else
+       (>>-trait/error name
+         "invalid '%s' value for %s keyword, expecting '%s'"
+         value keyword ,type-info))))
+
+
+(defsubst >>-trait/normalize-mode (value)
+  "Normalize a VALUE as a `major-mode' symbol."
+  (let ((aux (>>=as-string value))
+        (suffix "-mode"))
+    (if (>>=suffix-equal aux suffix)
+      value
+      ;; else
+      (intern (concat aux suffix)))))
+
+
+(defun >>-trait/register-mode (mode trigger)
+  "Register a trait TRIGGER to run when entering a major MODE."
+  (let ((hook (intern (format "%s-hook" mode)))
+        after)
+    (setq after
+      (lambda ()
+        (remove-hook hook trigger)
+        (advice-remove trigger after)))
+    (advice-add trigger :after after)
+    (add-hook hook trigger)))
+
+
+(defmacro >>=trait/check-obsolete (obsolete trait when)
+  "Check if an OBSOLETE variable is being used instead of a TRAIT.
+This uses `>>=check-obsolete-variable' internally, the WHEN argument has the
+same meaning."
+  (let ((info (format "trait `%s'" trait))
+        (symbol (>>-trait/internal-symbol trait)))
+    `(>>=check-obsolete-variable ,obsolete ,symbol ,when ,info)))
+
+
 (defmacro >>=trait (name &rest body)
   "Define NAME as a new trait.
 A trait declares a unit of configuration code along with a condition to
 execute it only when enabled.
 
-Argument NAME must be a symbol and define the identity of the trait.  The name
-can be multidomain, for example `python.blacken', which allows traits to
-evaluate conditions hierarchically: a trait is only enabled when all
-super-domains are enabled.
+Argument NAME must is the identity of the trait.  The name can be
+multi-domain, for example `python.blacken', which allows traits to evaluate
+conditions hierarchically: a trait is only enabled when all its super-domains
+are enabled.
 
-The INITIAL-VALUE argument has the same semantics as the `:initial-value'
-keyword but only atomic or quoted definitions can be specified.
+BODY can contain several concepts: a DEFAULT-VALUE or a CONDITION, any number
+of [KEYWORD VALUE] pairs, and the actual BODY with the code to execute when
+the trait is enabled.
 
-Optional BODY extra argument can contain several concepts: a INITIAL-VALUE,
-any number of [KEYWORD VALUE] pairs, and the execution code.
+Actually, the VALUE bound to a trait is a special case of a CONDITION (the
+trait is enabled if its value is non-null).  The DEFAULT-VALUE argument has
+the same semantics as the `:default-value' keyword but only atomic values can
+be specified.  An explicit CONDITION is defined by a pair of an OPERATOR and
+an OPERAND (the trait is enabled if OPERAND is true).
+
+The following binary operators that compare in standard order the value of
+current trait with a given operand are accepted: '=', '<', '<=', '>', and
+'>='.  These operators are validated with the function using the format
+pattern '>>-trait/is[OPERATOR]', for example see `>>-trait/is='.
+
+There are other binary operators that are more specific than the above:
+
+
+'|'
+    The current value of the trait and the operand are considered sets.  It is
+    validated when the intersection of the two sets is nonempty.  If any of
+    the values ​​is not a list, it is considered to be the set containing that
+    single element.  It is executed using `>>-trait/is|'.
+
+    This operator can be used with several semantics.  The two main ones
+    are, (1) the trait is configured with several options so that it is
+    validated in any of these cases, or (2) the configured value of the trait
+    is one of the options given as the operand value.
+
+'^'
+    True if the intersection operator ’|’ is validated or when the current
+    value of the trait is the literal boolean t, allowing a default
+    option (usually a symbol).  It is executed with `>>-trait/is^'.
+
+The unary operator ':' is used to specify a Lisp expression that is evaluated
+using the symbol `this' to refer to the current value of the trait.  A plain
+name (a symbol) can also be specified meaning that the given trait must be
+enabled.
 
 The following keywords are accepted:
 
-:initial-value VALUE
-    The initial value of the control variable.  Traits are enabled by default.
-    Boolean value nil disables the trait.  Use the `>>=trait/set' macro to
-    change the default value during the Emacs initialization process.  This
-    parameter can be explicitly given as the second argument, it is not valid
-    when an equality operator is given.
+:default-value VALUE
+    The default value of a trait.  Use the `>>=trait/set' macro to change the
+    value of a trait during the Emacs initialization process.
 
 :after-load FILE
     By default, traits are executed immediately after they are defined.  This
@@ -314,104 +343,107 @@ The following keywords are accepted:
 :after-delay NUMBER
     The trait runs after a delay of the specified seconds.
 
+When a trait is used as an extension of `use-package', the package name is the
+last subdomain of the trait name unless one of the '=', '|', '^' or ':'
+operators uses a symbol as an operand, in which case it is used to determine
+the package name.
+
 See the main module documentation for more information.
 
-\(fn NAME [INITIAL-VALUE|CONDITION] [KEYWORD VALUE]... &rest BODY])"
-  (declare (doc-string 3) (indent 2))
-  (let ((symbol (>>-trait/internal-symbol name))
-        (doc nil)
-        (initial-value t)
-        (defer nil)
-        (sexps nil))
-    ;; initial value and documentation string
-    (let ((extra-body-head nil))
-      (when-let ((aux (when body (>>-trait/initial-value? (car body)))))
-        (when (eq (car-safe aux) 'identity)
-          (setq aux (cadr aux)))
-        (setq
-          extra-body-head (list :initial-value aux)
-          body (cdr body)))
-      (when (stringp (car body))
-        (>>=declare-argument-obsolete
-          `(>>=trait ,name ...) 'documentation-string "0.11.3")
-        (setq doc (pop body)))
-      (when extra-body-head
-        (setq body (nconc extra-body-head body))))
-    ;; keywords
+\(fn NAME [DEFAULT-VALUE|CONDITION] [KEYWORD VALUE]... &rest BODY])"
+  (declare (indent 2))
+  (let (condition trigger aux-name)
+    ;; operator, default-value
+    (if-let ((pair (>>-trait/operator-pair name body)))
+      (let* ((op (car pair))
+             (value (cdr pair)))
+        (setq body (nthcdr 2 body))
+        (when (and (memq op '(= | ^ :)) (symbolp value))
+          (setq aux-name value))
+        (if (eq op :)    ;; unary
+          (when (symbolp value)
+            (setq value `(>>=trait? ,value)))
+          ;; else        ;; binary
+          (let ((fn (>>=function-intern ">>-trait/is%s" op)))
+            (setq value `(,fn this ,(if (symbolp value) `',value value)))))
+        (setq condition (cons op value)))
+      ;; else
+      (when (>>-trait/inline-default-value body)
+        (setq body (cons :default-value body))))
+    ;; parse keywords
     (catch 'done
-      (while-let ((key (>>-trait/kvp name body)))
-        (let ((value (nth 1 body)))
-          (pcase key
-            (:initial-value
-              (cond
-                ((not (eq initial-value t))
-                  (>>-trait/repeated-keyword name key))
-                ((eq value t)
-                  (>>-trait/error name "keyword %s is t by default" key))
-                (t
-                  (setq initial-value value))))
+      (while-let ((pair (>>-trait/keyword-pair name body)))
+        (let ((keyword (car pair))
+              (value (cdr pair)))
+          (pcase keyword
+            (:default-value
+              (>>-trait/check-keyword condition "not literal boolean t"
+                (unless (eq value t)
+                  (>>=wrap-nil value))))
             (:after-load
-              (cond
-                (defer
-                  (>>-trait/mutex-error name key defer))
-                ((>>=non-empty-string-or-symbol value)
-                  (setq defer (cons key value)))
-                (t
-                  (>>-trait/value-error name key "symbol or string" value))))
+              (>>-trait/check-keyword trigger "string or symbol"
+                (>>=non-empty-string-or-symbol value)))
             (:entering-mode
-              (cond
-                (defer
-                  (>>-trait/mutex-error name key defer))
-                ((>>=real-symbol value)
-                  (setq
-                    defer (cons key (>>-trait/normalize-mode value))))
-                (t
-                  (>>-trait/value-error name key "symbol" value))))
+              (>>-trait/check-keyword trigger "symbol (major-mode)"
+                (when (>>=real-symbol value)
+                  (>>-trait/normalize-mode value))))
             (:after-delay
-              (cond
-                (defer
-                  (>>-trait/mutex-error name key defer))
-                ((and (numberp value) (< 0 value 600.001))
-                  (setq
-                    defer (cons key value)))
-                (t
-                  (>>-trait/value-error name key
-                    "number of seconds up to 10 minutes" value))))
+              (>>-trait/check-keyword trigger
+                "number of seconds up to 10 minutes"
+                (when (and (numberp value) (< 0 value 600.001))
+                  value)))
             (_
-              (let ((pkg (>>-trait/use-package-symbol name)))
+              (let ((pkg (>>-trait/use-package-symbol (or aux-name name))))
                 (setq body `((use-package ,pkg ,@body)))
                 (throw 'done nil)))))
         (setq body (nthcdr 2 body))))
-    (when (and defer (not body))
-      (>>-trait/value-error name (car defer) "non-empty body"))
-    (unless doc
-      (setq doc
-        (format "Trait \"%s\" %s." name (if body "configuration" "flag"))))
-    (when body
-      (setq sexps
-        (if (not defer)
-          `((if (>>=trait? ,name) ,(macroexp-progn body)))
-          ;; else
-          (list
-            `(defun ,symbol () ,doc ,@body)
-            `(if (>>=trait? ,name)
-               ,(pcase (car defer)
-                  (:after-load
-                    (let ((file (cdr defer)))
-                      (if (memq file '(init emacs))
-                        `(if after-init-time
-                           (,symbol)
-                           ;; else
-                           (add-hook 'after-init-hook ',symbol))
-                        ;; else
-                        `(eval-after-load ',file '(,symbol)))))
-                  (:entering-mode
-                    `(>>-trait/register-mode ',(cdr defer) ',symbol))
-                  (:after-delay
-                    `(run-with-timer ,(cdr defer) nil ',symbol))))))))
-    (when (not (eq initial-value t))
-      (setq sexps (nconc `((defvar ,symbol ,initial-value ,doc)) sexps)))
-    (macroexp-progn sexps)))
+    ;; Set definitions and generate code
+    (let ((symbol (>>-trait/internal-symbol name))
+          var-def cond-def code-def)
+      (when condition
+        (let ((key (car condition))
+              (aux (cdr condition)))
+          (if (eq key :default-value)
+            (setq var-def
+              `(defvar ,symbol ,aux
+                 ,(format "Trait `%s' configuration variable." name)))
+            ;; else
+            (setq
+              symbol (>>-trait/identifier symbol key (or aux-name aux))
+              cond-def `,aux))))
+      (when (and (or trigger cond-def) (not body))
+        (>>-trait/error name
+          "keyword %s is invalid with empty body" (car trigger)))
+      (when body
+        (setq code-def
+          (if (null trigger)
+            body
+            ;; else
+            (list
+              `(defun ,symbol ()
+                 ,(format "Trait `%s' function." name)
+                 ,@body)
+              `(declare-function ,symbol nil)  ;; WTF: avoid compiler warning
+              (pcase (car trigger)
+                (:after-load
+                  (let ((file (cdr trigger)))
+                    (if (memq file '(init emacs))
+                      `(if after-init-time
+                         (,symbol)
+                         ;; else
+                         (add-hook 'after-init-hook ',symbol))
+                      ;; else
+                      `(eval-after-load ',file '(,symbol)))))
+                (:entering-mode
+                  `(>>-trait/register-mode ',(cdr trigger) ',symbol))
+                (:after-delay
+                  `(run-with-timer ,(cdr trigger) nil ',symbol)))))))
+      (>>=macroexp-progn
+        var-def
+        (when code-def
+          `(let ((this (>>=trait? ,name)))
+             (if ,(if cond-def `(and this ,cond-def) 'this)
+               ,(>>=macroexp-progn code-def))))))))
 
 
 (provide 'xorns-traits)
