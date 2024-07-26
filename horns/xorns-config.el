@@ -160,12 +160,12 @@ Only return the name if the file is readable."
 
 (defsubst >>-config/major-mode-load-function ()
   "Function to be executed any time a `major-mode' is loaded."
-  (>>=check-function (format ">>=config/on-load-%s" major-mode)))
+  (>>=function/intern-soft (format ">>=config/on-load-%s" major-mode)))
 
 
 (defsubst >>-config/major-mode-visit-file-function ()
   "Function to be executed any time a `major-mode' file is visited."
-  (>>=check-function (format ">>=config/on-visit-%s-file" major-mode)))
+  (>>=function/intern-soft (format ">>=config/on-visit-%s-file" major-mode)))
 
 
 (defsubst >>-config/mode-file ()
@@ -387,7 +387,7 @@ of targets valid for `set-fontset-font', or a sequence of such forms."
           (if-let ((res (>>=set-font >>=|font-settings)))
             (setq >>-font/configured res)
             ;; else
-            (warn ">>= warning: cannot find any of the specified fonts.")))
+            (>>=warn "cannot find any of the specified fonts.")))
         ;; else
         (setq >>-font/configured 'text-only-terminal)))
     (error
@@ -422,11 +422,7 @@ of targets valid for `set-fontset-font', or a sequence of such forms."
       ;; backward compatibility
       (->? >>=settings/init)
       (>>=font/configure)
-      (warn
-        (concat
-          ">>= user options file '%s' does not exists, "
-          "check the `xorns-config' module documentation.")
-        >>-!config/user-file))
+      (>>=warn "missing user options file: %s" >>-!config/user-file))
     (when >>=config/user-folder
       (add-hook 'text-mode-hook '>>-config/run-mode-enter-hooks)
       (add-hook 'prog-mode-hook '>>-config/run-mode-enter-hooks))
@@ -437,7 +433,7 @@ of targets valid for `set-fontset-font', or a sequence of such forms."
   (if (not custom-file)
     (>>-main/configuration)
     ;; else
-    (warn ">>= `custom-file' already assigned: '%s'" custom-file)))
+    (>>=warn "`custom-file' already assigned: '%s'" custom-file)))
 
 
 (provide 'xorns-config)

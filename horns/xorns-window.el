@@ -145,7 +145,7 @@ See variable `>>=|xtabs/buffer-groups' for more information.")
               ;; else
               #'split-window-vertically))))
       ;; else
-      (warn "Only can toggle two windows!")))
+      (>>=warn "only can toggle two windows")))
   :custom
   (split-width-threshold 120)
   :bind
@@ -380,7 +380,7 @@ other buffers.  This is set up by `>>=toolbox/setup-buffer'.")
   (if (functionp symbol)
     symbol
     ;; else
-    (>>=check-function (format "display-buffer-%s" symbol) 'strict)))
+    (>>=function/ensure (format "display-buffer-%s" symbol))))
 
 
 (defun >>-toolbox/normalize-action (action)

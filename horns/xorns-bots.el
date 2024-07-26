@@ -65,7 +65,7 @@
           (command "git describe --tags --abbrev=0 2> /dev/null"))
       (>>=shell-command-to-string command))
     ;; else
-    (warn ">>= xorns working-folder not found.")))
+    (>>=warn "working-folder not found")))
 
 
 (defun >>-bots/set-package-version (version)
@@ -78,7 +78,7 @@
         (delete-region (point) (line-end-position))
         (insert version)))
     ;; else
-    (warn ">>= xorns working-folder not found.")))
+    (>>=warn "working-folder not found")))
 
 
 (defun >>-bots/get-next-release-options (&optional current)
@@ -113,7 +113,7 @@ If BASE argument is non-nil, open project directory instead."
   (if-let ((path (>>-bots/local-working-folder)))
     (dired (if base path (expand-file-name "horns" path)))
     ;; else
-    (warn ">>= xorns working-folder not found.")))
+    (>>=warn "working-folder not found")))
 
 
 (defun >>=bots/recent-working-file ()
@@ -131,7 +131,7 @@ If BASE argument is non-nil, open project directory instead."
         ;; else
         (>>=bots/dired-working-folder)))
     ;; else
-    (warn ">>= xorns working-folder not found.")))
+    (>>=warn "working-folder not found")))
 
 
 (defun >>=bots/make-release (version)
@@ -147,8 +147,8 @@ If BASE argument is non-nil, open project directory instead."
         (shell-command (format tag-command version))
         (shell-command (format commit-command version)))
       ;; else
-      (warn
-        ">>= new version '%s' should be greater than current release '%s'"
+      (>>=warn
+        "new version '%s' should be greater than current release '%s'"
         version current))))
 
 
@@ -157,10 +157,10 @@ If BASE argument is non-nil, open project directory instead."
   (interactive)
   (let ((buf (find-file-noselect >>-!sketch-file-name)))
     (unless (eq (>>=buffer-major-mode buf) 'lisp-interaction-mode)
-      (warn
-        ">>= '%s' is not in `lisp-interaction-mode', copied from '%s'"
+      (>>=warn
+        "'%s' is not in `lisp-interaction-mode', copied from '%s'"
         >>-!sketch-file-name
-        "xorns/horns/templates/xorns-sketch"))
+        "horns/templates/xorns-sketch"))
     (pop-to-buffer-same-window buf)))
 
 
@@ -173,7 +173,7 @@ repository."
     (let ((default-directory user-emacs-directory))
       (shell-command "git pull --rebase origin"))
     ;; else
-    (warn ">>= only allowed when there is a local working folder.")))
+    (>>=warn "only allowed when there is a local working folder")))
 
 
 (defun >>=bots/remove-compiled ()

@@ -1138,8 +1138,8 @@ variable(s)."
           ">>= missing `info' argument for obsolete variable `%s' definition "
           "for a non-symbol `current' argument")
         obsolete)))
-  (let* ((msg ">>= `%s' is an obsolete variable (as of %s); use %s instead")
-         (sexps `((warn ,msg ',obsolete ',when ',info))))
+  (let* ((msg "`%s' is an obsolete variable (as of %s); use %s instead")
+         (sexps `((>>=warn ,msg ',obsolete ',when ',info))))
     (setq sexps
       (cons
         (if (>>=real-symbol current)
@@ -1557,7 +1557,7 @@ configured."
     (or
       (executable-find command)
       (when init-file-debug
-        (warn ">>= warning: '%s' command is not installed" command)
+        (>>=warn "'%s' command is not installed" command)
         nil))))
 
 

@@ -85,7 +85,7 @@ Could be `>>=term/ansi' (the default) or `>>=term/vt' (the recommended).")
   (defun >>=term/shell-file-name ()
   "Get the executable file name to load inferior shells from."
     (purecopy
-      (>>=executable-find
+      (>>=command/find
         explicit-shell-file-name
         shell-file-name
         (getenv "ESHELL")
@@ -359,7 +359,7 @@ Could be `>>=term/ansi' (the default) or `>>=term/vt' (the recommended).")
   ((_ (subclass >>=term/settings)) &rest slots)
   "Create a terminal settings instance using SLOTS arguments.
 Do not use this method directly, use `>>=term/define' macro instead."
-  (let ((res (super)))
+  (let ((res (cl-call-next-method)))
     ;; check main instance
     (unless (oref-default '>>=term/settings main-instance)
       (oset-default '>>=term/settings main-instance res))
@@ -391,7 +391,7 @@ optional interactive command PREFIX argument."
         ;; else
         (let* ((program (oref settings program))
                (buf (>>-term/create-buffer class program name))
-               (obj (super class :settings settings :buffer buf)))
+               (obj (cl-call-next-method class :settings settings :buffer buf)))
           (>>=toolbox/set-properties buf :term-instance obj)
           obj)))))
 
@@ -443,7 +443,7 @@ optional interactive command PREFIX argument."
 (defun >>-term/get-paste-text ()
   "Return a list of TERMINAL buffers."
   (unless (>>=term/buffer-p)
-    (>>=str-non-empty (>>=str-trim (>>=buffer-focused-text)))))
+    (>>=non-empty-string (>>=str-trim (>>=buffer-focused-text)))))
 
 
 (defsubst >>-term/check-eol (text)
