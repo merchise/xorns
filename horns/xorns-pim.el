@@ -40,6 +40,7 @@
 
 (use-package calendar
   :bind
+  ;; TODO: fix the conflict "Key sequence starts with non-prefix key"
   ("C-c a c" . calendar)
   :custom
   ;; TODO: needed in order to use `diary-anniversary' without the year

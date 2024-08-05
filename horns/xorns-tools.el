@@ -116,6 +116,7 @@ function."
     (car def)))
 
 
+;; TODO: Check `setopt' macro in module "cus-edit.el"
 (defmacro >>=set-custom-value? (symbol value)
   "Set SYMBOL to VALUE if not already customized."
   (declare (debug setq))
