@@ -82,6 +82,10 @@ Value could be a function receiving an unique argument string; or nil to use
 (defvar >>=|exwm/url-keys
   `(("<s-f2>" . "http://")    ;; Empty browser
     ("C-s-t" . "https://translate.google.com")
+    ("C-s-m" . "https://messages.google.com/web")
+    ("C-s-g" . "https://gmail.com")
+    ("C-s-d" . "https://docs.google.com")
+    ("C-s-s" . "https://sheets.google.com")
     ("C-s-c" . "https://web.telegram.org"))
   "Pairs of (KEY . URL) to be used with `browse-url'.")
 
