@@ -68,11 +68,9 @@
 ;;; ripgrep
 
 (>>=trait/check-obsolete >>=|ext/ripgrep ripgrep "0.11.5")
-(>>=trait ripgrep 'deadgrep)    ;; `deadgrep' (an alias for t) or `rg'
 
 
-(use-package deadgrep
-  :when (memq (>>=trait? ripgrep) '(deadgrep t))
+(>>=trait ripgrep ^ deadgrep
   :ensure t
   :after grep
   :init
@@ -81,8 +79,7 @@
   ([remap rgrep] . >>=rg-project))
 
 
-(use-package rg
-  :when (eq (>>=trait? ripgrep) 'rg)
+(>>=trait ripgrep | rg
   :ensure t
   :after grep
   :commands transient-get-value rg-run rg-project-root rg-read-pattern
@@ -197,12 +194,11 @@ INITIAL-DIRECTORY (the root directory for search)."
   :config
   (when (and (featurep 'exwm) (eq which-key-popup-type 'frame))
     (setq which-key-popup-type 'side-window))
-  (let ((side (>>=trait? which-key)))
-    (unless (eq side t)
-      (setq
-        which-key-popup-type 'side-window
-        which-key-side-window-location side
-        which-key-show-prefix 'top))))
+  (when (>>=real-symbol this)
+    (setq
+      which-key-popup-type 'side-window
+      which-key-side-window-location this
+      which-key-show-prefix 'top)))
 
 
 
