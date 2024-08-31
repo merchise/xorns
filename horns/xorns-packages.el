@@ -33,6 +33,7 @@
 
 (defun >>=package/ensure (package)
   "Ensure that PACKAGE is properly installed."
+  (declare (obsolete use-package "0.11.5"))
   (unless (require package nil 'noerror)
     (condition-case nil
       (package-install package)
@@ -48,6 +49,7 @@
   "Safe evaluate BODY forms sequentially and return value of last one.
 Similar to a `progn' special form but loading FEATURE before using `require'
 of the eval of BODY forms sequentially and return value of last one."
+  (declare (obsolete use-package "0.11.5"))
   `(condition-case-unless-debug err
      (progn
        (>>=package/ensure ',feature)
@@ -57,15 +59,11 @@ of the eval of BODY forms sequentially and return value of last one."
        (message ">>= error configuring feature '%s': %s" ',feature err))))
 
 
-(defmacro >>=ensure-packages (&rest packages)    ; TODO: deprecate this
+(defmacro >>=ensure-packages (&rest packages)
   "Ensure that all PACKAGES are installed."
+  (declare (obsolete use-package "0.11.5"))
   `(dolist (pkg '(,@packages))
      (>>=package/ensure pkg)))
-
-
-;; TODO: remove this after Emacs > 29.1
-(with-eval-after-load 'xorns-packages
-  (>>=package/ensure 'use-package))
 
 
 (provide 'xorns-packages)

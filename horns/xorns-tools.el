@@ -80,9 +80,6 @@ Similar to `set' but calling `custom-load-symbol' if needed."
   (set symbol value))
 
 
-(define-obsolete-function-alias '>>=value-of 'bound-and-true-p "0.10.19")
-
-
 (defmacro >>=get-standard-value (symbol)
   "Return standard value of SYMBOL or nil if that is void."
   `(ignore-errors (eval (car (get ',symbol 'standard-value)))))
