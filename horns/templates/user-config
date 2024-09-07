@@ -6,7 +6,7 @@
 ;;; Code:
 
 (defun >>=settings/init ()
-  "Configuration code for user-settings.
+  "User-settings configuration.
 This function is called at the very beginning of the startup process.  It
 should only modify setting-variables (those prefixed with '>>=|') when their
 default values are not suitable for your configuration."
@@ -54,7 +54,7 @@ default values are not suitable for your configuration."
 
 
 (defun >>=building-blocks/configuration ()
-  "Configuration code for building-blocks customization.
+  "Building-blocks customization.
 This function should only modify variables to customize how building-blocks
 are loaded (those prefixed with '>>+') when their default values are not
 suitable for your configuration."
@@ -64,10 +64,10 @@ suitable for your configuration."
 
 
 (defun >>=window-manager/init ()
-  "Configuration executed only when using Emacs as a Window Manager."
+  "Emacs X Window Manager (EXWM) configuration."
   )
 
 
 (defun >>=user-code ()
-  "User-code executed after initialization process."
+  "User-code after initialization process."
   )
