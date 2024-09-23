@@ -20,8 +20,8 @@
   - [X] Basic ~use-package~ settings.
   - [ ] Traits related to major modes.
   - [ ] Hierarchical options.
-- [ ] Migrate current configurations to use ~traits~.
-  - [ ] [[file:~/work/emacs/xorns/horns/xorns-mode-line.el::(defvar >>=|mode-line/kind nil][mode-line/kind]].
+- [-] Migrate current configurations to use ~traits~.
+  - [X] [[file:~/work/emacs/xorns/horns/xorns-mode-line.el::(defvar >>=|mode-line/kind nil][mode-line/kind]].
   - [ ] [[file:~/work/emacs/xorns/horns/xorns-minibuffer.el::(defvar >>=|minibuffer/completing-framework nil][minibuffer/completing-framework]].
   - [ ] [[file:~/work/emacs/xorns/horns/xorns-devop.el::defvar >>=|devops/features '(docker][devops/features]].
   - [ ] [[file:~/work/emacs/xorns/horns/xorns-system.el::(>>=trait treemacs][treemacs]].

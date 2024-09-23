@@ -20,7 +20,6 @@ default values are not suitable for your configuration."
     ;; >>=|enable-server t
     ;; >>=|xtabs/kind nil
     ;; >>=|dired/omit-mode t
-    ;; >>=|mode-line/kind 'mini
     ;; >>=|term/install-customizable-colors nil
     ;; >>=|toolbox/display-buffer-action 'other-window
     ;; >>=|term/emulator-class '>>=term/vt
@@ -38,6 +37,7 @@ default values are not suitable for your configuration."
     ;; >>=|crypt/gpg-integration nil
     )
   (>>=trait/set    ;; useful to change the default value
+    ;; mode-line/kind 'mini
     ;; which-key 'right
     ;; ripgrep 'rg
     ;; fzf t
