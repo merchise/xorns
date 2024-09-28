@@ -217,6 +217,22 @@ default value."
       (or (atom value) (>>=quoted value) (keywordp (nth 1 body))))))
 
 
+(defsubst >>-trait/valid-atomic-value (value)
+  "Return if the argument is a valid atomic VALUE for special operators."
+  (unless (or (booleanp value) (keywordp value) (proper-list-p value))
+    value))
+
+
+(defsubst >>-trait/atomic-list (body)
+  "Return a list of valid atomic values from BODY for special operators."
+  (let (res)
+    (while-let ((value (>>-trait/valid-atomic-value (car body))))
+      (setq
+        res (append res (list value))
+        body (cdr body)))
+    res))
+
+
 (defsubst >>-trait/identifier (base operator value)
   "Get a new identifier from a BASE symbol, an OPERATOR and a VALUE."
   (intern (format "%s%s%s" base operator (>>=identifier value 'unique))))
@@ -358,6 +374,11 @@ See the main module documentation for more information.
       (let* ((op (car pair))
              (value (cdr pair)))
         (setq body (nthcdr 2 body))
+        (when (memq op '(| ^))
+          (when-let ((tail (>>-trait/atomic-list body)))
+            (setq
+              value `'(,value ,@tail)
+              body (nthcdr (length tail) body))))
         (when (and (memq op '(= | ^ :)) (symbolp value))
           (setq aux-name value))
         (if (eq op :)    ;; unary
