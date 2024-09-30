@@ -274,8 +274,20 @@ the function `>>=python/locate-env'.")
   (inferior-python-mode . -inferior-python-setup))
 
 
-(use-package with-venv
-  :ensure t)
+(>>=trait python.venv
+  :entering-mode python
+  (use-package with-venv
+    :ensure t)
+
+  (use-package pipenv
+    :ensure t
+    :preface
+    (declare-function pipenv-projectile-after-switch-extended 'pipenv)
+    :hook
+    (python-mode . pipenv-mode)
+    :custom
+    (pipenv-projectile-after-switch-function
+      #'pipenv-projectile-after-switch-extended)))
 
 
 
