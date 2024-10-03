@@ -216,15 +216,6 @@ default value."
       (>>-trait/error trait "operator '%s' given without a value" op))))
 
 
-(defsubst >>-trait/keyword-pair (trait body)
-  "Return the head keyword/value pair from a TRAIT BODY definition."
-  (when-let ((key (>>=keywordp (car body))))
-    (if (length> body 1)
-      (cons key (nth 1 body))
-      ;; else
-      (>>-trait/error trait "keyword %s given without a value" key))))
-
-
 (defsubst >>-trait/inline-default-value (body)
   "Check for a valid inline default value in BODY."
   (when-let ((value (>>=car body)))
@@ -262,12 +253,46 @@ value is valid or not."
          (>>-trait/error name
            "%s is mutually exclusive with %s" keyword duplicated)))
      ;; else
-     (if-let ((aux ,checker))
-       (setq ,target (cons keyword (>>=unwrap-nil aux)))
+     (if (length> body 1)
+       (let ((value (nth 1 body)))
+         (if-let ((aux ,checker))
+           (setq ,target (cons keyword (>>=unwrap-nil aux)))
+           ;; else
+           (>>-trait/error name
+             "invalid '%s' value for %s keyword, expecting '%s'"
+             value keyword ,type-info)))
        ;; else
-       (>>-trait/error name
-         "invalid '%s' value for %s keyword, expecting '%s'"
-         value keyword ,type-info))))
+       (>>-trait/error name "keyword %s given without a value" keyword))))
+
+
+(defsubst >>-trait/parse-sections (trait body &optional aux-name)
+  "Normalize sections present in a TRAIT BODY definition.
+The optional argument AUX-NAME is not-nil when one of the '=', '|', '^' or ':'
+operators is used for the TRAIT condition with a symbol as the operand value."
+  (when-let ((keyword (>>=keywordp (car body))))
+    (unless (eq keyword :use)
+      (let ((pkg (>>-trait/use-package-symbol (or aux-name trait))))
+        (setq body `(:use ,pkg ,@body)))))
+  (let ((res (list nil)))
+    (dolist (section (>>=split-list :use body) (cdr res))
+      (when (keywordp (car section))
+        (if-let ((pkg (>>=nth 1 section)))
+          (if (>>=real-symbol pkg)
+            (progn
+              (setcar section 'use-package)
+              (setq section (list section)))
+            ;; else
+            (if (eq pkg >>-!wrapped-nil)
+              (progn
+                (setq section (nthcdr 2 section))
+                (unless section
+                  (>>-trait/error trait "empty anonymous section")))
+              ;; else
+              (>>-trait/error trait
+                "section package-name must be a symbol or nil, not %s" pkg)))
+          ;; else
+          (>>-trait/error trait "empty section")))
+      (nconc res section))))
 
 
 (defsubst >>-trait/normalize-mode (value)
@@ -303,23 +328,24 @@ same meaning."
 
 (defmacro >>=trait (name &rest body)
   "Define NAME as a new trait.
-A trait declares a unit of configuration code along with a condition to
-execute it only when enabled.
+Each trait essentially defines one or more configuration sections.  An
+underlying condition determines whether to execute a trait.  You can also
+define when a trait should execute if it is enabled.
 
 Argument NAME must is the identity of the trait.  The name can be
-multi-domain, for example `python.blacken', which allows traits to evaluate
+multi-domain, for example `python.venv', which allows traits to evaluate
 conditions hierarchically: a trait is only enabled when all its super-domains
 are enabled.
 
-BODY can contain several concepts: a DEFAULT-VALUE or a CONDITION, any number
-of [KEYWORD VALUE] pairs, and the actual BODY with the code to execute when
-the trait is enabled.
+BODY can contain several concepts: a DEFAULT VALUE or a CONDITION, any number
+of [KEYWORD VALUE] pairs, and the different sections, each one containing the
+code to be executed when the trait is enabled.
 
 Actually, the VALUE bound to a trait is a special case of a CONDITION (the
 trait is enabled if its value is non-null).  The DEFAULT-VALUE argument has
-the same semantics as the `:default-value' keyword but only atomic values can
-be specified.  An explicit CONDITION is defined by a pair of an OPERATOR and
-an OPERAND (the trait is enabled if OPERAND is true).
+the same semantics as the `:default-value' keyword (see below) but only atomic
+values can be specified.  An explicit CONDITION is defined by a [OPERATOR
+OPERAND] pair (the trait is enabled if the operation is true).
 
 The following binary operators that compare in standard order the value of
 current trait with a given operand are accepted: '=', '<', '<=', '>', and
@@ -327,7 +353,6 @@ current trait with a given operand are accepted: '=', '<', '<=', '>', and
 pattern '>>-trait/is[OPERATOR]', for example see `>>-trait/is='.
 
 There are other binary operators that are more specific than the above:
-
 
 '|'
     The current value of the trait and the operand are considered sets.  It is
@@ -350,13 +375,21 @@ using the symbol `this' to refer to the current value of the trait.  A plain
 name (a symbol) can also be specified meaning that the given trait must be
 enabled.
 
-The following keywords are accepted:
+Normally a trait is used as an extension of `use-package' but can be also used
+as a simple configuration body by only specifying the default section without
+any specific `use-package' definition.
 
-:default-value VALUE
+The supported keyword types are:
+
+- General: can only be specified before the other two types.
+
+  :default-value VALUE
+
     The default value of a trait.  Use the `>>=trait/set' macro to change the
     value of a trait during the Emacs initialization process.
 
-:after-load FILE
+  :after-load FILE
+
     By default, traits are executed immediately after they are defined.  This
     behavior can be changed using this keyword or one of those defined below.
     The trait runs immediately after the FILE is loaded.  The value can be a
@@ -364,16 +397,29 @@ The following keywords are accepted:
     values `emacs' and `init' can be used to run the trait immediately after
     initializing the Emacs session.
 
-:entering-mode SYMBOL
+  :entering-mode SYMBOL
+
     The trait runs when entering a `major-mode' for the first time.
 
-:after-delay NUMBER
+  :after-delay NUMBER
+
     The trait runs after a delay of the specified seconds.
 
-When a trait is used as an extension of `use-package', the package name is the
-last subdomain of the trait name unless one of the '=', '|', '^' or ':'
-operators uses a symbol as an operand, in which case it is used to determine
-the package name.
+- Explicit section definition:
+
+  :use PACKAGE
+
+    The body of a trait can define several sections, each one usually
+    declaring a `use-package' configuration.  This keyword introduces a new
+    section.  If the PACKAGE name is nil, the section will be simple
+    configuration body.
+
+    If the first section does not have this keyword, its kind depends on the
+    context: when a keyword is heading it, a `use-package' declaration is
+    used, otherwise it is a simple configuration block.  For the first case,
+    the package name is inferred from the trait name unless one of the '=',
+    '|', '^' or ':' operators is used for the condition with a symbol as the
+    operand value.
 
 See the main module documentation for more information.
 
@@ -404,31 +450,39 @@ See the main module documentation for more information.
         (setq body (cons :default-value body))))
     ;; parse keywords
     (catch 'done
-      (while-let ((pair (>>-trait/keyword-pair name body)))
-        (let ((keyword (car pair))
-              (value (cdr pair)))
-          (pcase keyword
-            (:default-value
-              (>>-trait/check-keyword condition "not literal boolean t"
-                (unless (eq value t)
-                  (>>=wrap-nil value))))
-            (:after-load
-              (>>-trait/check-keyword trigger "string or symbol"
-                (>>=non-empty-string-or-symbol value)))
-            (:entering-mode
-              (>>-trait/check-keyword trigger "symbol (major-mode)"
-                (when (>>=real-symbol value)
-                  (>>-trait/normalize-mode value))))
-            (:after-delay
-              (>>-trait/check-keyword trigger
-                "number of seconds up to 10 minutes"
-                (when (and (numberp value) (< 0 value 600.001))
-                  value)))
-            (_
-              (let ((pkg (>>-trait/use-package-symbol (or aux-name name))))
-                (setq body `((use-package ,pkg ,@body)))
-                (throw 'done nil)))))
+      (while-let ((keyword (>>=keywordp (car body))))
+        ;; (value (nth 1 body)) for `>>-trait/check-keyword'
+        (pcase keyword
+          (:default-value
+            (>>-trait/check-keyword condition "not literal boolean t"
+              (unless (eq value t)
+                (>>=wrap-nil value))))
+          (:after-load
+            (>>-trait/check-keyword trigger "string or symbol"
+              (>>=non-empty-string-or-symbol value)))
+          (:entering-mode
+            (>>-trait/check-keyword trigger "symbol (major-mode)"
+              (when (>>=real-symbol value)
+                (>>-trait/normalize-mode value))))
+          (:after-delay
+            (>>-trait/check-keyword trigger
+              "number of seconds up to 10 minutes"
+              (when (and (numberp value) (< 0 value 600.001))
+                value)))
+          (_    ;; `:use' or a `use-package' specific keyword
+            (throw 'done nil)))
         (setq body (nthcdr 2 body))))
+    ;; parse sections
+    (when body
+      (if-let ((keyword (>>=keywordp (car body))))
+        (let ((pkg (>>-trait/use-package-symbol (or aux-name name))))
+          (setq body `((use-package ,pkg ,@body)))
+        ;; (unless (eq keyword :use)
+        ;;   (let ((pkg (>>-trait/use-package-symbol (or aux-name name))))
+        ;;     (setq body `(:use ,pkg ,@body))))
+        ;;   ;; else
+        ;;   (setq body `(:use nil ,@body))
+        )))
     ;; Set definitions and generate code
     (let (var-def cond-def code-def)
       (when condition
