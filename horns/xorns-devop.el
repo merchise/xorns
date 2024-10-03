@@ -25,6 +25,7 @@
 
 
 ;;; Docker
+
 (use-package docker
   :when (memq 'docker >>=|devops/features)
   :ensure t
