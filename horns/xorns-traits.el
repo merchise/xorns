@@ -71,9 +71,36 @@
   "String used to format a trait symbol using its name.")
 
 
-(defsubst >>-trait/internal-symbol (trait)
-  "Get the symbol for a TRAIT name."
-  (intern (format >>-!trait/format-string trait)))
+(defsubst >>-trait/internal-symbol (trait &optional suffix)
+  "Get the symbol for a TRAIT name and a number SUFFIX."
+  (let ((symbol (format >>-!trait/format-string trait)))
+    (unless (or (null suffix) (eq suffix 0))
+      (setq symbol (format "%s~%s" symbol suffix)))
+    (intern symbol)))
+
+
+(defun >>-trait/function-identifier (trait)
+  "Internal function to get a unique function identifier for a TRAIT."
+  (unless (boundp '>>-trait/function-counters)
+    (set-default '>>-trait/function-counters (list (cons t 0))))
+  (let* ((counters (symbol-value '>>-trait/function-counters))
+         (counter (assq trait counters)))
+    (if counter
+      (setcdr counter (1+ (cdr counter)))
+      ;; else
+      (setq counter (cons trait 0))
+      (nconc counters (list counter)))
+    (>>-trait/internal-symbol trait (cdr counter))))
+
+
+(defsubst >>-trait/variable-documentation (trait)
+  "Get the documentation string for a TRAIT variable definition."
+  (format "Configuration variable for `%s' trait." trait))
+
+
+(defsubst >>-trait/function-documentation (trait)
+  "Get the documentation string for a TRAIT function definition."
+  (format "Execution body function for `%s' trait ." trait))
 
 
 (defsubst >>-trait/bound-symbol (trait)
@@ -231,11 +258,6 @@ default value."
         res (append res (list value))
         body (cdr body)))
     res))
-
-
-(defsubst >>-trait/identifier (base operator value)
-  "Get a new identifier from a BASE symbol, an OPERATOR and a VALUE."
-  (intern (format "%s%s%s" base operator (>>=identifier value 'unique))))
 
 
 (defmacro >>-trait/check-keyword (target type-info checker)
@@ -419,19 +441,17 @@ See the main module documentation for more information.
                 (throw 'done nil)))))
         (setq body (nthcdr 2 body))))
     ;; Set definitions and generate code
-    (let ((symbol (>>-trait/internal-symbol name))
-          var-def cond-def code-def)
+    (let (var-def cond-def code-def)
       (when condition
         (let ((key (car condition))
               (aux (cdr condition)))
           (if (eq key :default-value)
-            (setq var-def
-              `(defvar ,symbol ,aux
-                 ,(format "Trait `%s' configuration variable." name)))
+            (let ((var-name (>>-trait/internal-symbol name)))
+              (setq var-def
+                `(defvar ,var-name ,aux
+                   ,(>>-trait/variable-documentation name))))
             ;; else
-            (setq
-              symbol (>>-trait/identifier symbol key (or aux-name aux))
-              cond-def `,aux))))
+            (setq cond-def `,aux))))
       (when (and (or trigger cond-def) (not body))
         (>>-trait/error name
           "keyword %s is invalid with empty body" (car trigger)))
@@ -440,25 +460,26 @@ See the main module documentation for more information.
           (if (null trigger)
             body
             ;; else
-            (list
-              `(defun ,symbol ()
-                 ,(format "Trait `%s' function." name)
-                 ,@body)
-              `(declare-function ,symbol nil)  ;; WTF: avoid compiler warning
-              (pcase (car trigger)
-                (:after-load
-                  (let ((file (cdr trigger)))
-                    (if (memq file '(init emacs))
-                      `(if after-init-time
-                         (,symbol)
-                         ;; else
-                         (add-hook 'after-init-hook ',symbol))
-                      ;; else
-                      `(eval-after-load ',file '(,symbol)))))
-                (:entering-mode
-                  `(>>-trait/register-mode ',(cdr trigger) ',symbol))
-                (:after-delay
-                  `(run-with-timer ,(cdr trigger) nil ',symbol)))))))
+            (let ((fun-name (>>-trait/function-identifier name)))
+              (list
+                `(defun ,fun-name ()
+                   ,(>>-trait/function-documentation name)
+                   ,@body)
+                `(declare-function ,fun-name nil)  ;; WTF: compiler warning
+                (pcase (car trigger)
+                  (:after-load
+                    (let ((file (cdr trigger)))
+                      (if (memq file '(init emacs))
+                        `(if after-init-time
+                           (,fun-name)
+                           ;; else
+                           (add-hook 'after-init-hook ',fun-name))
+                        ;; else
+                        `(eval-after-load ',file '(,fun-name)))))
+                  (:entering-mode
+                    `(>>-trait/register-mode ',(cdr trigger) ',fun-name))
+                  (:after-delay
+                    `(run-with-timer ,(cdr trigger) nil ',fun-name))))))))
       (>>=macroexp-progn
         var-def
         (when code-def
