@@ -387,6 +387,12 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
   :ensure t)
 
 
+;; TODO: Migrate this to use traits
+(add-hook 'python-mode-hook
+  (lambda ()
+    (add-hook 'before-save-hook #'lsp-format-buffer nil t)))
+
+
 
 ;;; Debug Adapter Protocol
 

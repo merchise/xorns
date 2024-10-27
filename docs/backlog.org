@@ -29,7 +29,7 @@
   - [ ] [[file:~/work/emacs/xorns/horns/xorns-prog-extra.el::(defvar >>=|programming/extra-features nil][programming/extra-features]].
 - [ ] Create the documentation for the new module ~traits~.
 
-** Fonst and Themes
+** Fonts and Themes
 
 - [ ] Improve font configuration tools.  Use next code as an example:
 
@@ -74,7 +74,6 @@
   #+END_SRC
 
 
-
 * Misc
 
 - [ ] Use manu's configuration file to resolve some configuration issues and
@@ -83,7 +82,9 @@
   <2024-07-01>
 - [ ] Create a framework to register formatters to act before saving in a safe
   way.
-  - [ ] Use =ruff-format= instead of =blacken= to format Python source.
+  - [ ] For Python there is a [[file:~/work/emacs/xorns/horns/xorns-prog.el::(add-hook 'python-mode-hook][temporal hack]] to use ~lsp-format-buffer~
+    function for the ~before-save~ hook.  ~LSP~ must be configured to use
+    =ruff-format= instead of =blacken= to format Python source.
 - [ ] Check [[file:~/work/emacs/xorns/horns/xorns-prog-extra.el::(use-package rescript-mode][ReScript]] configuration.  See [[https://github.com/jjlee/rescript-mode][github repository]] for more
   information.
 - [ ] Upgrade support to Emacs version > 29.1.
