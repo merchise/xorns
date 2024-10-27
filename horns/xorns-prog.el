@@ -277,52 +277,6 @@ the function `>>=python/locate-env'.")
   :ensure t)
 
 
-(>>=trait python.blacken
-  ;; TODO: change this logic.
-  "Python `blacken' is enabled by default when entering `python-mode'.")
-
-
-(use-package blacken
-  ;; TODO: migrate this to use a trait with :entering-mode set to `python-mode'
-  :ensure t
-  :commands blacken-mode blacken-buffer
-  :preface
-  (defun >>=blacken/turn-on ()
-    "Setup `blacken' inner a file in `python-mode'."
-    (interactive)
-    (turn-off-auto-fill)
-    (blacken-mode +1))
-
-  (defun >>=blacken/try-reformat-buffer ()
-    "Reformat current buffer if `blacken-mode' is active."
-    (when (bound-and-true-p blacken-mode)
-      (blacken-buffer init-file-debug)))
-
-  (defun >>-blacken/may-enable-mode ()
-    "Determine whether `blacken' may be enabled."
-    ;; TODO: change this logic, trait `python.blacken' must be defined only
-    ;; if this package is configured.
-    (when (>>=trait? python.blacken)
-      (>>=blacken/turn-on)))
-  :hook
-  (python-mode . >>-blacken/may-enable-mode)
-  (before-save . >>=blacken/try-reformat-buffer)
-  :custom
-  (blacken-line-length 'fill)
-  (blacken-only-if-project-is-blackened t))
-
-
-(use-package pipenv
-  :ensure t
-  :preface
-  (declare-function pipenv-projectile-after-switch-extended 'pipenv)
-  :hook
-  (python-mode . pipenv-mode)
-  :custom
-  (pipenv-projectile-after-switch-function
-    #'pipenv-projectile-after-switch-extended))
-
-
 
 ;;; Python terminal
 
