@@ -160,6 +160,7 @@ INITIAL-DIRECTORY (the root directory for search)."
   "l" '>>=counsel-locate
   "r" '>>=rg-project
   "z" 'counsel-fzf
+  "C-z" 'counsel-buffer-or-recentf
   "Z" '>>=fzf)
 
 (keymap-global-set >>=|search/main-map-key >>=search/main-map)
