@@ -70,6 +70,15 @@
 
 
 
+;;; Opposite of fill-paragraph
+
+(>>=trait unfill
+  :ensure t
+  :bind
+  ([remap fill-paragraph] . unfill-toggle))
+
+
+
 ;;; multiple-cursors
 
 (>>=trait/check-obsolete >>=|ext/multiple-cursors multiple-cursors "0.11.5")

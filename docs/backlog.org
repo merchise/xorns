@@ -123,6 +123,8 @@
   Emacs Lisp track]]".
 - [ ] Configure debugging tools, mainly for Python.  Current options are not
   working properly.
+- [ ] Extend the =unfill= package so that its functionality can also be
+  used to Emacs Lisp files.
 
 * Improve EXWM
 
