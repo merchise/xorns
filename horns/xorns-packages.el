@@ -25,10 +25,14 @@
 
 
 (setq package-archives
-  `(("melpa" . "https://melpa.org/packages/")
+  '(("melpa" . "https://melpa.org/packages/")
     ("org" . "https://orgmode.org/elpa/")
-    ("gnu" . ,(format "http%s://elpa.gnu.org/packages/"
-                (if (gnutls-available-p) "s" "")))))
+    ("gnu" . "https://elpa.gnu.org/packages/")))
+
+
+(package-initialize)
+(unless package-archive-contents
+  (package-refresh-contents))
 
 
 (defun >>=package/ensure (package)
