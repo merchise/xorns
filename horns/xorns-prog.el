@@ -397,6 +397,14 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
 
 ;;; Debug Adapter Protocol
 
+(progn
+  (eval-and-compile
+    (require 'package-vc))
+  (unless (package-installed-p 'realgud)
+    (package-vc-install "https://github.com/realgud/realgud"))
+  (setopt realgud-window-split-orientation 'horizontal))
+
+
 (>>=trait/check-obsolete >>=|dap/enable dap-mode "0.11.5")
 (>>=trait dap-mode
   :ensure t
@@ -455,9 +463,10 @@ function.  Value t is translated to use `>>-lsp-buffer?' function.")
        ("de" "Edit debug template" dap-debug-edit-template)]]
     (interactive)
     (transient-setup '>>=dap/menu))
-  :bind
-  (:map dap-mode-map
-    ("C-s-d" . >>=dap/menu))
+  ;;; TODO: check ->
+  ;; :bind
+  ;; (:map dap-mode-map
+  ;;   ("C-s-d" . >>=dap/menu))
   :config
   (use-package dap-lldb)
   (use-package dap-python
