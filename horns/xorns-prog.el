@@ -134,6 +134,7 @@ variable documentation."
   '(
      "venv"
      ".venv"
+     ("uv.lock")
      ("poetry.lock" "poetry" "env" "info" "-p")
      ("Pipfile.lock" "pipenv" "--venv")
      (".python-version" "pyenv" "prefix")   ;; TODO [manu]: Clashes with rye
