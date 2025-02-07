@@ -174,7 +174,7 @@ only evaluated once per session.")
   "Match if COMMAND has a associated workspace."
   (cdr
     (assoc
-      (>>=command/get-name command)
+      command
       (>>-exwm/command-to-workspace-mapping)
       'string-match-p)))
 
