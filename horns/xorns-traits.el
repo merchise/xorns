@@ -67,30 +67,24 @@
   (require 'xorns-tools))
 
 
-(defconst >>-!trait/format-string ">>-|%s"
-  "String used to format a trait symbol using its name.")
+(defsubst >>-trait/symbol-name (trait)
+  "Return the canonical symbol for a TRAIT."
+  (format ">>-|%s" trait))
 
 
-(defsubst >>-trait/internal-symbol (trait &optional suffix)
-  "Get the symbol for a TRAIT name and a number SUFFIX."
-  (let ((symbol (format >>-!trait/format-string trait)))
-    (unless (or (null suffix) (eq suffix 0))
-      (setq symbol (format "%s~%s" symbol suffix)))
-    (intern symbol)))
+(defsubst >>-trait/intern (trait)
+  "Return the canonical symbol for a TRAIT."
+  (intern (>>-trait/symbol-name trait)))
 
 
-(defun >>-trait/function-identifier (trait)
+(defsubst >>-trait/intern-soft (trait)
+  "Return the canonical symbol for a TRAIT, or nil if none exists."
+  (intern-soft (>>-trait/symbol-name trait)))
+
+
+(defsubst >>-trait/new-function-identifier (trait)
   "Internal function to get a unique function identifier for a TRAIT."
-  (unless (boundp '>>-trait/function-counters)
-    (set-default '>>-trait/function-counters (list (cons t 0))))
-  (let* ((counters (symbol-value '>>-trait/function-counters))
-         (counter (assq trait counters)))
-    (if counter
-      (setcdr counter (1+ (cdr counter)))
-      ;; else
-      (setq counter (cons trait 0))
-      (nconc counters (list counter)))
-    (>>-trait/internal-symbol trait (cdr counter))))
+  (>>=new-symbol (>>-trait/symbol-name trait)))
 
 
 (defsubst >>-trait/variable-documentation (trait)
@@ -103,15 +97,10 @@
   (format "Execution body function for `%s' trait ." trait))
 
 
-(defsubst >>-trait/bound-symbol (trait)
-  "Get the symbol for a TRAIT name, or nil if undefined."
-  (intern-soft (format >>-!trait/format-string trait)))
-
-
 (defsubst >>-trait/safe-symbol (trait)
   "Get the symbol for a TRAIT name checking that it is a symbol."
   (if (>>=real-symbol trait)
-    (>>-trait/internal-symbol trait)
+    (>>-trait/intern trait)
     ;; else
     (error ">>= wrong trait value '%s', must be a symbol" trait)))
 
@@ -123,7 +112,7 @@
 
 (defun >>-trait/get-value-sexp (trait)
   "Internal function to get the expression of a TRAIT atomic value."
-  (let ((var (>>-trait/internal-symbol trait)))
+  (let ((var (>>-trait/intern trait)))
     `(if (boundp (quote ,var)) ,var t)))
 
 
@@ -140,7 +129,7 @@ Not defined traits are enabled by default."
 
 (defmacro >>=trait/bound (trait)
   "Return the value of a TRAIT if it is defined, else nil."
-  `(bound-and-true-p ,(>>-trait/internal-symbol trait)))
+  `(bound-and-true-p ,(>>-trait/intern trait)))
 
 
 (defmacro >>=trait/set (&rest pairs)
@@ -308,7 +297,7 @@ value is valid or not."
 This uses `>>=check-obsolete-variable' internally, the WHEN argument has the
 same meaning."
   (let ((info (format "trait `%s'" trait))
-        (symbol (>>-trait/internal-symbol trait)))
+        (symbol (>>-trait/intern trait)))
     `(>>=check-obsolete-variable ,obsolete ,symbol ,when ,info)))
 
 
@@ -407,7 +396,7 @@ See the main module documentation for more information.
           (when (symbolp value)
             (setq value `(>>=trait? ,value)))
           ;; else        ;; binary
-          (let ((fn (>>=function-intern ">>-trait/is%s" op)))
+          (if-let ((fn (>>=function/search ">>-trait/is%s" op)))
             (setq value `(,fn this ,(if (symbolp value) `',value value)))))
         (setq condition (cons op value)))
       ;; else
@@ -446,7 +435,7 @@ See the main module documentation for more information.
         (let ((key (car condition))
               (aux (cdr condition)))
           (if (eq key :default-value)
-            (let ((var-name (>>-trait/internal-symbol name)))
+            (let ((var-name (>>-trait/intern name)))
               (setq var-def
                 `(defvar ,var-name ,aux
                    ,(>>-trait/variable-documentation name))))
@@ -460,7 +449,7 @@ See the main module documentation for more information.
           (if (null trigger)
             body
             ;; else
-            (let ((fun-name (>>-trait/function-identifier name)))
+            (let ((fun-name (>>-trait/new-function-identifier name)))
               (list
                 `(defun ,fun-name ()
                    ,(>>-trait/function-documentation name)
