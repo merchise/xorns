@@ -130,16 +130,16 @@ With a `\\[universal-argument]' prefix argument, it will prompt for the
 INITIAL-DIRECTORY (the root directory for search)."
     (interactive
       (list (when current-prefix-arg (>>=read-initial-directory "FZF"))))
-    (let ((default-directory (or initial-directory default-directory))
-          (vcs >>=|fzf/vc-names)
-          res)
-      (while (and (not res) vcs)
-        (let ((fn (>>=check-function (format "fzf-%s-files" (pop vcs)))))
-          (condition-case nil
-            (let ((aux (funcall fn)))
-              (setq res (or aux t)))
-            (error nil)))
-        (or res (fzf)))))
+    (let ((default-directory (or initial-directory default-directory)))
+      (or
+        (catch 'done
+          (dolist (vc >>=|fzf/vc-names)
+            (let ((fn (>>=function/ensure (format "fzf-%s-files" vc))))
+              (condition-case nil
+                (throw 'done (or (funcall fn) t))
+                ;; handlers
+                (error nil)))))
+        (fzf))))
   :bind
    ("C-c z" . >>=fzf)
   :config
