@@ -1240,9 +1240,8 @@ value will combine both logics."
 
 ;;; files and directories
 
-(defconst >>=!path/separator
-  "Character used by the operating system to separate pathname components."
-  (substring (file-name-as-directory "x") 1))
+(defconst >>=!path/separator (substring (file-name-as-directory "x") 1)
+  "Character used by the operating system to separate pathname components.")
 
 
 (defun >>=path/join (&rest parts)

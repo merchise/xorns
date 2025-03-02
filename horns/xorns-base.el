@@ -273,7 +273,7 @@ to configure for yourself: see `save-buffer' function for more information.")
 
 (when >>=|package/column-width
   (defun >>-package-refresh-contents (&optional _async)
-    "Wide the 'Package' column."
+    "Wide the \"Package\" column."
     (interactive)
     (when (eq major-mode 'package-menu-mode)
       (let ((pkg-col (elt tabulated-list-format 0)))

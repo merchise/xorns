@@ -297,19 +297,33 @@ the function `>>=python/locate-env'.")
   "Try using IPython as a terminal if it is installed.")
 
 
-(if (and >>=|python/use-ipython-as-terminal (executable-find "ipython"))
-  (>>=term/define >>=python-term
-    :program "ipython"
-    :buffer-name "*PYTHON*"
-    :modes 'python-mode
-    :paster "%paste"
-    )
-  ;; else
-  (>>=term/define >>=python-term
-    :program "python"
-    :buffer-name "*PYTHON*"
-    :modes 'python-mode))
+(defsubst >>-python/use-ipython-terminal ()
+  "Return if IPython can be used as the Python terminal."
+  (and >>=|python/use-ipython-as-terminal (executable-find "ipython")))
 
+
+(condition-case err
+  (if (>>-python/use-ipython-terminal)
+    (>>=term/define >>=python-term
+      :program "ipython"
+      :buffer-name "*PYTHON*"
+      :modes 'python-mode
+      :paster "%paste"
+      )
+    ;; else
+    (>>=term/define >>=python-term
+      :program "python"
+      :buffer-name "*PYTHON*"
+      :modes 'python-mode))
+  (error
+    (let ((program (if (>>-python/use-ipython-terminal) "ipython" "python")))
+      (defun >>=python-term ()
+        "Python term path."
+        (interactive)
+        (ansi-term program "*PYTHON*")))
+      (warn
+        ">>= error defining main terminal: %s"
+        (error-message-string err))))
 
 
 ;;; Language Server Protocol

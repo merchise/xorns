@@ -138,14 +138,14 @@ Could be `>>=term/ansi' (the default) or `>>=term/vt' (the recommended).")
 
 ;; TODO: https://github.com/howardabrams/dot-files/blob/master/emacs-eshell.org
 (use-package eshell
-  :defines eshell-visual-commands eshell-prompt-regexp
+  :defines eshell-visual-commands
   :functions eshell-cmpl-initialize
   :commands eshell eshell-command
   :init
   (defun >>-eshell/delete-char-or-quit (arg)
     (interactive "p")
     ;; TODO: check using not nil value for `limit' in `looking-back'
-    (if (and (eolp) (looking-back eshell-prompt-regexp nil))
+    (if (and (eolp) (= (line-beginning-position) (point)))
       (progn
         (eshell-life-is-too-much)
         (ignore-errors    ; TODO: use `kill-buffer-and-window'
@@ -355,7 +355,7 @@ Could be `>>=term/ansi' (the default) or `>>=term/vt' (the recommended).")
     (signal 'missing-instance (list :buffer-name (buffer-name buffer)))))
 
 
-(defmethod make-instance
+(defmethod make-instance :around
   ((_ (subclass >>=term/settings)) &rest slots)
   "Create a terminal settings instance using SLOTS arguments.
 Do not use this method directly, use `>>=term/define' macro instead."
@@ -375,7 +375,7 @@ Do not use this method directly, use `>>=term/define' macro instead."
     res))
 
 
-(defmethod make-instance
+(defmethod make-instance :around
   ((class (subclass >>=term/emulator)) settings &optional prefix)
   "Create a terminal emulator instance.
 Instance is built based on the emulator CLASS, a SETTINGS definition, and an
@@ -678,7 +678,12 @@ slots defined in `>>=term/settins'.  The defined command is a wrapper around
 
 ;;; Define terminal settings
 
-(>>=term/define >>=main-term)
+(condition-case err
+  (>>=term/define >>=main-term)
+  ;; handler
+  (error
+    (defalias '>>=main-term 'ansi-term)
+    (warn ">>= error defining main terminal: %s" (error-message-string err))))
 
 
 (defun >>=term/paste-to-main (&optional prefix)

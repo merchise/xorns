@@ -133,7 +133,7 @@ INITIAL-DIRECTORY (the root directory for search)."
                 (error nil)))))
         (fzf))))
   :bind
-   ("C-c z" . >>=fzf)
+  ("C-c z" . >>=fzf)
   :config
   (add-to-list '>>=|term/kill-exclude-buffers "^\\*fzf"))
 

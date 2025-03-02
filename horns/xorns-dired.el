@@ -316,19 +316,20 @@ typed `i' on `..')."
           '("F" "b"))))))
 
 
-(defadvice dired-replace-in-string
-  (around >>-dired-replace-in-string (regexp newtext string) activate)
-  "Fix one character switch replace."
-  (let ((org regexp) (res string))
-    (when (and (eq (string-width regexp) 1) (string-equal newtext ""))
-      (setq regexp (format " ?\\_<-%s\\_>" regexp))
-      (setq res ad-do-it))
-    (if (string-equal res string)
-      (progn
-        (setq regexp org)
-        ad-do-it)
-      ;; else
-      res)))
+;;; TODO: Check this, `dired-replace-in-string' is obsolete
+;; (defadvice dired-replace-in-string
+;;   (around >>-dired-replace-in-string (regexp newtext string) activate)
+;;   "Fix one character switch replace."
+;;   (let ((org regexp) (res string))
+;;     (when (and (eq (string-width regexp) 1) (string-equal newtext ""))
+;;       (setq regexp (format " ?\\_<-%s\\_>" regexp))
+;;       (setq res ad-do-it))
+;;     (if (string-equal res string)
+;;       (progn
+;;         (setq regexp org)
+;;         ad-do-it)
+;;       ;; else
+;;       res)))
 
 
 (provide 'xorns-dired)

@@ -528,7 +528,7 @@ optional argument."
   (let ((map (make-sparse-keymap)))
     (keymap-set map "<mode-line> <mouse-1>" 'exwm-workspace-switch)
     (setq global-mode-string
-      (nconc
+      (append
         '(" ")
         global-mode-string
         `(""
