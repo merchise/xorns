@@ -121,7 +121,8 @@
   - https://github.com/xenodium/chatgpt-shell - also in ELPA
 - [ ] Create "[[https://www.emacswiki.org/emacs/UnitTesting][Unit Testing]]" modules.  See also the article "[[https://exercism.org/docs/tracks/elisp/tests][Testing on the
   Emacs Lisp track]]".
-
+- [ ] Configure debugging tools, mainly for Python.  Current options are not
+  working properly.
 
 * Improve EXWM
 
