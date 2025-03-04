@@ -1,0 +1,18 @@
+#+TITLE: Changes in release 0.11.3
+
+* Misc
+
+- =which-key= WK is integrated into Emacs 30.1, you can now delete that
+  package from ELPA.
+
+- Improve =tools= module: create a macro to check the type of a value, remove
+  useless definitions, manipulation of variables, and functions related to
+  error or warning issues.
+
+- Improve =EXWM= module: fix keyboard shortcuts, fix obsolete function, rename
+  some commands, advice 'save-buffer' command in =exwm-mode=, set
+  'display-time' variables when the module is loaded, ...
+
+- Improve some basic configurations.
+
+- Update 'authors' meta-data in all modules.
