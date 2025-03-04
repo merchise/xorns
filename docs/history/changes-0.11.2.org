@@ -1,0 +1,16 @@
+#+TITLE: Changes in release 0.11.2
+
+* Misc
+
+- Improve or refactor some modules: 'tools', 'dired', 'EXWM', 'system', ...
+- Fix or remove some warnings and minor issues.
+- Change some configurations for some programming traits.
+  - Remove 'python.blacken'.
+  - Configure Python buffers format on save file.
+  - Add "uv.lock" to Python virtual environment locators.
+- Add some key-shortcuts to improve user experience.
+- Add task to reconfigure debugging tools.
+- Install and configure 'unfill' package.
+- Improve and refactor the 'traits' module.
+- Prepare support for multi-section traits (feature pending for next release).
+- Fix errors detected when compiling after installing Emacs 30.
