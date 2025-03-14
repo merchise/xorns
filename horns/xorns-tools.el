@@ -269,6 +269,36 @@ functions that should return values ​​to signal that a result is valid.  See
 function `>>=car-safe' as an example.")
 
 
+(defconst >>-!type-aliases '((int . integer) (str . string) (bool . boolean))
+  "Type aliases to be applied in the `>>=as' macro.")
+
+
+(defsubst >>=real-symbol (value)
+  "Return if VALUE is a real symbol (not including a boolean)."
+  (and (symbolp value) (not (eq value t)) value))
+
+
+(defmacro >>=as (type value)
+  "Return VALUE if it is of the given TYPE, nil otherwise.
+Boolean values ​​are not considered symbols for this macro.  Also, checking
+whether nil is a boolean is ambiguous.  For these reasons, it is not
+recommended to use this macro to check boolean values."
+  (when-let ((alias (cdr (assoc type >>-!type-aliases))))
+    (setq type alias))
+  (setq type
+    (if (eq type 'symbol)
+      '>>=real-symbol
+      ;; else
+      (intern-soft (format "%sp" type))))
+  (if (macroexp-const-p value)
+    (when (funcall type value)
+      (or value '>>-!wrapped-nil))
+    ;; else
+    `(let ((this ,value))
+       (if (,type this)
+         this))))
+
+
 (defsubst >>=keywordp (value)
   "Return VALUE if it is a keyword."
   (if (keywordp value)
@@ -279,11 +309,6 @@ function `>>=car-safe' as an example.")
   "Return VALUE if it is a string."
   (if (stringp value)
     value))
-
-
-(defsubst >>=real-symbol (value)
-  "Return if VALUE is a real symbol (not including a boolean)."
-  (and (symbolp value) (not (eq value t)) value))
 
 
 (defsubst >>=string-or-symbol (value)
