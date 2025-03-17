@@ -28,28 +28,24 @@
 (require 'project)
 
 
-;;; general
+
+;;; messages, warnings, and errors
 
-(defsubst >>-xorns/prefix-message (string)
-  "Prefix the given STRING with the xorns symbol '>>='."
-  (concat ">>= " string))
-
-
-(defun >>=warn (message &rest objects)
+(defsubst >>=warn (message &rest objects)
   "Display a warning MESSAGE using the OBJECTS argument to format it."
   (display-warning 'xorns (apply #'format-message message objects)))
 
 
-(defun >>=error (message &rest objects)
+(defsubst >>=error (message &rest objects)
   "Signal an `error', making a MESSAGE by formatting OBJECTS."
-  (apply 'error (>>-xorns/prefix-message message) objects))
+  (apply 'error (concat ">>= " message) objects))
 
 
 (defsubst >>=message (format-string &rest arguments)
   "Display a message at the bottom of the screen.
 Similar to standard function `message' but prefixing the FORMAT-STRING with
 '>>= '.  Extra ARGUMENTS can also be used."
-  (apply 'message (>>-xorns/prefix-message format-string) arguments))
+  (apply 'message (concat ">>= " format-string) arguments))
 
 
 (defsubst >>=on-debug-message (format-string &rest args)
@@ -65,6 +61,28 @@ ARGS."
   (>>=message
     (concat "error" (if place (format " on '%s'" place) "") ": %s")
     (error-message-string error)))
+
+
+(defmacro >>=progn (&optional header &rest body)
+  "Extended version of `progn' special form.
+Safely evaluate BODY forms sequentially and return the value of the last one.
+An error is managed as a message.  If HEADER is a string, a message is logged
+when `init-file-debug' is non-nil, or in case of error, to report the identity
+of the enclosed body."
+  (when header
+    (if (cl-typep header 'string)
+      (setq body (cons `(>>=on-debug-message ,header) body))
+      ;; else
+      (setq
+        body (cons header body)
+        header nil)))
+  (when body
+    `(condition-case err
+       ,(macroexp-progn body)
+       (error
+         (>>=error-message err ,header)
+         (when init-file-debug
+           (signal (car err) (cdr err)))))))
 
 
 ;; TODO: set-default-toplevel-value
@@ -570,24 +588,6 @@ see the function `>>=key/counter'."
 ;;; functions and form evaluation
 
 (define-error '>>=quit ">>= xorns quit" 'quit)
-
-
-(defmacro >>=progn (&rest body)
-  "Extended version of `progn' special form.
-Safely evaluate BODY forms sequentially and return the value of the last one.
-An error is managed as a message.  If the first form of the body is a symbol
-or a string, a message is logged when `init-file-debug' is non-nil, or in case
-of error, to report the identity of the enclosed body."
-  (when body
-    (let ((header (>>=non-empty-string (car body))))
-      (when header
-        (setcar body `(>>=on-debug-message ,header)))
-      `(condition-case err
-         ,(macroexp-progn body)
-         (error
-           (>>=error-message err ,header)
-           (when init-file-debug
-             (signal (car err) (cdr err))))))))
 
 
 (defun >>=macroexp-progn (&rest exps)
