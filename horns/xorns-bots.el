@@ -29,12 +29,6 @@
   "Package directory.")
 
 
-(defvar >>-!sketch-file-name
-  (>>=path/join
-    >>=|preferred-default-directory "sketch" "emacs" "xorns-sketch")
-  "Name for sketch file.")
-
-
 (defvar >>=|bots/activation-key "<C-s-backspace>"
   "Key-binding to use with `>>=bots/menu'.")
 
@@ -155,13 +149,11 @@ If BASE argument is non-nil, open project directory instead."
 (defun >>=bots/open-sketch ()
   "Switch to my sketch buffer."
   (interactive)
-  (let ((buf (find-file-noselect >>-!sketch-file-name)))
-    (unless (eq (>>=buffer-major-mode buf) 'lisp-interaction-mode)
-      (>>=warn
-        "'%s' is not in `lisp-interaction-mode', copied from '%s'"
-        >>-!sketch-file-name
-        "horns/templates/xorns-sketch"))
-    (pop-to-buffer-same-window buf)))
+  (pop-to-buffer-same-window
+    (find-file-noselect
+      (>>=path/join
+        >>=|preferred-default-directory
+        "sketch" "emacs" "xorns-sketch.el"))))
 
 
 (defun >>=bots/git-pull ()
@@ -179,11 +171,10 @@ repository."
 (defun >>=bots/remove-compiled ()
   "Remove `.elc' compiled files in `xorns' standalone directory."
   (interactive)
-  (mapc
-    (lambda (file)
-      (when (string-equal (>>=suffix file 4) ".elc")
-        (delete-file (>>=path/join >>-!lib-dir file) 'trash)))
-    (directory-files >>-!lib-dir)))
+  (when >>-!lib-dir
+    (dolist (file (directory-files >>-!lib-dir 'full "\\.elc\\'" 'nosort))
+      (when (file-regular-p file)
+        (delete-file file)))))
 
 
 (defun >>=bots/byte-recompile (&optional force)
