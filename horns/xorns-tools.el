@@ -85,22 +85,17 @@ of the enclosed body."
            (signal (car err) (cdr err)))))))
 
 
-;; TODO: set-default-toplevel-value
+
+;; variable values
+
 (defun >>=set (symbol value)
   "Set SYMBOL to the given VALUE.
 Similar to `set' but calling `custom-load-symbol' if needed."
-  ;; TODO: Check `setopt' macro in module "cus-edit.el"
-  (unless
-    (or
-      (get symbol 'standard-value)
-      (car (memq (get symbol 'custom-autoload) '(nil noset))))
-    (custom-load-symbol symbol))
-  (set symbol value))
-
-
-(defmacro >>=get-standard-value (symbol)
-  "Return standard value of SYMBOL or nil if that is void."
-  `(ignore-errors (eval (car (get ',symbol 'standard-value)))))
+  (if (custom-variable-p symbol)
+    (setopt symbol value)
+    ;; else
+    (set symbol value)))
+(make-obsolete '>>=set "Use `setq' or `setopt'" "0.11.5")
 
 
 (defmacro >>=get-original-value (symbol)    ; TODO: check this
@@ -112,31 +107,25 @@ Similar to `set' but calling `custom-load-symbol' if needed."
 
 
 (defmacro >>=restore-original-value (symbol)    ; TODO: check this
-  "Restore SYMBOL's original value."
+  "Restore original value of SYMBOL."
   `(setq ,symbol (>>=get-original-value ,symbol)))
 
 
 (defsubst >>=customized? (symbol)
-  "Return t if SYMBOL is already customized.
-Same protocol as `boundp', but not the same as the `custom-variable-p'
-function."
+  "Return non-nil if the variable SYMBOL has been already customized.
+Determines whether the original value, the one set in the variable's
+definition, has been changed.  The result of this function is only meaningful
+if SYMBOL is a custom variable (see `custom-variable-p')."
   (or
     (get symbol 'customized-value)
     (get symbol 'saved-value)))
 
 
-(defun >>=customized-value (symbol)
-  "Return customized value of SYMBOL."
-  (when-let ((def (>>=customized? symbol)))
-    (car def)))
-
-
-;; TODO: Check `setopt' macro in module "cus-edit.el"
 (defmacro >>=set-custom-value? (symbol value)
   "Set SYMBOL to VALUE if not already customized."
   (declare (debug setq))
   `(unless (>>=customized? ',symbol)
-     (customize-set-variable ',symbol ,value)))
+     (customize-set-variable ',symbol ,value)))    ;; `setopt'?
 
 
 (defsubst >>=init-time ()
