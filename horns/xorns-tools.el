@@ -127,13 +127,6 @@ if SYMBOL is a custom variable (see `custom-variable-p')."
      (customize-set-variable ',symbol ,value)))    ;; `setopt'?
 
 
-
-(defsubst >>=load (file)
-  "Load a FILE silently except if in debug mode."
-  (let ((silent (not init-file-debug)))
-    (load file silent silent)))
-
-
 
 ;;; object oriented programming
 

@@ -95,6 +95,13 @@ See `>>=set-font' function for details about allowed values.")
 
 ;;; custom user options
 
+(define-obsolete-function-alias '>>=load '>>-load "0.11.5")
+(defsubst >>-load (file)
+  "Load a FILE silently except if in debug mode."
+  (let ((silent (not init-file-debug)))
+    (load file silent silent)))
+
+
 (defun >>-config/settle-warning-minimum-level ()
   "Settle `warning-minimum-level' to `:error' if not in debug mode."
   (require 'warnings)
@@ -177,7 +184,7 @@ Only return the name if the file is readable."
   "This function is executed when entering a `text-mode' or a `prog-mode'."
   (when-let ((name (>>-config/mode-file)))
     (when (>>-config/check-major-mode-load)
-      (>>=load name)
+      (>>-load name)
       (>>=call? (>>-config/major-mode-load-function)))
     (>>=call? (>>-config/major-mode-visit-file-function))))
 
@@ -413,11 +420,11 @@ of targets valid for `set-fontset-font', or a sequence of such forms."
   (>>-config/settle-location)
   (let ((user-file (>>-config/user-file)))
     (when user-file
-      (>>=load user-file)
+      (>>-load user-file)
       (->? >>=settings/init)
       (>>=font/configure))
     (when (file-exists-p custom-file)
-      (>>=load custom-file))
+      (>>-load custom-file))
     (unless user-file
       ;; backward compatibility
       (->? >>=settings/init)
