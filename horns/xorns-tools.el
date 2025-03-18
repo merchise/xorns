@@ -20,7 +20,6 @@
 
 ;;; Code:
 
-(require 'subr-x)    ; for `string-trim'
 (eval-and-compile
   (require 'cl-lib)
   (require 'map))
@@ -127,10 +126,6 @@ if SYMBOL is a custom variable (see `custom-variable-p')."
   `(unless (>>=customized? ',symbol)
      (customize-set-variable ',symbol ,value)))    ;; `setopt'?
 
-
-(defsubst >>=init-time ()
-  "Return initialization time in seconds for this session."
-  (float-time (time-subtract after-init-time before-init-time)))
 
 
 (defsubst >>=load (file)
@@ -576,9 +571,6 @@ see the function `>>=key/counter'."
 
 ;;; functions and form evaluation
 
-(define-error '>>=quit ">>= xorns quit" 'quit)
-
-
 (defun >>=macroexp-progn (&rest exps)
   "Return EXPS (a list of expressions) with `progn' prepended.
 Similar to the standard `macroexp-progn' function but EXPS can be passed as
@@ -647,15 +639,6 @@ for that purpose."
       (condition-case nil
         (>>=cast-function (eval (macroexpand value) t))
         (error value)))))
-
-
-(defsubst >>=funcall (function &rest arguments)
-  "Return the value calling FUNCTION passing remaining ARGUMENTS to it."
-  (let ((fn (>>=cast-function function)))
-    (if (>>=real-symbol fn)
-      (eval `(,fn ,@arguments))
-      ;; else
-      (apply fn arguments))))
 
 
 (defsubst >>=function/intern-soft (name)
@@ -1696,8 +1679,6 @@ Similar to `key-binding', but parsing the KEY using `>>=key-parse'."
     (error key)))
 
 
-(define-obsolete-function-alias '>>=normalize-function '>>=function/normalize
-  "0.11.5")
 (defsubst >>=function/normalize (value)
   "Normalize VALUE as a function (useful for for macro expansion)."
   (let ((res (>>=cast-function value)))

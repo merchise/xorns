@@ -16,7 +16,7 @@
 
 ;;; Code:
 
-(eval-and-compile
+(eval-and-compile    ;; TODO: Remove this dependency (`>>=progn' and `->?')
   (require 'xorns-tools))
 
 (require 'xorns-packages)    ; must be loaded first any module using ELPA
@@ -74,7 +74,8 @@ Intended for future use of configuration variables."
     (->? >>=user-code)
     (require 'xorns-gc)    ; Configure GC strategy
     (run-with-timer 1 nil
-      'message ">>= xorns initialized in %.1f seconds." (>>=init-time))))
+      'message
+      (emacs-init-time ">>= xorns initialized in %.1f seconds."))))
 
 
 (when (or (and >>=|enable-server (not noninteractive)) >>=!emacs-as-wm)
