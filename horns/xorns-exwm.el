@@ -489,7 +489,10 @@ optional argument."
       (exwm-systemtray--set-background-color))
     (advice-add 'exwm-systemtray--refresh :after '>>-exwm/systemtray-refresh))
   :config
-  (setq-default display-time-24hr-format t)
+  (setq-default    ;; TODO: check this
+    display-time-24hr-format t
+    display-time-day-and-date t
+    display-time-default-load-average nil)    ; display-time-load-average
   (display-battery-mode +1)
   (display-time-mode +1)
   (advice-add 'exwm-systemtray--init :after '>>-exwm/systemtray--init)
