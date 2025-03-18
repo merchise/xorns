@@ -125,6 +125,7 @@
   working properly.
 - [ ] Extend the =unfill= package so that its functionality can also be
   used to Emacs Lisp files.
+- [ ] Check tools related to [[file:~/work/emacs/xorns/horns/xorns-tools.el::;; variable values][manipulation of variables]] to clean that section.
 
 * Improve EXWM
 
