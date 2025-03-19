@@ -132,15 +132,6 @@ if SYMBOL is a custom variable (see `custom-variable-p')."
 
 
 
-;;; object oriented programming
-
-(defalias 'defgeneric 'cl-defgeneric)
-(defalias 'defmethod 'cl-defmethod)
-(defalias 'typep 'cl-typep)
-(defalias 'instance-of 'cl-typep)
-
-
-
 ;;; comparison of values
 
 (defsubst symbol-or-string-p (value)

@@ -319,11 +319,11 @@ Could be `>>=term/ansi' (the default) or `>>=term/vt' (the recommended).")
   "Base class for `xorns' terminal emulators.")
 
 
-(defgeneric >>-term/create-buffer (emulator &optional name)
+(cl-defgeneric >>-term/create-buffer (emulator &optional name)
   "Create a new terminal EMULATOR buffer.")
 
 
-(defgeneric >>-term/send-string (emulator string)
+(cl-defgeneric >>-term/send-string (emulator string)
   "Send STRING to a terminal EMULATOR shell session.")
 
 
@@ -355,7 +355,7 @@ Could be `>>=term/ansi' (the default) or `>>=term/vt' (the recommended).")
     (signal 'missing-instance (list :buffer-name (buffer-name buffer)))))
 
 
-(defmethod make-instance :around
+(cl-defmethod make-instance :around
   ((_ (subclass >>=term/settings)) &rest slots)
   "Create a terminal settings instance using SLOTS arguments.
 Do not use this method directly, use `>>=term/define' macro instead."
@@ -375,7 +375,7 @@ Do not use this method directly, use `>>=term/define' macro instead."
     res))
 
 
-(defmethod make-instance :around
+(cl-defmethod make-instance :around
   ((class (subclass >>=term/emulator)) settings &optional prefix)
   "Create a terminal emulator instance.
 Instance is built based on the emulator CLASS, a SETTINGS definition, and an
@@ -552,9 +552,9 @@ selected."
             (>>=term/select))
           ((bufferp prefix)
             prefix)
-          ((instance-of prefix '>>=term/emulator)
+          ((cl-typep prefix '>>=term/emulator)
             (oref prefix buffer))
-          ((instance-of prefix '>>=term/settings)
+          ((cl-typep prefix '>>=term/settings)
             (>>=term/launch prefix))
           (t
             (>>=term/launch nil prefix)))))
@@ -565,14 +565,14 @@ selected."
   "Specialization class for `xorns' terminals using `ansi-term'.")
 
 
-(defmethod >>-term/create-buffer
+(cl-defmethod >>-term/create-buffer
   ((_ (subclass >>=term/ansi)) program name)
   "Create an `ansi-term' running PROGRAM and using NAME for the new buffer."
   (save-window-excursion
     (>>=ansi-term program name)))
 
 
-(defmethod >>-term/send-string ((term >>=term/ansi) string)
+(cl-defmethod >>-term/send-string ((term >>=term/ansi) string)
   "Send STRING to an ANSI TERM shell session."
   (with-current-buffer (oref term buffer)
     (term-send-raw-string string)))
@@ -618,7 +618,7 @@ selected."
   ;; avoid warning the function is not known to be defined
   (declare-function >>=term/vt--eieio-childp nil)
 
-  (defmethod >>-term/create-buffer
+  (cl-defmethod >>-term/create-buffer
     ((_ (subclass >>=term/vt)) program name)
     "Create an `vterm' running PROGRAM and using NAME for the new buffer."
     (require 'vterm nil 'noerror)
@@ -628,7 +628,7 @@ selected."
       (save-window-excursion
         (funcall 'vterm name))))
 
-  (defmethod >>-term/send-string ((term >>=term/vt) string)
+  (cl-defmethod >>-term/send-string ((term >>=term/vt) string)
     "Send STRING to a `vterm' TERM shell session."
     (with-current-buffer (oref term buffer)
       (vterm-send-string string))))
