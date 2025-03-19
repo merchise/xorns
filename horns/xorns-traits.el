@@ -2,7 +2,11 @@
 
 ;; Copyright (c) Merchise Autrement [~º/~]
 
-;; Author: Medardo Antonio Rodriguez <med@merchise.org>
+;; Authors:
+
+;;   - Medardo Antonio Rodriguez (https://github.com/med-merchise/)
+
+;;   - Manuel Vázquez Acosta (https://github.com/mvaled)
 
 ;; This file is not part of GNU Emacs.
 

@@ -101,8 +101,6 @@
 - [X] Remove =xorns-mail= module (check =xorns-building-blocks=).
 - [ ] Check =system-packages=, and =use-package-ensure-system-package= for
   =use-package=.
-- [ ] Change =email= from =med@merchise.org= to =med.merchise@gmail.com=, and
-  =date= to =2024=.
 - [ ] Check why =custom-file= is loaded twice in debug mode (module
   =xorns-config=).
 - [ ] Upgrade =xorns= to start using =package-vc= after Emacs v29.
