@@ -613,22 +613,6 @@ Similar to `eval' but returns nil on errors."
     (error nil)))
 
 
-(defun >>=cast-function (value)
-  "Recognize a function in VALUE.
-This function does not check if the result is valid, use `>>=function/ensure'
-for that purpose."
-  (cond
-    ((>>=real-symbol value))
-    ((memq (car-safe value) '(quote function))
-      (>>=cast-function (cadr value)))
-    ((memq (car-safe value) '(lambda closure))
-      value)
-    (t
-      (condition-case nil
-        (>>=cast-function (eval (macroexpand value) t))
-        (error value)))))
-
-
 (defsubst >>=function/intern-soft (name)
   "Convert NAME to a canonical identifier for a function (a symbol).
 The differences from `intern-soft' are that this function also returns nil if
@@ -1667,10 +1651,17 @@ Similar to `key-binding', but parsing the KEY using `>>=key-parse'."
     (error key)))
 
 
-(defsubst >>=function/normalize (value)
+(defun >>=function/normalize (value)
   "Normalize VALUE as a function (useful for for macro expansion)."
-  (let ((res (>>=cast-function value)))
-    (if (>>=real-symbol res) (list 'quote res) res)))
+  (cond
+    ((>>=real-symbol value)
+      (list 'quote value))
+    ((memq (car-safe value) '(quote function lambda closure))
+      value)
+    (t
+      (condition-case nil
+        (>>=function/normalize (eval (macroexpand value) t))
+        (error value)))))
 
 
 (defun >>=bind-global-key (key command)
