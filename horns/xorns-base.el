@@ -100,6 +100,12 @@ to configure for yourself: see `save-buffer' function for more information.")
   (scroll-preserve-screen-position t))
 
 
+(use-package register
+  :no-require t
+  :custom
+  (register-preview-delay 0.5))
+
+
 (use-package mule
   :no-require t
   :defines truncate-string-ellipsis    ; `mule-util' module

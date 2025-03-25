@@ -37,12 +37,10 @@ Always considered true when `>>=|minibuffer/completing-framework' is
 
 
 (use-package savehist
-  :preface
-  (defsubst >>-configure-savehist? ()
-    (or
-      >>=|minibuffer/configure-savehist
-      (eq >>=|minibuffer/completing-framework 'vertico)))
-  :when (>>-configure-savehist?)
+  :when
+  (or
+    >>=|minibuffer/configure-savehist
+    (eq >>=|minibuffer/completing-framework 'vertico))
   :init
   (savehist-mode +1))
 
@@ -209,17 +207,14 @@ Always considered true when `>>=|minibuffer/completing-framework' is
   )
   :hook
   (completion-list-mode . consult-preview-at-point-mode)
-  :init
-  (setq
-    register-preview-delay 0.5
-    register-preview-function #'consult-register-format)
+  :config
+  (declare-function consult--customize-put 'consult)    ; avoid warning
+  (setq register-preview-function #'consult-register-format)
   (advice-add #'register-preview :override #'consult-register-window)
-  (setq
+  (setopt
     ;; use consult to select xref locations with preview
     xref-show-xrefs-function #'consult-xref
     xref-show-definitions-function #'consult-xref)
-  :config
-  (declare-function consult--customize-put 'consult)    ; avoid warning
   (consult-customize
     consult-theme
     :preview-key '(:debounce 0.2 any)
