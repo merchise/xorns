@@ -114,6 +114,7 @@
 - [ ] Check orphan packages.
 - [ ] Define some keys in [[file:~/work/emacs/xorns/horns/xorns-system.el::(use-package treemacs][treemacs]] similar to ~dired~, for example,
   =(keymap-set treemacs-mode-map "+" 'treemacs-create-dir)=.
+- Create a command for recent directories to be used with ~dired~.
 - [ ] Create a module to configure LLM clients.  See the sites:
   - https://github.com/karthink/gptel - it is in ELPA.
   - https://github.com/xenodium/chatgpt-shell - also in ELPA
