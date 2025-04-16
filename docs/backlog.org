@@ -76,6 +76,7 @@
 
 * Misc
 
+- [ ] Open ="*scratch*"= on a new workspace.
 - [ ] Use manu's configuration file to resolve some configuration issues and
   make new definitions.
 - [ ] Remove ~auto-fill-mode~ from ~prog-mode~ derived modes.  SCHEDULED:
@@ -249,6 +250,7 @@ See also:
 
 * Configuring terminals
 
+- [ ] Create different terminals per workspace.
 - [ ] Check package [[https://github.com/justinlime/toggle-term.el][toggle-term]] for quickly toggle persistent term buffers.
 - [ ] The configuration of terminals in module =xorns-term= must be reviewed.
   Even when the configuration of [[file:~/work/emacs/xorns/horns/xorns-term.el::add-hook 'emacs-startup-hook '>>-term/vt-setup)][vterm]] is optional this package is installed
