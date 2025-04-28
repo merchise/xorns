@@ -371,9 +371,17 @@ optional argument."
       (when-let ((window (>>-exwm/get-x-window buffer)))
         (exwm-workspace-switch (window-frame window)))))
 
+  (defun >>-exwm/save-buffer (&optional _)
+    "Before advice to save current buffer."
+    (when (eq major-mode 'exwm-mode)
+      (exwm-input--fake-key
+        (elt (>>=key-parse "C-s") 0))
+      t))
+
   (advice-add '>>=bind-global-key :override '>>-exwm/input-set-key)
   (advice-add 'browse-url :before '>>-exwm/browse-url)
   (advice-add 'switch-to-buffer :before '>>-exwm/switch-to-buffer)
+  (advice-add 'save-buffer :before-until '>>-exwm/save-buffer)
 
   (>>=bind-global-keys
     ;; Like on `i3' window manager.  We use a new command because at this
