@@ -516,14 +516,14 @@ optional argument."
   :demand t
   :functions exwm-workspace-switch >>=exwm/switch-workspace-0
   :preface
-  (defun >>-exwm/ws-switch-left ()
+  (defun >>=exwm/ws-switch-left ()
     "Move to left workspace. "
     (interactive)
     (let ((current (exwm-workspace--position exwm-workspace--current)))
       (exwm-workspace-switch
         (1- (if (> current 0) current (exwm-workspace--count))))))
 
-  (defun >>-exwm/ws-switch-right ()
+  (defun >>=exwm/ws-switch-right ()
     "Move to left workspace. "
     (interactive)
     (let ((current (exwm-workspace--position exwm-workspace--current))
@@ -538,8 +538,8 @@ optional argument."
     "s-." >>=exwm/switch-workspace-0    ; TODO: change this
     "s-`" >>=exwm/switch-workspace-0
     "s-w" exwm-workspace-switch
-    "<C-s-left>" >>-exwm/ws-switch-left
-    "<C-s-right>" >>-exwm/ws-switch-right)
+    "<C-s-left>" >>=exwm/ws-switch-left
+    "<C-s-right>" >>=exwm/ws-switch-right)
   (let ((map (make-sparse-keymap)))
     (keymap-set map "<mode-line> <mouse-1>" 'exwm-workspace-switch)
     (setq global-mode-string
