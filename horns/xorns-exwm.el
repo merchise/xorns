@@ -229,7 +229,7 @@ optional argument."
     (lambda (pair)
       (list
         (cons
-          (car pair)
+          (>>=key-parse (car pair))
           `(lambda () (interactive) (browse-url ,(cdr pair))))))
     >>=|exwm/url-keys))
 
@@ -248,6 +248,8 @@ optional argument."
   :ensure t
   :demand t
   :commands
+  exwm-layout-enlarge-window
+  exwm-reset
   exwm-wm-mode
   :preface
   (defun >>-exwm/class-name ()
@@ -276,64 +278,26 @@ optional argument."
               doc))))
       (number-sequence 0 9)))
 
-  (defun >>-exwm/config ()
-    "Xorns configuration for EXWM (replaces `exwm-config-example')."
-    ;; We don't call `exwm-config-misc' to disable dialog boxes and
-    ;; hourglass pointer here using because in `xorns' this is done in
-    ;; `early-init.el'.  Also, `exwm-config-ido' is not used because we
-    ;; configure IDO, if demanded, in `xorns-minibuffer.el'.
-    (unless (>>=customized? 'exwm-workspace-number)
-      (setq exwm-workspace-number 4))
-    (unless (>>=customized? 'exwm-input-global-keys)
-      (setq exwm-input-global-keys
-        `(([?\s-&] . >>=exwm/start-command)
-           ,@(>>-exwm/switch-to-workspace-functions))))
-    (unless (get 'exwm-input-simulation-keys 'saved-value)
-      (setq exwm-input-simulation-keys
-        '(([?\C-b] . [left])
-           ([?\C-f] . [right])
-           ([?\C-p] . [up])
-           ([?\C-n] . [down])
-           ([?\C-a] . [home])
-           ([?\C-e] . [end])
-           ([?\M-v] . [prior])
-           ([?\C-v] . [next])
-           ([?\C-d] . [delete])
-           ([?\C-k] . [S-end delete]))))
-    (exwm-wm-mode +1))
-  :hook
-  (exwm-update-class . >>-exwm/update-class)
-  :custom
-  (exwm-workspace-warp-cursor t)
-  (exwm-workspace-display-echo-area-timeout 5)
-  (exwm-floating-border-width 3)
-  :config
-  (message ">>= using Emacs as the Desktop Window Manager.")
-  (->? >>=window-manager/init)
-  (>>-exwm/config))
-
-
-(use-package exwm-input
-  :after exwm
-  :demand t
-  :commands
-  exwm-reset
-  exwm-input-set-key
-  exwm-input-send-next-key
-  exwm-workspace-switch-create
-  exwm-input-send-simulation-key
-  exwm-layout-enlarge-window
-  :preface
-  (defun >>-exwm/swap-last-buffers ()
+  (defun >>-exwm/swap-last-buffer ()
     "Switch currently visible buffer by last one."
     ;; TODO: move this to `xorns-window'
     (interactive)
     (switch-to-buffer (other-buffer (current-buffer))))
-  :config
-  (defun >>=exwm/send-last-key ()
-    "Send last key sequence if in `exwm-mode'."
-    (when (eq major-mode 'exwm-mode)
-      (or (exwm-input-send-simulation-key 1) t)))
+
+  (defun >>=exwm/ws-switch-left ()
+    "Move to left workspace. "
+    (interactive)
+    (let ((current (exwm-workspace--position exwm-workspace--current)))
+      (exwm-workspace-switch
+        (1- (if (> current 0) current (exwm-workspace--count))))))
+
+  (defun >>=exwm/ws-switch-right ()
+    "Move to left workspace. "
+    (interactive)
+    (let ((current (exwm-workspace--position exwm-workspace--current))
+          (maxws (1- (exwm-workspace--count))))
+      (exwm-workspace-switch
+        (if (< current maxws) (1+ current) 0))))
 
   (defun >>=exwm/enlarge-window-horizontally (&optional delta)
     "Make the selected window DELTA*50 pixels horizontally narrower."
@@ -355,6 +319,108 @@ optional argument."
     (interactive "p")
     (exwm-layout-enlarge-window (* -50 delta)))
 
+  (defun >>-exwm/config ()
+    "Xorns configuration for EXWM (replaces `exwm-config-example')."
+    ;; We don't call `exwm-config-misc' to disable dialog boxes and
+    ;; hourglass pointer here using because in `xorns' this is done in
+    ;; `early-init.el'.  Also, `exwm-config-ido' is not used because we
+    ;; configure IDO, if demanded, in `xorns-minibuffer.el'.
+    (unless (>>=customized? 'exwm-workspace-number)
+      (setq exwm-workspace-number 4))
+    (unless (>>=customized? 'exwm-input-global-keys)
+      (setq exwm-input-global-keys
+        `(
+           ([?\s-&] . >>=exwm/start-command)
+           ([?\s-.] . >>=exwm/switch-workspace-0)
+           ([?\s-`] . >>=exwm/switch-workspace-0)
+           ([?\s-d] . >>=exwm/start-command)
+           ([?\s-r] . exwm-reset)
+           ([s-tab] . other-frame)
+           ([?\s-w] . exwm-workspace-switch)
+           ;; "s-o" other-window
+           ([?\s-\;] . >>-exwm/swap-last-buffer)
+           ([?\s-}] . >>=exwm/enlarge-window-horizontally)
+           ([?\s-\]] . >>=exwm/enlarge-window-vertically)
+           ([?\s-{] . >>=exwm/shrink-window-horizontally)
+           ([?\s-\[] . >>=exwm/shrink-window-vertically)
+           ([C-s-left] . >>=exwm/ws-switch-left)
+           ([C-s-right] . >>=exwm/ws-switch-right)
+           ,@(>>-exwm/switch-to-workspace-functions)
+           ,@(>>-exwm/create-url-keys)
+           )))
+    (unless (get 'exwm-input-simulation-keys 'saved-value)
+      (setq exwm-input-simulation-keys
+        `(
+           ;; general, movement
+           ([?\C-b] . [left])
+           ([?\M-b] . [C-left])
+           ([?\C-f] . [right])
+           ([?\M-f] . [C-right])
+           ([?\C-\S-b] . [S-left])
+           ([?\M-\S-b] . [C-S-left])
+           ([?\C-\S-f] . [S-right])
+           ([?\M-\S-f] . [C-S-right])
+           ([?\C-p] . [up])
+           ([?\C-n] . [down])
+           ([?\C-a] . [home])
+           ([?\C-e] . [end])
+           ([?\M-v] . [prior])
+           ([?\C-v] . [next])
+           ([?\C-m] . [return])
+           ([?\C-i] . [tab])
+           ([?\C-/] . [?\C-z])
+           ([?\M-<] . [C-home])
+           ([?\M->] . [C-end])
+           ;; cut/paste, selection
+           ([?\C-d] . [delete])
+           ([?\C-D] . [delete])
+           ([?\C-w] . [?\C-x])
+           ([?\C-W] . [?\C-x])
+           ([?\M-w] . [?\C-c])
+           ([?\M-W] . [?\C-c])
+           ([?\C-y] . [?\C-v])
+           ([?\C-Y] . [?\C-v])
+           ([?\M-d] . [C-S-right ?\C-x])
+           ([?\M-D] . [C-S-right ?\C-x])
+           ([?\C-k] . [S-end ?\C-x])
+           ([?\C-K] . [S-end ?\C-x])
+           ([M-backspace] . [C-S-left ?\C-x])
+           ;; search
+           ([?\C-s] . [?\C-f])
+           ([?\C-\S-s] . [?\C-g])
+           ;; escape
+           ([?\C-g] . [escape])
+           ([?\s-q] . [?\C-w])
+           )))
+    (exwm-wm-mode +1))
+  :hook
+  (exwm-update-class . >>-exwm/update-class)
+  :custom
+  (exwm-workspace-warp-cursor t)
+  (exwm-workspace-display-echo-area-timeout 5)
+  (exwm-floating-border-width 3)
+  :config
+  (message ">>= using Emacs as the Desktop Window Manager.")
+  (->? >>=window-manager/init)
+  (>>-exwm/config))
+
+
+(use-package exwm-input
+  :after exwm
+  :demand t
+  :commands
+  exwm-input-set-key
+  exwm-input-send-next-key
+  exwm-workspace-switch-create
+  exwm-input-send-simulation-key
+  :functions
+  exwm-input--fake-key
+  :config
+  (defun >>=exwm/send-last-key ()
+    "Send last key sequence if in `exwm-mode'."
+    (when (eq major-mode 'exwm-mode)
+      (or (exwm-input-send-simulation-key 1) t)))
+
   (defun >>-exwm/input-set-key (key command)
     "Advice for `exwm-input-set-key' to give KEY a global binding as COMMAND."
     (exwm-input-set-key (>>=key-parse key) command))
@@ -375,8 +441,7 @@ optional argument."
   (defun >>-exwm/save-buffer (&optional _)
     "Before advice to save current buffer."
     (when (eq major-mode 'exwm-mode)
-      (exwm-input--fake-key
-        (elt (>>=key-parse "C-s") 0))
+      (exwm-input--fake-key (elt [?\C-s]  0))
       t))
 
   (advice-add '>>=bind-global-key :override '>>-exwm/input-set-key)
@@ -387,18 +452,7 @@ optional argument."
   (>>=bind-global-keys
     ;; Like on `i3' window manager.  We use a new command because at this
     ;; level `(key-binding (kbd "s-&"))' returns nil
-    "s-d" >>=exwm/start-command
-    "s-r" exwm-reset
-    "<s-tab>" other-frame
-    "s-o" other-window
-    "s-;" >>-exwm/swap-last-buffers
-    "s-}" >>=exwm/enlarge-window-horizontally
-    "s-]" >>=exwm/enlarge-window-vertically
-    "s-{" >>=exwm/shrink-window-horizontally
-    "s-[" >>=exwm/shrink-window-vertically
     "C-s-/" browse-url-at-point)
-
-  (eval `(>>=bind-global-keys ,@(>>-exwm/create-url-keys)))
 
   (let* ((suspend-key ?\C-z))
     ;; Prefix key to send next key-press literally to the application.
@@ -408,46 +462,6 @@ optional argument."
       (car (mapcar 'identity (>>=key-parse "M-X"))))
     (keymap-set exwm-mode-map
       (key-description (vector suspend-key)) 'exwm-input-send-next-key))
-  (setq exwm-input-simulation-keys
-    `(
-       ;; general, movement
-       ([?\C-b] . [left])
-       ([?\M-b] . [C-left])
-       ([?\C-f] . [right])
-       ([?\M-f] . [C-right])
-       ([?\C-\S-b] . [S-left])
-       ([?\M-\S-b] . [C-S-left])
-       ([?\C-\S-f] . [S-right])
-       ([?\M-\S-f] . [C-S-right])
-       ([?\C-p] . [up])
-       ([?\C-n] . [down])
-       ([?\C-a] . [home])
-       ([?\C-e] . [end])
-       ([?\M-v] . [prior])
-       ([?\C-v] . [next])
-       ([?\C-m] . [return])
-       ([?\C-i] . [tab])
-       ;; cut/paste, selection
-       ([?\C-d] . [delete])
-       ([?\C-D] . [delete])
-       ([?\C-w] . [?\C-x])
-       ([?\C-W] . [?\C-x])
-       ([?\M-w] . [?\C-c])
-       ([?\M-W] . [?\C-c])
-       ([?\C-y] . [?\C-v])
-       ([?\C-Y] . [?\C-v])
-       ([?\M-d] . [C-S-right ?\C-x])
-       ([?\M-D] . [C-S-right ?\C-x])
-       ([?\C-k] . [S-end ?\C-x])
-       ([?\C-K] . [S-end ?\C-x])
-       ([M-backspace] . [C-S-left ?\C-x])
-       ;; search
-       ([?\C-s] . [?\C-f])
-       ([?\C-\S-s] . [?\C-g])
-       ;; escape
-       ([?\C-g] . [escape])
-       ([?\s-q] . [?\C-w])
-       ))
   (require 'xorns-linux))
 
 
@@ -515,32 +529,12 @@ optional argument."
 (use-package exwm-workspace
   :after exwm
   :demand t
-  :functions exwm-workspace-switch >>=exwm/switch-workspace-0
-  :preface
-  (defun >>=exwm/ws-switch-left ()
-    "Move to left workspace. "
-    (interactive)
-    (let ((current (exwm-workspace--position exwm-workspace--current)))
-      (exwm-workspace-switch
-        (1- (if (> current 0) current (exwm-workspace--count))))))
-
-  (defun >>=exwm/ws-switch-right ()
-    "Move to left workspace. "
-    (interactive)
-    (let ((current (exwm-workspace--position exwm-workspace--current))
-          (maxws (1- (exwm-workspace--count))))
-      (exwm-workspace-switch
-        (if (< current maxws) (1+ current) 0))))
+  :functions
+  exwm-workspace-switch
   :custom
   (exwm-workspace-show-all-buffers t)
   (exwm-layout-show-all-buffers t)
   :config
-  (>>=bind-global-keys
-    "s-." >>=exwm/switch-workspace-0    ; TODO: change this
-    "s-`" >>=exwm/switch-workspace-0
-    "s-w" exwm-workspace-switch
-    "<C-s-left>" >>=exwm/ws-switch-left
-    "<C-s-right>" >>=exwm/ws-switch-right)
   (let ((map (make-sparse-keymap)))
     (keymap-set map "<mode-line> <mouse-1>" 'exwm-workspace-switch)
     (setq global-mode-string
