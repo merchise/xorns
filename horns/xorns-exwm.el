@@ -247,7 +247,8 @@ optional argument."
 (use-package exwm
   :ensure t
   :demand t
-  :commands exwm-enable
+  :commands
+  exwm-wm-mode
   :preface
   (defun >>-exwm/class-name ()
     "Get the class name (WM_CLASS) for a newly created EXWM buffer."
@@ -299,7 +300,7 @@ optional argument."
            ([?\C-v] . [next])
            ([?\C-d] . [delete])
            ([?\C-k] . [S-end delete]))))
-    (exwm-enable))
+    (exwm-wm-mode +1))
   :hook
   (exwm-update-class . >>-exwm/update-class)
   :custom
