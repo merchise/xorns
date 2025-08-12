@@ -90,8 +90,6 @@ variable documentation."
     (when (>>=local-buffer)
       (flyspell-prog-mode))
     (>>=init-text-mode)
-    (when (>>=trait? flycheck)
-      (turn-on-auto-fill))
     (subword-mode))
   :hook
   (prog-mode . >>=init-prog-mode))
