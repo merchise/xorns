@@ -187,97 +187,105 @@ This variable is only used when `dired' functions are adviced, see variable
 
 ;;; Reuse the current dired buffer to visit a directory
 
-(use-package dired-single
-  :ensure t
-  :demand t
-  :functions >>=dired-search-forward >>-dired-omit-ignores-switches
+(use-package dired
+  :custom
+  (dired-kill-when-opening-new-dired-buffer t)
   :bind
   (:map dired-mode-map
-    ("<return>" . dired-single-buffer)
-    ([M-S-down] . dired-single-buffer)
-    ([M-down] . dired-single-buffer)
-    ([M-S-up] . dired-single-up-directory)
-    ([M-up] . dired-single-up-directory)
-    ("^" . dired-single-up-directory)
-    ("M-P" . dired-single-up-directory)
-    ("/" . >>=dired-single-reload)
-    ("r" . >>=dired-insert-recursive-subdir)
-    ("i" . >>=dired-maybe-insert-subdir)
-    ([mouse-1] . dired-single-buffer-mouse)
-    ([mouse-2] . dired-single-buffer-mouse))
-  :config
-  (defun >>=dired-single-reload (&optional arg)
-    "Reload current-directory in the Dired buffer.
-If ARG is non-nil, it will reload the inserted sub-directory where the point
-is located."
-    (interactive "P")
-    (unless (eq major-mode 'dired-mode)
-      (error ">>= this function can only be called in `dired-mode'"))
-    (let ((pos (point))
-          (fname (dired-get-filename 'no-dir 'no-error)))
-      (when (null arg)
-        (goto-char (point-min)))
-      (dired-single-buffer (dired-current-directory))
-      (when (and (not (>>=dired-search-forward fname)) (< pos (point-max)))
-        (goto-char pos))))
+    ("^" . dired-up-directory)
+    ("M-P" . dired-up-directory)))
 
-  (defun >>=dired-insert-recursive-subdir (dirname)
-    "Insert directory DIRNAME into the same buffer using recursive options.
-Very similar to `dired-insert-subdir'."
-    (interactive (list (dired-get-filename)))
-    (dired-insert-subdir dirname
-      (concat
-        (or dired-subdir-switches dired-actual-switches)
-        " -R "
-        (when >>=|dired/omit-mode (>>-dired-omit-ignores-switches))))
-    (>>=dired-omit-mode))
+;; (use-package dired-single
+;;   :ensure nil
+;;   :demand nil
+;;   :functions >>=dired-search-forward >>-dired-omit-ignores-switches
+;;   :bind
+;;   (:map dired-mode-map
+;;     ("<return>" . dired-single-buffer)
+;;     ([M-S-down] . dired-single-buffer)
+;;     ([M-down] . dired-single-buffer)
+;;     ([M-S-up] . dired-single-up-directory)
+;;     ([M-up] . dired-single-up-directory)
+;;     ("^" . dired-single-up-directory)
+;;     ("M-P" . dired-single-up-directory)
+;;     ("/" . >>=dired-single-reload)
+;;     ("r" . >>=dired-insert-recursive-subdir)
+;;     ("i" . >>=dired-maybe-insert-subdir)
+;;     ([mouse-1] . dired-single-buffer-mouse)
+;;     ([mouse-2] . dired-single-buffer-mouse))
+;;   :config
+;;   (defun >>=dired-single-reload (&optional arg)
+;;     "Reload current-directory in the Dired buffer.
+;; If ARG is non-nil, it will reload the inserted sub-directory where the point
+;; is located."
+;;     (interactive "P")
+;;     (unless (eq major-mode 'dired-mode)
+;;       (error ">>= this function can only be called in `dired-mode'"))
+;;     (let ((pos (point))
+;;           (fname (dired-get-filename 'no-dir 'no-error)))
+;;       (when (null arg)
+;;         (goto-char (point-min)))
+;;       (dired-single-buffer (dired-current-directory))
+;;       (when (and (not (>>=dired-search-forward fname)) (< pos (point-max)))
+;;         (goto-char pos))))
 
-  (defun >>=dired-maybe-insert-subdir (dirname &optional switches)
-    "Insert sub-directory DIRNAME into the same Dired buffer.
-If SWITCHES contains recursive flag (see `dired-switches-recursive-p') and
-global variable `>>=|dired/omit-mode' is t, then omit extra patterns will be
-calculated and concatenated.  See `dired-maybe-insert-subdir'."
-    (interactive
-      (list
-        (dired-get-filename)
-        (if current-prefix-arg
-          (read-string "Switches for listing: "
-            (or dired-subdir-switches dired-actual-switches)))))
-    (let ((opoint (point))
-          (dirname (file-name-as-directory dirname)))
-      (when (and >>=|dired/omit-mode (dired-switches-recursive-p switches))
-        (setq switches
-          (concat switches " " (>>-dired-omit-ignores-switches))))
-      (or
-        (and
-          (not switches)
-          (when (dired-goto-subdir dirname)
-            (unless (dired-subdir-hidden-p dirname)
-                (dired-initial-position dirname))
-              t))
-        (dired-insert-subdir dirname switches))
-      (push-mark opoint))
-    (>>=dired-omit-mode))
+;;   (defun >>=dired-insert-recursive-subdir (dirname)
+;;     "Insert directory DIRNAME into the same buffer using recursive options.
+;; Very similar to `dired-insert-subdir'."
+;;     (interactive (list (dired-get-filename)))
+;;     (dired-insert-subdir dirname
+;;       (concat
+;;         (or dired-subdir-switches dired-actual-switches)
+;;         " -R "
+;;         (when >>=|dired/omit-mode (>>-dired-omit-ignores-switches))))
+;;     (>>=dired-omit-mode))
 
-  (defun >>-dired-single-buffer (org-dired-single-buffer &rest args)
-    "Advice function ORG-DIRED-SINGLE-BUFFER (using same ARGS).
-Select source directory item position when navigating up."
-    (interactive)
-    (let ((org (dired-current-directory)))
-      (setq >>-dired/sorted-directories nil)
-      ;; super
-      (apply org-dired-single-buffer args)
-      ;;
-      (let ((dst (dired-current-directory)))
-        (if (string-prefix-p dst org)
-          (let* ((targets (split-string (substring org (length dst)) "/"))
-                 (aux (car targets))
-                 (target (if (string= aux "") (cadr targets) aux)))
-            (goto-char (point-min))
-            (if (null (>>=dired-search-forward target))
-              (dired-next-line 4)))))))
+;;   (defun >>=dired-maybe-insert-subdir (dirname &optional switches)
+;;     "Insert sub-directory DIRNAME into the same Dired buffer.
+;; If SWITCHES contains recursive flag (see `dired-switches-recursive-p') and
+;; global variable `>>=|dired/omit-mode' is t, then omit extra patterns will be
+;; calculated and concatenated.  See `dired-maybe-insert-subdir'."
+;;     (interactive
+;;       (list
+;;         (dired-get-filename)
+;;         (if current-prefix-arg
+;;           (read-string "Switches for listing: "
+;;             (or dired-subdir-switches dired-actual-switches)))))
+;;     (let ((opoint (point))
+;;           (dirname (file-name-as-directory dirname)))
+;;       (when (and >>=|dired/omit-mode (dired-switches-recursive-p switches))
+;;         (setq switches
+;;           (concat switches " " (>>-dired-omit-ignores-switches))))
+;;       (or
+;;         (and
+;;           (not switches)
+;;           (when (dired-goto-subdir dirname)
+;;             (unless (dired-subdir-hidden-p dirname)
+;;                 (dired-initial-position dirname))
+;;               t))
+;;         (dired-insert-subdir dirname switches))
+;;       (push-mark opoint))
+;;     (>>=dired-omit-mode))
 
-  (advice-add 'dired-single-buffer :around '>>-dired-single-buffer))
+;;   (defun >>-dired-single-buffer (org-dired-single-buffer &rest args)
+;;     "Advice function ORG-DIRED-SINGLE-BUFFER (using same ARGS).
+;; Select source directory item position when navigating up."
+;;     (interactive)
+;;     (let ((org (dired-current-directory)))
+;;       (setq >>-dired/sorted-directories nil)
+;;       ;; super
+;;       (apply org-dired-single-buffer args)
+;;       ;;
+;;       (let ((dst (dired-current-directory)))
+;;         (if (string-prefix-p dst org)
+;;           (let* ((targets (split-string (substring org (length dst)) "/"))
+;;                  (aux (car targets))
+;;                  (target (if (string= aux "") (cadr targets) aux)))
+;;             (goto-char (point-min))
+;;             (if (null (>>=dired-search-forward target))
+;;               (dired-next-line 4)))))))
+
+;;   (advice-add 'dired-single-buffer :around '>>-dired-single-buffer))
 
 
 
