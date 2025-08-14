@@ -1,0 +1,9 @@
+#+TITLE: Changes in release 0.11.4
+
+* Minor issues fixed by Manu
+
+- Don't turn =auto-fill= in prog module.
+
+- Remove configuration of =dired-single= package.
+
+- Don't auto-format in `before-save-hook' for =python-mode=.
