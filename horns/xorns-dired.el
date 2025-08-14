@@ -9,8 +9,7 @@
 
 ;; Configure and extend all `dired' dependencies in Merchise way.
 ;;
-;; `dired-single' is improved by moving point to last folder when navigating
-;; up.
+;; `dired' is improved by moving point to last folder when navigating up.
 ;;
 ;; `dired-omit-mode' use a more consistent method by hiding only files and
 ;; folders starting with a dot ("."); a initial state can be configured
